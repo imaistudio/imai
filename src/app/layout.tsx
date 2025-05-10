@@ -1,18 +1,21 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-// Import Space Grotesk with a CSS variable
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"], // optional: include weights you use
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "IMAI",
   description: "Generate Newness",
+  other: {
+    "apple-mobile-web-app-title": "IMAI",
+  },
 };
 
 export default function RootLayout({
@@ -22,6 +25,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Add these manually since Next.js doesn't allow all in metadata */}
+        <link rel="icon" type="image/png" href="/icon1.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/faviconO.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body className={`${spaceGrotesk.variable} antialiased`}>
         {children}
       </body>
