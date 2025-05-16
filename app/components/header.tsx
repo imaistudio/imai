@@ -1,126 +1,103 @@
-"use client";
-import type {NavbarProps} from "@heroui/react";
+"use client"
 import React from "react";
 import {
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
+  NavbarMenuToggle,
   NavbarMenu,
   NavbarMenuItem,
-  NavbarMenuToggle,
   Link,
   Button,
-  Divider,
 } from "@heroui/react";
-import {Icon} from "@iconify/react";
-import {cn} from "@heroui/react";
-import {IMAIIcon} from "@/app/components/imai";
-const menuItems = [
-  "About",
-  "Blog",
-  "Customers",
-  "Pricing",
-  "Enterprise",
-  "Changelog",
-  "Documentation",
-  "Contact Us",
-];
 
-export default function Header(props: NavbarProps) {
+export const AcmeLogo = () => {
+  return (
+    <svg fill="none" height="36" viewBox="0 0 32 32" width="36">
+      <path
+        clipRule="evenodd"
+        d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
+        fill="currentColor"
+        fillRule="evenodd"
+      />
+    </svg>
+  );
+};
+
+export default function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
+  const menuItems = [
+    "Profile",
+    "Dashboard",
+    "Activity",
+    "Analytics",
+    "System",
+    "Deployments",
+    "My Settings",
+    "Team Settings",
+    "Help & Feedback",
+    "Log Out",
+  ];
+
   return (
-    <Navbar
-      {...props}
-      classNames={{
-        base: cn("border-default-100", {
-          "bg-default-200/50 dark:bg-default-100/50": isMenuOpen,
-        }),
-        wrapper: "w-3/4 justify-center",
-        item: "hidden md:flex",
-      }}
-      height="60px"
-      isMenuOpen={isMenuOpen}
-      onMenuOpenChange={setIsMenuOpen}
-    >
-      {/* Left Content */}
-    <NavbarBrand as={Link} href="/" className="cursor-pointer">
-    <div className="rounded-full bg-foreground text-background">
-        <IMAIIcon size={32} />
-    </div>
-    <span className="ml-2 text-small font-medium text-white">IMAI</span>
-    </NavbarBrand>
+    <Navbar onMenuOpenChange={setIsMenuOpen}>
+      <NavbarContent>
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          className="sm:hidden"
+        />
+        <NavbarBrand>
+          <AcmeLogo />
+          <p className="font-bold text-inherit">ACME</p>
+        </NavbarBrand>
+      </NavbarContent>
 
-      {/* Center Content */}
-      <NavbarContent justify="center" className="ml-2 lg:ml-8 mr-2 lg:mr-8">
+      <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
-          <Link className="text-default-500" href="/pricing" size="sm">
-            Pricing
+          <Link color="foreground" href="#">
+            Features
+          </Link>
+        </NavbarItem>
+        <NavbarItem isActive>
+          <Link aria-current="page" href="#">
+            Customers
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link className="text-default-500" href="/explore" size="sm">
-            Explore
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link className="text-default-500" href="/contact" size="sm">
-            Contact
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link className="text-default-500" href="/about" size="sm">
-            About
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link className="text-default-500" href="/terms" size="sm">
-            Terms
+          <Link color="foreground" href="#">
+            Integrations
           </Link>
         </NavbarItem>
       </NavbarContent>
-
-      {/* Right Content */}
-      <NavbarContent className="hidden md:flex" justify="end">
-        <NavbarItem className="ml-2 !flex gap-2">
-          <Button className="text-default-500" radius="full" variant="light">
-            Login
-          </Button>
-          <Button
-            className="bg-white font-medium text-black hover:cursor-pointer"
-            color="secondary"
-            endContent={<Icon icon="solar:alt-arrow-right-linear" />}
-            radius="full"
-            variant="flat"
-          >
-            Get Started
+      <NavbarContent justify="end">
+        <NavbarItem className="hidden lg:flex">
+          <Link href="#">Login</Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Button as={Link} color="primary" href="#" variant="flat">
+            Sign Up
           </Button>
         </NavbarItem>
       </NavbarContent>
-
-      <NavbarMenuToggle className="text-default-400 md:hidden" />
-
-      <NavbarMenu className="top-[calc(var(--navbar-height)_-_1px)] max-h-fit bg-default-200/50 pb-6 pt-6 shadow-medium backdrop-blur-md backdrop-saturate-150 dark:bg-default-100/50">
-        <NavbarMenuItem>
-          <Button fullWidth as={Link} href="/#" variant="faded">
-            Sign In
-          </Button>
-        </NavbarMenuItem>
-        <NavbarMenuItem className="mb-4">
-          <Button fullWidth as={Link} className="bg-foreground text-background" href="/#">
-            Get Started
-          </Button>
-        </NavbarMenuItem>
+      <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
-            <Link className="mb-2 w-full text-default-500" href="#" size="md">
+            <Link
+              className="w-full"
+              color={
+                index === 2 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"
+              }
+              href="#"
+              size="lg"
+            >
               {item}
             </Link>
-            {index < menuItems.length - 1 && <Divider className="opacity-50" />}
           </NavbarMenuItem>
         ))}
       </NavbarMenu>
     </Navbar>
   );
 }
+

@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, ChangeEvent } from 'react';
 import Footer from '../components/footer';
 import Header from '../components/header';
