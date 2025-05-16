@@ -2,7 +2,7 @@
 
 
 
-import { Button, Card, CardBody, CardFooter, CardHeader, Input } from "@heroui/react";
+import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Input } from "@heroui/react";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import {DatePicker} from "@heroui/react";
@@ -19,7 +19,6 @@ export default function Profile() {
       <div className="w-full max-w-md">
         <Card className="w-full bg-black">
         <CardHeader className="flex flex-col items-center">
-    
            <h1 className="text-3xl font-bold text-center my-4">Tell Us About You</h1>
         </CardHeader>
         <CardBody>
@@ -52,3 +51,12 @@ export default function Profile() {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
