@@ -127,7 +127,7 @@ export default function Signup() {
       </div>
 
       {/* Right side */}
-      <div
+      {/* <div
         className="relative hidden w-1/2 flex-col-reverse rounded-medium p-10 shadow-small lg:flex"
         style={{
           backgroundImage:
@@ -158,7 +158,47 @@ export default function Signup() {
             <span className="font-medium">”</span>
           </p>
         </div>
+      </div> */}
+
+      <div className="relative hidden w-1/2 flex-col-reverse rounded-medium p-10 shadow-small lg:flex overflow-hidden">
+        {/* Background video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover z-0"
+        >
+          <source src="/videos/signup.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Overlay content */}
+        <div className="relative z-10 flex flex-col items-end gap-4">
+          <User
+            avatarProps={{
+              src: "https://ca.slack-edge.com/T08P88BGAU9-U08NUGVDXQD-efea55cbd792-512",
+            }}
+            classNames={{
+              base: "flex flex-row-reverse",
+              name: "w-full text-right text-white",
+              description: "text-white/60",
+            }}
+            description="Founder & CEO at IMAI"
+            name="Viola Schritter"
+          />
+          <p className="w-full text-right text-2xl text-white/60">
+            <span className="font-medium">“</span>
+            <span className="font-normal italic">
+              Dream beyond reality — where imagination paints the impossible.
+            </span>
+            <span className="font-medium">”</span>
+          </p>
+        </div>
       </div>
+
+
+
     </div>
   );
 }
