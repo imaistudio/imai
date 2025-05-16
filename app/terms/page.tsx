@@ -10,7 +10,8 @@ export default function TermsAndConditions() {
       <Header />
       <main className="bg-black text-white min-h-screen flex flex-col items-center px-4">
       <section className="flex flex-col items-center max-w-5xl w-full space-y-8 py-12">
-      <HyperText>Terms & Conditions</HyperText>
+      <HyperText className='hidden lg:block'>Terms & Conditions</HyperText>
+      <h1 className='md:hidden text-2xl md:text-4xl lg:text-4xl font-bold'>Terms & Condition</h1>
 
       <p className="text-center text-gray-300">
         These Terms and Conditions, hereinafter referred to as the &quot;Terms,&quot; constitute a legally binding agreement that governs your access to and comprehensive use of the imai platform. The imai platform, a generative AI image creation service, is provided by imai Labs. It is crucial that you understand that by accessing, browsing, or utilizing any component of our website, associated applications, or services (collectively, the &quot;Services&quot;), you explicitly acknowledge that you have read, understood, and agree to be bound by the entirety of these Terms. If you do not agree with any part of these Terms, or if you are unwilling to be bound by them, you must immediately cease and refrain from all use of our platform and Services.
@@ -90,7 +91,7 @@ export default function TermsAndConditions() {
         Should you have any questions, concerns, comments, or require clarification regarding these Terms and Conditions, or any aspect of our Services, please do not hesitate to contact us. You can reach our support team via email at support@imai.ai, or alternatively, by utilizing the designated contact form available on our website. We encourage you to communicate any inquiries to ensure a clear understanding of your rights and obligations under this agreement.
       </p>
     </section>
-        <Spline scene="https://prod.spline.design/nufXpbxU7UzpYDQk/scene.splinecode" />
+        <Spline className='hidden lg:flex' scene="https://prod.spline.design/nufXpbxU7UzpYDQk/scene.splinecode" />
       </main>
       <Footer />
     </>

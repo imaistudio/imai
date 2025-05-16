@@ -10,8 +10,10 @@ export default function PrivacyPolicy() {
       <Header />
       <main className="bg-black text-white min-h-screen flex flex-col items-center px-4">
         <section className="flex flex-col items-center max-w-5xl w-full space-y-8 py-12">
-          <HyperText>Privacy Policy</HyperText>
+          <HyperText className='hidden lg:block'>Privacy Policy</HyperText>
+          <h1 className='md:hidden text-2xl md:text-4xl lg:text-4xl font-bold'>Privacy Policy</h1>
           <Spline
+            className='hidden lg:block'
             scene="https://prod.spline.design/1Y17xWvckyTB-D6R/scene.splinecode" 
           />
           <p className="text-center text-gray-300">

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 import {
   Navbar,
@@ -11,22 +11,20 @@ import {
   Link,
   Button,
 } from "@heroui/react";
-import {IMAIIcon} from "@/app/components/imai";
-
+import { IMAIIcon } from "@/app/components/imai";
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const menuItems = [
-    "Sign Up",
-    "Login",
-    "Explore",
-    "About",
-    "Pricing",
-    "Contact",
-    "Deployments",
-    "Privacy",
-    "Terms",
+    { label: "Sign Up", href: "/signup" },
+    { label: "Login", href: "/login" },
+    { label: "Explore", href: "/explore" },
+    { label: "About", href: "/about" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Contact", href: "/contact" },
+    { label: "Privacy", href: "/privacy" },
+    { label: "Terms", href: "/terms" },
   ];
 
   return (
@@ -44,52 +42,38 @@ export default function App() {
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
-          <Link aria-current="page" href="#">
-            Explore
-          </Link>
+          <Link href="/explore">Explore</Link>
         </NavbarItem>
         <NavbarItem>
-          <Link aria-current="page" href="#">
-            About
-          </Link>
+          <Link href="/about">About</Link>
         </NavbarItem>
         <NavbarItem>
-          <Link aria-current="page" href="#">
-            Pricing
-          </Link>
+          <Link href="/pricing">Pricing</Link>
         </NavbarItem>
         <NavbarItem>
-          <Link aria-current="page" href="#">
-            Contact
-          </Link>
+          <Link href="/contact">Contact</Link>
         </NavbarItem>
-       <NavbarItem>
-          <Link aria-current="page" href="#">
-            Terms
-          </Link>
+        <NavbarItem>
+          <Link href="/terms">Terms</Link>
         </NavbarItem>
-
-
       </NavbarContent>
+
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
           <Link href="/login">Login</Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link}  href="/signup" className="rounded-full bg-white text-black">
-            Gettting Started
+          <Button as={Link} href="/signup" className="rounded-lg lg:rounded-full bg-white text-black">
+            Getting Started
           </Button>
         </NavbarItem>
       </NavbarContent>
+
       <NavbarMenu>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
-            <Link
-              className="w-full"
-              href="#"
-              size="lg"
-            >
-              {item}
+          <NavbarMenuItem key={`${item.label}-${index}`}>
+            <Link className="w-full" href={item.href} size="lg">
+              {item.label}
             </Link>
           </NavbarMenuItem>
         ))}
@@ -97,4 +81,3 @@ export default function App() {
     </Navbar>
   );
 }
-
