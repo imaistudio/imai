@@ -19,6 +19,7 @@ import {FrequencyEnum} from "@/types/pricing-types";
 import {frequencies, tiers} from "@/types/pricing-tiers";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import FAQ from "../components/faq";
 
 export default function Pricing() {
   const [selectedFrequency, setSelectedFrequency] = React.useState(frequencies[0]);
@@ -138,9 +139,7 @@ export default function Pricing() {
       </div>
       <Spacer y={12} />
       <div className="flex py-2">
-        <p className="text-default-400">
-          Frquently Asked Question
-        </p>
+        <FAQ></FAQ>
       </div>
     </div>
     </div>
