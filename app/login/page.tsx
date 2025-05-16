@@ -53,7 +53,7 @@ export default function Login() {
               Continue with MicroSoft
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="logos:apple" width={24} style={{ filter: 'invert(1)' }} />}
+              startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
               variant="bordered"
             >
               Continue with Apple
@@ -103,8 +103,8 @@ export default function Login() {
               variant="underlined"
             />
             <div className="flex w-full items-center justify-between px-1 py-2">
-              <Checkbox name="remember" size="sm">
-                Remember for 15 days
+              <Checkbox defaultSelected name="remember" size="sm">
+                Remember me
               </Checkbox>
               <Link className="text-default-500" href="#" size="sm">
                 Forgot password?
