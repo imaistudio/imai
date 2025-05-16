@@ -5,7 +5,7 @@ import {Button, Input, Link, Divider, User, Checkbox, Form} from "@heroui/react"
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
 
-export default function Component() {
+export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
