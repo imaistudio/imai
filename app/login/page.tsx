@@ -1,16 +1,19 @@
 "use client";
 
 import React from "react";
-import {Button, Input, Link, Divider, User, Checkbox} from "@heroui/react";
+import {Button, Input, Link, Divider, User, Checkbox, Form} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
-
-// import {AcmeIcon} from "./acme";
 
 export default function Component() {
   const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("handleSubmit");
+  };
 
   return (
     <div className="relative flex h-full min-h-screen w-full">
@@ -22,39 +25,38 @@ export default function Component() {
         </div>
       </div>
 
-      {/* Sign Up Form */}
+      {/* Login Form */}
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
           <div className="w-full text-left">
-            <p className="pb-2 text-xl font-medium">Create Account</p>
-            <p className="text-small text-default-500">Sign up for a new account to get started</p>
+            <p className="pb-2 text-xl font-medium">Welcome Back</p>
+            <p className="text-small text-default-500">Log in to your account to continue</p>
           </div>
-         
+
           <div className="flex w-full flex-col gap-2">
             <Button
-              startContent={<Icon className="text-default-500" icon="solar:phone-bold" width={22}  />}
+              startContent={<Icon icon="solar:phone-bold" width={22} />}
               variant="bordered"
             >
-              Sign Up with Phone
+              Continue with Phone
             </Button>
-    
             <Button
-              startContent={<Icon icon="logos:google-icon" width={18} />}
+              startContent={<Icon className="text-default-500" icon="logos:google-icon" width={18} />}
               variant="bordered"
             >
-              Sign Up with Google
+              Continue with Google
             </Button>
             <Button
               startContent={<Icon className="text-default-500" icon="logos:microsoft-icon" width={18} />}
               variant="bordered"
             >
-              Sign Up with MicroSoft
+              Continue with MicroSoft
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
+              startContent={<Icon className="text-default-500" icon="logos:apple" width={24} style={{ filter: 'invert(1)' }} />}
               variant="bordered"
             >
-              Sign Up with Apple
+              Continue with Apple
             </Button>
           </div>
 
@@ -64,7 +66,11 @@ export default function Component() {
             <Divider className="flex-1" />
           </div>
 
-          <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+          <Form
+            className="flex w-full flex-col gap-3"
+            validationBehavior="native"
+            onSubmit={handleSubmit}
+          >
             <Input
               isRequired
               label="Email Address"
@@ -92,37 +98,27 @@ export default function Component() {
               }
               label="Password"
               name="password"
-              placeholder="Create a password"
+              placeholder="Enter your password"
               type={isVisible ? "text" : "password"}
               variant="underlined"
             />
-            <Input
-              isRequired
-              label="Confirm Password"
-              name="confirmPassword"
-              placeholder="Confirm your password"
-              type={isVisible ? "text" : "password"}
-              variant="underlined"
-            />
-            <Checkbox isRequired className="py-4" size="sm">
-              I agree with the&nbsp;
-              <Link className="relative z-[1]" href="/terms" size="sm">
-                Terms
+            <div className="flex w-full items-center justify-between px-1 py-2">
+              <Checkbox name="remember" size="sm">
+                Remember for 15 days
+              </Checkbox>
+              <Link className="text-default-500" href="#" size="sm">
+                Forgot password?
               </Link>
-              &nbsp; and&nbsp;
-              <Link className="relative z-[1]" href="/privacy" size="sm">
-                Privacy Policy
-              </Link>
-            </Checkbox>
-            <Button color="primary" type="submit">
-              Sign Up
+            </div>
+            <Button className="w-full" color="primary" type="submit">
+              Log In
             </Button>
-          </form>
+          </Form>
 
           <p className="text-center text-small">
-            Already have an account?&nbsp;
-            <Link href="#" size="sm">
-              Log In
+            Need to create an account?&nbsp;
+            <Link className="text-purple-600" href="/signup" size="sm">
+              Sign Up
             </Link>
           </p>
         </div>
