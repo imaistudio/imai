@@ -32,7 +32,7 @@ export default function Pricing() {
   return (
     <>
     <Header></Header>
-    <div className="flex flex-col items-center justify-center bg-background">
+    <div className="flex flex-col items-center justify-center bg-black">
     <div className="relative flex max-w-4xl flex-col items-center py-24">
       <div
         aria-hidden="true"
@@ -47,7 +47,7 @@ export default function Pricing() {
         />
       </div>
       <div className="flex max-w-xl flex-col text-center">
-        <h2 className="font-medium leading-7 text-secondary">Pricing</h2>
+        <h2 className="font-medium leading-7 text-purple-600">Pricing</h2>
         <h1 className="text-4xl font-medium tracking-tight">Get unlimited access.</h1>
         <Spacer y={4} />
         <h2 className="text-large text-default-500">
@@ -139,10 +139,7 @@ export default function Pricing() {
       <Spacer y={12} />
       <div className="flex py-2">
         <p className="text-default-400">
-          Are you an open source developer?&nbsp;
-          <Link color="foreground" href="#" underline="always">
-            Get a discount
-          </Link>
+          Frquently Asked Question
         </p>
       </div>
     </div>

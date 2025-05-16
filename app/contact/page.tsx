@@ -78,7 +78,8 @@ export default function PromptContainer() {
     <>
     <Header></Header>
     <div className="flex flex-col items-center justify-center min-h-screen bg-black p-4 md:p-0">
-      <h1 className="text-3xl font-semibold leading-9 text-white mb-8 p-2 md:p-0">
+      <h2 className="font-medium leading-7 text-purple-600">Contact Us</h2>
+      <h1 className="text-3xl font-semibold leading-9 text-white mb-8 p-2 md:p-0 text-center">
         How Can We Help You Today?
       </h1>
       <div className="w-full max-w-2xl bg-[#27272a] rounded-lg p-4">
@@ -153,7 +154,7 @@ export default function PromptContainer() {
       </div>
       
       {/* Suggestion chips */}
-      <div className="flex flex-wrap justify-center gap-2 mt-6 w-full md:max-w-4xl px-4">
+      <div className="hidden md:flex flex-wrap justify-center gap-2 mt-6 w-full md:max-w-4xl px-4">
         {suggestions.map((suggestion) => (
           <button
             key={suggestion.id}
