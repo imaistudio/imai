@@ -169,7 +169,7 @@ export default function Signup() {
           playsInline
           className="absolute inset-0 h-full w-full object-cover z-0"
         >
-          <source src="/videos/signup.mp4" type="video/mp4" />
+          <source src="/videos/Signup.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
