@@ -1,24 +1,33 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
+import { Space_Grotesk } from "next/font/google";
 import clsx from "clsx";
-
 import { Providers } from "./providers";
-
-import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
 
 export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
+  title: "IMAI",
+  description: "Generate Newness",
+  other: {
+    "apple-mobile-web-app-title": "IMAI",
+    "theme-color": "#ffffff", 
   },
-  description: siteConfig.description,
   icons: {
     icon: "/favicon.ico",
   },
 };
+
+
 
 export const viewport: Viewport = {
   themeColor: [
@@ -34,31 +43,27 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <link rel="icon" type="image/png" href="/icon1.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/icon0.svg" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ffffff" />
+      </head>
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
           fontSans.variable,
+          spaceGrotesk.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
-            <Navbar />
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+            <main>
               {children}
+              <SpeedInsights />
+              <Analytics />
             </main>
-            <footer className="w-full flex items-center justify-center py-3">
-              <Link
-                isExternal
-                className="flex items-center gap-1 text-current"
-                href="https://heroui.com?utm_source=next-app-template"
-                title="heroui.com homepage"
-              >
-                <span className="text-default-600">Powered by</span>
-                <p className="text-primary">HeroUI</p>
-              </Link>
-            </footer>
-          </div>
         </Providers>
       </body>
     </html>
