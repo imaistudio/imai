@@ -1,4 +1,5 @@
-import Spline from '@splinetool/react-spline/next';
+
+import Spline from '@splinetool/react-spline';
 import Footer from '../components/footer';
 import Header from '../components/header';
 import { HyperText } from "@/components/magicui/hyper-text";
