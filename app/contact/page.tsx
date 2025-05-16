@@ -76,7 +76,7 @@ export default function PromptContainer() {
   
   return (
     <>
-    <Header className="pt-6 pb-6 bg-black text-white"></Header>
+    <Header></Header>
     <div className="flex flex-col items-center justify-center min-h-screen bg-black p-4 md:p-0">
       <h1 className="text-3xl font-semibold leading-9 text-white mb-8 p-2 md:p-0">
         How Can We Help You Today?

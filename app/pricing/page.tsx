@@ -17,6 +17,8 @@ import {
 import {cn} from "@heroui/react";
 import {FrequencyEnum} from "@/types/pricing-types";
 import {frequencies, tiers} from "@/types/pricing-tiers";
+import Header from "../components/header";
+import Footer from "../components/footer";
 
 export default function Pricing() {
   const [selectedFrequency, setSelectedFrequency] = React.useState(frequencies[0]);
@@ -28,6 +30,8 @@ export default function Pricing() {
   };
 
   return (
+    <>
+    <Header></Header>
     <div className="flex flex-col items-center justify-center bg-background">
     <div className="relative flex max-w-4xl flex-col items-center py-24">
       <div
@@ -143,5 +147,7 @@ export default function Pricing() {
       </div>
     </div>
     </div>
+    <Footer></Footer>
+    </>
   );
 }

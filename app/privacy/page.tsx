@@ -7,7 +7,7 @@ import { HyperText } from "@/components/magicui/hyper-text";
 export default function PrivacyPolicy() {
   return (
     <>
-      <Header className="pt-6 pb-6 bg-black text-white" />
+      <Header />
       <main className="bg-black text-white min-h-screen flex flex-col items-center px-4">
         <section className="flex flex-col items-center max-w-5xl w-full space-y-8 py-12">
           <HyperText>Privacy Policy</HyperText>
