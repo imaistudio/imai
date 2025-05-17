@@ -16,43 +16,16 @@ export default function Signup() {
       {/* Sign Up Form */}
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
-          <div className="w-full text-left">
+          <div className="w-full text-center flex flex-col items-center justify-center">
               <div className="flex items-center">
                 <IMAIIcon size={32} />
               </div>
             <p className="pb-2 text-xl font-medium">Create Account</p>
-            <p className="text-small text-default-500">Sign up for a new account to get started</p>
+      
           </div>
          
-          <div className="flex w-full flex-col gap-2">
-            <Button
-              startContent={<Icon className="text-default-500" icon="solar:phone-bold" width={22}  />}
-              variant="bordered"
-            >
-              Sign Up with Phone
-            </Button>
-    
-            <Button
-              startContent={<Icon icon="logos:google-icon" width={18} />}
-              variant="bordered"
-            >
-              Sign Up with Google
-            </Button>
-            <Button
-              startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
-              variant="bordered"
-            >
-              Sign Up with Apple
-            </Button>
-          </div>
-
-          <div className="flex w-full items-center gap-4 py-2">
-            <Divider className="flex-1" />
-            <p className="shrink-0 text-tiny text-default-500">OR</p>
-            <Divider className="flex-1" />
-          </div>
-
-          <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+        
+        <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
             <Input
               isRequired
               label="Email Address"
@@ -84,14 +57,6 @@ export default function Signup() {
               type={isVisible ? "text" : "password"}
               variant="underlined"
             />
-            <Input
-              isRequired
-              label="Confirm Password"
-              name="confirmPassword"
-              placeholder="Confirm your password"
-              type={isVisible ? "text" : "password"}
-              variant="underlined"
-            />
             <Checkbox isRequired className="py-4" size="sm">
               I agree with the&nbsp;
               <Link className="relative z-[1] text-purple-600" href="/terms" size="sm">
@@ -106,6 +71,36 @@ export default function Signup() {
               Sign Up
             </Button>
           </form>
+
+          <div className="flex w-full items-center gap-4 py-2">
+            <Divider className="flex-1" />
+            <p className="shrink-0 text-tiny text-default-500">OR</p>
+            <Divider className="flex-1" />
+          </div>
+
+            <div className="flex w-full flex-col gap-2">
+            <Button
+              startContent={<Icon className="text-default-500" icon="solar:phone-bold" width={22}  />}
+              variant="bordered"
+            >
+              Sign Up with Phone
+            </Button>
+    
+            <Button
+              startContent={<Icon icon="logos:google-icon" width={18} />}
+              variant="bordered"
+            >
+              Sign Up with Google
+            </Button>
+            <Button
+              startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
+              variant="bordered"
+            >
+              Sign Up with Apple
+            </Button>
+          </div>
+
+      
 
           <p className="text-center text-small">
             Already have an account?&nbsp;
