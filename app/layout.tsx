@@ -3,7 +3,6 @@ import { Metadata, Viewport } from "next";
 import { Open_Sans } from "next/font/google";
 import clsx from "clsx";
 import { Providers } from "./providers";
-import { fontSans } from "@/config/fonts";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { GlobalModalProvider } from "@/contexts/GlobalModalContext";
