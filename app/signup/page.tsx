@@ -7,7 +7,6 @@ import {IMAIIcon} from "@/app/components/imai";
 
 export default function Signup() {
   const [isVisible, setIsVisible] = React.useState(false);
-
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   return (
@@ -164,9 +163,6 @@ export default function Signup() {
           </p>
         </div>
       </div>
-
-
-
     </div>
   );
 }

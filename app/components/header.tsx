@@ -28,7 +28,7 @@ export default function App() {
   ];
 
   return (
-    <Navbar className="bg-black" position="static" onMenuOpenChange={setIsMenuOpen}>
+    <Navbar className="bg-black" position="sticky" onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}

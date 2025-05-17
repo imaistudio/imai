@@ -7,9 +7,7 @@ import {IMAIIcon} from "@/app/components/imai";
 
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
-
   const toggleVisibility = () => setIsVisible(!isVisible);
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log("handleSubmit");
