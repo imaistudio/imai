@@ -12,7 +12,7 @@ export default function Signup() {
   return (
     <div className="relative flex h-full min-h-screen w-full">
       {/* Brand Logo */}
-      <div className="absolute left-2 top-5 lg:left-5">
+      <div className="absolute ml-2 mb-2 top-5 lg:left-5">
         <div className="flex items-center">
           <IMAIIcon size={32} />
           <p className="ml-2 font-medium">IMAI</p>
