@@ -2,16 +2,13 @@
 
 
 
-import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Input } from "@heroui/react";
+import { Button, Card, CardBody, CardFooter, CardHeader, Input } from "@heroui/react";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import {DatePicker} from "@heroui/react";
-import MinimalRowSteps from "../components/minimal-row-steps";
 import React from "react";
-const STEPS_COUNT = 2;
 
 export default function Profile() {
-  const [currentStep, setCurrentStep] = React.useState(1);
   return (
     <>
     <Header></Header>
@@ -33,12 +30,6 @@ export default function Profile() {
             <DatePicker  variant="underlined" className="mt-4" label="Birth Date" />
         </CardBody>
         <CardFooter className="flex justify-center flex-col text-center text-sm text-muted-foreground">
-          <MinimalRowSteps
-            currentStep={currentStep}
-            label={`Step ${currentStep} of ${STEPS_COUNT}`}
-            stepsCount={STEPS_COUNT}
-            onStepChange={setCurrentStep}
-          />
           <Button className="w-full my-2" color="primary" type="submit">
               Continue
             </Button>

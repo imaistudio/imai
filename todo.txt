@@ -1,6 +1,6 @@
 1.fix theme switch bug 
 2.firebase config 
 3.Auth
-4.profile page
+4.profile page connection
 5.sidebar
 6.Chatwindow
