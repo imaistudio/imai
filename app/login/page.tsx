@@ -15,18 +15,17 @@ export default function Login() {
 
   return (
     <div className="relative flex h-full min-h-screen w-full">
-      {/* Brand Logo */}
-      <div className="absolute ml-2 mb-2 top-5 lg:left-5">
-        <div className="flex items-center">
-          <IMAIIcon size={32} />
-          <p className="ml-2 font-medium">IMAI</p>
-        </div>
-      </div>
+
+   
 
       {/* Login Form */}
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
+          {/* Brand Logo */}
           <div className="w-full text-left">
+            <div className="flex items-center">
+              <IMAIIcon size={32} />
+            </div>
             <p className="pb-2 text-xl font-medium">Welcome Back</p>
             <p className="text-small text-default-500">Log in to your account to continue</p>
           </div>
