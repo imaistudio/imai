@@ -3,50 +3,73 @@
 import {
   Modal,
   ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
 } from "@heroui/react";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
+import { X } from "lucide-react";
 
 export default function GlobalModal() {
   const { isOpen, closeModal } = useGlobalModal();
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={(open) => {
-      if (!open) closeModal();
-    }}>
+    <Modal
+      isOpen={isOpen}
+      hideCloseButton
+      onOpenChange={(open) => {
+        if (!open) closeModal();
+      }}
+      className="p-0 max-w-md rounded-2xl overflow-hidden"
+    >
       <ModalContent>
         <>
-          <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
-          <ModalBody>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non
-              risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor
-              quam.
+          {/* Image Collage Header */}
+          <div className="relative w-full h-auto  pb-12  overflow-hidden">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 p-2  z-10"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img
+              src="/popup.jpg" // Replace with your image path
+              alt="Design Collage"
+              className="object-cover w-full h-auto  rounded-md"
+            />
+          </div>
+
+          {/* Modal Text Content */}
+          <div className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-2">
+              <span className="font-bold">Blurring</span> the lines between
+              <br />
+              Imagination and the new Reality
+            </h2>
+            <p className="text-gray-300 mt-2">
+              Create an account to design products, edit visuals, and bring your illustrations to life.
             </p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non
-              risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor
-              quam.
-            </p>
-            <p>
-              Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit dolor
-              adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit
-              officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-              nisi consectetur esse laborum eiusmod pariatur proident Lorem eiusmod et. Culpa
-              deserunt nostrud ad veniam.
-            </p>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="danger" variant="light" onPress={closeModal}>
-              Close
-            </Button>
-            <Button color="primary" onPress={closeModal}>
-              Action
-            </Button>
-          </ModalFooter>
+          </div>
+
+          {/* Modal Footer */}
+          <div className="flex flex-col gap-3 px-6 pb-6">
+            <a href="/login" onClick={closeModal} className="w-full">
+              <button className="bg-white text-black w-full rounded-full py-3">
+                Log in
+              </button>
+            </a>
+
+            <a href="/signup" onClick={closeModal} className="w-full">
+              <button className="border border-gray-300 w-full rounded-full py-3 ">
+                Sign up for free
+              </button>
+            </a>
+
+            <a
+              href="/explore"
+              onClick={closeModal}
+              className="text-sm py-4 hover:underline text-center cursor-pointer"
+            >
+              Explore
+            </a>
+          </div>
         </>
       </ModalContent>
     </Modal>
