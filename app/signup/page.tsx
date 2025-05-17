@@ -39,12 +39,6 @@ export default function Signup() {
               Sign Up with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="logos:microsoft-icon" width={18} />}
-              variant="bordered"
-            >
-              Sign Up with MicroSoft
-            </Button>
-            <Button
               startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
               variant="bordered"
             >
