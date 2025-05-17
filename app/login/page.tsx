@@ -22,42 +22,13 @@ export default function Login() {
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
           {/* Brand Logo */}
-          <div className="w-full text-left">
+          <div className="w-full text-center flex flex-col items-center justify-center">
             <div className="flex items-center">
               <IMAIIcon size={32} />
             </div>
             <p className="pb-2 text-xl font-medium">Welcome Back</p>
-            <p className="text-small text-default-500">Log in to your account to continue</p>
           </div>
-
-          <div className="flex w-full flex-col gap-2">
-            <Button
-              startContent={<Icon icon="solar:phone-bold" width={22} />}
-              variant="bordered"
-            >
-              Continue with Phone
-            </Button>
-            <Button
-              startContent={<Icon className="text-default-500" icon="logos:google-icon" width={18} />}
-              variant="bordered"
-            >
-              Continue with Google
-            </Button>
-            <Button
-              startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
-              variant="bordered"
-            >
-              Continue with Apple
-            </Button>
-          </div>
-
-          <div className="flex w-full items-center gap-4 py-2">
-            <Divider className="flex-1" />
-            <p className="shrink-0 text-tiny text-default-500">OR</p>
-            <Divider className="flex-1" />
-          </div>
-
-          <Form
+            <Form
             className="flex w-full flex-col gap-3"
             validationBehavior="native"
             onSubmit={handleSubmit}
@@ -105,6 +76,36 @@ export default function Login() {
               Log In
             </Button>
           </Form>
+
+          <div className="flex w-full items-center gap-4 py-2">
+            <Divider className="flex-1" />
+            <p className="shrink-0 text-tiny text-default-500">OR</p>
+            <Divider className="flex-1" />
+          </div>
+
+
+            <div className="flex w-full flex-col gap-2">
+            <Button
+              startContent={<Icon icon="solar:phone-bold" width={22} />}
+              variant="bordered"
+            >
+              Continue with Phone
+            </Button>
+            <Button
+              startContent={<Icon className="text-default-500" icon="logos:google-icon" width={18} />}
+              variant="bordered"
+            >
+              Continue with Google
+            </Button>
+            <Button
+              startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
+              variant="bordered"
+            >
+              Continue with Apple
+            </Button>
+          </div>
+
+       
 
           <p className="text-center text-small">
             Need to create an account?&nbsp;
