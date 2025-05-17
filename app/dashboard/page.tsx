@@ -1,26 +1,14 @@
-"use client";
-import { useGlobalModal } from "@/contexts/GlobalModalContext";
-export default function Page() {
-  const { openModal, closeModal } = useGlobalModal();
+import Footer from "../components/footer";
+import Header from "../components/header";
+
+export default function Dashboard() {
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Welcome to the page!</h1>
-
-      <div className="space-x-4">
-        <button
-          onClick={openModal}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Open Modal
-        </button>
-
-        <button
-          onClick={closeModal}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-        >
-          Close Modal
-        </button>
-      </div>
+    <>
+    <Header></Header>
+    <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <h1>Dashboard Page</h1>
     </div>
+    <Footer></Footer>
+    </>
   );
 }
