@@ -7,7 +7,6 @@ export default function Masonry() {
     '/masonry/1.jpeg',
     '/masonry/2.jpg',
     '/masonry/3.webp',
-    '/masonry/4.png',
     '/masonry/5.png',
     '/masonry/gen1.jpg',
     '/masonry/gen2.jpg',
