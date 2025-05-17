@@ -34,7 +34,7 @@ export default function App() {
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="sm:hidden"
         />
-        <NavbarBrand>
+        <NavbarBrand as={Link} href="/">
           <IMAIIcon size={32} />
           <p className="pl-2 font-bold text-inherit">IMAI</p>
         </NavbarBrand>
