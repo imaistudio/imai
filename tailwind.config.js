@@ -11,8 +11,9 @@ const config = {
   	extend: {
   		fontFamily: {
   			sans: [
-  				'Space Grotesk',
-  				'sans-serif'
+  				'var(--font-sans)',
+				'Open Sans',
+				'sans-serif'
   			]
   		},
   		borderRadius: {

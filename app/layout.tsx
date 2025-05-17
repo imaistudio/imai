@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import clsx from "clsx";
 import { Providers } from "./providers";
 import { fontSans } from "@/config/fonts";
@@ -9,10 +9,10 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { GlobalModalProvider } from "@/contexts/GlobalModalContext";
 import GlobalModal from "@/app/components/GlobalModal";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -56,8 +56,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-          spaceGrotesk.variable
+          openSans.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
