@@ -12,7 +12,7 @@ import {
   Button,
 } from "@heroui/react";
 import { IMAIIcon } from "@/app/components/imai";
-import { ThemeSwitch } from "@/components/theme-switch"; // adjust the path accordingly
+// import { ThemeSwitch } from "@/components/theme-switch"; // adjust the path accordingly
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -66,14 +66,14 @@ export default function App() {
           <Link href="/login">Login</Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} href="/signup" className="rounded-lg lg:rounded-full bg-white text-black">
+          <Button as={Link} href="/signup" className="rounded-full bg-white text-black">
             Getting Started
           </Button>
         </NavbarItem>
-        <ThemeSwitch />
+        {/* <ThemeSwitch /> */}
       </NavbarContent>
 
-      <NavbarMenu>
+      <NavbarMenu className="bg-black text-white">
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item.label}-${index}`}>
             <Link className="w-full" href={item.href} size="lg">
