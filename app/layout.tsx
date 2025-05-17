@@ -6,6 +6,8 @@ import { Providers } from "./providers";
 import { fontSans } from "@/config/fonts";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { GlobalModalProvider } from "@/contexts/GlobalModalContext";
+import GlobalModal from "@/app/components/GlobalModal";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -60,7 +62,10 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
             <main>
-              {children}
+              <GlobalModalProvider>
+                {children}
+                <GlobalModal />
+              </GlobalModalProvider>
               <SpeedInsights />
               <Analytics />
             </main>
