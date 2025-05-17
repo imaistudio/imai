@@ -34,7 +34,7 @@ export default function Masonry() {
           <div key={index} className="w-full break-inside-avoid overflow-hidden rounded-2xl shadow-md">
             <img
               src={src}
-              alt={`Masonry Grid Image ${index + 1}`}
+              alt={`Masonry ${index + 1}`}
               className="w-full h-auto rounded-2xl object-cover"
             />
           </div>
