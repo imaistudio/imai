@@ -12,6 +12,7 @@ import {
   Button,
 } from "@heroui/react";
 import { IMAIIcon } from "@/app/components/imai";
+import { ThemeSwitch } from "@/components/theme-switch"; // adjust the path accordingly
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -37,6 +38,7 @@ export default function App() {
         <NavbarBrand as={Link} href="/">
           <IMAIIcon size={32} />
           <p className="pl-2 font-bold text-inherit">IMAI</p>
+          
         </NavbarBrand>
       </NavbarContent>
 
@@ -58,6 +60,7 @@ export default function App() {
         </NavbarItem>
       </NavbarContent>
 
+  
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
           <Link href="/login">Login</Link>
@@ -67,6 +70,7 @@ export default function App() {
             Getting Started
           </Button>
         </NavbarItem>
+        <ThemeSwitch />
       </NavbarContent>
 
       <NavbarMenu>
