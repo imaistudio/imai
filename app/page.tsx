@@ -1,7 +1,7 @@
 export default function Dashboard() {
   return (
     <>
-    <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div className="w-full min-h-max flex flex-col items-center justify-center">
       <h1>Hello World</h1>
     </div>
     </>

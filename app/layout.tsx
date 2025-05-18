@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { GlobalModalProvider } from "@/contexts/GlobalModalContext";
 import GlobalModal from "@/app/components/GlobalModal";
+import ConditionalSidebar from "./components/ConditionalSidebar";
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
@@ -27,8 +28,6 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
   },
 };
-
-
 
 export const viewport: Viewport = {
   themeColor: [
@@ -61,7 +60,9 @@ export default function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
             <main>
               <GlobalModalProvider>
-                {children}
+                <ConditionalSidebar>
+                  {children}
+                </ConditionalSidebar>
                 <GlobalModal />
               </GlobalModalProvider>
               <SpeedInsights />
