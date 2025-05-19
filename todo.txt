@@ -1,6 +1,5 @@
-1.fix theme switch bug 
-2.firebase config 
-3.Auth
-4.profile page connection
-5.sidebar
-6.Chatwindow
+2.fix theme icon 
+3.add firebase auth 
+4.connect firestore to the profile page 
+5.connect contact us page form to firestore 
+6.add logic to popups 
