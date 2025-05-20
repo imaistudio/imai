@@ -5,8 +5,8 @@ export default function Dashboard() {
   return (
     <>
     <Header></Header>
-    <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <h1>Dashboard Page</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-black">
+      <h1 className="text-black dark:text-white">Dashboard Page</h1>
     </div>
     <Footer></Footer>
     </>

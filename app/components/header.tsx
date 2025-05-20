@@ -12,11 +12,10 @@ import {
   Button,
 } from "@heroui/react";
 import { IMAIIcon } from "@/app/components/imai";
-// import { ThemeSwitch } from "@/components/theme-switch"; // adjust the path accordingly
+import { ThemeSwitch } from "@/components/theme-switch"; 
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
   const menuItems = [
     { label: "Sign Up", href: "/signup" },
     { label: "Login", href: "/login" },
@@ -70,7 +69,7 @@ export default function App() {
             Getting Started
           </Button>
         </NavbarItem>
-        {/* <ThemeSwitch /> */}
+        <ThemeSwitch />
       </NavbarContent>
 
       <NavbarMenu className="bg-black text-white">
