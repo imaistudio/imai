@@ -17,7 +17,7 @@ export default function Login() {
     <div className="relative flex h-full min-h-screen w-full">
 
    
-
+      {/* Background Image */}
       {/* Login Form */}
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
