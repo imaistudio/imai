@@ -59,11 +59,11 @@ export default function Signup() {
             />
             <Checkbox isRequired className="py-4" size="sm">
               I agree with the&nbsp;
-              <Link className="relative z-[1] text-purple-600" href="/terms" size="sm">
+              <Link className="relative z-[1] dark:text-purple-600 text-blue-500" href="/terms" size="sm">
                 Terms
               </Link>
               &nbsp; and&nbsp;
-              <Link className="relative z-[1] text-purple-600" href="/privacy" size="sm">
+              <Link className="relative z-[1] dark:text-purple-600 text-blue-500" href="/privacy" size="sm">
                 Privacy Policy
               </Link>
             </Checkbox>
@@ -104,7 +104,7 @@ export default function Signup() {
 
           <p className="text-center text-small">
             Already have an account?&nbsp;
-            <Link className="text-purple-600" href="/login" size="sm">
+            <Link className="text-blue-500 dark:text-purple-600" href="/login" size="sm">
               Log In
             </Link>
           </p>

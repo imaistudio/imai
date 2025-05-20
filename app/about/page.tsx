@@ -9,7 +9,7 @@ export default function AboutPage() {
   return (
     <>
     <Header></Header>
-    <main className="bg-black text-white">
+    <main className="bg-white text-black dark:bg-black dark:text-white">
     <HeroParallaxDemo />
     </main>
     <Footer></Footer>

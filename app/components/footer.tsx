@@ -67,7 +67,7 @@ const socialItems = [
 
 export default function Footer() {
   return (
-    <footer className="flex w-full flex-col bg-black text-white">
+    <footer className="flex w-full flex-col bg-white text-black dark:bg-black dark:text-white">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-6 py-12 lg:px-8">
         <div className="flex items-center justify-center">
           <IMAIIcon size={32} />

@@ -68,7 +68,7 @@ export default function Login() {
               <Checkbox defaultSelected name="remember" size="sm">
                 Remember me
               </Checkbox>
-              <Link className="text-default-500" href="#" size="sm">
+              <Link className="text-blue-500 dark:text-purple-600" href="#" size="sm">
                 Forgot password?
               </Link>
             </div>
@@ -109,7 +109,7 @@ export default function Login() {
 
           <p className="text-center text-small">
             Need to create an account?&nbsp;
-            <Link className="text-purple-600" href="/signup" size="sm">
+            <Link className="text-blue-500 dark:text-purple-600" href="/signup" size="sm">
               Sign Up
             </Link>
           </p>

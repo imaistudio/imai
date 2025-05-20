@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
   return (
     <>
       <Header />
-      <main className="bg-black text-white min-h-screen flex flex-col items-center px-4">
+      <main className="dark:bg-black dark:text-white min-h-screen flex flex-col items-center px-4">
         <section className="flex flex-col items-center max-w-5xl w-full space-y-8 py-12">
           <HyperText className='hidden lg:block'>Privacy Policy</HyperText>
           <h1 className='md:hidden text-2xl md:text-4xl lg:text-4xl font-bold'>Privacy Policy</h1>
@@ -16,14 +16,14 @@ export default function PrivacyPolicy() {
             className='hidden lg:block'
             scene="https://prod.spline.design/1Y17xWvckyTB-D6R/scene.splinecode" 
           />
-          <p className="text-center text-gray-300">
+          <p className="text-center dark:text-gray-300">
             imai Labs (&quot;imai,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our imai platform, a generative AI image creation service, and our website, associated applications, or services (collectively, the &quot;Services&quot;). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the platform.
           </p>
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>1. Information We Collect</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             We may collect information about you in a variety of ways. The information we may collect via the Services includes:
           </p>
-          <ul className="list-disc text-left text-gray-400 pl-6 max-w-3xl space-y-2">
+          <ul className="list-disc text-left dark:text-gray-400 pl-6 max-w-3xl space-y-2">
             <li>
               <strong>Personal Data:</strong> Personally identifiable information, such as your name, email address, and payment information (if you subscribe to paid services), that you voluntarily give to us when you register for an account or when you choose to participate in various activities related to the Services.
             </li>
@@ -39,10 +39,10 @@ export default function PrivacyPolicy() {
           </ul>
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>2. How We Use Your Information</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the Services to:
           </p>
-          <ul className="list-disc text-left text-gray-400 pl-6 max-w-3xl space-y-2">
+          <ul className="list-disc text-left dark:text-gray-400 pl-6 max-w-3xl space-y-2">
             <li>Create and manage your account.</li>
             <li>Provide, operate, and maintain our Services, including generating AI images based on your prompts.</li>
             <li>Process your transactions and send you related information, including purchase confirmations and invoices for Paid Services.</li>
@@ -54,10 +54,10 @@ export default function PrivacyPolicy() {
           </ul>
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>3. How We Share Your Information</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             We may share information we have collected about you in certain situations. Your information may be disclosed as follows:
           </p>
-          <ul className="list-disc text-left text-gray-400 pl-6 max-w-3xl space-y-2">
+          <ul className="list-disc text-left dark:text-gray-400 pl-6 max-w-3xl space-y-2">
             <li>
               <strong>By Law or to Protect Rights:</strong> If we believe the release of information about you is necessary to respond to legal process, to investigate or remedy potential violations of our policies, or to protect the rights, property, and safety of others, we may share your information as permitted or required by any applicable law, rule, or regulation.
             </li>
@@ -74,21 +74,21 @@ export default function PrivacyPolicy() {
               <strong>Aggregated or Anonymized Data:</strong> We may share aggregated or anonymized information that does not directly identify you with third parties for research, marketing, analytics, and other purposes.
             </li>
           </ul>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             We do not sell your personal information to third parties for their marketing purposes without your explicit consent.
           </p>
 
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>4. Data Security</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse. Any information disclosed online is vulnerable to interception and misuse by unauthorized parties. Therefore, we cannot guarantee complete security if you provide personal information.
           </p>
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>5. Your Data Protection Rights</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             Depending on your location, you may have the following rights regarding your personal information:
           </p>
-          <ul className="list-disc text-left text-gray-400 pl-6 max-w-3xl space-y-2">
+          <ul className="list-disc text-left dark:text-gray-400 pl-6 max-w-3xl space-y-2">
             <li>The right to access – You have the right to request copies of your personal data.</li>
             <li>The right to rectification – You have the right to request that we correct any information you believe is inaccurate or complete information you believe is incomplete.</li>
             <li>The right to erasure – You have the right to request that we erase your personal data, under certain conditions.</li>
@@ -96,30 +96,30 @@ export default function PrivacyPolicy() {
             <li>The right to object to processing – You have the right to object to our processing of your personal data, under certain conditions.</li>
             <li>The right to data portability – You have the right to request that we transfer the data that we have collected to another organization, or directly to you, under certain conditions.</li>
           </ul>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             If you would like to exercise any of these rights, please contact us using the contact information below.
           </p>
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>6. Children&apos;s Privacy</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             Our Services are not intended for use by children under the age of 13 (or a higher minimum age in the jurisdiction where the user resides). We do not knowingly collect personally identifiable information from children under 13. If we become aware that we have collected personal information from a child under 13 without verification of parental consent, we take steps to remove that information from our servers. If you are a parent or guardian and you are aware that your child has provided us with Personal Data, please contact us.
           </p>
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>7. International Data Transfers</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             Your information, including Personal Data, may be transferred to — and maintained on — computers located outside of your state, province, country, or other governmental jurisdiction where the data protection laws may differ from those of your jurisdiction. If you are located outside the jurisdiction where imai Labs is registered and choose to provide information to us, please note that we transfer the data, including Personal Data, to that jurisdiction and process it there. Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.
           </p>
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>8. Changes to This Privacy Policy</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &quot;Last Updated&quot; date at the top of this Privacy Policy. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page. Your continued use of the Services after we post any modifications to the Privacy Policy on this page will constitute your acknowledgment of the modifications and your consent to abide and be bound by the modified Privacy Policy.
           </p>
 
           <h1 className='text-2xl md:text-4xl lg:text-4xl font-bold'>9. Contact Us</h1>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:
           </p>
-          <p className="text-center text-gray-400">
+          <p className="text-center dark:text-gray-400">
             Email: support@imai.ai
           </p>
         </section>

@@ -28,7 +28,7 @@ export default function App() {
   ];
 
   return (
-    <Navbar className="bg-black" position="sticky" onMenuOpenChange={setIsMenuOpen}>
+    <Navbar className="bg-white dark:bg-black" position="sticky" onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -65,7 +65,7 @@ export default function App() {
           <Link href="/login">Login</Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} href="/signup" className="rounded-full bg-white text-black">
+          <Button as={Link} href="/signup" className="rounded-full bg-black text-white dark:bg-white dark:text-black">
             Getting Started
           </Button>
         </NavbarItem>

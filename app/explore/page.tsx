@@ -28,7 +28,7 @@ export default function Masonry() {
   return (
     <>
     <Header></Header>
-    <main className="bg-black min-h-screen p-6">
+    <main className="dark:bg-black bg-white min-h-screen p-6">
       <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
         {images.map((src, index) => (
           <div key={index} className="w-full break-inside-avoid overflow-hidden rounded-2xl shadow-md">

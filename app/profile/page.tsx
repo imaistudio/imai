@@ -12,9 +12,9 @@ export default function Profile() {
   return (
     <>
     <Header></Header>
-    <main className="flex min-h-screen bg-black flex-col items-center justify-center p-4 md:p-24">
+    <main className="flex min-h-screen bg-white dark:bg-black flex-col items-center justify-center p-4 md:p-24">
       <div className="w-full max-w-md">
-        <Card className="w-full bg-black">
+        <Card shadow="none" className="w-full dark:bg-black bg-white">
         <CardHeader className="flex flex-col items-center">
            <h1 className="text-3xl font-bold text-center my-4">Tell Us About You</h1>
         </CardHeader>
