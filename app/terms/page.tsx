@@ -90,8 +90,8 @@ export default function TermsAndConditions() {
       <p className="text-center dark:text-gray-400">
         Should you have any questions, concerns, comments, or require clarification regarding these Terms and Conditions, or any aspect of our Services, please do not hesitate to contact us. You can reach our support team via email at support@imai.ai, or alternatively, by utilizing the designated contact form available on our website. We encourage you to communicate any inquiries to ensure a clear understanding of your rights and obligations under this agreement.
       </p>
-    </section>
-        <Spline className='hidden lg:flex' scene="https://prod.spline.design/nufXpbxU7UzpYDQk/scene.splinecode" />
+    </section >
+       <Spline className='hidden dark:lg:flex' scene="https://prod.spline.design/nufXpbxU7UzpYDQk/scene.splinecode" />
       </main>
       <Footer />
     </>
