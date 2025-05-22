@@ -57,7 +57,7 @@ export default function RootLayout({
           openSans.variable
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
             <main>
               <GlobalModalProvider>
                 <ConditionalSidebar>

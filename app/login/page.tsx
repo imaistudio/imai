@@ -98,7 +98,7 @@ export default function Login() {
               Continue with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="logos:apple" width={18} style={{ filter: 'invert(1)' }} />}
+              startContent={<Icon className="text-default-500 dark:invert" icon="logos:apple" width={18} />}
               variant="bordered"
             >
               Continue with Apple
@@ -152,10 +152,6 @@ export default function Login() {
                 </p>
               </div>
             </div>
-
-
-
-
     </div>
   );
 }

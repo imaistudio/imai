@@ -1,8 +1,7 @@
-1.Fix Theme Icon  - Easy    
-2.Add Firebase Auth - Easy | Facebook Account | Apple Developer Accout | Phone Auth - Easy
-3.Connect firestore to the profile page - Easy 
-4.Connect contact us page form to firestore  - Easy
-5.add logic to popups  - Easy 
-6.Chat storage endpoints with schemeas (chats / pins / folders / search ) CRUD setup - Hard
-7.Chat UI  - Hard 
-8.Cloud Function - Insane - VIP - Easy
+1.Add Firebase Auth - Easy | Facebook Account | Apple Developer Accout | Phone Auth - Easy
+2.Connect firestore to the profile page - Easy 
+3.Connect contact us page form to firestore  - Easy
+4.add logic to popups  - Easy 
+5.Chat storage endpoints with schemeas (chats / pins / folders / search ) CRUD setup - Hard
+6.Chat UI  - Hard 
+7.Cloud Function - Insane - VIP - Easy
