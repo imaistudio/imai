@@ -8,7 +8,6 @@ import {IMAIIcon} from "@/app/components/imai";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import {
-  createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   OAuthProvider,
