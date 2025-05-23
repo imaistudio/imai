@@ -1,17 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {Button, Input, Link, Divider, User, Checkbox, Form} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("handleSubmit");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Logged in successfully!");
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
+  
+
+
 
   return (
     <div className="relative flex h-full min-h-screen w-full">
@@ -31,7 +47,7 @@ export default function Login() {
             <Form
             className="flex w-full flex-col gap-3"
             validationBehavior="native"
-            onSubmit={handleSubmit}
+            onSubmit={handleLogin}
           >
             <Input
               isRequired
@@ -104,9 +120,6 @@ export default function Login() {
               Continue with Apple
             </Button>
           </div>
-
-       
-
           <p className="text-center text-small">
             Need to create an account?&nbsp;
             <Link className="text-blue-500 dark:text-purple-600" href="/signup" size="sm">

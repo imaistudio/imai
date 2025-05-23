@@ -1,13 +1,30 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {Button, Input, Link, Divider, User, Checkbox} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
+import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function Signup() {
+  
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
+  const [error, setError] = useState("");
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("Account created successfully!");
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
 
   return (
     <div className="relative flex h-full min-h-screen w-full">
@@ -25,7 +42,7 @@ export default function Signup() {
           </div>
          
         
-        <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+        <form className="flex w-full flex-col gap-3" onSubmit={handleSignup}>
             <Input
               isRequired
               label="Email Address"
@@ -80,6 +97,7 @@ export default function Signup() {
 
             <div className="flex w-full flex-col gap-2">
             <Button
+              href="/phone"
               startContent={<Icon className="text-default-500" icon="solar:phone-bold" width={22}  />}
               variant="bordered"
             >
