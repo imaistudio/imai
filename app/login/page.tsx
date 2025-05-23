@@ -38,14 +38,31 @@ export default function Login() {
   router.push("/phone");
   };
 
-  
+  const handleGoogleSignIn = async () => {
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);
+    router.push("/profile"); // redirect if needed
+  } catch (err: any) {
+    setError(err.message);
+  }
+};
 
+const handleAppleSignIn = async () => {
+  const provider = new OAuthProvider("apple.com");
+  provider.addScope("email");
+  provider.addScope("name");
 
+  try {
+    await signInWithPopup(auth, provider);
+    router.push("/profile");
+  } catch (err: any) {
+    setError(err.message);
+  }
+};
 
   return (
     <div className="relative flex h-full min-h-screen w-full">
-
-   
       {/* Background Image */}
       {/* Login Form */}
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
@@ -124,12 +141,14 @@ export default function Login() {
             <Button
               startContent={<Icon className="text-default-500" icon="logos:google-icon" width={18} />}
               variant="bordered"
+              onPress={handleGoogleSignIn}
             >
               Continue with Google
             </Button>
             <Button
               startContent={<Icon className="text-default-500 dark:invert" icon="logos:apple" width={18} />}
               variant="bordered"
+              onPress={handleAppleSignIn}
             >
               Continue with Apple
             </Button>
