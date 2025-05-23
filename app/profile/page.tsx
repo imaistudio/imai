@@ -27,7 +27,7 @@ export default function Profile() {
               type="text"
               variant="underlined"
             />
-            <DatePicker  variant="underlined" className="mt-4" label="Birth Date" />
+            <DatePicker isRequired variant="underlined" className="mt-4" label="Birth Date" />
         </CardBody>
         <CardFooter className="flex justify-center flex-col text-center text-sm text-muted-foreground">
           <Button className="w-full my-2" color="primary" type="submit">

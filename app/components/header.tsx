@@ -69,7 +69,7 @@ export default function App() {
             Getting Started
           </Button>
         </NavbarItem>
-        <ThemeSwitch />
+        <ThemeSwitch className="hidden lg:flex" />
       </NavbarContent>
 
       <NavbarMenu className="bg-black text-white">
