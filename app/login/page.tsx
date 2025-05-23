@@ -116,7 +116,7 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="relative hidden w-1/2 flex-col-reverse rounded-medium p-10 shadow-small lg:flex overflow-hidden">
+      <div className="relative hidden w-1/2 flex-col-reverse rounded-tl-medium rounded-bl-medium rounded-tr-none rounded-br-none p-10 shadow-small lg:flex overflow-hidden">
               {/* Background video */}
               <video
                 autoPlay
@@ -151,7 +151,7 @@ export default function Login() {
                   <span className="font-medium">”</span>
                 </p>
               </div>
-            </div>
+      </div>
     </div>
   );
 }

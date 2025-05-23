@@ -1,7 +1,9 @@
-1.Add Firebase Auth - Easy | Facebook Account | Apple Developer Accout | Phone Auth - Easy
-2.Connect firestore to the profile page - Easy 
-3.Connect contact us page form to firestore  - Easy
-4.add logic to popups  - Easy 
+1. Firebase Auth - Email | Phone | Apple | Goole - Easy
+2. FireStore Profile Page Setup - Easy
+3. FireStore Contact Page Admin - Easy
+4. Login Popups - Easy
 5.Chat storage endpoints with schemeas (chats / pins / folders / search ) CRUD setup - Hard
-6.Chat UI  - Hard 
-7.Cloud Function - Insane - VIP - Easy
+6.Pricing colors on the lightmode 
+7.Add stripe Payment Gateway 
+8.Chat UI  - Hard 
+9.Cloud Function - Insane - VIP - Easy
