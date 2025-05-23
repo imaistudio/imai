@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import {Button, Input, Link, Divider, User, Checkbox, Form} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import {
   signInWithPopup,
   GoogleAuthProvider,
   OAuthProvider,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 
 export default function Login() {
