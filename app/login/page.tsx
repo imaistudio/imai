@@ -1,16 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {Button, Input, Link, Divider, User, Checkbox, Form} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  OAuthProvider,
+} from "firebase/auth";
 
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,6 +33,11 @@ export default function Login() {
       setError(err.message);
     }
   };
+
+  const handlePhoneRedirect = () => {
+  router.push("/phone");
+  };
+
   
 
 
@@ -104,6 +117,7 @@ export default function Login() {
             <Button
               startContent={<Icon icon="solar:phone-bold" width={22} />}
               variant="bordered"
+              onPress={handlePhoneRedirect}
             >
               Continue with Phone
             </Button>

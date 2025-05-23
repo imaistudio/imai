@@ -1,35 +1,62 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {Button, Input, Link, Divider, User, Checkbox} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
 import { auth } from "@/lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  OAuthProvider,
+} from "firebase/auth";
 
 export default function Signup() {
-  
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [error, setError] = useState("");
+  const router = useRouter();
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("Account created successfully!");
+      router.push("/profile");
     } catch (err: any) {
       setError(err.message);
     }
   };
 
+   const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push("/profile");
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    const provider = new OAuthProvider("apple.com");
+    try {
+      await signInWithPopup(auth, provider);
+      router.push("/profile");
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handlePhoneSignIn = () => {
+    router.push("/phone");
+  };
+
   return (
     <div className="relative flex h-full min-h-screen w-full">
-  
-
       {/* Sign Up Form */}
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
@@ -97,7 +124,7 @@ export default function Signup() {
 
             <div className="flex w-full flex-col gap-2">
             <Button
-              href="/phone"
+              onPress={handlePhoneSignIn}
               startContent={<Icon className="text-default-500" icon="solar:phone-bold" width={22}  />}
               variant="bordered"
             >
@@ -107,19 +134,18 @@ export default function Signup() {
             <Button
               startContent={<Icon icon="logos:google-icon" width={18} />}
               variant="bordered"
+              onPress={handleGoogleSignIn}
             >
               Sign Up with Google
             </Button>
             <Button
               startContent={<Icon className="text-default-500 dark:invert" icon="logos:apple" width={18}  />}
               variant="bordered"
+              onPress={handleAppleSignIn}
             >
               Sign Up with Apple
             </Button>
           </div>
-
-      
-
           <p className="text-center text-small">
             Already have an account?&nbsp;
             <Link className="text-blue-500 dark:text-purple-600" href="/login" size="sm">
@@ -128,9 +154,6 @@ export default function Signup() {
           </p>
         </div>
       </div>
-
-    
-
       <div className="relative hidden w-1/2 flex-col-reverse rounded-tl-medium rounded-bl-medium rounded-tr-none rounded-br-none p-10 shadow-small lg:flex overflow-hidden">
         {/* Background video */}
         <video
