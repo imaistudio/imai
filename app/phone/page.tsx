@@ -5,7 +5,6 @@ import Header from "../components/header";
 
 export default function Phone() {
   const [selectedAlpha3, setSelectedAlpha3] = useState("USA");
-
   return (
     <>
     <Header></Header>
