@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { CountryDropdown } from "../components/country-dropdown";
 import Header from "../components/header";
+import Footer from "../components/footer";
 
 export default function Phone() {
   const [selectedAlpha3, setSelectedAlpha3] = useState("USA");
@@ -9,7 +10,7 @@ export default function Phone() {
     <>
     <Header></Header>
     <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div className="w-1/4">
+      <div className="w-1/4 bg-white dark:bg-black">
         <CountryDropdown
           placeholder="Select country"
           defaultValue={selectedAlpha3}
@@ -20,6 +21,7 @@ export default function Phone() {
         />
       </div>
     </div>
+    <Footer></Footer>
     </>
   );
 }

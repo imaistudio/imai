@@ -37,7 +37,6 @@ export default function App() {
         <NavbarBrand as={Link} href="/">
           <IMAIIcon size={32} />
           <p className="hidden md:flex pl-2 font-bold text-inherit">IMAI</p>
-          
         </NavbarBrand>
       </NavbarContent>
 
