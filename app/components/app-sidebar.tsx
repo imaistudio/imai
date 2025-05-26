@@ -110,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <IMAIIcon size={32} />
+        <IMAIIcon size={30} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
