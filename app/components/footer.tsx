@@ -54,9 +54,9 @@ const socialItems = [
     icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:twitter" />,
   },
   {
-    name: "GitHub",
+    name: "linkedIn",
     href: "#",
-    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:github" />,
+    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:linkedin" />,
   },
   {
     name: "YouTube",
@@ -78,7 +78,7 @@ export default function Footer() {
           {navLinks.map((item) => (
             <Link
               key={item.name}
-              className="text-default-500"
+              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
               href={item.href}
               size="sm"
             >
@@ -89,8 +89,8 @@ export default function Footer() {
         <Spacer y={6} />
         <div className="flex justify-center gap-x-4">
           {socialItems.map((item) => (
-            <Link key={item.name} isExternal className="text-default-400" href={item.href}>
-              <span className="sr-only">{item.name}</span>
+            <Link key={item.name} isExternal className="text-black dark:text-white hover:scale-110 hover:font-semibold" href={item.href}>
+              <span className="sr-only text-black dark:text-white hover:scale-110 hover:font-semibold">{item.name}</span>
               <item.icon aria-hidden="true" className="w-5" />
             </Link>
           ))}

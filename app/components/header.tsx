@@ -35,36 +35,36 @@ export default function App() {
           className="sm:hidden"
         />
         <NavbarBrand as={Link} href="/">
-          <IMAIIcon size={32} />
-          <p className="hidden md:flex pl-2 font-bold text-inherit">IMAI</p>
+          <IMAIIcon className="text-black dark:text-white" size={32} />
+          <p className="hidden md:flex pl-2 font-bold text-black dark:text-white">IMAI</p>
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+      <NavbarContent className="hidden sm:flex gap-4 text-black dark:text-white" justify="center">
         <NavbarItem>
-          <Link href="/explore">Explore</Link>
+          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/explore">Explore</Link>
         </NavbarItem>
         <NavbarItem>
-          <Link href="/about">About</Link>
+          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/about">About</Link>
         </NavbarItem>
         <NavbarItem>
-          <Link href="/pricing">Pricing</Link>
+          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/pricing">Pricing</Link>
         </NavbarItem>
         <NavbarItem>
-          <Link href="/contact">Contact</Link>
+          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/contact">Contact</Link>
         </NavbarItem>
         <NavbarItem>
-          <Link href="/terms">Terms</Link>
+          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/terms">Terms</Link>
         </NavbarItem>
       </NavbarContent>
 
   
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Link href="/login">Login</Link>
+        <NavbarItem className="hidden lg:flex text-black dark:text-white">
+          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/login">Login</Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} href="/signup" className="rounded-full bg-black text-white dark:bg-white dark:text-black">
+          <Button as={Link} href="/signup" className="rounded-full bg-primary text-white">
             Getting Started
           </Button>
         </NavbarItem>
