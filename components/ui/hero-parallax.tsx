@@ -8,8 +8,6 @@ import {
   MotionValue,
 } from "motion/react";
 
-
-
 export const HeroParallax = ({
   products,
 }: {

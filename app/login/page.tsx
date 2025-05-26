@@ -27,7 +27,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Logged in successfully!");
+      router.push("/profile");
     } catch (err: any) {
       setError(err.message);
     }
