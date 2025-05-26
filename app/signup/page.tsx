@@ -123,13 +123,13 @@ export default function Signup() {
           </div>
 
             <div className="flex w-full flex-col gap-2">
-            <Button
+            {/* <Button
               onPress={handlePhoneSignIn}
               startContent={<Icon className="text-default-500" icon="solar:phone-bold" width={22}  />}
               variant="bordered"
             >
               Sign Up with Phone
-            </Button>
+            </Button> */}
     
             <Button
               startContent={<Icon icon="logos:google-icon" width={18} />}

@@ -130,13 +130,13 @@ const handleAppleSignIn = async () => {
 
 
             <div className="flex w-full flex-col gap-2">
-            <Button
+            {/* <Button
               startContent={<Icon icon="solar:phone-bold" width={22} />}
               variant="bordered"
               onPress={handlePhoneRedirect}
             >
               Continue with Phone
-            </Button>
+            </Button> */}
             <Button
               startContent={<Icon className="text-default-500" icon="logos:google-icon" width={18} />}
               variant="bordered"
