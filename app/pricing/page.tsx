@@ -48,7 +48,7 @@ export default function Pricing() {
         />
       </div>
       <div className="flex max-w-xl flex-col text-center">
-        <h2 className="font-medium leading-7 text-blue-500 dark:text-purple-600">Pricing</h2>
+        <h2 className="font-medium leading-7 text-blue-500">Pricing</h2>
         <h1 className="text-4xl font-medium tracking-tight">Get unlimited access.</h1>
         <Spacer y={4} />
         <h2 className="text-large text-default-500">
@@ -72,7 +72,7 @@ export default function Pricing() {
           title={
             <div className="flex items-center gap-2">
               <p>Pay Yearly</p>
-              <Chip color="secondary" className="text-blue-500 dark:text-purple-600" variant="flat">
+              <Chip color="secondary" className="text-blue-500 " variant="flat">
                 Save 25%
               </Chip>
             </div>
