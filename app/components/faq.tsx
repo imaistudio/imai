@@ -35,7 +35,7 @@ export default function FAQ() {
           {faqs.map((item, i) => (
             <AccordionItem
               key={i}
-              indicator={<Icon icon="lucide:plus" className="text-purple-600" width={24} />}
+              indicator={<Icon icon="lucide:plus" className="text-blue-500" width={24} />}
               title={item.title}
             >
               {item.content}

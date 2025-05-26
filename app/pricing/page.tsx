@@ -23,32 +23,19 @@ import FAQ from "../components/faq";
 
 export default function Pricing() {
   const [selectedFrequency, setSelectedFrequency] = React.useState(frequencies[0]);
-
   const onFrequencyChange = (selectedKey: React.Key) => {
     const frequencyIndex = frequencies.findIndex((f) => f.key === selectedKey);
-
     setSelectedFrequency(frequencies[frequencyIndex]);
   };
+
 
   return (
     <>
     <Header></Header>
-    <div className="flex flex-col items-center justify-center bg-white dark:bg-black">
-    <div className="relative flex max-w-4xl flex-col items-center py-24">
-      <div
-        aria-hidden="true"
-        className="px:5 absolute inset-x-0 top-3 z-0 h-full w-full transform-gpu overflow-hidden blur-3xl md:right-20 md:h-auto md:w-auto md:px-36"
-      >
-        <div
-          className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#FF71D7] to-[#C9A9E9] opacity-30"
-          style={{
-            clipPath:
-              "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-          }}
-        />
-      </div>
+    <div className="w-full flex justify-center align-middle min-h-full bg-white dark:bg-black">
+      <div className="flex max-w-5xl flex-col items-center py-24">
       <div className="flex max-w-xl flex-col text-center">
-        <h2 className="font-medium leading-7 text-blue-500">Pricing</h2>
+        <h2 className="font-medium text-blue-500">Pricing</h2>
         <h1 className="text-4xl font-medium tracking-tight">Get unlimited access.</h1>
         <Spacer y={4} />
         <h2 className="text-large text-default-500">
@@ -58,23 +45,20 @@ export default function Pricing() {
       <Spacer y={8} />
       <Tabs
         classNames={{
-          tabList: "bg-default-100/70",
-          cursor: "bg-background dark:bg-default-200/30",
           tab: "data-[hover-unselected=true]:opacity-90",
         }}
         radius="full"
+        size="lg"
         onSelectionChange={onFrequencyChange}
       >
         <Tab
           key={FrequencyEnum.Yearly}
           aria-label="Pay Yearly"
-          className="pr-0.5"
+          className="pr-1.5"
           title={
             <div className="flex items-center gap-2">
               <p>Pay Yearly</p>
-              <Chip color="secondary" className="text-blue-500 " variant="flat">
-                Save 25%
-              </Chip>
+              <Chip color="primary">Save 25%</Chip>
             </div>
           }
         />
@@ -83,16 +67,16 @@ export default function Pricing() {
       <Spacer y={12} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tiers.map((tier) => (
-          <Card
-            key={tier.key}
-            isBlurred
-            className={cn("bg-background/60 p-3 dark:bg-default-100/50", {
-              "!border-small border-secondary/50": tier.mostPopular,
-            })}
-            shadow="md"
-          >
+          <Card key={tier.key} className="relative p-3" shadow="md">
             {tier.mostPopular ? (
-              <Chip className="absolute right-4 top-4" color="secondary" variant="flat">
+              <Chip
+                classNames={{
+                  base: "absolute top-4 right-4",
+                  content: "font-medium text-primary-500 dark:text-primary-600",
+                }}
+                color="primary"
+                variant="flat"
+              >
                 Most Popular
               </Chip>
             ) : null}
@@ -117,7 +101,7 @@ export default function Pricing() {
               <ul className="flex flex-col gap-2">
                 {tier.features?.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
-                    <Icon className="text-secondary" icon="ci:check" width={24} />
+                    <Icon className="text-primary" icon="ci:check" width={24} />
                     <p className="text-default-500">{feature}</p>
                   </li>
                 ))}
@@ -127,7 +111,7 @@ export default function Pricing() {
               <Button
                 fullWidth
                 as={Link}
-                color="secondary"
+                color={tier.buttonColor}
                 href={tier.href}
                 variant={tier.buttonVariant}
               >
@@ -141,8 +125,9 @@ export default function Pricing() {
       <div className="flex py-2">
         <FAQ></FAQ>
       </div>
+      </div>
     </div>
-    </div>
+
     <Footer></Footer>
     </>
   );
