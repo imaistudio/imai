@@ -2,6 +2,5 @@
 2. Nav Bar Login Hide & Unhide , Logout , Popups - Today
 3. Profile To Firestore and Mandate this step after each authentication 
 4. Crud Operations for storing the chats,sidebar,...etc - Whole Schema 
-5. Fix Pricing Colors
-6. SideBar
-7. Fix Contact Us Upload Option & Connect With Firestore 
+5. SideBar
+6. Connect Contact page with firestore 

@@ -88,11 +88,11 @@ export default function PromptContainer() {
           {previewImages.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {previewImages.map((url, index) => (
-                <div key={index} className="relative">
+                <div key={index} className="relative w-[72px] h-[72px]">
                   <img 
                     src={url} 
                     alt={`Preview ${index}`} 
-                    className="h-18 w-18 object-cover rounded-lg"
+                    className="w-full h-full object-cover rounded-lg"
                   />
                   <button
                     onClick={() => removeImage(index)}
