@@ -12,7 +12,6 @@ const useMorphingText = (texts: string[]) => {
   const morphRef = useRef(0);
   const cooldownRef = useRef(0);
   const timeRef = useRef(new Date());
-
   const text1Ref = useRef<HTMLSpanElement>(null);
   const text2Ref = useRef<HTMLSpanElement>(null);
 
@@ -20,17 +19,14 @@ const useMorphingText = (texts: string[]) => {
     (fraction: number) => {
       const [current1, current2] = [text1Ref.current, text2Ref.current];
       if (!current1 || !current2) return;
-
       current2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
       current2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
-
       const invertedFraction = 1 - fraction;
       current1.style.filter = `blur(${Math.min(
         8 / invertedFraction - 8,
         100,
       )}px)`;
       current1.style.opacity = `${Math.pow(invertedFraction, 0.4) * 100}%`;
-
       current1.textContent = texts[textIndexRef.current % texts.length];
       current2.textContent = texts[(textIndexRef.current + 1) % texts.length];
     },
@@ -40,16 +36,12 @@ const useMorphingText = (texts: string[]) => {
   const doMorph = useCallback(() => {
     morphRef.current -= cooldownRef.current;
     cooldownRef.current = 0;
-
     let fraction = morphRef.current / morphTime;
-
     if (fraction > 1) {
       cooldownRef.current = cooldownTime;
       fraction = 1;
     }
-
     setStyles(fraction);
-
     if (fraction === 1) {
       textIndexRef.current++;
     }
