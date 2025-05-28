@@ -1,9 +1,8 @@
 1. Firebase Auth | Apple | Reset Email - Today
 2. Nav Bar Login Hide & Unhide , Logout , Popups - Today
-3. Profile To Firestore and Mandate this step after each authentication – Today  
-4. Connect Contact page with firestore – Today
-5. Crud Operations for storing the chats,sidebar,...etc - Whole Schema – Today
-6. SideBar - Today
-7. Chat Ui - Today
-8. Backend API Calls Dummy Data - Today 
+3. Connect Contact page with firestore – Today
+4. Crud Operations for storing the chats,sidebar,...etc - Whole Schema – Today
+5. SideBar - Today
+6. Chat Ui - Today
+7. Backend API Calls Dummy Data - Today 
 

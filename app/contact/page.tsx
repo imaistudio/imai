@@ -3,6 +3,9 @@ import { useState, ChangeEvent } from 'react';
 import Footer from '../components/footer';
 import Header from '../components/header';
 import { Icon } from "@iconify/react";
+import { useAuth } from "@/contexts/AuthContext";
+import { firestore } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function PromptContainer() {
   const [prompt, setPrompt] = useState<string>('');

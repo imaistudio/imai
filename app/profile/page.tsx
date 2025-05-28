@@ -103,7 +103,24 @@ export default function Profile() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading) {
+  return (
+    <>
+    <Header />
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
+      <video
+        className="w-48 h-48"
+        src="spinners/profile_loading.webm"
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+    </div>
+    <Footer />
+    </>
+  );
+}
 
   return (
     <>
