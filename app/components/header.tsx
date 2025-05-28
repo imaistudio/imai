@@ -108,7 +108,7 @@ export default function App() {
             {user ? (
               // Show when user is authenticated
               <>
-              <InteractiveHoverButton>Genrate Image</InteractiveHoverButton>
+              <InteractiveHoverButton className="hidden lg:flex">Start Generating</InteractiveHoverButton>
               <ThemeSwitch className="hidden lg:flex" />
               </>
             ) : (
