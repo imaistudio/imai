@@ -62,7 +62,6 @@ export default function PromptContainer() {
     try {
       const uid = currentUser.uid;
       const imageUrls: string[] = [];
-
       // Upload images
       for (const img of images) {
         const storageRef = ref(storage, `contact/${uid}/${Date.now()}-${img.name}`);
@@ -95,9 +94,14 @@ export default function PromptContainer() {
       <Header />
       <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-black p-4">
         {submitted ? (
-          <h1 className="text-3xl font-bold text-center text-green-600">
-            ✅ Thank you for your submission!
+        <div className='flex flex-col items-center justify-center text-center min-h-screen'>
+          <h1 className="text-3xl font-bold text-center">
+            Thank you for contacting us!
           </h1>
+          <small className="lg:pt-4">
+            Our dedicated team at Imai Support has received your message & will get back to you shortly. <br></br> We truly appreciate you reaching out and look forward to assisting you!
+          </small>
+        </div>
         ) : (
           <>
             <h2 className="font-medium text-blue-600">Contact Us</h2>
