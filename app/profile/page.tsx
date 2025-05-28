@@ -107,7 +107,7 @@ export default function Profile() {
     <Header />
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
       <video
-        className="w-48 h-48"
+        className="w-50 h-50"
         src="spinners/profile_loading.webm"
         autoPlay
         loop

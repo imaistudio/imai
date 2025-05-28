@@ -15,6 +15,7 @@ import { IMAIIcon } from "@/app/components/imai";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
+import { useRouter } from "next/navigation";
 
 // Define the type for menu items
 type MenuItem = {
@@ -26,6 +27,7 @@ type MenuItem = {
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { user, loading, logout } = useAuth();
+  const router = useRouter();
 
   // Filter menu items based on authentication status
   const getMenuItems = (): MenuItem[] => {
@@ -108,7 +110,7 @@ export default function App() {
             {user ? (
               // Show when user is authenticated
               <>
-              <InteractiveHoverButton className="hidden lg:flex">Start Generating</InteractiveHoverButton>
+              <InteractiveHoverButton onClick={() => router.push("/")} className="hidden lg:flex">Start Generating</InteractiveHoverButton>
               <ThemeSwitch className="hidden lg:flex" />
               </>
             ) : (
