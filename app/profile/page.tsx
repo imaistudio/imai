@@ -19,31 +19,28 @@ export default function Profile() {
   const [isUpdate, setIsUpdate] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Redirect to signup if no user
+  // Fetch profile data without authentication check
   useEffect(() => {
-    if (!currentUser) {
-      router.push("/signup");
-      return;
-    }
-
     const fetchProfile = async () => {
       try {
-        const userRef = doc(firestore, "profiles", currentUser.uid);
-        const snapshot = await getDoc(userRef);
+        if (currentUser) {
+          const userRef = doc(firestore, "profiles", currentUser.uid);
+          const snapshot = await getDoc(userRef);
 
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          setName(data.name || "");
-          // Convert ISO string back to CalendarDate
-          if (data.dob) {
-            const date = new Date(data.dob);
-            setDob(new CalendarDate(
-              date.getFullYear(),
-              date.getMonth() + 1,
-              date.getDate()
-            ));
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            setName(data.name || "");
+            // Convert ISO string back to CalendarDate
+            if (data.dob) {
+              const date = new Date(data.dob);
+              setDob(new CalendarDate(
+                date.getFullYear(),
+                date.getMonth() + 1,
+                date.getDate()
+              ));
+            }
+            setIsUpdate(true);
           }
-          setIsUpdate(true);
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -54,9 +51,15 @@ export default function Profile() {
     };
 
     fetchProfile();
-  }, [currentUser, router]);
+  }, [currentUser]);
 
   const handleSubmit = async () => {
+    // Check authentication at submission time
+    if (!currentUser) {
+      router.push("/signup");
+      return;
+    }
+
     if (!name || !dob) {
       setError("All fields are required.");
       return;
@@ -78,11 +81,6 @@ export default function Profile() {
     }
 
     try {
-      if (!currentUser) {
-        setError("User not authenticated.");
-        return;
-      }
-
       const userRef = doc(firestore, "profiles", currentUser.uid);
       await setDoc(userRef, {
         name,
