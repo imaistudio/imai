@@ -29,3 +29,11 @@ export default function Page() {
   );
 }
 // End Here 
+
+If you want to reset the modal visibility (e.g., after a certain time or when user logs out), you can clear it:
+
+ts
+Copy
+Edit
+
+localStorage.removeItem(MODAL_SHOWN_KEY);

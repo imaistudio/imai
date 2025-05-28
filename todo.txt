@@ -1,8 +1,10 @@
-1. Firebase Auth | Apple | Reset Email - Today
-2. Nav Bar Login Hide & Unhide , Logout , Popups - Today
-3. Connect Contact page with firestore – Today
-4. Crud Operations for storing the chats,sidebar,...etc - Whole Schema – Today
-5. SideBar - Today
-6. Chat Ui - Today
-7. Backend API Calls Dummy Data - Today 
-
+1.firebase auth - Apple | Reset Email
+2.popups on the homepage 
+3.setup firestorage and test contact us page
+4.Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+5.load user chats in sidebar 
+6.search functionality 
+7.create folder 
+8.pin messages 
+9.chat ui test dummy one to store and api call back 
+10.Backend API Calls Dummy Data
