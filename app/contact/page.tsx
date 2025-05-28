@@ -1,176 +1,185 @@
 'use client';
+
 import { useState, ChangeEvent } from 'react';
-import Footer from '../components/footer';
+import { useRouter } from 'next/navigation';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { arrayUnion, doc, setDoc } from 'firebase/firestore';
+import { firestore, storage } from '@/lib/firebase'; // adjust path
+import { useAuth } from '@/contexts/AuthContext';
 import Header from '../components/header';
+import Footer from '../components/footer';
 import { Icon } from "@iconify/react";
-import { useAuth } from "@/contexts/AuthContext";
-import { firestore } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function PromptContainer() {
   const [prompt, setPrompt] = useState<string>('');
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { user: currentUser } = useAuth();
+  const router = useRouter();
+
   const suggestions = [
-    {
-      id: "general-inquiry",
-      label: "General inquiry",
-      icon: "solar:chat-line-linear",
-    },
-    {
-      id: "technical-support",
-      label: "Technical support",
-      icon: "solar:headphones-round-linear",
-    },
-    {
-      id: "billing-issues",
-      label: "Billing",
-      icon: "solar:wallet-2-linear",
-    },
-    {
-      id: "account-help",
-      label: "Account assistance",
-      icon: "solar:user-circle-linear",
-    },
-    {
-      id: "report-problem",
-      label: "Report a problem",
-      icon: "solar:bug-linear",
-    },
-    {
-      id: "feature-request",
-      label: "Suggest a feature",
-      icon: "solar:lightbulb-linear",
-    },
-    {
-      id: "business-inquiry",
-      label: "Business inquiry",
-      icon: "solar:backpack-outline",
-    },
+    { id: "general-inquiry", label: "General inquiry", icon: "solar:chat-line-linear" },
+    { id: "technical-support", label: "Technical support", icon: "solar:headphones-round-linear" },
+    { id: "billing-issues", label: "Billing", icon: "solar:wallet-2-linear" },
+    { id: "account-help", label: "Account assistance", icon: "solar:user-circle-linear" },
+    { id: "report-problem", label: "Report a problem", icon: "solar:bug-linear" },
+    { id: "feature-request", label: "Suggest a feature", icon: "solar:lightbulb-linear" },
+    { id: "business-inquiry", label: "Business inquiry", icon: "solar:backpack-outline" },
   ];
 
   const handlePromptChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
   };
-  
+
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    setImages(prevImages => [...prevImages, ...files]);
-    const newPreviewImages = files.map(file => URL.createObjectURL(file));
-    setPreviewImages(prevImages => [...prevImages, ...newPreviewImages]);
+    setImages(prev => [...prev, ...files]);
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setPreviewImages(prev => [...prev, ...newPreviews]);
   };
-  
+
   const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+    setImages(prev => prev.filter((_, i) => i !== index));
     URL.revokeObjectURL(previewImages[index]);
-    setPreviewImages(previewImages.filter((_, i) => i !== index));
+    setPreviewImages(prev => prev.filter((_, i) => i !== index));
   };
-  
-  const handleSubmit = () => {
-    console.log('Submitted prompt:', prompt);
-    console.log('Submitted images:', images);
+
+  const handleSuggestionClick = (text: string) => {
+    setPrompt(text);
   };
-  
-  const handleSuggestionClick = (suggestionText: string) => {
-    setPrompt(suggestionText);
+
+  const handleSubmit = async () => {
+    if (!currentUser) {
+      router.push('/signup');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const uid = currentUser.uid;
+      const imageUrls: string[] = [];
+
+      // Upload images
+      for (const img of images) {
+        const storageRef = ref(storage, `contact/${uid}/${Date.now()}-${img.name}`);
+        const snapshot = await uploadBytes(storageRef, img);
+        const downloadUrl = await getDownloadURL(snapshot.ref);
+        imageUrls.push(downloadUrl);
+      }
+
+      // Firestore submission
+      const userDocRef = doc(firestore, 'contact', uid);
+      await setDoc(userDocRef, {
+        uid,
+        submissions: arrayUnion({
+          text: prompt,
+          images: imageUrls,
+          timestamp: new Date(),
+        })
+      }, { merge: true });
+
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
+
   return (
     <>
-    <Header></Header>
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-black p-4 md:p-0">
-      <h2 className="font-medium leading-7 text-blue-600">Contact Us</h2>
-      <h1 className="text-3xl font-semibold leading-9 text-black dark:text-white mb-8 p-2 md:p-0 text-center">
-        How Can We Help You Today?
-      </h1>
-      <div className="w-full max-w-2xl bg-[#f4f4f5] dark:bg-[#27272a] rounded-lg p-4">
-        <div className="flex flex-col space-y-4">
-          {/* Preview images */}
-          {previewImages.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {previewImages.map((url, index) => (
-                <div key={index} className="relative w-[72px] h-[72px]">
-                  <img 
-                    src={url} 
-                    alt={`Preview ${index}`} 
-                    className="w-full h-full object-cover rounded-lg"
+      <Header />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-black p-4">
+        {submitted ? (
+          <h1 className="text-3xl font-bold text-center text-green-600">
+            ✅ Thank you for your submission!
+          </h1>
+        ) : (
+          <>
+            <h2 className="font-medium text-blue-600">Contact Us</h2>
+            <h1 className="text-3xl font-semibold text-black dark:text-white mb-8 text-center">
+              How Can We Help You Today?
+            </h1>
+            <div className="w-full max-w-2xl bg-[#f4f4f5] dark:bg-[#27272a] rounded-lg p-4">
+              <div className="flex flex-col space-y-4">
+
+                {previewImages.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {previewImages.map((url, i) => (
+                      <div key={i} className="relative w-[72px] h-[72px]">
+                        <img src={url} alt={`Preview ${i}`} className="w-full h-full object-cover rounded-lg" />
+                        <button
+                          onClick={() => removeImage(i)}
+                          className="absolute -top-2 -right-2 bg-black text-white rounded-full w-6 h-6 flex items-center justify-center"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-end space-x-2">
+                  <textarea
+                    value={prompt}
+                    onChange={handlePromptChange}
+                    placeholder="Enter your query here"
+                    className="w-full bg-transparent border-none outline-none resize-none text-black dark:text-white text-lg min-h-[45px]"
+                    rows={2}
+                    onInput={(e) => {
+                      const el = e.target as HTMLTextAreaElement;
+                      el.style.height = 'auto';
+                      el.style.height = el.scrollHeight + 'px';
+                    }}
                   />
+                </div>
+
+                <div className='w-full flex justify-between items-center'>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <div className="p-2 rounded-full text-gray-400">
+                      <Icon icon="solar:paperclip-outline" width="22" height="22" />
+                    </div>
+                  </label>
                   <button
-                    onClick={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 bg-black text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting || (!prompt && images.length === 0)}
+                    className={`p-2 rounded-full transition-colors ${
+                      prompt || images.length > 0 ? 'bg-blue-500' : 'bg-gray-400'
+                    }`}
                   >
-                    ✕
+                    <Icon icon="solar:arrow-up-outline" width="22" height="22" color="#fff" />
                   </button>
                 </div>
+              </div>
+            </div>
+
+            <div className="hidden md:flex flex-wrap justify-center gap-2 mt-6 w-full md:max-w-4xl px-4">
+              {suggestions.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => handleSuggestionClick(s.label)}
+                  className="flex items-center gap-1 px-4 py-2 dark:text-white rounded-full border dark:border-[#3f3f46] dark:hover:bg-[#27272a] transition-colors"
+                >
+                  <Icon icon={s.icon} width="16" height="16" />
+                  <span>{s.label}</span>
+                </button>
               ))}
             </div>
-          )}
-          
-          {/* Prompt input and buttons */}
-          <div className="flex items-end space-x-2">
-            <div className="flex-grow relative">
-              <textarea
-                value={prompt}
-                onChange={handlePromptChange}
-                placeholder="Enter your query here"
-                className="w-full bg-transparent border-none outline-none resize-none text-black dark:text-white text-lg min-h-[45px]"
-                rows={2}
-                style={{ height: 'auto' }}
-                onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
-                  // Auto-resize the textarea
-                  const target = e.target as HTMLTextAreaElement;
-                  target.style.height = 'auto';
-                  target.style.height = target.scrollHeight + 'px';
-                }}
-              />
-            </div>
-          </div>
-          <div className='w-full flex flex-row justify-between'>
-            {/* Upload button */}
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                id="image-upload"
-              />
-              <div className={`p-2 rounded-full ${prompt ? 'text-gray-400' : 'text-gray-400'}`}>
-                <Icon icon="solar:paperclip-outline" width="22" height="22" />
-              </div>
-            </label>
-            {/* Submit button */}
-            <button
-              onClick={handleSubmit}
-              className={`p-2 rounded-full transition-colors duration-200 ${
-                prompt || images.length > 0 ? 'bg-blue-500' : 'bg-gray-400'
-              }`}
-              disabled={!prompt && images.length === 0}
-            >
-              <Icon icon="solar:arrow-up-outline" width="22" height="22" color="#fff" />
-            </button>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-      
-      {/* Suggestion chips */}
-      <div className="hidden md:flex flex-wrap justify-center gap-2 mt-6 w-full md:max-w-4xl px-4">
-        {suggestions.map((suggestion) => (
-          <button
-            key={suggestion.id}
-            onClick={() => handleSuggestionClick(suggestion.label)}
-            className="flex items-center gap-1 px-4 py-2 dark:text-white  rounded-full border dark:border-[#3f3f46] dark:hover:bg-[#27272a] transition-colors duration-200"
-          >
-            <Icon icon={suggestion.icon} width="16" height="16" />
-            <span>{suggestion.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-    <Footer></Footer>
+      <Footer />
     </>
   );
 }
