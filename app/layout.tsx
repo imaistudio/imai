@@ -8,6 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { GlobalModalProvider } from "@/contexts/GlobalModalContext";
 import GlobalModal from "@/app/components/GlobalModal";
 import ConditionalSidebar from "./components/ConditionalSidebar";
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
@@ -59,12 +60,14 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
             <main>
+              <AuthProvider>
               <GlobalModalProvider>
                 <ConditionalSidebar>
                   {children}
                 </ConditionalSidebar>
                 <GlobalModal />
               </GlobalModalProvider>
+              </AuthProvider>
               <SpeedInsights />
               <Analytics />
             </main>
