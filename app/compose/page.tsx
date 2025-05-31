@@ -70,37 +70,26 @@ const ImageCompositionApp: React.FC = () => {
 
   const handleFileChange = (type: keyof FileState, file: File | null) => {
     if (!file) return;
-    
-    setFiles(prev => ({
-      ...prev,
-      [type]: file
-    }));
+    setFiles(prev => ({ ...prev, [type]: file }));
     setError('');
   };
 
   const removeFile = (type: keyof FileState) => {
-    setFiles(prev => ({
-      ...prev,
-      [type]: null
-    }));
+    setFiles(prev => ({ ...prev, [type]: null }));
   };
 
   const validateForm = (): boolean => {
     if (!currentWorkflow) return false;
-    
     const requiredFiles = currentWorkflow.required;
     const missingFiles = requiredFiles.filter(fileType => !files[fileType]);
-    
     if (missingFiles.length > 0) {
       setError(`Missing required files: ${missingFiles.join(', ')}`);
       return false;
     }
-
     if (workflowType === 'color_design' && !prompt.trim()) {
       setError('Prompt is required for Color + Design workflow');
       return false;
     }
-
     return true;
   };
 
@@ -113,13 +102,9 @@ const ImageCompositionApp: React.FC = () => {
 
     try {
       const formData = new FormData();
-      
-      // Add files
       if (files.product) formData.append('product', files.product);
       if (files.design) formData.append('design', files.design);
       if (files.color) formData.append('color', files.color);
-      
-      // Add text fields
       formData.append('workflowType', workflowType);
       if (prompt.trim()) formData.append('prompt', prompt);
 
@@ -129,7 +114,6 @@ const ImageCompositionApp: React.FC = () => {
       });
 
       const data = await response.json();
-
       if (data.status === 'success') {
         setResult(data);
       } else {
@@ -152,7 +136,7 @@ const ImageCompositionApp: React.FC = () => {
   const FileUpload: React.FC<FileUploadProps> = ({ type, label, icon: Icon, required }) => {
     const file = files[type];
     const isRequired = currentWorkflow?.required.includes(type) ?? false;
-    
+
     return (
       <div className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
         isRequired ? 'border-blue-300 bg-blue-50' : 'border-gray-300 bg-gray-50'
@@ -214,56 +198,44 @@ const ImageCompositionApp: React.FC = () => {
           <div className="space-y-8">
             {/* Workflow Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <p className="block text-sm font-medium text-gray-700 mb-3">
                 Workflow Type
-              </label>
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {workflowOptions.map((option) => (
-                  <label
-                    key={option.value}
-                    className={`relative rounded-lg border p-4 cursor-pointer transition-colors ${
-                      workflowType === option.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
+                  <div key={option.value}>
                     <input
                       type="radio"
+                      id={`workflow-${option.value}`}
                       name="workflowType"
                       value={option.value}
                       checked={workflowType === option.value}
                       onChange={(e) => setWorkflowType(e.target.value)}
                       className="sr-only"
                     />
-                    <div>
-                      <div className="font-medium text-gray-900">{option.label}</div>
-                      <div className="text-sm text-gray-600 mt-1">{option.description}</div>
-                    </div>
-                  </label>
+                    <label
+                      htmlFor={`workflow-${option.value}`}
+                      className={`relative rounded-lg border p-4 cursor-pointer transition-colors ${
+                        workflowType === option.value
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-medium text-gray-900">{option.label}</div>
+                        <div className="text-sm text-gray-600 mt-1">{option.description}</div>
+                      </div>
+                    </label>
+                  </div>
                 ))}
               </div>
             </div>
 
             {/* File Uploads */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FileUpload
-                type="product"
-                label="Product Image"
-                icon={Image}
-                required={currentWorkflow?.required.includes('product') ?? false}
-              />
-              <FileUpload
-                type="design"
-                label="Design Image"
-                icon={Sparkles}
-                required={currentWorkflow?.required.includes('design') ?? false}
-              />
-              <FileUpload
-                type="color"
-                label="Color Image"
-                icon={Palette}
-                required={currentWorkflow?.required.includes('color') ?? false}
-              />
+              <FileUpload type="product" label="Product Image" icon={Image} required={currentWorkflow?.required.includes('product') ?? false} />
+              <FileUpload type="design" label="Design Image" icon={Sparkles} required={currentWorkflow?.required.includes('design') ?? false} />
+              <FileUpload type="color" label="Color Image" icon={Palette} required={currentWorkflow?.required.includes('color') ?? false} />
             </div>
 
             {/* Prompt Input */}
