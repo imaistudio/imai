@@ -1,10 +1,9 @@
 1.firebase auth - Apple | Reset Email
-2.popups on the homepage 
-3.setup firestorage and test contact us page
-4.Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-5.load user chats in sidebar 
-6.search functionality 
-7.create folder 
-8.pin messages 
-9.chat ui test dummy one to store and api call back 
-10.Backend API Calls Dummy Data
+2.setup firestorage and test contact us page
+3.Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+4.load user chats in sidebar 
+5.search functionality 
+6.create folder 
+7.pin messages 
+8.chat ui test dummy one to store and api call back 
+9.Backend API Calls Dummy Data
