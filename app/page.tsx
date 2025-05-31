@@ -2,8 +2,16 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
-
+import { MorphingText } from "@/components/magicui/morphing-text";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
+
+const texts = [
+  "Comming",
+  "Soon",
+  "IMAI",
+  "Creating",
+  "Newness",
+];
 
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
@@ -33,7 +41,7 @@ export default function Home() {
 
   return (
     <div className="w-full min-h-max flex flex-col items-center justify-center">
-      <h1>Hello World</h1>
+      <MorphingText texts={texts} />
     </div>
   );
 }
