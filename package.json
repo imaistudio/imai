@@ -46,6 +46,7 @@
     "country-data-list": "^1.4.1",
     "dotenv": "^16.5.0",
     "firebase": "^11.7.3",
+    "formidable": "^3.5.4",
     "framer-motion": "11.13.1",
     "intl-messageformat": "10.7.16",
     "lucide-react": "^0.511.0",
