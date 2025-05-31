@@ -1,3 +1,4 @@
+// components/ImageCompositionApp.tsx
 "use client"
 import React, { useState } from 'react';
 import { Upload, X, Image, Palette, Sparkles, Loader2 } from 'lucide-react';
@@ -130,10 +131,9 @@ const ImageCompositionApp: React.FC = () => {
     type: keyof FileState;
     label: string;
     icon: React.ElementType;
-    required: boolean;
   }
 
-  const FileUpload: React.FC<FileUploadProps> = ({ type, label, icon: Icon, required }) => {
+  const FileUpload: React.FC<FileUploadProps> = ({ type, label, icon: Icon }) => {
     const file = files[type];
     const isRequired = currentWorkflow?.required.includes(type) ?? false;
 
@@ -144,7 +144,7 @@ const ImageCompositionApp: React.FC = () => {
         <div className="text-center">
           <Icon className={`mx-auto h-12 w-12 ${isRequired ? 'text-blue-400' : 'text-gray-400'}`} />
           <div className="mt-4">
-            <label htmlFor={`file-${type}`} className="cursor-pointer">
+            <p className="cursor-pointer block">
               <span className={`mt-2 block text-sm font-medium ${isRequired ? 'text-blue-900' : 'text-gray-900'}`}>
                 {label} {isRequired && <span className="text-red-500">*</span>}
               </span>
@@ -153,7 +153,7 @@ const ImageCompositionApp: React.FC = () => {
                   <span className="text-sm text-green-600">{file.name}</span>
                   <button
                     type="button"
-                    onClick={() => removeFile(type)}
+                    onClick={(e) => { e.preventDefault(); removeFile(type); }}
                     className="text-red-500 hover:text-red-700"
                   >
                     <X className="h-4 w-4" />
@@ -175,7 +175,7 @@ const ImageCompositionApp: React.FC = () => {
                   handleFileChange(type, selectedFile);
                 }}
               />
-            </label>
+            </p>
           </div>
         </div>
       </div>
@@ -213,9 +213,8 @@ const ImageCompositionApp: React.FC = () => {
                       onChange={(e) => setWorkflowType(e.target.value)}
                       className="sr-only"
                     />
-                    <label
-                      htmlFor={`workflow-${option.value}`}
-                      className={`relative rounded-lg border p-4 cursor-pointer transition-colors ${
+                    <p
+                      className={`relative rounded-lg border p-4 cursor-pointer transition-colors flex ${
                         workflowType === option.value
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-300 hover:bg-gray-50'
@@ -225,7 +224,7 @@ const ImageCompositionApp: React.FC = () => {
                         <div className="font-medium text-gray-900">{option.label}</div>
                         <div className="text-sm text-gray-600 mt-1">{option.description}</div>
                       </div>
-                    </label>
+                    </p>
                   </div>
                 ))}
               </div>
@@ -233,16 +232,16 @@ const ImageCompositionApp: React.FC = () => {
 
             {/* File Uploads */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FileUpload type="product" label="Product Image" icon={Image} required={currentWorkflow?.required.includes('product') ?? false} />
-              <FileUpload type="design" label="Design Image" icon={Sparkles} required={currentWorkflow?.required.includes('design') ?? false} />
-              <FileUpload type="color" label="Color Image" icon={Palette} required={currentWorkflow?.required.includes('color') ?? false} />
+              <FileUpload type="product" label="Product Image" icon={Image} />
+              <FileUpload type="design" label="Design Image" icon={Sparkles} />
+              <FileUpload type="color" label="Color Image" icon={Palette} />
             </div>
 
             {/* Prompt Input */}
             <div>
-              <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 mb-2">
+              <p className="block text-sm font-medium text-gray-700 mb-2">
                 Custom Prompt {workflowType === 'color_design' && <span className="text-red-500">*</span>}
-              </label>
+              </p>
               <textarea
                 id="prompt"
                 name="prompt"
