@@ -8,7 +8,6 @@ import {
   GalleryVerticalEnd,
   Settings2,
 } from "lucide-react"
-
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +15,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { TeamSwitcher } from "./team-switcher"
 import { NavMain } from "./nav-main"
 import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
