@@ -18,11 +18,9 @@ interface DesignResult {
 export default function DesignPage() {
   const [prompt, setPrompt] = useState('');
   const [n, setN] = useState(1);
-  
   const [productImage, setProductImage] = useState<File | null>(null);
   const [designImage, setDesignImage] = useState<File | null>(null);
   const [colorImage, setColorImage] = useState<File | null>(null);
-  
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DesignResult | null>(null);
   const [previewUrls, setPreviewUrls] = useState<{
@@ -47,23 +45,23 @@ export default function DesignPage() {
   // Parse prompt for size and quality preferences
   const parsePromptPreferences = (promptText: string) => {
     const lowerPrompt = promptText.toLowerCase();
-    
+
     // Default values
     let size = '1024x1024'; // Always square unless specified
     let quality = 'hd'; // Always HD unless specified
-    
+
     // Size detection
     if (lowerPrompt.includes('portrait') || lowerPrompt.includes('tall') || lowerPrompt.includes('vertical')) {
       size = '1024x1792';
     } else if (lowerPrompt.includes('landscape') || lowerPrompt.includes('wide') || lowerPrompt.includes('horizontal')) {
       size = '1792x1024';
     }
-    
+
     // Quality detection - only override if explicitly mentioned as lower quality
     if (lowerPrompt.includes('standard quality') || lowerPrompt.includes('basic quality') || lowerPrompt.includes('lower quality')) {
       quality = 'standard';
     }
-    
+
     return { size, quality };
   };
 
@@ -79,22 +77,22 @@ export default function DesignPage() {
 
     if (hasProduct && hasDesign && hasColor) {
       workflow = 'full_composition';
-      description = 'Perfect! I\'ll combine all three references to create a comprehensive design.';
+      description = 'Perfect! I&apos;ll combine all three references to create a comprehensive design.';
     } else if (hasProduct && hasColor && !hasDesign) {
       workflow = 'product_color';
-      description = 'I\'ll apply the color scheme from your reference to the product.';
+      description = 'I&apos;ll apply the color scheme from your reference to the product.';
     } else if (hasProduct && hasDesign && !hasColor) {
       workflow = 'product_design';
-      description = 'I\'ll apply the design patterns and style to your product.';
+      description = 'I&apos;ll apply the design patterns and style to your product.';
     } else if (hasProduct && hasPrompt && !hasDesign && !hasColor) {
       workflow = 'product_prompt';
-      description = 'I\'ll enhance your product based on your custom instructions.';
+      description = 'I&apos;ll enhance your product based on your custom instructions.';
     } else if ((hasDesign || hasColor) && hasPrompt && !hasProduct) {
       workflow = 'color_design';
-      description = 'I\'ll create a new product inspired by your references and description.';
+      description = 'I&apos;ll create a new product inspired by your references and description.';
     } else if (hasPrompt && !hasProduct && !hasDesign && !hasColor) {
       workflow = 'prompt_only';
-      description = 'I\'ll generate a completely new product from your description.';
+      description = 'I&apos;ll generate a completely new product from your description.';
     } else if (hasProduct && !hasPrompt && !hasDesign && !hasColor) {
       workflow = '';
       description = 'Add design references, color references, or a custom prompt to get started.';
@@ -147,39 +145,39 @@ export default function DesignPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationError = validateForm();
     if (validationError) {
       alert(validationError);
       return;
     }
-    
+
     setLoading(true);
     setResult(null);
-    
+
     try {
       const formData = new FormData();
-      
+
       if (productImage) formData.append('product_image', productImage);
       if (designImage) formData.append('design_image', designImage);
       if (colorImage) formData.append('color_image', colorImage);
-      
+
       formData.append('workflow_type', detectedWorkflow);
       if (prompt.trim()) formData.append('prompt', prompt);
-      
+
       // Parse size and quality from prompt, use defaults if not specified
       const { size, quality } = parsePromptPreferences(prompt);
       formData.append('size', size);
       formData.append('quality', quality);
       formData.append('n', n.toString());
-      
+
       console.log(`[DEBUG] Auto-detected: Size=${size}, Quality=${quality}`);
-      
+
       const response = await fetch('/api/design', {
         method: 'POST',
         body: formData,
       });
-      
+
       const data = await response.json();
       setResult(data);
     } catch (error) {
@@ -214,7 +212,7 @@ export default function DesignPage() {
               AI Product Design Composer
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Just upload images or enter a prompt - I'll automatically detect the best workflow for you
+              Just upload images or enter a prompt - I&apos;ll automatically detect the best workflow for you
             </p>
           </div>
 
@@ -253,13 +251,14 @@ export default function DesignPage() {
                 <div className="space-y-4">
                   {/* Product Image */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="product-image-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Product Image
                       <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                         (Upload your base product to modify or enhance)
                       </span>
                     </label>
                     <input
+                      id="product-image-upload"
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleFileChange('product', e.target.files?.[0] || null)}
@@ -273,7 +272,7 @@ export default function DesignPage() {
                           onClick={() => handleFileChange('product', null)}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
                         >
-                          ×
+                          &times;
                         </button>
                       </div>
                     )}
@@ -281,13 +280,14 @@ export default function DesignPage() {
 
                   {/* Design Image */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="design-image-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Design Reference
                       <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                         (Upload an image with patterns, textures, or style you want to apply)
                       </span>
                     </label>
                     <input
+                      id="design-image-upload"
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleFileChange('design', e.target.files?.[0] || null)}
@@ -301,7 +301,7 @@ export default function DesignPage() {
                           onClick={() => handleFileChange('design', null)}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
                         >
-                          ×
+                          &times;
                         </button>
                       </div>
                     )}
@@ -309,13 +309,14 @@ export default function DesignPage() {
 
                   {/* Color Image */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="color-image-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Color Reference
                       <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                         (Upload an image with colors, materials, or finishes you want to use)
                       </span>
                     </label>
                     <input
+                      id="color-image-upload"
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleFileChange('color', e.target.files?.[0] || null)}
@@ -329,7 +330,7 @@ export default function DesignPage() {
                           onClick={() => handleFileChange('color', null)}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
                         >
-                          ×
+                          &times;
                         </button>
                       </div>
                     )}
@@ -338,21 +339,22 @@ export default function DesignPage() {
 
                 {/* Prompt */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="custom-instructions-prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Custom Instructions
                     <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                       (Describe your vision, style preferences, or specific modifications)
                     </span>
                   </label>
                   <textarea
+                    id="custom-instructions-prompt"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="e.g., 'Make it more luxurious with gold accents', 'Create a modern minimalist backpack in portrait orientation', 'Apply a vintage leather texture in landscape format'..."
+                    placeholder="e.g., &apos;Make it more luxurious with gold accents&apos;, &apos;Create a modern minimalist backpack in portrait orientation&apos;, &apos;Apply a vintage leather texture in landscape format&apos;..."
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder-gray-400"
                   />
                   <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    💡 <strong>Smart detection:</strong> Defaults to square HD images. Mention "portrait", "landscape", "wide", "tall" for different sizes. Quality is always HD unless you specify "standard quality".
+                    💡 <strong>Smart detection:</strong> Defaults to square HD images. Mention &quot;portrait&quot;, &quot;landscape&quot;, &quot;wide&quot;, &quot;tall&quot; for different sizes. Quality is always HD unless you specify &quot;standard quality&quot;.
                   </div>
                 </div>
 
@@ -388,7 +390,7 @@ export default function DesignPage() {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Generated Design
               </h3>
-              
+
               {loading && (
                 <div className="flex items-center justify-center h-64">
                   <div className="text-center">
@@ -399,7 +401,7 @@ export default function DesignPage() {
                   </div>
                 </div>
               )}
-              
+
               {result && !loading && (
                 <div className="space-y-4">
                   {result.status === 'success' ? (
@@ -413,7 +415,7 @@ export default function DesignPage() {
                           />
                         </div>
                       )}
-                      
+
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600 dark:text-gray-400">Workflow:</span>
@@ -432,7 +434,7 @@ export default function DesignPage() {
                           </div>
                         )}
                       </div>
-                      
+
                       {result.note && (
                         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-3">
                           <p className="text-sm text-green-800 dark:text-green-200">{result.note}</p>
@@ -447,7 +449,7 @@ export default function DesignPage() {
                   )}
                 </div>
               )}
-              
+
               {!result && !loading && (
                 <div className="text-center text-gray-500 dark:text-gray-400 h-64 flex items-center justify-center">
                   <div>
