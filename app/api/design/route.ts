@@ -4,8 +4,21 @@ import { join } from 'path';
 import OpenAI from 'openai';
 import { tmpdir } from 'os';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase';
+import { storage, auth } from '@/lib/firebase';
 import sharp from 'sharp'; // Added for image conversion
+import { getAuth } from 'firebase-admin/auth';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+
+// Initialize Firebase Admin if not already initialized
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  });
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -85,10 +98,31 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const userId = formData.get('userId') as string | null;
+    const idToken = formData.get('idToken') as string | null;
     
-    // Validate userId exists
-    if (!userId) {
-      throw new Error('userId is required');
+    // Validate userId and idToken exist
+    if (!userId || !idToken) {
+      return NextResponse.json(
+        { status: 'error', error: 'userId and idToken are required' },
+        { status: 400 }
+      );
+    }
+
+    // Verify the ID token
+    try {
+      const decodedToken = await getAuth().verifyIdToken(idToken);
+      if (decodedToken.uid !== userId) {
+        return NextResponse.json(
+          { status: 'error', error: 'User ID mismatch' },
+          { status: 403 }
+        );
+      }
+    } catch (error: any) {
+      console.error('Token verification error:', error);
+      return NextResponse.json(
+        { status: 'error', error: 'Invalid authentication token' },
+        { status: 401 }
+      );
     }
 
     const productImage = formData.get('product_image') as File | null;
@@ -113,77 +147,94 @@ export async function POST(request: NextRequest) {
     const processImage = async (file: File | null, type: string) => {
       if (!file) return null;
       
-      // Save to temp file
-      const tempPath = await saveFileToTemp(file);
-      tempPaths.push(tempPath);
-      
-      // Upload to Firebase Storage in user's input folder
-      const destinationPath = `${userId}/inputs/${Date.now()}_${file.name}`;
-      const fileBuffer = await readFile(tempPath);
-      const url = await uploadToFirebaseStorage(fileBuffer, destinationPath);
-      firebaseUrls.push(url);
-      
-      return analyzeImage(url, type);
+      try {
+        // Save to temp file
+        const tempPath = await saveFileToTemp(file);
+        tempPaths.push(tempPath);
+        
+        // Upload to Firebase Storage in user's input folder
+        const destinationPath = `${userId}/inputs/${Date.now()}_${file.name}`;
+        const fileBuffer = await readFile(tempPath);
+        const url = await uploadToFirebaseStorage(fileBuffer, destinationPath);
+        firebaseUrls.push(url);
+        
+        return analyzeImage(url, type);
+      } catch (error: any) {
+        console.error(`Error processing ${type} image:`, error);
+        throw new Error(`Failed to process ${type} image: ${error.message}`);
+      }
     };
 
-    const [productAnalysis, designAnalysis, colorAnalysis] = await Promise.all([
-      processImage(productImage, 'product'),
-      processImage(designImage, 'design'),
-      processImage(colorImage, 'color')
-    ]);
+    try {
+      const [productAnalysis, designAnalysis, colorAnalysis] = await Promise.all([
+        processImage(productImage, 'product'),
+        processImage(designImage, 'design'),
+        processImage(colorImage, 'color')
+      ]);
 
-    if (productAnalysis) analyses.push(`PRODUCT: ${productAnalysis}`);
-    if (designAnalysis) analyses.push(`DESIGN: ${designAnalysis}`);
-    if (colorAnalysis) analyses.push(`COLOR: ${colorAnalysis}`);
+      if (productAnalysis) analyses.push(`PRODUCT: ${productAnalysis}`);
+      if (designAnalysis) analyses.push(`DESIGN: ${designAnalysis}`);
+      if (colorAnalysis) analyses.push(`COLOR: ${colorAnalysis}`);
 
-    // Generate final prompt
-    const finalPrompt = analyses.length > 0
-      ? `${analyses.join('\n\n')}\n\n${prompt || generatePrompt(workflow_type)}`
-      : prompt || generatePrompt(workflow_type);
+      // Generate final prompt
+      const finalPrompt = analyses.length > 0
+        ? `${analyses.join('\n\n')}\n\n${prompt || generatePrompt(workflow_type)}`
+        : prompt || generatePrompt(workflow_type);
 
-    // Generate image
-    const response: any = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: finalPrompt,
-      size: size as "1024x1024" | "1792x1024" | "1024x1792",
-      quality: quality === "hd" ? "hd" : "standard",
-      n: 1,
-      response_format: "b64_json"
-    });
+      // Generate image
+      const response: any = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: finalPrompt,
+        size: size as "1024x1024" | "1792x1024" | "1024x1792",
+        quality: quality === "hd" ? "hd" : "standard",
+        n: 1,
+        response_format: "b64_json"
+      });
 
-    if (!response.data[0]?.b64_json) throw new Error('Image generation failed');
+      if (!response.data[0]?.b64_json) {
+        throw new Error('Image generation failed');
+      }
 
-    // Convert base64 to JPG buffer using sharp
-    const jpgBuffer = await sharp(Buffer.from(response.data[0].b64_json, 'base64'))
-      .jpeg({ quality: 90 }) // Convert to JPG with 90% quality
-      .toBuffer();
-    
-    // Upload JPG result to Firebase Storage in user's output folder
-    const outputDestinationPath = `${userId}/outputs/${Date.now()}_result.jpg`;
-    const firebaseOutputUrl = await uploadToFirebaseStorage(jpgBuffer, outputDestinationPath);
+      // Convert base64 to JPG buffer using sharp
+      const jpgBuffer = await sharp(Buffer.from(response.data[0].b64_json, 'base64'))
+        .jpeg({ quality: 90 })
+        .toBuffer();
+      
+      // Upload JPG result to Firebase Storage in user's output folder
+      const outputDestinationPath = `${userId}/outputs/${Date.now()}_result.jpg`;
+      const firebaseOutputUrl = await uploadToFirebaseStorage(jpgBuffer, outputDestinationPath);
 
-    // Cleanup temp files
+      // Cleanup temp files
+      await Promise.all(tempPaths.map(async (path) => {
+        try { await unlink(path); } catch {} 
+      }));
+
+      return NextResponse.json({
+        status: 'success',
+        firebaseOutputUrl,
+        workflow_type,
+        generated_prompt: finalPrompt
+      });
+
+    } catch (error: any) {
+      console.error('Error in image processing:', error);
+      return NextResponse.json(
+        { status: 'error', error: error.message },
+        { status: 500 }
+      );
+    }
+
+  } catch (error: any) {
+    console.error('Error in request handling:', error);
+    return NextResponse.json(
+      { status: 'error', error: error.message },
+      { status: 500 }
+    );
+  } finally {
+    // Cleanup temp files in case of any error
     await Promise.all(tempPaths.map(async (path) => {
       try { await unlink(path); } catch {} 
     }));
-
-    return NextResponse.json({
-      status: 'success',
-      firebaseOutputUrl,
-      workflow_type,
-      generated_prompt: finalPrompt
-    });
-
-  } catch (error: any) {
-    // Cleanup on error
-    await Promise.all(tempPaths.map(async (path) => {
-      try { await unlink(path); } catch {}
-    }));
-
-    return NextResponse.json(
-      { status: 'error', error: error.message },
-      { status: error.message.includes('Invalid input') || error.message.includes('userId is required') ? 400 : 500 }
-    );
   }
 }
 
