@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import OpenAI from 'openai';
 import { tmpdir } from 'os';
@@ -24,12 +24,27 @@ interface ComposeResponse {
   error?: string;
 }
 
+// Helper to auto-detect workflow type
+function detectWorkflow(
+  hasProduct: boolean,
+  hasDesign: boolean,
+  hasColor: boolean,
+  hasPrompt: boolean
+): string {
+  if (hasProduct && hasDesign && hasColor) return 'full_composition';
+  if (hasProduct && hasColor) return 'product_color';
+  if (hasProduct && hasDesign) return 'product_design';
+  if ((hasColor || hasDesign) && hasPrompt) return 'color_design';
+  if (hasProduct && hasPrompt) return 'product_prompt';
+  if (hasPrompt) return 'prompt_only';
+  throw new Error('Invalid input combination - Provide at least a prompt or one image');
+}
+
 async function uploadToCloudinary(imagePath: string): Promise<string> {
   const result = await cloudinary.uploader.upload(imagePath, {
-    resource_type: 'image',
     folder: 'compose_product',
   });
-  
+
   // Auto-delete after 1 hour
   setTimeout(async () => {
     try {
@@ -38,14 +53,13 @@ async function uploadToCloudinary(imagePath: string): Promise<string> {
       console.error('Cleanup error:', error);
     }
   }, 3600000);
-  
+
   return result.secure_url;
 }
 
-async function saveFileToTemp(file: File, prefix: string): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const tempPath = join(tmpdir(), `${prefix}_${Date.now()}_${file.name}`);
+async function saveFileToTemp(file: File): Promise<string> {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const tempPath = join(tmpdir(), `compose_${Date.now()}_${file.name}`);
   await writeFile(tempPath, buffer);
   return tempPath;
 }
@@ -53,191 +67,136 @@ async function saveFileToTemp(file: File, prefix: string): Promise<string> {
 function generatePrompt(workflowType: string, userPrompt?: string): string {
   if (userPrompt) return userPrompt;
 
-  const prompts = {
-    full_composition: 'Create a photorealistic product combining design elements and colors from reference images while maintaining original structure. No text allowed.',
-    product_color: 'Apply color palette from reference to product while maintaining original design. Photorealistic, no text.',
-    product_design: 'Apply design patterns from reference to product. Maintain form, incorporate visual style. Photorealistic, no text.',
-    color_design: 'Create new product combining color and design elements from references. Photorealistic, no text.',
-    prompt_only: 'Create innovative product design based on description. Photorealistic, no text.',
-    product_prompt: 'Create product variation based on description while maintaining core identity. Photorealistic, no text.'
+  const prompts: Record<string, string> = {
+    full_composition: 'Create a photorealistic product combining all reference images. Maintain original structure, no text.',
+    product_color: 'Apply color palette from reference to product. Keep original design, photorealistic, no text.',
+    product_design: 'Apply design patterns from reference to product. Maintain form, photorealistic, no text.',
+    color_design: 'Create new product using colors/designs from references. Photorealistic, no text.',
+    prompt_only: 'Generate innovative product based on description. Photorealistic, no text.',
+    product_prompt: 'Modify product based on description while keeping core identity. Photorealistic, no text.'
   };
-  
-  return prompts[workflowType as keyof typeof prompts] || prompts.full_composition;
-}
 
-async function generateWithDALLE(prompt: string, options: any = {}) {
-  const response = await openai.images.generate({
-    model: "gpt-image-1",
-    prompt,
-    size: options.size || "1024x1024",
-    quality: options.quality === "hd" ? "high" : "medium",
-    n: options.n || 1,
-  });
-
-  if (!response.data?.length) {
-    throw new Error('No images generated');
-  }
-
-  return response.data[0];
+  return prompts[workflowType] || prompts.full_composition;
 }
 
 async function analyzeImage(imageUrl: string, type: string): Promise<string> {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: `Analyze this ${type} image: describe shape, materials, textures, colors, patterns, style, and distinctive features for design recreation.`
-          },
-          { type: "image_url", image_url: { url: imageUrl } }
-        ]
-      }],
-      max_tokens: 300
-    });
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{
+      role: "user",
+      content: [
+        { type: "text", text: `Analyze this ${type} for shape, materials, colors, and distinctive features:` },
+        { type: "image_url", image_url: { url: imageUrl } }
+      ]
+    }],
+    max_tokens: 300
+  });
 
-    return response.choices[0].message.content || "";
-  } catch (error) {
-    return `Unable to analyze ${type} image`;
-  }
+  return response.choices[0].message.content || '';
 }
 
-async function saveBase64Image(base64Data: string, prefix: string): Promise<string> {
-  await mkdir('output', { recursive: true });
-  const filepath = join('output', `${prefix}_${Date.now()}.png`);
-  const buffer = Buffer.from(base64Data, 'base64');
-  await writeFile(filepath, buffer);
-  return filepath;
-}
+export async function POST(request: NextRequest) {
+  const tempPaths: string[] = [];
 
-function validateWorkflow(type: string, hasProduct: boolean, hasDesign: boolean, hasColor: boolean, hasPrompt: boolean) {
-  const rules = {
-    full_composition: () => hasProduct && hasDesign && hasColor,
-    product_color: () => hasProduct && hasColor,
-    product_design: () => hasProduct && hasDesign,
-    color_design: () => (hasColor || hasDesign) && hasPrompt,
-    prompt_only: () => hasPrompt && !hasProduct && !hasDesign && !hasColor,
-    product_prompt: () => hasProduct && hasPrompt && !hasDesign && !hasColor
-  };
-
-  const rule = rules[type as keyof typeof rules];
-  return rule ? rule() : false;
-}
-
-export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
-    
     const productImage = formData.get('product_image') as File | null;
     const designImage = formData.get('design_image') as File | null;
     const colorImage = formData.get('color_image') as File | null;
-    const workflow_type = (formData.get('workflow_type') as string) || 'full_composition';
-    const prompt = formData.get('prompt') as string || undefined;
+    const prompt = formData.get('prompt') as string | null;
     const size = (formData.get('size') as string) || '1024x1024';
     const quality = (formData.get('quality') as string) || 'standard';
-    const n = parseInt(formData.get('n') as string) || 1;
-    
-    // Validate inputs
-    if (!validateWorkflow(workflow_type, !!productImage, !!designImage, !!colorImage, !!prompt)) {
-      return NextResponse.json(
-        { status: 'error', error: `Invalid inputs for ${workflow_type} workflow` },
-        { status: 400 }
-      );
-    }
-    
-    const tempPaths: string[] = [];
-    let generatedPrompt = prompt || generatePrompt(workflow_type);
-    
-    try {
-      // Process images and generate enhanced prompt
-      const analyses: string[] = [];
-      
-      if (productImage) {
-        const tempPath = await saveFileToTemp(productImage, 'product');
-        tempPaths.push(tempPath);
-        const url = await uploadToCloudinary(tempPath);
-        const analysis = await analyzeImage(url, 'product');
-        analyses.push(`PRODUCT: ${analysis}`);
-      }
 
-      if (designImage) {
-        const tempPath = await saveFileToTemp(designImage, 'design');
-        tempPaths.push(tempPath);
-        const url = await uploadToCloudinary(tempPath);
-        const analysis = await analyzeImage(url, 'design');
-        analyses.push(`DESIGN: ${analysis}`);
-      }
+    // Auto-detect workflow
+    const workflow_type = detectWorkflow(
+      !!productImage,
+      !!designImage,
+      !!colorImage,
+      !!prompt
+    );
 
-      if (colorImage) {
-        const tempPath = await saveFileToTemp(colorImage, 'color');
-        tempPaths.push(tempPath);
-        const url = await uploadToCloudinary(tempPath);
-        const analysis = await analyzeImage(url, 'color');
-        analyses.push(`COLOR: ${analysis}`);
-      }
+    // Process images
+    const analyses: string[] = [];
+    let cloudinaryUrls: string[] = [];
 
-      // Enhance prompt with analyses
-      if (analyses.length > 0) {
-        generatedPrompt = `${analyses.join('\n\n')}\n\nUSER REQUEST: ${prompt}\n\n${generatePrompt(workflow_type)}`;
-      }
+    const processImage = async (file: File | null, type: string) => {
+      if (!file) return null;
+      const tempPath = await saveFileToTemp(file);
+      tempPaths.push(tempPath);
+      const url = await uploadToCloudinary(tempPath);
+      cloudinaryUrls.push(url);
+      return analyzeImage(url, type);
+    };
 
-      // Generate image
-      const result = await generateWithDALLE(generatedPrompt, { size, quality, n });
-      
-      // Save and upload result
-      const localPath = await saveBase64Image(result.b64_json || '', workflow_type);
-      const cloudinaryUrl = await uploadToCloudinary(localPath);
-      
-      // Cleanup
-      tempPaths.forEach(path => {
-        try {
-          require('fs').unlinkSync(path);
-        } catch (e) {
-          console.warn('Cleanup failed:', path);
-        }
-      });
-      
-      const response: ComposeResponse = {
-        status: 'success',
-        output_image: result.b64_json || result.url,
-        cloudinaryUrl,
-        workflow_type,
-        generated_prompt: generatedPrompt
-      };
-      
-      return NextResponse.json(response);
-      
-    } catch (processingError) {
-      // Cleanup on error
-      tempPaths.forEach(path => {
-        try {
-          require('fs').unlinkSync(path);
-        } catch (e) {}
-      });
-      throw processingError;
-    }
-    
+    const [productAnalysis, designAnalysis, colorAnalysis] = await Promise.all([
+      processImage(productImage, 'product'),
+      processImage(designImage, 'design'),
+      processImage(colorImage, 'color')
+    ]);
+
+    if (productAnalysis) analyses.push(`PRODUCT: ${productAnalysis}`);
+    if (designAnalysis) analyses.push(`DESIGN: ${designAnalysis}`);
+    if (colorAnalysis) analyses.push(`COLOR: ${colorAnalysis}`);
+
+    // Generate final prompt
+    const finalPrompt = analyses.length > 0
+      ? `${analyses.join('\n\n')}\n\n${prompt || generatePrompt(workflow_type)}`
+      : prompt || generatePrompt(workflow_type);
+
+    // Generate image
+    const response:any = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: finalPrompt,
+      size: size as "1024x1024" | "1792x1024" | "1024x1792",
+      quality: quality === "hd" ? "hd" : "standard",
+      n: 1,
+      response_format: "b64_json"
+    });
+
+    if (!response.data[0]?.b64_json) throw new Error('Image generation failed');
+
+    // Upload result
+    const resultPath = join(tmpdir(), `result_${Date.now()}.png`);
+    await writeFile(resultPath, Buffer.from(response.data[0].b64_json, 'base64'));
+    const resultUrl = await uploadToCloudinary(resultPath);
+
+    // Cleanup
+    await Promise.all([...tempPaths, resultPath].map(async (path) => {
+      try { await unlink(path); } catch {} 
+    }));
+
+    return NextResponse.json({
+      status: 'success',
+      output_image: response.data[0].b64_json,
+      cloudinaryUrl: resultUrl,
+      workflow_type,
+      generated_prompt: finalPrompt
+    });
+
   } catch (error: any) {
+    // Cleanup on error
+    await Promise.all(tempPaths.map(async (path) => {
+      try { await unlink(path); } catch {}
+    }));
+
     return NextResponse.json(
-      { status: 'error', error: error.message || 'Unknown error' },
-      { status: 500 }
+      { status: 'error', error: error.message },
+      { status: error.message.includes('Invalid input') ? 400 : 500 }
     );
   }
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET() {
   return NextResponse.json({
     status: 'ok',
-    message: 'Compose Product API',
-    workflows: [
-      'full_composition: product + design + color images',
-      'product_color: product + color images', 
-      'product_design: product + design images',
-      'color_design: (color/design images) + prompt',
-      'prompt_only: text prompt only',
-      'product_prompt: product image + prompt'
+    message: 'Auto-detecting workflow API',
+    supported_inputs: [
+      'product_image (file)',
+      'design_image (file)',
+      'color_image (file)',
+      'prompt (text)',
+      'size (optional: 1024x1024, 1792x1024, 1024x1792)',
+      'quality (optional: standard, hd)'
     ]
   });
 }
