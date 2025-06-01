@@ -1,24 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary';
-import { writeFile, unlink } from 'fs/promises';
+import { writeFile, unlink, readFile } from 'fs/promises';
 import { join } from 'path';
 import OpenAI from 'openai';
 import { tmpdir } from 'os';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
+import sharp from 'sharp'; // Added for image conversion
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 interface ComposeResponse {
   status: string;
-  output_image?: string;
-  cloudinaryUrl?: string;
+  firebaseOutputUrl?: string;
   workflow_type?: string;
   generated_prompt?: string;
   error?: string;
@@ -40,21 +35,10 @@ function detectWorkflow(
   throw new Error('Invalid input combination - Provide at least a prompt or one image');
 }
 
-async function uploadToCloudinary(imagePath: string): Promise<string> {
-  const result = await cloudinary.uploader.upload(imagePath, {
-    folder: 'compose_product',
-  });
-
-  // Auto-delete after 1 hour
-  setTimeout(async () => {
-    try {
-      await cloudinary.uploader.destroy(result.public_id);
-    } catch (error) {
-      console.error('Cleanup error:', error);
-    }
-  }, 3600000);
-
-  return result.secure_url;
+async function uploadToFirebaseStorage(buffer: Buffer, destinationPath: string): Promise<string> {
+  const storageRef = ref(storage, destinationPath);
+  const snapshot = await uploadBytes(storageRef, buffer);
+  return await getDownloadURL(snapshot.ref);
 }
 
 async function saveFileToTemp(file: File): Promise<string> {
@@ -100,6 +84,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const formData = await request.formData();
+    const userId = formData.get('userId') as string | null;
+    
+    // Validate userId exists
+    if (!userId) {
+      throw new Error('userId is required');
+    }
+
     const productImage = formData.get('product_image') as File | null;
     const designImage = formData.get('design_image') as File | null;
     const colorImage = formData.get('color_image') as File | null;
@@ -117,14 +108,21 @@ export async function POST(request: NextRequest) {
 
     // Process images
     const analyses: string[] = [];
-    let cloudinaryUrls: string[] = [];
+    let firebaseUrls: string[] = [];
 
     const processImage = async (file: File | null, type: string) => {
       if (!file) return null;
+      
+      // Save to temp file
       const tempPath = await saveFileToTemp(file);
       tempPaths.push(tempPath);
-      const url = await uploadToCloudinary(tempPath);
-      cloudinaryUrls.push(url);
+      
+      // Upload to Firebase Storage in user's input folder
+      const destinationPath = `${userId}/inputs/${Date.now()}_${file.name}`;
+      const fileBuffer = await readFile(tempPath);
+      const url = await uploadToFirebaseStorage(fileBuffer, destinationPath);
+      firebaseUrls.push(url);
+      
       return analyzeImage(url, type);
     };
 
@@ -144,7 +142,7 @@ export async function POST(request: NextRequest) {
       : prompt || generatePrompt(workflow_type);
 
     // Generate image
-    const response:any = await openai.images.generate({
+    const response: any = await openai.images.generate({
       model: "dall-e-3",
       prompt: finalPrompt,
       size: size as "1024x1024" | "1792x1024" | "1024x1792",
@@ -155,20 +153,23 @@ export async function POST(request: NextRequest) {
 
     if (!response.data[0]?.b64_json) throw new Error('Image generation failed');
 
-    // Upload result
-    const resultPath = join(tmpdir(), `result_${Date.now()}.png`);
-    await writeFile(resultPath, Buffer.from(response.data[0].b64_json, 'base64'));
-    const resultUrl = await uploadToCloudinary(resultPath);
+    // Convert base64 to JPG buffer using sharp
+    const jpgBuffer = await sharp(Buffer.from(response.data[0].b64_json, 'base64'))
+      .jpeg({ quality: 90 }) // Convert to JPG with 90% quality
+      .toBuffer();
+    
+    // Upload JPG result to Firebase Storage in user's output folder
+    const outputDestinationPath = `${userId}/outputs/${Date.now()}_result.jpg`;
+    const firebaseOutputUrl = await uploadToFirebaseStorage(jpgBuffer, outputDestinationPath);
 
-    // Cleanup
-    await Promise.all([...tempPaths, resultPath].map(async (path) => {
+    // Cleanup temp files
+    await Promise.all(tempPaths.map(async (path) => {
       try { await unlink(path); } catch {} 
     }));
 
     return NextResponse.json({
       status: 'success',
-      output_image: response.data[0].b64_json,
-      cloudinaryUrl: resultUrl,
+      firebaseOutputUrl,
       workflow_type,
       generated_prompt: finalPrompt
     });
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { status: 'error', error: error.message },
-      { status: error.message.includes('Invalid input') ? 400 : 500 }
+      { status: error.message.includes('Invalid input') || error.message.includes('userId is required') ? 400 : 500 }
     );
   }
 }
@@ -191,6 +192,7 @@ export async function GET() {
     status: 'ok',
     message: 'Auto-detecting workflow API',
     supported_inputs: [
+      'userId (required: Firebase user ID)',
       'product_image (file)',
       'design_image (file)',
       'color_image (file)',
