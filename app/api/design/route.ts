@@ -3,11 +3,10 @@ import { writeFile, unlink, readFile } from 'fs/promises';
 import { join } from 'path';
 import OpenAI from 'openai';
 import { tmpdir } from 'os';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage, auth } from '@/lib/firebase';
 import sharp from 'sharp'; // Added for image conversion
 import { getAuth } from 'firebase-admin/auth';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getStorage } from 'firebase-admin/storage';
 
 // Initialize Firebase Admin if not already initialized
 if (!getApps().length) {
@@ -15,8 +14,9 @@ if (!getApps().length) {
     credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
 }
 
@@ -49,9 +49,27 @@ function detectWorkflow(
 }
 
 async function uploadToFirebaseStorage(buffer: Buffer, destinationPath: string): Promise<string> {
-  const storageRef = ref(storage, destinationPath);
-  const snapshot = await uploadBytes(storageRef, buffer);
-  return await getDownloadURL(snapshot.ref);
+  try {
+    const bucket = getStorage().bucket();
+    const file = bucket.file(destinationPath);
+    
+    await file.save(buffer, {
+      metadata: {
+        contentType: 'image/jpeg',
+      },
+    });
+    
+    // Generate a signed URL that expires in 1 hour (more secure than public)
+    const [signedUrl] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 60 * 60 * 1000, // 1 hour from now
+    });
+    
+    return signedUrl;
+  } catch (error) {
+    console.error('Error uploading to Firebase Storage:', error);
+    throw error;
+  }
 }
 
 async function saveFileToTemp(file: File): Promise<string> {
