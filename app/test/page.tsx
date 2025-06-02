@@ -179,9 +179,9 @@ export default function DesignTestPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Product Image */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <p className="block text-sm font-medium text-gray-700 mb-2">
                   Product Image
-                </label>
+                </p>
                 <input
                   type="file"
                   accept="image/*"
@@ -195,9 +195,9 @@ export default function DesignTestPage() {
 
               {/* Design Image */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <p className="block text-sm font-medium text-gray-700 mb-2">
                   Design Image
-                </label>
+                </p>
                 <input
                   type="file"
                   accept="image/*"
@@ -211,9 +211,9 @@ export default function DesignTestPage() {
 
               {/* Color Image */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <p className="block text-sm font-medium text-gray-700 mb-2">
                   Color Image
-                </label>
+                </p>
                 <input
                   type="file"
                   accept="image/*"
@@ -228,9 +228,9 @@ export default function DesignTestPage() {
 
             {/* Prompt */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <p className="block text-sm font-medium text-gray-700 mb-2">
                 Custom Prompt (optional)
-              </label>
+              </p>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -243,9 +243,9 @@ export default function DesignTestPage() {
             {/* Settings */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <p className="block text-sm font-medium text-gray-700 mb-2">
                   Size
-                </label>
+                </p>
                 <select
                   value={size}
                   onChange={(e) => setSize(e.target.value)}
@@ -258,9 +258,9 @@ export default function DesignTestPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <p className="block text-sm font-medium text-gray-700 mb-2">
                   Quality
-                </label>
+                </p>
                 <select
                   value={quality}
                   onChange={(e) => setQuality(e.target.value)}
