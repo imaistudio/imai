@@ -1,5 +1,6 @@
 1.firebase auth - Apple | Reset Email
 2.setup firestorage and test contact us page
+// later on 
 3.Crud Operations for storing the chats,sidebar,...etc - Whole Schema
 4.load user chats in sidebar 
 5.search functionality 
