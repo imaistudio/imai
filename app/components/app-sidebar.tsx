@@ -19,7 +19,6 @@ import { NavMain } from "./nav-main"
 import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
 import { IMAIIcon } from "./imai"
-import { SidebarOptInForm } from "./sidebar-opt-in-form"
 
 // This is sample data.
 const data = {
@@ -116,7 +115,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarOptInForm />
         <NavUser user={data.user} />
       </SidebarFooter>
       <SidebarRail />
