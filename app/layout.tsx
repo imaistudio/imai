@@ -61,12 +61,14 @@ export default function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
             <main>
               <AuthProvider>
+              <Providers>
               <GlobalModalProvider>
                 <ConditionalSidebar>
-                  {children}
+                    {children}
                 </ConditionalSidebar>
                 <GlobalModal />
               </GlobalModalProvider>
+              </Providers>
               </AuthProvider>
               <SpeedInsights />
               <Analytics />
