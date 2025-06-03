@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import {Spinner} from "@heroui/react";
 import {Button, Input, Link, Divider, User, Checkbox, Form} from "@heroui/react";
 import {Icon} from "@iconify/react";
 import {IMAIIcon} from "@/app/components/imai";
@@ -16,11 +17,13 @@ import {
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
+  const [isLoading, setIsLoading] = useState(false); 
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(false);
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -30,6 +33,7 @@ export default function Login() {
       router.push("/profile");
     } catch (err: any) {
       setError(err.message);
+      setIsLoading(false);
     }
   };
 
@@ -38,16 +42,19 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
+  setIsLoading(false);
   const provider = new GoogleAuthProvider();
   try {
     await signInWithPopup(auth, provider);
     router.push("/profile"); // redirect if needed
   } catch (err: any) {
     setError(err.message);
+    setIsLoading(false);
   }
 };
 
 const handleAppleSignIn = async () => {
+  setIsLoading(true);
   const provider = new OAuthProvider("apple.com");
   provider.addScope("email");
   provider.addScope("name");
@@ -57,6 +64,7 @@ const handleAppleSignIn = async () => {
     router.push("/profile");
   } catch (err: any) {
     setError(err.message);
+    setIsLoading(false);
   }
 };
 
@@ -85,6 +93,7 @@ const handleAppleSignIn = async () => {
               placeholder="Enter your email"
               type="email"
               variant="underlined"
+              isDisabled={isLoading}
             />
             <Input
               isRequired
@@ -108,6 +117,7 @@ const handleAppleSignIn = async () => {
               placeholder="Enter your password"
               type={isVisible ? "text" : "password"}
               variant="underlined"
+              isDisabled={isLoading}
             />
             <div className="flex w-full items-center justify-between px-1 py-2">
               <Checkbox defaultSelected name="remember" size="sm">
@@ -117,8 +127,8 @@ const handleAppleSignIn = async () => {
                 Forgot password?
               </Link>
             </div>
-            <Button className="w-full" color="primary" type="submit">
-              Log In
+            <Button className="w-full" color="primary" type="submit" isDisabled={isLoading}>
+                {isLoading ? <Spinner size="sm" color="white" /> : " Log In"}
             </Button>
           </Form>
 

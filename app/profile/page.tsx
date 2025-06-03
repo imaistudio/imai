@@ -9,6 +9,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import { CalendarDate } from "@internationalized/date";
+import {Spinner} from "@heroui/react";
 
 export default function Profile() {
   const { user: currentUser } = useAuth();
@@ -18,6 +19,7 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [isUpdate, setIsUpdate] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); 
 
   // Fetch profile data without authentication check
   useEffect(() => {
@@ -54,52 +56,51 @@ export default function Profile() {
   }, [currentUser]);
 
   const handleSubmit = async () => {
-    // Check authentication at submission time
-    if (!currentUser) {
-      router.push("/signup");
-      return;
+  if (!currentUser) {
+    router.push("/signup");
+    return;
+  }
+
+  if (!name || !dob) {
+    setError("All fields are required.");
+    return;
+  }
+
+  const dobDate = new Date(dob.year, dob.month - 1, dob.day);
+  const today = new Date();
+  const age = today.getFullYear() - dobDate.getFullYear();
+  const monthDiff = today.getMonth() - dobDate.getMonth();
+  const dayDiff = today.getDate() - dobDate.getDate();
+  const isUnder18 = age < 18 || (age === 18 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)));
+
+  if (isUnder18) {
+    setError("You must be at least 18 years old.");
+    return;
+  }
+
+  setIsLoading(true); // Start loading
+
+  try {
+    const userRef = doc(firestore, "profiles", currentUser.uid);
+    await setDoc(userRef, {
+      name,
+      dob: dobDate.toISOString(),
+    });
+
+    setError("");
+    if (!isUpdate) {
+      router.push("/");
+    } else {
+      router.push("/");
     }
+  } catch (err) {
+    console.error("Error saving profile:", err);
+    setError("Failed to save profile.");
+  } finally {
+    setIsLoading(false); // Stop loading
+  }
+};
 
-    if (!name || !dob) {
-      setError("All fields are required.");
-      return;
-    }
-
-    // Convert CalendarDate to JavaScript Date for age calculation
-    const dobDate = new Date(dob.year, dob.month - 1, dob.day);
-    const today = new Date();
-    const age = today.getFullYear() - dobDate.getFullYear();
-    const monthDiff = today.getMonth() - dobDate.getMonth();
-    const dayDiff = today.getDate() - dobDate.getDate();
-    
-    // More accurate age calculation
-    const isUnder18 = age < 18 || (age === 18 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)));
-
-    if (isUnder18) {
-      setError("You must be at least 18 years old.");
-      return;
-    }
-
-    try {
-      const userRef = doc(firestore, "profiles", currentUser.uid);
-      await setDoc(userRef, {
-        name,
-        dob: dobDate.toISOString(),
-      });
-
-      setError("");
-      
-      // Route to home page after successful save
-      if (!isUpdate) {
-        router.push("/");
-      } else {
-        alert("Profile updated!");
-      }
-    } catch (err) {
-      console.error("Error saving profile:", err);
-      setError("Failed to save profile.");
-    }
-  };
 
   if (loading) {
   return (
@@ -138,6 +139,7 @@ export default function Profile() {
                 type="text"
                 variant="underlined"
                 value={name}
+                isDisabled={isLoading}
                 onChange={(e) => setName(e.target.value)}
               />
               <DatePicker
@@ -146,13 +148,19 @@ export default function Profile() {
                 className="mt-4"
                 label="Birth Date"
                 value={dob}
+                 isDisabled={isLoading}
                 onChange={(date) => setDob(date)}
               />
               {error && <p className="text-red-500 mt-2">{error}</p>}
             </CardBody>
             <CardFooter className="flex justify-center flex-col text-center text-sm text-muted-foreground">
-              <Button className="w-full my-2" color="primary" onClick={handleSubmit}>
-                {isUpdate ? "Update Profile" : "Continue"}
+              <Button
+                className="w-full my-2"
+                color="primary"
+                onPress={handleSubmit}
+                isDisabled={isLoading}
+              >
+                {isLoading ? <Spinner size="sm" color="white" /> : isUpdate ? "Update Profile" : "Continue"}
               </Button>
               <p className="mb-2">IMAI Creating Newness.</p>
             </CardFooter>

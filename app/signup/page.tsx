@@ -16,10 +16,9 @@ import {
 
 export default function Signup() {
   const [isVisible, setIsVisible] = React.useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Moved inside component
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
