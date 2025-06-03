@@ -86,45 +86,46 @@ function validateWorkflowInputs(
   hasPrompt: boolean
 ): { valid: boolean; error?: string } {
   switch (workflowType) {
-    case 'full_composition':
-      if (!hasProduct || !hasDesign || !hasColor) {
-        return { valid: false, error: 'full_composition requires product, design, and color images' };
-      }
-      break;
+  case 'full_composition':
+    if (!hasProduct || !hasDesign || !hasColor) {
+      return { valid: false, error: 'full_composition requires product, design, and color images' };
+    }
+    break;
 
-    case 'product_color':
-      if (!hasProduct || !hasColor) {
-        return { valid: false, error: 'product_color requires product and color images' };
-      }
-      break;
+  case 'product_color':
+    if (!hasProduct || !hasColor || hasDesign || hasPrompt) {
+      return { valid: false, error: 'product_color requires only product and color images' };
+    }
+    break;
 
-    case 'product_design':
-      if (!hasProduct || !hasDesign) {
-        return { valid: false, error: 'product_design requires product and design images' };
-      }
-      break;
+  case 'product_design':
+    if (!hasProduct || !hasDesign || hasColor || hasPrompt) {
+      return { valid: false, error: 'product_design requires only product and design images' };
+    }
+    break;
 
-    case 'color_design':
-      if ((!hasColor && !hasDesign) || !hasPrompt) {
-        return { valid: false, error: 'color_design requires at least one of color/design images and a prompt' };
-      }
-      break;
+  case 'color_design':
+    if ((!hasColor && !hasDesign) || !hasPrompt || hasProduct) {
+      return { valid: false, error: 'color_design requires color/design and prompt, but no product' };
+    }
+    break;
 
-    case 'prompt_only':
-      if (!hasPrompt || hasProduct || hasDesign || hasColor) {
-        return { valid: false, error: 'prompt_only requires exactly a prompt (no images)' };
-      }
-      break;
+  case 'product_prompt':
+    if (!hasProduct || !hasPrompt || hasDesign || hasColor) {
+      return { valid: false, error: 'product_prompt requires only product and prompt (no design or color)' };
+    }
+    break;
 
-    case 'product_prompt':
-      if (!hasProduct || !hasPrompt || hasDesign || hasColor) {
-        return { valid: false, error: 'product_prompt requires a product image and a prompt only' };
-      }
-      break;
+  case 'prompt_only':
+    if (!hasPrompt || hasProduct || hasDesign || hasColor) {
+      return { valid: false, error: 'prompt_only requires only a prompt (no images)' };
+    }
+    break;
 
-    default:
-      return { valid: false, error: `Unknown workflow type: ${workflowType}` };
+  default:
+    return { valid: false, error: `Unknown workflow type: ${workflowType}` };
   }
+
 
   return { valid: true };
 }
@@ -268,11 +269,57 @@ async function composeProductWithDALLE(
   }
 }
 
+/**
+ * Determines which workflow to run based on presence of product/design/color images and a prompt.
+ */
+function determineWorkflowType(
+  hasProduct: boolean,
+  hasDesign: boolean,
+  hasColor: boolean,
+  hasPrompt: boolean
+): string {
+  // 1) All three images → full_composition
+  if (hasProduct && hasDesign && hasColor && !hasPrompt) {
+    return 'full_composition';
+  }
+
+  // 2) Product + Color only → product_color
+  if (hasProduct && !hasDesign && hasColor && !hasPrompt) {
+    return 'product_color';
+  }
+
+  // 3) Product + Design only → product_design
+  if (hasProduct && hasDesign && !hasColor && !hasPrompt) {
+    return 'product_design';
+  }
+
+  // 4) (Design or Color) + prompt (but not product) → color_design
+  if (!hasProduct && (hasDesign || hasColor) && hasPrompt) {
+    return 'color_design';
+  }
+
+  // 5) Prompt only → prompt_only
+  if (!hasProduct && !hasDesign && !hasColor && hasPrompt) {
+    return 'prompt_only';
+  }
+
+  // 6) Product + Prompt only → product_prompt
+  if (hasProduct && !hasDesign && !hasColor && hasPrompt) {
+    return 'product_prompt';
+  }
+
+  // Any other combination is not supported
+  throw new Error(
+    `Cannot infer a valid workflow for these inputs:
+     product_image=${hasProduct}, design_image=${hasDesign}, color_image=${hasColor}, prompt=${hasPrompt}`
+  );
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
 
-    // Extract and validate userid
+    // 1) Extract and validate userid
     const userid = (formData.get('userid') as string | null)?.trim();
     if (!userid) {
       return NextResponse.json(
@@ -280,7 +327,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-    // Verify that this Firebase user exists
     try {
       await getAuth().getUser(userid);
     } catch {
@@ -290,19 +336,34 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Retrieve files (if any)
+    // 2) Retrieve files (if any) and prompt
     const productImage = formData.get('product_image') as File | null;
-    const designImage = formData.get('design_image') as File | null;
-    const colorImage = formData.get('color_image') as File | null;
+    const designImage  = formData.get('design_image')  as File | null;
+    const colorImage   = formData.get('color_image')   as File | null;
+    const prompt       = (formData.get('prompt') as string)?.trim() || '';
 
-    // Retrieve other params
-    const workflow_type = (formData.get('workflow_type') as string) || 'full_composition';
-    const prompt = (formData.get('prompt') as string) || '';
-    const size = (formData.get('size') as string) || '1024x1024';
+    // 3) Infer workflow_type based on which inputs are present
+    let workflow_type: string;
+    try {
+      workflow_type = determineWorkflowType(
+        !!productImage,
+        !!designImage,
+        !!colorImage,
+        !!prompt
+      );
+    } catch (e: any) {
+      return NextResponse.json(
+        { status: 'error', error: e.message },
+        { status: 400 }
+      );
+    }
+
+    // 4) Retrieve other optional params (size, quality, n)
+    const size    = (formData.get('size') as string)    || '1024x1024';
     const quality = (formData.get('quality') as string) || 'standard';
-    const n = parseInt((formData.get('n') as string) || '1', 10);
+    const n       = parseInt((formData.get('n') as string) || '1', 10);
 
-    // Validate workflow inputs
+    // 5) Validate that this inferred workflow is valid
     const validation = validateWorkflowInputs(
       workflow_type,
       !!productImage,
@@ -317,7 +378,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Step 1: Upload input images to Firebase Storage (permanent) and gather signed URLs
+    // 6) Upload input images to Firebase Storage and run analyses
     const inputUrls: { product?: string; design?: string; color?: string } = {};
     const analyses: { product?: string; design?: string; color?: string } = {};
 
@@ -345,7 +406,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       analyses.color = await analyzeImageWithGPT4Vision(colorUrl, 'color reference');
     }
 
-    // Step 2: Build the enhanced prompt
+    // 7) Build the enhanced prompt
     const workflowPrompt = generateWorkflowPrompt(
       workflow_type,
       prompt || undefined,
@@ -354,13 +415,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       analyses.color
     );
 
-    // Step 3: Call DALL·E to generate the product
+    // 8) Call DALL·E to generate the product
     const dalleResults = await composeProductWithDALLE(workflowPrompt, { size, quality, n });
     if (dalleResults.length === 0) {
       throw new Error('DALL·E returned no images');
     }
-
-    // Only take the first generated image
     const firstResult = dalleResults[0];
     let outputJpegBuffer: Buffer;
 
@@ -379,11 +438,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       outputJpegBuffer = await sharp(rawBuffer).jpeg().toBuffer();
     }
 
-    // Step 4: Upload the composed output to Firebase Storage (permanent)
+    // 9) Upload the composed output to Firebase Storage
     const outputPath = `${userid}/output/${uuidv4()}.jpg`;
     const firebaseOutputUrl = await uploadBufferToFirebase(outputJpegBuffer, outputPath);
 
-    // Return success including both input URLs and output URL
+    // 10) Return success including input URLs, output URL, inferred workflow, and prompt
     const responsePayload: ComposeProductResponse = {
       status: 'success',
       firebaseInputUrls: inputUrls,
