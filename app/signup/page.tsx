@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import {Spinner} from "@heroui/react";
 import { useRouter } from "next/navigation";
 import {Button, Input, Link, Divider, User, Checkbox} from "@heroui/react";
 import {Icon} from "@iconify/react";
@@ -15,11 +16,15 @@ import {
 
 export default function Signup() {
   const [isVisible, setIsVisible] = React.useState(false);
-  const toggleVisibility = () => setIsVisible(!isVisible);
+  const [isLoading, setIsLoading] = useState(false); // Moved inside component
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const toggleVisibility = () => setIsVisible(!isVisible);
+
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -28,26 +33,31 @@ export default function Signup() {
       router.push("/profile");
     } catch (err: any) {
       setError(err.message);
+      setIsLoading(false);
     }
   };
 
    const handleGoogleSignIn = async () => {
+    setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
       router.push("/profile");
     } catch (err: any) {
       setError(err.message);
+      setIsLoading(false);
     }
   };
 
   const handleAppleSignIn = async () => {
+    setIsLoading(true);
     const provider = new OAuthProvider("apple.com");
     try {
       await signInWithPopup(auth, provider);
       router.push("/profile");
     } catch (err: any) {
       setError(err.message);
+      setIsLoading(false);
     }
   };
 
@@ -65,9 +75,13 @@ export default function Signup() {
                 <IMAIIcon size={32} />
               </div>
             <p className="pb-2 text-xl font-medium">Create Account</p>
-      
           </div>
          
+          {error && (
+            <div className="w-full p-2 text-sm text-red-600 bg-red-50 rounded">
+              {error}
+            </div>
+          )}
         
         <form className="flex w-full flex-col gap-3" onSubmit={handleSignup}>
             <Input
@@ -77,6 +91,7 @@ export default function Signup() {
               placeholder="Enter your email"
               type="email"
               variant="underlined"
+              isDisabled={isLoading}
             />
             <Input
               isRequired
@@ -99,6 +114,7 @@ export default function Signup() {
               name="password"
               placeholder="Create a password"
               type={isVisible ? "text" : "password"}
+              isDisabled={isLoading}
               variant="underlined"
             />
             <Checkbox isRequired className="py-4" size="sm">
@@ -111,9 +127,9 @@ export default function Signup() {
                 Privacy Policy
               </Link>
             </Checkbox>
-            <Button color="primary" type="submit">
-              Sign Up
-            </Button>
+              <Button color="primary" type="submit" isDisabled={isLoading}>
+                {isLoading ? <Spinner size="sm" color="white" /> : "Sign Up"}
+              </Button>
           </form>
 
           <div className="flex w-full items-center gap-4 py-2">
@@ -135,13 +151,15 @@ export default function Signup() {
               startContent={<Icon icon="logos:google-icon" width={18} />}
               variant="bordered"
               onPress={handleGoogleSignIn}
+              isDisabled={isLoading}
             >
               Sign Up with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500 dark:invert" icon="logos:apple" width={18}  />}
+              startContent={<Icon className="text-default-500 dark:invert" icon="logos:apple" width={18} />}
               variant="bordered"
               onPress={handleAppleSignIn}
+              isDisabled={isLoading}
             >
               Sign Up with Apple
             </Button>
@@ -182,11 +200,11 @@ export default function Signup() {
             name="Viola Schritter"
           />
           <p className="w-full text-right text-2xl text-white/60">
-            <span className="font-medium">“</span>
+            <span className="font-medium">"</span>
             <span className="font-normal italic">
               Dream beyond reality — where imagination paints the impossible.
             </span>
-            <span className="font-medium">”</span>
+            <span className="font-medium">"</span>
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-today 
+Today 
 
 1. Add Toast for signup / login 
 2. Add Spinners for Login / Signup / Profile Update 
@@ -8,6 +8,7 @@ today
 6. Moving Gradient UI Profile 
 7. Load User Deails in the Sidebar
 8. Creat Top Side Bar Pages 
+9. after login straight to homepage 
 
 Extra to do 
 
