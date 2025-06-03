@@ -1,273 +1,403 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, unlink, readFile } from 'fs/promises';
-import { join } from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
-import { tmpdir } from 'os';
-import sharp from 'sharp'; // Added for image conversion
+import sharp from 'sharp';
 import { getAuth } from 'firebase-admin/auth';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 
-// Initialize Firebase Admin if not already initialized
+// Initialize Firebase Admin (only once)
 if (!getApps().length) {
   initializeApp({
     credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      projectId: process.env.FIREBASE_PROJECT_ID!,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
   });
 }
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY!,
 });
 
-interface ComposeResponse {
+interface ComposeProductResponse {
   status: string;
+  firebaseInputUrls?: {
+    product?: string;
+    design?: string;
+    color?: string;
+  };
   firebaseOutputUrl?: string;
   workflow_type?: string;
   generated_prompt?: string;
   error?: string;
 }
 
-// Helper to auto-detect workflow type
-function detectWorkflow(
+/**
+ * Uploads a Buffer to Firebase Storage under the given path, and returns a signed URL.
+ */
+async function uploadBufferToFirebase(
+  buffer: Buffer,
+  destinationPath: string
+): Promise<string> {
+  try {
+    const bucket = getStorage().bucket();
+    const file = bucket.file(destinationPath);
+
+    // Save the buffer as a JPEG
+    await file.save(buffer, {
+      metadata: { contentType: 'image/jpeg' },
+      resumable: false,
+    });
+
+    // Generate a signed URL valid for 1 hour
+    const [signedUrl] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 60 * 60 * 1000,
+    });
+
+    return signedUrl;
+  } catch (err) {
+    console.error('Error uploading to Firebase Storage:', err);
+    throw err;
+  }
+}
+
+/**
+ * Converts an input File object (from FormData) to a JPEG Buffer.
+ */
+async function fileToJpegBuffer(file: File): Promise<Buffer> {
+  const arrayBuffer = await file.arrayBuffer();
+  const inputBuffer = Buffer.from(arrayBuffer);
+  // Use sharp to convert any input image format to JPEG
+  return sharp(inputBuffer).jpeg().toBuffer();
+}
+
+/**
+ * Validates the required inputs for each workflow type.
+ */
+function validateWorkflowInputs(
+  workflowType: string,
   hasProduct: boolean,
   hasDesign: boolean,
   hasColor: boolean,
   hasPrompt: boolean
-): string {
-  if (hasProduct && hasDesign && hasColor) return 'full_composition';
-  if (hasProduct && hasColor) return 'product_color';
-  if (hasProduct && hasDesign) return 'product_design';
-  if ((hasColor || hasDesign) && hasPrompt) return 'color_design';
-  if (hasProduct && hasPrompt) return 'product_prompt';
-  if (hasPrompt) return 'prompt_only';
-  throw new Error('Invalid input combination - Provide at least a prompt or one image');
+): { valid: boolean; error?: string } {
+  switch (workflowType) {
+    case 'full_composition':
+      if (!hasProduct || !hasDesign || !hasColor) {
+        return { valid: false, error: 'full_composition requires product, design, and color images' };
+      }
+      break;
+
+    case 'product_color':
+      if (!hasProduct || !hasColor) {
+        return { valid: false, error: 'product_color requires product and color images' };
+      }
+      break;
+
+    case 'product_design':
+      if (!hasProduct || !hasDesign) {
+        return { valid: false, error: 'product_design requires product and design images' };
+      }
+      break;
+
+    case 'color_design':
+      if ((!hasColor && !hasDesign) || !hasPrompt) {
+        return { valid: false, error: 'color_design requires at least one of color/design images and a prompt' };
+      }
+      break;
+
+    case 'prompt_only':
+      if (!hasPrompt || hasProduct || hasDesign || hasColor) {
+        return { valid: false, error: 'prompt_only requires exactly a prompt (no images)' };
+      }
+      break;
+
+    case 'product_prompt':
+      if (!hasProduct || !hasPrompt || hasDesign || hasColor) {
+        return { valid: false, error: 'product_prompt requires a product image and a prompt only' };
+      }
+      break;
+
+    default:
+      return { valid: false, error: `Unknown workflow type: ${workflowType}` };
+  }
+
+  return { valid: true };
 }
 
-async function uploadToFirebaseStorage(buffer: Buffer, destinationPath: string): Promise<string> {
-  try {
-    const bucket = getStorage().bucket();
-    const file = bucket.file(destinationPath);
-    
-    await file.save(buffer, {
-      metadata: {
-        contentType: 'image/jpeg',
-      },
-    });
-    
-    // Generate a signed URL that expires in 1 hour (more secure than public)
-    const [signedUrl] = await file.getSignedUrl({
-      action: 'read',
-      expires: Date.now() + 60 * 60 * 1000, // 1 hour from now
-    });
-    
-    return signedUrl;
-  } catch (error) {
-    console.error('Error uploading to Firebase Storage:', error);
-    throw error;
+/**
+ * Generates a workflow prompt based on type, optional analyses, and user prompt.
+ */
+function generateWorkflowPrompt(
+  workflowType: string,
+  userPrompt?: string,
+  productAnalysis?: string,
+  designAnalysis?: string,
+  colorAnalysis?: string
+): string {
+  if (userPrompt && ['color_design', 'prompt_only', 'product_prompt'].includes(workflowType)) {
+    return userPrompt;
+  }
+
+  switch (workflowType) {
+    case 'full_composition':
+      return `Create a photorealistic version of the original product, incorporating design elements and color palette. 
+BASE PRODUCT ANALYSIS: ${productAnalysis}
+DESIGN REFERENCE ANALYSIS: ${designAnalysis}
+COLOR REFERENCE ANALYSIS: ${colorAnalysis}
+No text or fonts allowed.`;
+
+    case 'product_color':
+      return `Apply the color palette from the reference image to the product while preserving its original design.
+ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
+COLOR REFERENCE ANALYSIS: ${colorAnalysis}
+No text or fonts allowed.`;
+
+    case 'product_design':
+      return `Apply design patterns from the design reference to the product, maintaining its form.
+ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
+DESIGN REFERENCE ANALYSIS: ${designAnalysis}
+No text or fonts allowed.`;
+
+    case 'color_design':
+      if (colorAnalysis && designAnalysis) {
+        return `Combine this design reference and color palette to create a new product.
+DESIGN REFERENCE ANALYSIS: ${designAnalysis}
+COLOR REFERENCE ANALYSIS: ${colorAnalysis}
+No text or fonts allowed.`;
+      } else if (colorAnalysis) {
+        return `Create a product using this color palette.
+COLOR REFERENCE ANALYSIS: ${colorAnalysis}
+No text or fonts allowed.`;
+      } else {
+        return `Create a product using this design reference.
+DESIGN REFERENCE ANALYSIS: ${designAnalysis}
+No text or fonts allowed.`;
+      }
+
+    case 'prompt_only':
+      return `Generate a photorealistic product design based solely on this prompt:
+USER PROMPT: ${userPrompt}
+No text or fonts allowed.`;
+
+    case 'product_prompt':
+      return `Enhance this product according to the prompt:
+ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
+USER PROMPT: ${userPrompt}
+No text or fonts allowed.`;
+
+    default:
+      return userPrompt || '';
   }
 }
 
-async function saveFileToTemp(file: File): Promise<string> {
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const tempPath = join(tmpdir(), `compose_${Date.now()}_${file.name}`);
-  await writeFile(tempPath, buffer);
-  return tempPath;
+/**
+ * Sends an image URL to GPT-4 Vision to get a textual analysis.
+ */
+async function analyzeImageWithGPT4Vision(imageUrl: string, analysisType: string): Promise<string> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `Analyze this ${analysisType} image in detail. Describe the product's form, materials, colors, patterns, and any distinctive features. Provide a technical description.`
+            },
+            {
+              type: 'image_url',
+              image_url: { url: imageUrl }
+            }
+          ]
+        }
+      ],
+      max_tokens: 500,
+    });
+
+    return response.choices[0].message.content || '';
+  } catch (err) {
+    console.error(`Error analyzing ${analysisType} image:`, err);
+    return '';
+  }
 }
 
-function generatePrompt(workflowType: string, userPrompt?: string): string {
-  if (userPrompt) return userPrompt;
+/**
+ * Composes product images with DALL·E, returning either base64 or URL results.
+ */
+async function composeProductWithDALLE(
+  prompt: string,
+  options: { size: any; quality: string; n: number }
+): Promise<Array<{ type: 'url' | 'base64'; data: string }>> {
+  try {
+    let dalleQuality = options.quality;
+    if (dalleQuality === 'standard') dalleQuality = 'medium';
+    if (!['low', 'medium', 'high', 'auto'].includes(dalleQuality)) {
+      dalleQuality = 'medium';
+    }
 
-  const prompts: Record<string, string> = {
-    full_composition: 'Create a photorealistic product combining all reference images. Maintain original structure, no text.',
-    product_color: 'Apply color palette from reference to product. Keep original design, photorealistic, no text.',
-    product_design: 'Apply design patterns from reference to product. Maintain form, photorealistic, no text.',
-    color_design: 'Create new product using colors/designs from references. Photorealistic, no text.',
-    prompt_only: 'Generate innovative product based on description. Photorealistic, no text.',
-    product_prompt: 'Modify product based on description while keeping core identity. Photorealistic, no text.'
-  };
+    const response = await openai.images.generate({
+      model: 'gpt-image-1',
+      prompt,
+      size: options.size,
+      quality: dalleQuality as any,
+      n: options.n,
+    });
 
-  return prompts[workflowType] || prompts.full_composition;
+    if (!response.data || response.data.length === 0) {
+      throw new Error('No images returned from DALL·E');
+    }
+
+    return response.data.map(img => {
+      if (img.b64_json) {
+        return { type: 'base64', data: img.b64_json };
+      } else if (img.url) {
+        return { type: 'url', data: img.url };
+      } else {
+        throw new Error('Unexpected image format from DALL·E');
+      }
+    });
+  } catch (err) {
+    console.error('Error composing with DALL·E:', err);
+    throw err;
+  }
 }
 
-async function analyzeImage(imageUrl: string, type: string): Promise<string> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{
-      role: "user",
-      content: [
-        { type: "text", text: `Analyze this ${type} for shape, materials, colors, and distinctive features:` },
-        { type: "image_url", image_url: { url: imageUrl } }
-      ]
-    }],
-    max_tokens: 300
-  });
-
-  return response.choices[0].message.content || '';
-}
-
-export async function POST(request: NextRequest) {
-  const tempPaths: string[] = [];
-
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
-    const userId = formData.get('userId') as string | null;
-    const idToken = formData.get('idToken') as string | null;
-    
-    // Validate userId and idToken exist
-    if (!userId || !idToken) {
+
+    // Extract and validate userid
+    const userid = (formData.get('userid') as string | null)?.trim();
+    if (!userid) {
       return NextResponse.json(
-        { status: 'error', error: 'userId and idToken are required' },
+        { status: 'error', error: 'Missing "userid" parameter' },
+        { status: 400 }
+      );
+    }
+    // Verify that this Firebase user exists
+    try {
+      await getAuth().getUser(userid);
+    } catch {
+      return NextResponse.json(
+        { status: 'error', error: 'Invalid Firebase user ID' },
         { status: 400 }
       );
     }
 
-    // Verify the ID token
-    try {
-      const decodedToken = await getAuth().verifyIdToken(idToken);
-      if (decodedToken.uid !== userId) {
-        return NextResponse.json(
-          { status: 'error', error: 'User ID mismatch' },
-          { status: 403 }
-        );
-      }
-    } catch (error: any) {
-      console.error('Token verification error:', error);
-      return NextResponse.json(
-        { status: 'error', error: 'Invalid authentication token' },
-        { status: 401 }
-      );
-    }
-
+    // Retrieve files (if any)
     const productImage = formData.get('product_image') as File | null;
     const designImage = formData.get('design_image') as File | null;
     const colorImage = formData.get('color_image') as File | null;
-    const prompt = formData.get('prompt') as string | null;
+
+    // Retrieve other params
+    const workflow_type = (formData.get('workflow_type') as string) || 'full_composition';
+    const prompt = (formData.get('prompt') as string) || '';
     const size = (formData.get('size') as string) || '1024x1024';
     const quality = (formData.get('quality') as string) || 'standard';
+    const n = parseInt((formData.get('n') as string) || '1', 10);
 
-    // Auto-detect workflow
-    const workflow_type = detectWorkflow(
+    // Validate workflow inputs
+    const validation = validateWorkflowInputs(
+      workflow_type,
       !!productImage,
       !!designImage,
       !!colorImage,
       !!prompt
     );
-
-    // Process images
-    const analyses: string[] = [];
-    let firebaseUrls: string[] = [];
-
-    const processImage = async (file: File | null, type: string) => {
-      if (!file) return null;
-      
-      try {
-        // Save to temp file
-        const tempPath = await saveFileToTemp(file);
-        tempPaths.push(tempPath);
-        
-        // Upload to Firebase Storage in user's input folder
-        const destinationPath = `${userId}/inputs/${Date.now()}_${file.name}`;
-        const fileBuffer = await readFile(tempPath);
-        const url = await uploadToFirebaseStorage(fileBuffer, destinationPath);
-        firebaseUrls.push(url);
-        
-        return analyzeImage(url, type);
-      } catch (error: any) {
-        console.error(`Error processing ${type} image:`, error);
-        throw new Error(`Failed to process ${type} image: ${error.message}`);
-      }
-    };
-
-    try {
-      const [productAnalysis, designAnalysis, colorAnalysis] = await Promise.all([
-        processImage(productImage, 'product'),
-        processImage(designImage, 'design'),
-        processImage(colorImage, 'color')
-      ]);
-
-      if (productAnalysis) analyses.push(`PRODUCT: ${productAnalysis}`);
-      if (designAnalysis) analyses.push(`DESIGN: ${designAnalysis}`);
-      if (colorAnalysis) analyses.push(`COLOR: ${colorAnalysis}`);
-
-      // Generate final prompt
-      const finalPrompt = analyses.length > 0
-        ? `${analyses.join('\n\n')}\n\n${prompt || generatePrompt(workflow_type)}`
-        : prompt || generatePrompt(workflow_type);
-
-      // Generate image
-      const response: any = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: finalPrompt,
-        size: size as "1024x1024" | "1792x1024" | "1024x1792",
-        quality: quality === "hd" ? "hd" : "standard",
-        n: 1,
-        response_format: "b64_json"
-      });
-
-      if (!response.data[0]?.b64_json) {
-        throw new Error('Image generation failed');
-      }
-
-      // Convert base64 to JPG buffer using sharp
-      const jpgBuffer = await sharp(Buffer.from(response.data[0].b64_json, 'base64'))
-        .jpeg({ quality: 90 })
-        .toBuffer();
-      
-      // Upload JPG result to Firebase Storage in user's output folder
-      const outputDestinationPath = `${userId}/outputs/${Date.now()}_result.jpg`;
-      const firebaseOutputUrl = await uploadToFirebaseStorage(jpgBuffer, outputDestinationPath);
-
-      // Cleanup temp files
-      await Promise.all(tempPaths.map(async (path) => {
-        try { await unlink(path); } catch {} 
-      }));
-
-      return NextResponse.json({
-        status: 'success',
-        firebaseOutputUrl,
-        workflow_type,
-        generated_prompt: finalPrompt
-      });
-
-    } catch (error: any) {
-      console.error('Error in image processing:', error);
+    if (!validation.valid) {
       return NextResponse.json(
-        { status: 'error', error: error.message },
-        { status: 500 }
+        { status: 'error', error: validation.error },
+        { status: 400 }
       );
     }
 
-  } catch (error: any) {
-    console.error('Error in request handling:', error);
-    return NextResponse.json(
-      { status: 'error', error: error.message },
-      { status: 500 }
-    );
-  } finally {
-    // Cleanup temp files in case of any error
-    await Promise.all(tempPaths.map(async (path) => {
-      try { await unlink(path); } catch {} 
-    }));
-  }
-}
+    // Step 1: Upload input images to Firebase Storage (permanent) and gather signed URLs
+    const inputUrls: { product?: string; design?: string; color?: string } = {};
+    const analyses: { product?: string; design?: string; color?: string } = {};
 
-export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    message: 'Auto-detecting workflow API',
-    supported_inputs: [
-      'userId (required: Firebase user ID)',
-      'product_image (file)',
-      'design_image (file)',
-      'color_image (file)',
-      'prompt (text)',
-      'size (optional: 1024x1024, 1792x1024, 1024x1792)',
-      'quality (optional: standard, hd)'
-    ]
-  });
+    if (productImage) {
+      const productBuffer = await fileToJpegBuffer(productImage);
+      const productPath = `${userid}/input/${uuidv4()}.jpg`;
+      const productUrl = await uploadBufferToFirebase(productBuffer, productPath);
+      inputUrls.product = productUrl;
+      analyses.product = await analyzeImageWithGPT4Vision(productUrl, 'product');
+    }
+
+    if (designImage) {
+      const designBuffer = await fileToJpegBuffer(designImage);
+      const designPath = `${userid}/input/${uuidv4()}.jpg`;
+      const designUrl = await uploadBufferToFirebase(designBuffer, designPath);
+      inputUrls.design = designUrl;
+      analyses.design = await analyzeImageWithGPT4Vision(designUrl, 'design reference');
+    }
+
+    if (colorImage) {
+      const colorBuffer = await fileToJpegBuffer(colorImage);
+      const colorPath = `${userid}/input/${uuidv4()}.jpg`;
+      const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
+      inputUrls.color = colorUrl;
+      analyses.color = await analyzeImageWithGPT4Vision(colorUrl, 'color reference');
+    }
+
+    // Step 2: Build the enhanced prompt
+    const workflowPrompt = generateWorkflowPrompt(
+      workflow_type,
+      prompt || undefined,
+      analyses.product,
+      analyses.design,
+      analyses.color
+    );
+
+    // Step 3: Call DALL·E to generate the product
+    const dalleResults = await composeProductWithDALLE(workflowPrompt, { size, quality, n });
+    if (dalleResults.length === 0) {
+      throw new Error('DALL·E returned no images');
+    }
+
+    // Only take the first generated image
+    const firstResult = dalleResults[0];
+    let outputJpegBuffer: Buffer;
+
+    if (firstResult.type === 'base64') {
+      // Convert base64 directly to JPEG buffer
+      const rawBuffer = Buffer.from(firstResult.data, 'base64');
+      outputJpegBuffer = await sharp(rawBuffer).jpeg().toBuffer();
+    } else {
+      // Fetch the URL, then convert to JPEG buffer
+      const response = await fetch(firstResult.data);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch DALL·E image URL: ${response.statusText}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const rawBuffer = Buffer.from(arrayBuffer);
+      outputJpegBuffer = await sharp(rawBuffer).jpeg().toBuffer();
+    }
+
+    // Step 4: Upload the composed output to Firebase Storage (permanent)
+    const outputPath = `${userid}/output/${uuidv4()}.jpg`;
+    const firebaseOutputUrl = await uploadBufferToFirebase(outputJpegBuffer, outputPath);
+
+    // Return success including both input URLs and output URL
+    const responsePayload: ComposeProductResponse = {
+      status: 'success',
+      firebaseInputUrls: inputUrls,
+      firebaseOutputUrl,
+      workflow_type,
+      generated_prompt: workflowPrompt,
+    };
+    return NextResponse.json(responsePayload);
+  } catch (err: any) {
+    console.error('API Error:', err);
+    const errorResponse: ComposeProductResponse = {
+      status: 'error',
+      error: err.message || 'Unknown error occurred',
+    };
+    return NextResponse.json(errorResponse, { status: 500 });
+  }
 }
