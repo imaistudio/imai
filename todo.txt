@@ -1,10 +1,20 @@
-1.firebase auth - Apple | Reset Email
-2.setup firestorage and test contact us page
-// later on 
-3.Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-4.load user chats in sidebar 
-5.search functionality 
-6.create folder 
-7.pin messages 
-8.chat ui test dummy one to store and api call back 
-9.Backend API Calls Dummy Data
+today 
+
+1. Add Toast for signup / login 
+2. Add Spinners for Login / Signup / Profile Update 
+3. Remove Alert from the Profile Update Page
+4. Test Output/ Input Folder Creation - Only Once and start Storing 
+5. Logout | Profile On Sidebar 
+6. Moving Gradient UI Profile 
+7. Load User Deails in the Sidebar
+8. Creat Top Side Bar Pages 
+
+Extra to do 
+
+firebase auth - Apple | Reset Email
+Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+load user chats in sidebar 
+search functionality - Form from Sidebae
+Create Folder 
+Pin Messages 
+Chat ui test dummy one to store and api call back 

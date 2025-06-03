@@ -143,7 +143,7 @@ export default function TestDesignPage() {
           {/* Test Form */}
           <form onSubmit={handleSubmit} className="space-y-4 mb-6">
             <div>
-              <label className="block mb-1 font-medium">Product Image (optional)</label>
+              <p className="block mb-1 font-medium">Product Image (optional)</p>
               <input
                 type="file"
                 accept="image/*"
@@ -155,7 +155,7 @@ export default function TestDesignPage() {
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Design Image (optional)</label>
+              <p className="block mb-1 font-medium">Design Image (optional)</p>
               <input
                 type="file"
                 accept="image/*"
@@ -167,7 +167,7 @@ export default function TestDesignPage() {
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Color Image (optional)</label>
+              <p className="block mb-1 font-medium">Color Image (optional)</p>
               <input
                 type="file"
                 accept="image/*"
@@ -179,7 +179,7 @@ export default function TestDesignPage() {
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Prompt (optional)</label>
+              <p className="block mb-1 font-medium">Prompt (optional)</p>
               <textarea
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
@@ -190,7 +190,7 @@ export default function TestDesignPage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block mb-1 font-medium">Size</label>
+                <p className="block mb-1 font-medium">Size</p>
                 <select
                   value={size}
                   onChange={e => setSize(e.target.value)}
@@ -203,7 +203,7 @@ export default function TestDesignPage() {
               </div>
 
               <div>
-                <label className="block mb-1 font-medium">Quality</label>
+                <p className="block mb-1 font-medium">Quality</p>
                 <select
                   value={quality}
                   onChange={e => setQuality(e.target.value)}
@@ -217,7 +217,7 @@ export default function TestDesignPage() {
               </div>
 
               <div>
-                <label className="block mb-1 font-medium">Number of Images (n)</label>
+                <p className="block mb-1 font-medium">Number of Images (n)</p>
                 <input
                   type="number"
                   min={1}
