@@ -1,11 +1,7 @@
-Today 
+1. Add Error Toast in all the pages 
+2. SidePop Up Fixed | Add Logout | Account | Setup Everything | Dashboard | Gradient UI Profile | UserDetails 
+3. Test Output/ Input Folder Creation - Only Once and start Storing 
 
-1. Test Output/ Input Folder Creation - Only Once and start Storing 
-2. Logout | Profile On Sidebar 
-3. Moving Gradient UI Profile 
-4. Load User Deails in the Sidebar
-5. Creat Top Side Bar Pages 
-6. after login straight to homepage 
 
 Extra to do 
 
@@ -16,3 +12,4 @@ search functionality - Form from Sidebae
 Create Folder 
 Pin Messages 
 Chat ui test dummy one to store and api call back 
+paginiation firebase Explore Page 
