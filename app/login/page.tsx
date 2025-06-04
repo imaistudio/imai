@@ -30,7 +30,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/profile");
+      router.push("/");
     } catch (err: any) {
       setError(err.message);
       setIsLoading(false);
@@ -46,7 +46,7 @@ export default function Login() {
   const provider = new GoogleAuthProvider();
   try {
     await signInWithPopup(auth, provider);
-    router.push("/profile"); // redirect if needed
+    router.push("/"); // redirect if needed
   } catch (err: any) {
     setError(err.message);
     setIsLoading(false);
@@ -61,7 +61,7 @@ const handleAppleSignIn = async () => {
 
   try {
     await signInWithPopup(auth, provider);
-    router.push("/profile");
+    router.push("/");
   } catch (err: any) {
     setError(err.message);
     setIsLoading(false);

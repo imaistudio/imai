@@ -1,6 +1,6 @@
 Todays Task 
 
-1. Sideup Pop Up Fixed | Add Logout | Account Details | Dashboard | Gradient UI Profile | UserDetails | Billing 
+1. Sideup Pop Up Fixed | Gradient UI Profile  
 2. Test Output/ Input Folder Creation - Only Once and start Storing 
 3. Crud Operations for storing the chats,sidebar,...etc - Whole Schema
 4. Chat ui with API Call Back Complete Villoa | Contact Salman | 
