@@ -95,8 +95,15 @@ export default function UnifiedPromptContainer() {
         console.log('Response status:', response.status);
         console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-        // Read the response body once
-        const data = await response.json();
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(`Server error: ${text}`);
+        }
+
         console.log('Response data:', data);
 
         if (!response.ok) {

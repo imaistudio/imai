@@ -48,25 +48,49 @@ async function uploadBufferToFirebase(
   destinationPath: string
 ): Promise<string> {
   try {
+    if (!buffer || buffer.length === 0) {
+      throw new Error('Invalid buffer: Buffer is empty or undefined');
+    }
+
+    if (!destinationPath) {
+      throw new Error('Invalid destination path: Path is empty or undefined');
+    }
+
+    console.log(`Uploading to Firebase Storage: ${destinationPath}, size: ${buffer.length} bytes`);
+    
     const bucket = getStorage().bucket();
+    if (!bucket) {
+      throw new Error('Failed to get Firebase Storage bucket');
+    }
+
     const file = bucket.file(destinationPath);
 
     // Save the buffer as a JPEG
     await file.save(buffer, {
-      metadata: { contentType: 'image/jpeg' },
+      metadata: { 
+        contentType: 'image/jpeg',
+        cacheControl: 'public, max-age=3600'
+      },
       resumable: false,
     });
+
+    console.log('File uploaded successfully, generating signed URL...');
 
     // Generate a signed URL valid for 1 hour
     const [signedUrl] = await file.getSignedUrl({
       action: 'read',
-      expires: Date.now() + 60 * 60 * 1000,
+      expires: Date.now() + 60 * 60 * 1000, // 1 hour
     });
 
+    if (!signedUrl) {
+      throw new Error('Failed to generate signed URL');
+    }
+
+    console.log('Signed URL generated successfully');
     return signedUrl;
-  } catch (err) {
-    console.error('Error uploading to Firebase Storage:', err);
-    throw err;
+  } catch (error: any) {
+    console.error('Error uploading to Firebase Storage:', error);
+    throw new Error(`Failed to upload to Firebase Storage: ${error.message}`);
   }
 }
 
@@ -74,10 +98,44 @@ async function uploadBufferToFirebase(
  * Converts an input File object (from FormData) to a JPEG Buffer.
  */
 async function fileToJpegBuffer(file: File): Promise<Buffer> {
-  const arrayBuffer = await file.arrayBuffer();
-  const inputBuffer = Buffer.from(arrayBuffer);
-  // Use sharp to convert any input image format to JPEG
-  return sharp(inputBuffer).jpeg().toBuffer();
+  try {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (!file.type.startsWith('image/')) {
+      throw new Error(`Invalid file type: ${file.type}. Only image files are supported.`);
+    }
+
+    console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
+    
+    const arrayBuffer = await file.arrayBuffer();
+    if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+      throw new Error('Failed to read file data');
+    }
+
+    const inputBuffer = Buffer.from(arrayBuffer);
+    
+    // Validate the input buffer
+    if (!inputBuffer || inputBuffer.length === 0) {
+      throw new Error('Failed to create buffer from file data');
+    }
+
+    // Use sharp to convert any input image format to JPEG
+    const jpegBuffer = await sharp(inputBuffer)
+      .jpeg({ quality: 90 }) // Set a reasonable quality
+      .toBuffer();
+
+    if (!jpegBuffer || jpegBuffer.length === 0) {
+      throw new Error('Failed to convert image to JPEG format');
+    }
+
+    console.log(`Successfully converted image to JPEG, size: ${jpegBuffer.length} bytes`);
+    return jpegBuffer;
+  } catch (error: any) {
+    console.error('Error in fileToJpegBuffer:', error);
+    throw new Error(`Failed to process image: ${error.message}`);
+  }
 }
 
 /**
@@ -735,28 +793,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const inputUrls: { product?: string; design?: string; color?: string } = {};
     const analyses: { product?: string; design?: string; color?: string } = {};
 
-    if (productImage) {
-      const productBuffer = await fileToJpegBuffer(productImage);
-      const productPath = `${userid}/input/${uuidv4()}.jpg`;
-      const productUrl = await uploadBufferToFirebase(productBuffer, productPath);
-      inputUrls.product = productUrl;
-      analyses.product = await analyzeImageWithGPT4Vision(productUrl, 'product');
-    }
+    try {
+      if (productImage) {
+        console.log('Processing product image...');
+        const productBuffer = await fileToJpegBuffer(productImage);
+        const productPath = `${userid}/input/${uuidv4()}.jpg`;
+        const productUrl = await uploadBufferToFirebase(productBuffer, productPath);
+        inputUrls.product = productUrl;
+        analyses.product = await analyzeImageWithGPT4Vision(productUrl, 'product');
+        console.log('Product image processed successfully');
+      }
 
-    if (designImage) {
-      const designBuffer = await fileToJpegBuffer(designImage);
-      const designPath = `${userid}/input/${uuidv4()}.jpg`;
-      const designUrl = await uploadBufferToFirebase(designBuffer, designPath);
-      inputUrls.design = designUrl;
-      analyses.design = await analyzeImageWithGPT4Vision(designUrl, 'design reference');
-    }
+      if (designImage) {
+        console.log('Processing design image...');
+        const designBuffer = await fileToJpegBuffer(designImage);
+        const designPath = `${userid}/input/${uuidv4()}.jpg`;
+        const designUrl = await uploadBufferToFirebase(designBuffer, designPath);
+        inputUrls.design = designUrl;
+        analyses.design = await analyzeImageWithGPT4Vision(designUrl, 'design reference');
+        console.log('Design image processed successfully');
+      }
 
-    if (colorImage) {
-      const colorBuffer = await fileToJpegBuffer(colorImage);
-      const colorPath = `${userid}/input/${uuidv4()}.jpg`;
-      const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
-      inputUrls.color = colorUrl;
-      analyses.color = await analyzeImageWithGPT4Vision(colorUrl, 'color reference');
+      if (colorImage) {
+        console.log('Processing color image...');
+        const colorBuffer = await fileToJpegBuffer(colorImage);
+        const colorPath = `${userid}/input/${uuidv4()}.jpg`;
+        const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
+        inputUrls.color = colorUrl;
+        analyses.color = await analyzeImageWithGPT4Vision(colorUrl, 'color reference');
+        console.log('Color image processed successfully');
+      }
+    } catch (error: any) {
+      console.error('Error processing images:', error);
+      const errorMessage = error?.message || 'Unknown error occurred while processing images';
+      return NextResponse.json(
+        { status: 'error', error: errorMessage },
+        { status: 500 }
+      );
     }
 
     // 7) Build the enhanced prompt
