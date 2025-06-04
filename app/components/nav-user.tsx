@@ -12,6 +12,8 @@ import {
   Headset,
   Info,
   Compass,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 
 import {
@@ -96,26 +98,68 @@ export function NavUser() {
   // If not logged in, show Login and Sign Up buttons
   if (!currentUser) {
     return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            size="lg"
-            onClick={() => router.push("/login")}
-            className="text-sm"
+       <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <Avatar className="h-8 w-8 rounded-lg">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} alt={profileName || "User"} />
+                ) : (
+                  <AvatarFallback className="rounded-lg">
+                    I
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">
+                  Welcome
+                </span>
+                <span className="truncate text-xs">IMAI.STUDIO</span>
+              </div>
+              <ChevronsUpDown className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            side={isMobile ? "bottom" : "right"}
+            align="end"
+            sideOffset={4}
           >
-            Login
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            size="lg"
-            onClick={() => router.push("/signup")}
-            className="text-sm"
-          >
-            Sign Up
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
+            <DropdownMenuGroup>
+               <DropdownMenuItem onClick={() => router.push("/pricing")}>
+                <Gem />
+                Pricing
+              </DropdownMenuItem>
+               <DropdownMenuItem onClick={() => router.push("/explore")}>
+                <Compass />
+                Explore
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/contact")}>
+                <Headset />
+                Support
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem onClick={() => router.push("/login")}>
+              <LogIn />
+              Login
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => router.push("/signup")}>
+              <UserPlus />
+               Sign Up
+            </DropdownMenuItem>
+
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
     );
   }
 
