@@ -1,5 +1,5 @@
 // Create a new unified component file that combines all functionality
-
+import { AuroraText } from "@/components/magicui/aurora-text";
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -10,12 +10,6 @@ import { useAuth } from "@/contexts/AuthContext";
 interface ImageAsset {
   type: 'product' | 'design' | 'color';
   path: string;
-}
-
-interface PromptSuggestion {
-  id: string;
-  label: string;
-  icon: string;
 }
 
 export default function UnifiedPromptContainer() {
@@ -197,9 +191,9 @@ export default function UnifiedPromptContainer() {
     <div className="flex h-screen max-h-[calc(100vh-140px)] w-full">
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex w-full max-w-xl flex-col items-center gap-8">
-          <h1 className="text-3xl font-semibold leading-9 text-default-foreground">
-            Generate Newness
-          </h1>
+        <h1 className="text-2xl font-bold tracking-tighter md:text-2xl lg:text-4xl">
+          Genrating <AuroraText>Newness</AuroraText>
+        </h1>
           <div className="flex w-full flex-col gap-4">
             <Form
               className="flex w-full flex-col items-start gap-0 rounded-medium bg-default-100 dark:bg-default-100"
