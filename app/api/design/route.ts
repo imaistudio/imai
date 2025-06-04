@@ -7,7 +7,7 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 
 // Add configuration for longer timeout
-export const maxDuration = 60; // 5 minutes in seconds
+export const maxDuration = 300; // 1 minute in seconds
 export const dynamic = 'force-dynamic';
 
 // Initialize Firebase Admin (only once)

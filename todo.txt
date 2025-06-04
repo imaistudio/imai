@@ -1,6 +1,5 @@
 Todays Task 
 
-1. Test Output/ Input Folder Creation - Only Once and start Storing 
 2. Crud Operations for storing the chats,sidebar,...etc - Whole Schema
 3. Chat ui with API Call Back Complete Villoa | Contact Salman | 
 4. SideBar Libary | Pinned Messages | Folders  with Test Data 
