@@ -1,6 +1,6 @@
 Todays Task 
 
-1. Sideup Pop Up Fixed | Gradient UI Profile  
+1. SidePop UP Gradient Animating Avatar | Fix the logout to be similar To the Logged in With Few Missing things 
 2. Test Output/ Input Folder Creation - Only Once and start Storing 
 3. Crud Operations for storing the chats,sidebar,...etc - Whole Schema
 4. Chat ui with API Call Back Complete Villoa | Contact Salman | 

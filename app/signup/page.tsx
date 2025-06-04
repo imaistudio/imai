@@ -199,11 +199,11 @@ export default function Signup() {
             name="Viola Schritter"
           />
           <p className="w-full text-right text-2xl text-white/60">
-            <span className="font-medium">"</span>
+            <span className="font-medium">&ldquo;</span>
             <span className="font-normal italic">
               Dream beyond reality — where imagination paints the impossible.
             </span>
-            <span className="font-medium">"</span>
+            <span className="font-medium">&ldquo;</span>
           </p>
         </div>
       </div>
