@@ -18,6 +18,7 @@ export default function UnifiedPromptContainer() {
   const [images, setImages] = useState<ImageAsset[]>([]);
   const [outputImage, setOutputImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const productFileInputRef = useRef<HTMLInputElement>(null);
@@ -32,11 +33,14 @@ export default function UnifiedPromptContainer() {
     
     if (!prompt && images.length === 0) return;
     if (!user) {
-      console.error('User must be logged in');
+      setError('User must be logged in');
       return;
     }
 
     setIsLoading(true);
+    setError(null);
+    // Don't reset the form here - wait for successful completion
+    
     try {
       // Find images by type
       const productImage = images.find(img => img.type === 'product')?.path || '';
@@ -64,33 +68,38 @@ export default function UnifiedPromptContainer() {
       // Add user ID
       formData.append('userid', user.uid);
 
+      console.log('Submitting form data...');
+
       // Call the API
       const response = await fetch('/api/design', {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to generate image');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
+
       if (data.status === 'success' && data.firebaseOutputUrl) {
         setOutputImage(data.firebaseOutputUrl);
+        // Only reset form after successful generation
+        setPrompt("");
+        setImages([]);
+        inputRef.current?.focus();
       } else {
         throw new Error(data.error || 'Failed to generate image');
       }
     } catch (error) {
       console.error('Error generating image:', error);
-      // You might want to show an error message to the user here
+      setError(error instanceof Error ? error.message : 'Failed to generate image');
     } finally {
       setIsLoading(false);
     }
-
-    // Reset form
-    setPrompt("");
-    setImages([]);
-    inputRef.current?.focus();
   }, [prompt, images, user]);
 
   // Handle keyboard events
@@ -141,6 +150,12 @@ export default function UnifiedPromptContainer() {
     return images.some(img => img.type === type);
   }, [images]);
 
+  // Clear output image
+  const clearOutput = () => {
+    setOutputImage(null);
+    setError(null);
+  };
+
   // Render image assets
   const renderImageAssets = () => {
     if (images.length === 0) return null;
@@ -185,7 +200,7 @@ export default function UnifiedPromptContainer() {
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex w-full max-w-xl flex-col items-center gap-8">
           <h1 className="text-3xl font-semibold leading-9 text-default-foreground">
-            Genrate Newness
+            Generate Newness
           </h1>
           <div className="flex w-full flex-col gap-4">
             <Form
@@ -295,6 +310,7 @@ export default function UnifiedPromptContainer() {
                   isIconOnly
                   color={!prompt && images.length === 0 ? "default" : "primary"}
                   isDisabled={!prompt && images.length === 0}
+                  isLoading={isLoading}
                   radius="full"
                   size="sm"
                   type="submit"
@@ -312,13 +328,33 @@ export default function UnifiedPromptContainer() {
               </div>
             </Form>
             
-            {isLoading && (
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <p className="text-red-800 text-sm">{error}</p>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onPress={() => setError(null)}
+                  >
+                    <Icon icon="lucide:x" width={16} />
+                  </Button>
+                </div>
               </div>
             )}
             
-            {outputImage && (
+            {/* Loading State */}
+            {isLoading && (
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p className="text-sm text-default-500">Generating your design...</p>
+              </div>
+            )}
+            
+            {/* Output Image */}
+            {outputImage && !isLoading && (
               <div className="mt-4">
                 <div className="relative">
                   <img
@@ -326,13 +362,25 @@ export default function UnifiedPromptContainer() {
                     alt="Generated design"
                     width={512}
                     height={512}
-                    className="rounded-lg shadow-lg w-[512px] h-[512px] object-cover"
+                    className="rounded-lg shadow-lg w-full max-w-[512px] h-auto object-cover mx-auto"
+                    onLoad={() => console.log('Image loaded successfully')}
                     onError={(e) => {
                       console.error('Error loading image:', e);
-                      const imgElement = e.currentTarget;
-                      imgElement.style.display = 'none';
+                      setError('Failed to load generated image');
                     }}
                   />
+                  <div className="absolute top-2 right-2">
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="solid"
+                      color="default"
+                      className="bg-white/80 backdrop-blur-sm"
+                      onPress={clearOutput}
+                    >
+                      <Icon icon="lucide:x" width={16} />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
