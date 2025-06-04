@@ -1,0 +1,283 @@
+// Create a new unified component file that combines all functionality
+
+import React, { useCallback, useState, useRef } from "react";
+import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { VisuallyHidden } from "@react-aria/visually-hidden";
+
+// Define types for our component
+interface ImageAsset {
+  type: 'product' | 'design' | 'color';
+  path: string;
+}
+
+interface PromptSuggestion {
+  id: string;
+  label: string;
+  icon: string;
+}
+
+export default function UnifiedPromptContainer() {
+  const [prompt, setPrompt] = useState("");
+  const [images, setImages] = useState<ImageAsset[]>([]);
+  
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const productFileInputRef = useRef<HTMLInputElement>(null);
+  const designFileInputRef = useRef<HTMLInputElement>(null);
+  const colorFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle form submission
+  const handleSubmit = useCallback((e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
+    if (!prompt && images.length === 0) return;
+
+    // Find images by type
+    const productImage = images.find(img => img.type === 'product')?.path || '';
+    const designImage = images.find(img => img.type === 'design')?.path || '';
+    const colorImage = images.find(img => img.type === 'color')?.path || '';
+
+    // Create result object
+    const result = {
+      productImagePath: productImage,
+      designImagePath: designImage,
+      colorImagePath: colorImage,
+      prompt
+    };
+
+    // Log the result
+    console.log(JSON.stringify(result, null, 2));
+
+    // Reset form
+    setPrompt("");
+    setImages([]);
+    inputRef.current?.focus();
+  }, [prompt, images]);
+
+  // Handle keyboard events
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    },
+    [handleSubmit],
+  );
+
+  // Handle file upload for different image types
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>, type: 'product' | 'design' | 'color') => {
+    const files = Array.from(e.target.files || []);
+    
+    if (files.length > 0 && files[0].type.startsWith("image/")) {
+      const file = files[0];
+      const reader = new FileReader();
+      
+      reader.onload = () => {
+        const path = reader.result as string;
+        
+        // Remove any existing image of this type
+        setImages(prev => {
+          const filtered = prev.filter(img => img.type !== type);
+          return [...filtered, { type, path }];
+        });
+      };
+      
+      reader.readAsDataURL(file);
+    }
+    
+    // Reset input value to allow uploading the same file again
+    if (e.target) {
+      e.target.value = "";
+    }
+  }, []);
+
+  // Remove an image by type
+  const handleRemoveImage = (type: 'product' | 'design' | 'color') => {
+    setImages(prev => prev.filter(img => img.type !== type));
+  };
+
+  // Check if a specific image type exists
+  const hasImageType = useCallback((type: 'product' | 'design' | 'color') => {
+    return images.some(img => img.type === type);
+  }, [images]);
+
+  // Render image assets
+  const renderImageAssets = () => {
+    if (images.length === 0) return null;
+
+    return (
+      <>
+        {images.map((image, index) => (
+          <Badge
+            key={`${image.type}-${index}`}
+            isOneChar
+            className="opacity-100"
+            content={
+              <Button
+                isIconOnly
+                radius="full"
+                size="sm"
+                variant="light"
+                onPress={() => handleRemoveImage(image.type)}
+              >
+                <Icon className="text-foreground" icon="lucide:x" width={16} />
+              </Button>
+            }
+          >
+            <div className="relative">
+              <Image
+                alt={`${image.type} image`}
+                className="h-14 w-14 rounded-small border-small border-default-200/50 object-cover"
+                src={image.path}
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1 py-0.5 text-[10px] text-white text-center">
+                {image.type.charAt(0).toUpperCase() + image.type.slice(1)}
+              </div>
+            </div>
+          </Badge>
+        ))}
+      </>
+    );
+  };
+
+  return (
+    <div className="flex h-screen max-h-[calc(100vh-140px)] w-full">
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex w-full max-w-xl flex-col items-center gap-8">
+          <h1 className="text-3xl font-semibold leading-9 text-default-foreground">
+            Let's Get Started
+          </h1>
+          <div className="flex w-full flex-col gap-4">
+            <Form
+              className="flex w-full flex-col items-start gap-0 rounded-medium bg-default-100 dark:bg-default-100"
+              validationBehavior="native"
+              onSubmit={handleSubmit}
+            >
+              <div className={cn("group flex gap-2 pl-[20px] pr-3", images.length > 0 ? "pt-4" : "")}>
+                {renderImageAssets()}
+              </div>
+              
+              <textarea
+                ref={inputRef}
+                autoFocus
+                className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
+                maxLength={1000}
+                name="content"
+                placeholder="Enter a prompt here"
+                rows={2}
+                spellCheck={false}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              
+              <div className="flex w-full flex-row items-center justify-between px-3 pb-3">
+                <div className="flex space-x-2">
+                  {/* Product Image Button */}
+                  <Tooltip showArrow content="Add Product Image">
+                    <Button
+                      isIconOnly
+                      radius="full"
+                      size="sm"
+                      variant={hasImageType('product') ? "solid" : "light"}
+                      color={hasImageType('product') ? "primary" : "default"}
+                      onPress={() => productFileInputRef.current?.click()}
+                    >
+                      <Icon 
+                        className={hasImageType('product') ? "text-primary-foreground" : "text-default-500"} 
+                        icon="lucide:package" 
+                        width={20} 
+                      />
+                      <VisuallyHidden>
+                        <input
+                          ref={productFileInputRef}
+                          accept="image/*"
+                          type="file"
+                          onChange={(e) => handleFileUpload(e, 'product')}
+                        />
+                      </VisuallyHidden>
+                    </Button>
+                  </Tooltip>
+                  
+                  {/* Design Image Button */}
+                  <Tooltip showArrow content="Add Design Image">
+                    <Button
+                      isIconOnly
+                      radius="full"
+                      size="sm"
+                      variant={hasImageType('design') ? "solid" : "light"}
+                      color={hasImageType('design') ? "primary" : "default"}
+                      onPress={() => designFileInputRef.current?.click()}
+                    >
+                      <Icon 
+                        className={hasImageType('design') ? "text-primary-foreground" : "text-default-500"} 
+                        icon="lucide:palette" 
+                        width={20} 
+                      />
+                      <VisuallyHidden>
+                        <input
+                          ref={designFileInputRef}
+                          accept="image/*"
+                          type="file"
+                          onChange={(e) => handleFileUpload(e, 'design')}
+                        />
+                      </VisuallyHidden>
+                    </Button>
+                  </Tooltip>
+                  
+                  {/* Color Image Button */}
+                  <Tooltip showArrow content="Add Color Image">
+                    <Button
+                      isIconOnly
+                      radius="full"
+                      size="sm"
+                      variant={hasImageType('color') ? "solid" : "light"}
+                      color={hasImageType('color') ? "primary" : "default"}
+                      onPress={() => colorFileInputRef.current?.click()}
+                    >
+                      <Icon 
+                        className={hasImageType('color') ? "text-primary-foreground" : "text-default-500"} 
+                        icon="lucide:droplets" 
+                        width={20} 
+                      />
+                      <VisuallyHidden>
+                        <input
+                          ref={colorFileInputRef}
+                          accept="image/*"
+                          type="file"
+                          onChange={(e) => handleFileUpload(e, 'color')}
+                        />
+                      </VisuallyHidden>
+                    </Button>
+                  </Tooltip>
+                </div>
+                
+                <Button
+                  isIconOnly
+                  color={!prompt && images.length === 0 ? "default" : "primary"}
+                  isDisabled={!prompt && images.length === 0}
+                  radius="full"
+                  size="sm"
+                  type="submit"
+                  variant="solid"
+                >
+                  <Icon
+                    className={cn(
+                      "[&>path]:stroke-[2px]",
+                      !prompt && images.length === 0 ? "text-default-600" : "text-primary-foreground",
+                    )}
+                    icon="lucide:arrow-up"
+                    width={20}
+                  />
+                </Button>
+              </div>
+            </Form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

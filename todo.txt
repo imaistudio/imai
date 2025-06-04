@@ -1,18 +1,15 @@
 Todays Task 
 
-1. SidePop UP Gradient Animating Avatar | Fix the logout to be similar To the Logged in With Few Missing things 
-2. Test Output/ Input Folder Creation - Only Once and start Storing 
-3. Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-4. Chat ui with API Call Back Complete Villoa | Contact Salman | 
-5. SideBar Libary | Pinned Messages | Folders  with Test Data 
-6. Chat Window Basic With ChatID Loading 
+1. Test Output/ Input Folder Creation - Only Once and start Storing 
+2. Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+3. Chat ui with API Call Back Complete Villoa | Contact Salman | 
+4. SideBar Libary | Pinned Messages | Folders  with Test Data 
+5. Chat Window Basic With ChatID Loading 
+6. paginiation firebase Explore Page 
 
 Extra to do 
-
 firebase auth - Apple | Reset Email
 load user chats in sidebar 
 search functionality - Form from Sidebae
 Create Folder 
 Pin Messages 
-
-paginiation firebase Explore Page 

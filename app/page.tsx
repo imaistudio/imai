@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import { MorphingText } from "@/components/magicui/morphing-text";
+import UnifiedPromptContainer from "./components/unified-prompt-container";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
 
 const texts = [
@@ -41,7 +42,7 @@ export default function Home() {
 
   return (
     <div className="w-full min-h-max flex flex-col items-center justify-center">
-      <MorphingText texts={texts} />
+      <UnifiedPromptContainer></UnifiedPromptContainer>
     </div>
   );
 }
