@@ -95,21 +95,13 @@ export default function UnifiedPromptContainer() {
         console.log('Response status:', response.status);
         console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-        // Try to get the response body regardless of status
-        let errorData;
-        try {
-          errorData = await response.json();
-          console.log('Response body:', errorData);
-        } catch (e) {
-          console.error('Failed to parse response as JSON:', e);
-        }
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}, message: ${errorData?.error || 'Unknown error'}`);
-        }
-
+        // Read the response body once
         const data = await response.json();
         console.log('Response data:', data);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}, message: ${data?.error || 'Unknown error'}`);
+        }
 
         if (data.status === 'success' && data.firebaseOutputUrl) {
           setOutputImage(data.firebaseOutputUrl);
