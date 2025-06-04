@@ -6,6 +6,10 @@ import { getAuth } from 'firebase-admin/auth';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 
+// Add configuration for longer timeout
+export const maxDuration = 300; // 5 minutes in seconds
+export const dynamic = 'force-dynamic';
+
 // Initialize Firebase Admin (only once)
 if (!getApps().length) {
   initializeApp({
@@ -65,13 +69,14 @@ async function uploadBufferToFirebase(
 
     const file = bucket.file(destinationPath);
 
-    // Save the buffer as a JPEG
+    // Save the buffer as a JPEG with optimized settings
     await file.save(buffer, {
       metadata: { 
         contentType: 'image/jpeg',
         cacheControl: 'public, max-age=3600'
       },
       resumable: false,
+      validation: false // Skip MD5 hash validation for faster uploads
     });
 
     console.log('File uploaded successfully, generating signed URL...');
@@ -107,6 +112,12 @@ async function fileToJpegBuffer(file: File): Promise<Buffer> {
       throw new Error(`Invalid file type: ${file.type}. Only image files are supported.`);
     }
 
+    // Add file size limit check (10MB)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error(`File size too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+    }
+
     console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
     
     const arrayBuffer = await file.arrayBuffer();
@@ -121,9 +132,16 @@ async function fileToJpegBuffer(file: File): Promise<Buffer> {
       throw new Error('Failed to create buffer from file data');
     }
 
-    // Use sharp to convert any input image format to JPEG
+    // Use sharp to convert any input image format to JPEG with optimization
     const jpegBuffer = await sharp(inputBuffer)
-      .jpeg({ quality: 90 }) // Set a reasonable quality
+      .resize(2048, 2048, { // Limit maximum dimensions
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .jpeg({ 
+        quality: 85, // Slightly lower quality for better performance
+        mozjpeg: true // Use mozjpeg for better compression
+      })
       .toBuffer();
 
     if (!jpegBuffer || jpegBuffer.length === 0) {
