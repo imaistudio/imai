@@ -82,9 +82,13 @@ export default function UnifiedPromptContainer() {
       }
 
       const data = await response.json();
+      console.log('API Response:', data); // Debug log
+      
       if (data.status === 'success' && data.firebaseOutputUrl) {
+        console.log('Setting output image URL:', data.firebaseOutputUrl); // Debug log
         setOutputImage(data.firebaseOutputUrl);
       } else {
+        console.error('Invalid API response format:', data); // Debug log
         throw new Error(data.error || 'Failed to generate image');
       }
     } catch (error) {
@@ -333,6 +337,7 @@ export default function UnifiedPromptContainer() {
                   width={512}
                   height={512}
                   className="rounded-lg shadow-lg"
+                  onError={() => console.error('Image failed to load')}
                 />
               </div>
             )}
