@@ -1,6 +1,6 @@
 // Create a new unified component file that combines all functionality
-import { AuroraText } from "@/components/magicui/aurora-text";
-import React, { useCallback, useState, useRef, useEffect } from "react";
+
+import React, { useCallback, useState, useRef } from "react";
 import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
@@ -23,13 +23,6 @@ export default function UnifiedPromptContainer() {
   const productFileInputRef = useRef<HTMLInputElement>(null);
   const designFileInputRef = useRef<HTMLInputElement>(null);
   const colorFileInputRef = useRef<HTMLInputElement>(null);
-
-  // Focus the input on mount
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
 
   // Handle form submission
   const handleSubmit = useCallback(async (e?: React.FormEvent) => {
@@ -82,13 +75,9 @@ export default function UnifiedPromptContainer() {
       }
 
       const data = await response.json();
-      console.log('API Response:', data); // Debug log
-      
       if (data.status === 'success' && data.firebaseOutputUrl) {
-        console.log('Setting output image URL:', data.firebaseOutputUrl); // Debug log
         setOutputImage(data.firebaseOutputUrl);
       } else {
-        console.error('Invalid API response format:', data); // Debug log
         throw new Error(data.error || 'Failed to generate image');
       }
     } catch (error) {
@@ -195,9 +184,9 @@ export default function UnifiedPromptContainer() {
     <div className="flex h-screen max-h-[calc(100vh-140px)] w-full">
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex w-full max-w-xl flex-col items-center gap-8">
-        <h1 className="text-2xl font-bold tracking-tighter md:text-2xl lg:text-4xl">
-          Genrating <AuroraText>Newness</AuroraText>
-        </h1>
+          <h1 className="text-3xl font-semibold leading-9 text-default-foreground">
+            Genrate Newness
+          </h1>
           <div className="flex w-full flex-col gap-4">
             <Form
               className="flex w-full flex-col items-start gap-0 rounded-medium bg-default-100 dark:bg-default-100"
@@ -337,7 +326,6 @@ export default function UnifiedPromptContainer() {
                   width={512}
                   height={512}
                   className="rounded-lg shadow-lg"
-                  onError={() => console.error('Image failed to load')}
                 />
               </div>
             )}
