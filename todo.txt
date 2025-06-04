@@ -1,15 +1,18 @@
 1. Add Error Toast in all the pages 
 2. SidePop Up Fixed | Add Logout | Account | Setup Everything | Dashboard | Gradient UI Profile | UserDetails 
 3. Test Output/ Input Folder Creation - Only Once and start Storing 
+4. Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+5. Chat ui with API Call Back 
+
 
 
 Extra to do 
 
 firebase auth - Apple | Reset Email
-Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+
 load user chats in sidebar 
 search functionality - Form from Sidebae
 Create Folder 
 Pin Messages 
-Chat ui test dummy one to store and api call back 
+
 paginiation firebase Explore Page 

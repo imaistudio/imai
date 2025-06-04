@@ -32,6 +32,11 @@ interface ComposeProductResponse {
   firebaseOutputUrl?: string;
   workflow_type?: string;
   generated_prompt?: string;
+  revised_prompt?: string;
+  response_id?: string;
+  model_used?: string;
+  generation_method?: 'responses_api' | 'image_api';
+  streaming_supported?: boolean;
   error?: string;
 }
 
@@ -93,20 +98,32 @@ function validateWorkflowInputs(
     break;
 
   case 'product_color':
-    if (!hasProduct || !hasColor || hasDesign || hasPrompt) {
-      return { valid: false, error: 'product_color requires only product and color images' };
+    if (!hasProduct || !hasColor || hasDesign) {
+      return { valid: false, error: 'product_color requires product and color images (no design image)' };
     }
     break;
 
   case 'product_design':
-    if (!hasProduct || !hasDesign || hasColor || hasPrompt) {
-      return { valid: false, error: 'product_design requires only product and design images' };
+    if (!hasProduct || !hasDesign || hasColor) {
+      return { valid: false, error: 'product_design requires product and design images (no color image)' };
     }
     break;
 
   case 'color_design':
     if ((!hasColor && !hasDesign) || !hasPrompt || hasProduct) {
       return { valid: false, error: 'color_design requires color/design and prompt, but no product' };
+    }
+    break;
+
+  case 'color_prompt':
+    if (!hasColor || !hasPrompt || hasProduct || hasDesign) {
+      return { valid: false, error: 'color_prompt requires only color image and prompt' };
+    }
+    break;
+
+  case 'design_prompt':
+    if (!hasDesign || !hasPrompt || hasProduct || hasColor) {
+      return { valid: false, error: 'design_prompt requires only design image and prompt' };
     }
     break;
 
@@ -126,7 +143,6 @@ function validateWorkflowInputs(
     return { valid: false, error: `Unknown workflow type: ${workflowType}` };
   }
 
-
   return { valid: true };
 }
 
@@ -140,56 +156,114 @@ function generateWorkflowPrompt(
   designAnalysis?: string,
   colorAnalysis?: string
 ): string {
-  if (userPrompt && ['color_design', 'prompt_only', 'product_prompt'].includes(workflowType)) {
-    return userPrompt;
-  }
-
   switch (workflowType) {
     case 'full_composition':
-      return `Create a photorealistic version of the original product, incorporating design elements and color palette. 
+      const baseFullPrompt = `Create a photorealistic version of the original product, drawing design inspiration only and not the colors from the design reference and applying the colors from the color reference. Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette. The design reference should inspire creative visual elements, patterns, or stylistic approaches, but not be directly copied or imprinted. The color reference should only provide the color palette and color scheme to apply.
+
 BASE PRODUCT ANALYSIS: ${productAnalysis}
-DESIGN REFERENCE ANALYSIS: ${designAnalysis}
-COLOR REFERENCE ANALYSIS: ${colorAnalysis}
-No text or fonts allowed.`;
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
+COLOR PALETTE ANALYSIS: ${colorAnalysis}`;
+      
+      if (userPrompt) {
+        return `${baseFullPrompt}
+
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+      }
+      return `${baseFullPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
 
     case 'product_color':
-      return `Apply the color palette from the reference image to the product while preserving its original design.
+      const baseColorPrompt = `Apply only the color palette and color scheme from the color reference image to the product while maintaining its original design and structure. Extract only the colors from the reference - do not copy any design patterns, textures, or visual elements. Keep all product details but transform only the colors to match the reference palette. Photorealistic.
+
 ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
-COLOR REFERENCE ANALYSIS: ${colorAnalysis}
-No text or fonts allowed.`;
+COLOR PALETTE ANALYSIS: ${colorAnalysis}`;
+      
+      if (userPrompt) {
+        return `${baseColorPrompt}
+
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+      }
+      return `${baseColorPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
 
     case 'product_design':
-      return `Apply design patterns from the design reference to the product, maintaining its form.
+      const baseDesignPrompt = `Create a new version of the product drawing creative inspiration from the design reference. Use the design reference as inspiration for visual style, creative direction, or artistic approach - but do not directly copy or imprint the design onto the product. Maintain the product's original form and structure while creating something inspired by the reference's aesthetic sensibility. Photorealistic.
+
 ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
-DESIGN REFERENCE ANALYSIS: ${designAnalysis}
-No text or fonts allowed.`;
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis}`;
+      
+      if (userPrompt) {
+        return `${baseDesignPrompt}
+
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+      }
+      return `${baseDesignPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
 
     case 'color_design':
       if (colorAnalysis && designAnalysis) {
-        return `Combine this design reference and color palette to create a new product.
-DESIGN REFERENCE ANALYSIS: ${designAnalysis}
-COLOR REFERENCE ANALYSIS: ${colorAnalysis}
-No text or fonts allowed.`;
+        return `Create a new product design that draws color inspiration from the color reference and design inspiration from the design reference. Use the color reference only for its color palette and the design reference only for creative inspiration and stylistic direction. Generate a cohesive product that incorporates both elements thoughtfully. Photorealistic.
+
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
+COLOR PALETTE ANALYSIS: ${colorAnalysis}
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
       } else if (colorAnalysis) {
-        return `Create a product using this color palette.
-COLOR REFERENCE ANALYSIS: ${colorAnalysis}
-No text or fonts allowed.`;
+        return `Create a product using this color palette for inspiration.
+
+COLOR PALETTE ANALYSIS: ${colorAnalysis}
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
       } else {
-        return `Create a product using this design reference.
-DESIGN REFERENCE ANALYSIS: ${designAnalysis}
-No text or fonts allowed.`;
+        return `Create a product drawing inspiration from this design reference.
+
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
       }
 
-    case 'prompt_only':
-      return `Generate a photorealistic product design based solely on this prompt:
+    case 'color_prompt':
+      return `Create a new product design using this color palette as inspiration and following the user's description.
+
+COLOR PALETTE ANALYSIS: ${colorAnalysis}
 USER PROMPT: ${userPrompt}
-No text or fonts allowed.`;
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+
+    case 'design_prompt':
+      return `Create a new product design drawing creative inspiration from this design reference and following the user's description. Use the design reference for inspiration and creative direction, not for direct copying.
+
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+
+    case 'prompt_only':
+      return `Create a new innovative photorealistic product design based on the provided description. Generate a photorealistic, high-quality product design.
+
+USER PROMPT: ${userPrompt}
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
 
     case 'product_prompt':
-      return `Enhance this product according to the prompt:
+      return `Create a new version or variation of the provided product based on the custom description. Maintain the core product identity while incorporating the requested changes. Generate a photorealistic design.
+
 ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
 USER PROMPT: ${userPrompt}
-No text or fonts allowed.`;
+
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
 
     default:
       return userPrompt || '';
@@ -202,14 +276,14 @@ No text or fonts allowed.`;
 async function analyzeImageWithGPT4Vision(imageUrl: string, analysisType: string): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4.1',
       messages: [
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: `Analyze this ${analysisType} image in detail. Describe the product's form, materials, colors, patterns, and any distinctive features. Provide a technical description.`
+              text: `Analyze this ${analysisType} image in detail for AI image generation. Describe the visual elements, colors, patterns, textures, materials, style, and any distinctive features that would be useful for recreating or referencing these qualities in a new design. Be specific and technical.`
             },
             {
               type: 'image_url',
@@ -218,7 +292,7 @@ async function analyzeImageWithGPT4Vision(imageUrl: string, analysisType: string
           ]
         }
       ],
-      max_tokens: 500,
+      max_tokens: 800,
     });
 
     return response.choices[0].message.content || '';
@@ -229,42 +303,280 @@ async function analyzeImageWithGPT4Vision(imageUrl: string, analysisType: string
 }
 
 /**
- * Composes product images with DALL·E, returning either base64 or URL results.
+ * Converts an image URL to a base64 data URL
  */
-async function composeProductWithDALLE(
-  prompt: string,
-  options: { size: any; quality: string; n: number }
-): Promise<Array<{ type: 'url' | 'base64'; data: string }>> {
+async function urlToBase64DataUrl(url: string): Promise<string> {
   try {
-    let dalleQuality = options.quality;
-    if (dalleQuality === 'standard') dalleQuality = 'medium';
-    if (!['low', 'medium', 'high', 'auto'].includes(dalleQuality)) {
-      dalleQuality = 'medium';
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString('base64');
+    
+    // Determine MIME type from response headers or assume JPEG
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    
+    return `data:${contentType};base64,${base64}`;
+  } catch (err) {
+    console.error('Error converting URL to base64:', err);
+    throw err;
+  }
+}
+
+/**
+ * Upload image to OpenAI Files API and return file ID
+ */
+async function uploadImageToFiles(imageUrl: string, filename: string): Promise<string> {
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    // Create a File-like object for OpenAI
+    const file = new File([buffer], filename, { type: 'image/jpeg' });
+    
+    const uploadResponse = await openai.files.create({
+      file: file,
+      purpose: 'vision',
+    });
+
+    return uploadResponse.id;
+  } catch (err) {
+    console.error('Error uploading to OpenAI Files:', err);
+    throw err;
+  }
+}
+
+/**
+ * Generate images using the Responses API with GPT Image
+ */
+async function generateWithResponsesAPI(
+  prompt: string,
+  options: { 
+    size?: string; 
+    quality?: string; 
+    n?: number; 
+    background?: string;
+    output_format?: string;
+    output_compression?: number;
+    stream?: boolean;
+    partial_images?: number;
+  },
+  imageUrls?: { product?: string; design?: string; color?: string },
+  mainlineModel: string = 'gpt-4.1'
+): Promise<{
+  images: Array<{ type: 'url' | 'base64'; data: string }>;
+  response_id?: string;
+  revised_prompt?: string;
+}> {
+  try {
+    console.log('Using Responses API with GPT Image...');
+
+    // Prepare input content
+    const inputContent: any[] = [
+      {
+        type: 'input_text',
+        text: `Generate an image based on this prompt: ${prompt}`
+      }
+    ];
+
+    // Add image inputs if provided
+    if (imageUrls) {
+      if (imageUrls.product) {
+        try {
+          const fileId = await uploadImageToFiles(imageUrls.product, 'product.jpg');
+          inputContent.push({
+            type: 'input_image',
+            file_id: fileId
+          });
+        } catch (err) {
+          console.warn('Failed to upload product image to Files API, skipping:', err);
+        }
+      }
+      if (imageUrls.design) {
+        try {
+          const fileId = await uploadImageToFiles(imageUrls.design, 'design.jpg');
+          inputContent.push({
+            type: 'input_image',
+            file_id: fileId
+          });
+        } catch (err) {
+          console.warn('Failed to upload design image to Files API, skipping:', err);
+        }
+      }
+      if (imageUrls.color) {
+        try {
+          const fileId = await uploadImageToFiles(imageUrls.color, 'color.jpg');
+          inputContent.push({
+            type: 'input_image',
+            file_id: fileId
+          });
+        } catch (err) {
+          console.warn('Failed to upload color image to Files API, skipping:', err);
+        }
+      }
     }
 
-    const response = await openai.images.generate({
+    // Prepare image generation tool options
+    const imageGenTool: any = {
+      type: 'image_generation',
+    };
+
+    // Add partial images for streaming if enabled
+    if (options.stream && options.partial_images) {
+      imageGenTool.partial_images = Math.min(Math.max(options.partial_images, 1), 3);
+    }
+
+    // Additional options for image generation
+    if (options.size) imageGenTool.size = options.size;
+    if (options.quality) imageGenTool.quality = options.quality;
+    if (options.background) imageGenTool.background = options.background;
+    if (options.output_format) imageGenTool.output_format = options.output_format;
+    if (options.output_compression) imageGenTool.output_compression = options.output_compression;
+
+    const responseParams: any = {
+      model: mainlineModel,
+      input: [
+        {
+          role: 'user',
+          content: inputContent
+        }
+      ],
+      tools: [imageGenTool],
+    };
+
+    if (options.stream) {
+      responseParams.stream = true;
+      
+      // For streaming, we would need to handle the stream properly
+      // For now, we'll fall back to non-streaming
+      console.log('Streaming requested but not implemented in this version, using non-streaming...');
+      responseParams.stream = false;
+    }
+
+    const response = await openai.responses.create(responseParams);
+
+    // Extract image generation results - using any type to handle potential API changes
+    const imageGenerationCalls = (response.output as any[]).filter((output: any) => output.type === 'image_generation_call');
+    
+    if (imageGenerationCalls.length === 0) {
+      throw new Error('No image generation calls found in response');
+    }
+
+    const firstCall = imageGenerationCalls[0];
+    
+    // Handle different possible property names for the image data
+    const imageData = firstCall.result || firstCall.b64_json || firstCall.data;
+    if (!imageData) {
+      throw new Error('No image data found in response');
+    }
+
+    const images = [{
+      type: 'base64' as const,
+      data: imageData
+    }];
+
+    return {
+      images,
+      response_id: response.id,
+      revised_prompt: firstCall.revised_prompt || undefined
+    };
+
+  } catch (err) {
+    console.error('Error with Responses API:', err);
+    throw err;
+  }
+}
+
+/**
+ * Composes product images with GPT Image, using Responses API first, then fallback to Image API
+ */
+async function composeProductWithGPTImage(
+  prompt: string,
+  options: { 
+    size: any; 
+    quality: string; 
+    n: number;
+    background?: string;
+    output_format?: string;
+    output_compression?: number;
+    stream?: boolean;
+    partial_images?: number;
+  },
+  imageUrls?: { product?: string; design?: string; color?: string }
+): Promise<{
+  results: Array<{ type: 'url' | 'base64'; data: string }>;
+  response_id?: string;
+  revised_prompt?: string;
+  method: 'responses_api' | 'image_api';
+}> {
+  try {
+    // Try Responses API first if we have image inputs or streaming is requested
+    if ((imageUrls && (imageUrls.product || imageUrls.design || imageUrls.color)) || options.stream) {
+      try {
+        const responsesResult = await generateWithResponsesAPI(prompt, options, imageUrls);
+        return {
+          results: responsesResult.images,
+          response_id: responsesResult.response_id,
+          revised_prompt: responsesResult.revised_prompt,
+          method: 'responses_api'
+        };
+      } catch (responsesError) {
+        console.log('Responses API failed, falling back to Image API:', responsesError);
+      }
+    }
+
+    // Fallback to Image API
+    console.log('Using Image API...');
+    
+    let gptImageQuality = options.quality;
+    if (gptImageQuality === 'standard') gptImageQuality = 'medium';
+    if (!['low', 'medium', 'high', 'auto'].includes(gptImageQuality)) {
+      gptImageQuality = 'medium';
+    }
+
+    const imageParams: any = {
       model: 'gpt-image-1',
-      prompt,
+      prompt: prompt,
       size: options.size,
-      quality: dalleQuality as any,
+      quality: gptImageQuality,
       n: options.n,
-    });
+    };
+
+    // Add additional options
+    if (options.background) imageParams.background = options.background;
+    if (options.output_format) imageParams.output_format = options.output_format;
+    if (options.output_compression) imageParams.output_compression = options.output_compression;
+
+    const response = await openai.images.generate(imageParams);
 
     if (!response.data || response.data.length === 0) {
-      throw new Error('No images returned from DALL·E');
+      throw new Error('No images returned from GPT Image');
     }
 
-    return response.data.map(img => {
+    const results = response.data.map(img => {
       if (img.b64_json) {
-        return { type: 'base64', data: img.b64_json };
+        return { type: 'base64' as const, data: img.b64_json };
       } else if (img.url) {
-        return { type: 'url', data: img.url };
+        return { type: 'url' as const, data: img.url };
       } else {
-        throw new Error('Unexpected image format from DALL·E');
+        throw new Error('Unexpected image format from GPT Image');
       }
     });
+
+    return {
+      results,
+      method: 'image_api'
+    };
   } catch (err) {
-    console.error('Error composing with DALL·E:', err);
+    console.error('Error composing with GPT Image:', err);
     throw err;
   }
 }
@@ -278,40 +590,75 @@ function determineWorkflowType(
   hasColor: boolean,
   hasPrompt: boolean
 ): string {
-  // 1) All three images → full_composition
-  if (hasProduct && hasDesign && hasColor && !hasPrompt) {
-    return 'full_composition';
+  // Product-based workflows (when we have a product image)
+  if (hasProduct) {
+    // 1) All three images → full_composition (prompt optional)
+    if (hasDesign && hasColor) {
+      return 'full_composition';
+    }
+    
+    // 2) Product + Design only → product_design (prompt optional)
+    if (hasDesign && !hasColor) {
+      return 'product_design';
+    }
+    
+    // 3) Product + Color only → product_color (prompt optional)
+    if (!hasDesign && hasColor) {
+      return 'product_color';
+    }
+    
+    // 4) Product + Prompt only → product_prompt
+    if (!hasDesign && !hasColor && hasPrompt) {
+      return 'product_prompt';
+    }
+    
+    // 5) Product only (no other inputs) → not supported
+    if (!hasDesign && !hasColor && !hasPrompt) {
+      throw new Error('Product image alone is not sufficient. Please provide either: design image, color image, or a text prompt along with the product image.');
+    }
+  }
+  
+  // Non-product workflows (when we don't have a product image)
+  if (!hasProduct) {
+    // 6) Design + Color + prompt → color_design
+    if (hasDesign && hasColor && hasPrompt) {
+      return 'color_design';
+    }
+    
+    // 7) Design + prompt (no color) → design_prompt
+    if (hasDesign && !hasColor && hasPrompt) {
+      return 'design_prompt';
+    }
+    
+    // 8) Color + prompt (no design) → color_prompt
+    if (!hasDesign && hasColor && hasPrompt) {
+      return 'color_prompt';
+    }
+    
+    // 9) Prompt only → prompt_only
+    if (!hasDesign && !hasColor && hasPrompt) {
+      return 'prompt_only';
+    }
+    
+    // 10) No valid combination
+    if (hasDesign || hasColor) {
+      throw new Error('Design or color images require a text prompt when no product image is provided.');
+    }
   }
 
-  // 2) Product + Color only → product_color
-  if (hasProduct && !hasDesign && hasColor && !hasPrompt) {
-    return 'product_color';
-  }
-
-  // 3) Product + Design only → product_design
-  if (hasProduct && hasDesign && !hasColor && !hasPrompt) {
-    return 'product_design';
-  }
-
-  // 4) (Design or Color) + prompt (but not product) → color_design
-  if (!hasProduct && (hasDesign || hasColor) && hasPrompt) {
-    return 'color_design';
-  }
-
-  // 5) Prompt only → prompt_only
-  if (!hasProduct && !hasDesign && !hasColor && hasPrompt) {
-    return 'prompt_only';
-  }
-
-  // 6) Product + Prompt only → product_prompt
-  if (hasProduct && !hasDesign && !hasColor && hasPrompt) {
-    return 'product_prompt';
-  }
-
-  // Any other combination is not supported
+  // Fallback error for any other invalid combinations
   throw new Error(
-    `Cannot infer a valid workflow for these inputs:
-     product_image=${hasProduct}, design_image=${hasDesign}, color_image=${hasColor}, prompt=${hasPrompt}`
+    `Invalid input combination. Please provide one of the following:
+     • Product + Design + Color (± prompt)
+     • Product + Design (± prompt) 
+     • Product + Color (± prompt)
+     • Product + Prompt
+     • Design + Color + Prompt
+     • Design + Prompt
+     • Color + Prompt
+     • Prompt only
+     
+     Current inputs: product=${hasProduct}, design=${hasDesign}, color=${hasColor}, prompt=${hasPrompt}`
   );
 }
 
@@ -358,10 +705,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 4) Retrieve other optional params (size, quality, n)
-    const size    = (formData.get('size') as string)    || '1024x1024';
-    const quality = (formData.get('quality') as string) || 'standard';
-    const n       = parseInt((formData.get('n') as string) || '1', 10);
+    // 4) Retrieve enhanced generation parameters
+    const size = (formData.get('size') as string) || '1024x1024';
+    const quality = (formData.get('quality') as string) || 'auto';
+    const n = parseInt((formData.get('n') as string) || '1', 10);
+    const background = (formData.get('background') as string) || 'opaque';
+    const outputFormat = (formData.get('output_format') as string) || 'png';
+    const outputCompression = parseInt((formData.get('output_compression') as string) || '0', 10);
+    const stream = (formData.get('stream') as string) === 'true';
+    const partialImages = parseInt((formData.get('partial_images') as string) || '2', 10);
+    const mainlineModel = (formData.get('mainline_model') as string) || 'gpt-4.1';
 
     // 5) Validate that this inferred workflow is valid
     const validation = validateWorkflowInputs(
@@ -415,12 +768,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       analyses.color
     );
 
-    // 8) Call DALL·E to generate the product
-    const dalleResults = await composeProductWithDALLE(workflowPrompt, { size, quality, n });
-    if (dalleResults.length === 0) {
-      throw new Error('DALL·E returned no images');
+    // 8) Generate the product with enhanced options
+    const generationOptions = {
+      size,
+      quality,
+      n,
+      background: background !== 'opaque' ? background : undefined,
+      output_format: outputFormat !== 'png' ? outputFormat : undefined,
+      output_compression: outputCompression > 0 ? outputCompression : undefined,
+      stream,
+      partial_images: partialImages,
+    };
+
+    const generationResult = await composeProductWithGPTImage(
+      workflowPrompt, 
+      generationOptions,
+      inputUrls
+    );
+
+    if (generationResult.results.length === 0) {
+      throw new Error('GPT Image returned no images');
     }
-    const firstResult = dalleResults[0];
+
+    const firstResult = generationResult.results[0];
     let outputJpegBuffer: Buffer;
 
     if (firstResult.type === 'base64') {
@@ -431,7 +801,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // Fetch the URL, then convert to JPEG buffer
       const response = await fetch(firstResult.data);
       if (!response.ok) {
-        throw new Error(`Failed to fetch DALL·E image URL: ${response.statusText}`);
+        throw new Error(`Failed to fetch GPT Image URL: ${response.statusText}`);
       }
       const arrayBuffer = await response.arrayBuffer();
       const rawBuffer = Buffer.from(arrayBuffer);
@@ -442,13 +812,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const outputPath = `${userid}/output/${uuidv4()}.jpg`;
     const firebaseOutputUrl = await uploadBufferToFirebase(outputJpegBuffer, outputPath);
 
-    // 10) Return success including input URLs, output URL, inferred workflow, and prompt
+    // 10) Return enhanced success response
     const responsePayload: ComposeProductResponse = {
       status: 'success',
       firebaseInputUrls: inputUrls,
       firebaseOutputUrl,
       workflow_type,
       generated_prompt: workflowPrompt,
+      revised_prompt: generationResult.revised_prompt,
+      response_id: generationResult.response_id,
+      model_used: 'gpt-image-1',
+      generation_method: generationResult.method,
+      streaming_supported: stream && generationResult.method === 'responses_api',
     };
     return NextResponse.json(responsePayload);
   } catch (err: any) {
