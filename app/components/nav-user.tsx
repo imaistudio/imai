@@ -10,7 +10,6 @@ import {
   LogOut,
   User,
   Headset,
-  Info,
   Compass,
   LogIn,
   UserPlus
@@ -18,8 +17,6 @@ import {
 
 import {
   Avatar,
-  AvatarFallback,
-  AvatarImage,
 } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -36,6 +33,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+import { IMAIIcon } from "@/app/components/imai";
+
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, firestore } from "@/lib/firebase";
@@ -43,7 +42,6 @@ import { auth, firestore } from "@/lib/firebase";
 export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter();
-
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [profileName, setProfileName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -98,68 +96,59 @@ export function NavUser() {
   // If not logged in, show Login and Sign Up buttons
   if (!currentUser) {
     return (
-       <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <IMAIIcon size={28}/>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">Welcome</span>
+                  <span className="truncate text-xs">IMAI.STUDIO</span>
+                </div>
+                <ChevronsUpDown className="ml-auto size-4" />
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+              side={isMobile ? "bottom" : "right"}
+              align="end"
+              sideOffset={4}
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                {avatarUrl ? (
-                  <AvatarImage src={avatarUrl} alt={profileName || "User"} />
-                ) : (
-                  <AvatarFallback className="rounded-lg">
-                    I
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  Welcome
-                </span>
-                <span className="truncate text-xs">IMAI.STUDIO</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuGroup>
-               <DropdownMenuItem onClick={() => router.push("/pricing")}>
-                <Gem />
-                Pricing
-              </DropdownMenuItem>
-               <DropdownMenuItem onClick={() => router.push("/explore")}>
-                <Compass />
-                Explore
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/contact")}>
-                <Headset />
-                Support
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => router.push("/pricing")}>
+                  <Gem />
+                  Pricing
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/explore")}>
+                  <Compass />
+                  Explore
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/contact")}>
+                  <Headset />
+                  Support
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => router.push("/login")}>
-              <LogIn />
-              Login
-            </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/login")}>
+                <LogIn />
+                Login
+              </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => router.push("/signup")}>
-              <UserPlus />
-               Sign Up
-            </DropdownMenuItem>
-
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+              <DropdownMenuItem onClick={() => router.push("/signup")}>
+                <UserPlus />
+                Sign Up
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarMenuItem>
+      </SidebarMenu>
     );
   }
 
@@ -174,13 +163,7 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                {avatarUrl ? (
-                  <AvatarImage src={avatarUrl} alt={profileName || "User"} />
-                ) : (
-                  <AvatarFallback className="rounded-lg">
-                    {profileName ? profileName.charAt(0) : "U"}
-                  </AvatarFallback>
-                )}
+                <IMAIIcon size={28} />
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
@@ -198,11 +181,11 @@ export function NavUser() {
             sideOffset={4}
           >
             <DropdownMenuGroup>
-               <DropdownMenuItem onClick={() => router.push("/pricing")}>
+              <DropdownMenuItem onClick={() => router.push("/pricing")}>
                 <Gem />
                 Pricing
               </DropdownMenuItem>
-               <DropdownMenuItem onClick={() => router.push("/explore")}>
+              <DropdownMenuItem onClick={() => router.push("/explore")}>
                 <Compass />
                 Explore
               </DropdownMenuItem>
@@ -230,7 +213,6 @@ export function NavUser() {
               <LogOut />
               Log out
             </DropdownMenuItem>
-
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

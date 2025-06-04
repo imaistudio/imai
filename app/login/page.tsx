@@ -23,13 +23,14 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(false);
+    setIsLoading(true);
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+    
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -42,7 +43,7 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
-  setIsLoading(false);
+  setIsLoading(true);
   const provider = new GoogleAuthProvider();
   try {
     await signInWithPopup(auth, provider);
