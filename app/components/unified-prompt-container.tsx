@@ -31,9 +31,20 @@ export default function UnifiedPromptContainer() {
       e.preventDefault();
     }
     
-    if (!prompt && images.length === 0) return;
     if (!user) {
       setError('User must be logged in');
+      return;
+    }
+
+    // Validate inputs
+    if (!prompt && images.length === 0) {
+      setError('Please provide either a prompt or at least one image');
+      return;
+    }
+
+    // Validate user ID
+    if (!user.uid || typeof user.uid !== 'string') {
+      setError('Invalid user ID');
       return;
     }
 
@@ -68,35 +79,51 @@ export default function UnifiedPromptContainer() {
       // Add user ID
       formData.append('userid', user.uid);
 
-      console.log('Submitting form data...');
-
+      // Log the data being sent
+      console.log('Submitting form data with:');
+      console.log('User ID:', user.uid);
+      console.log('Prompt:', prompt);
+      console.log('Images:', images.map(img => ({ type: img.type, hasPath: !!img.path })));
+      
       // Call the API
-      const response = await fetch('/api/design', {
-        method: 'POST',
-        body: formData,
-      });
+      try {
+        const response = await fetch('/api/design', {
+          method: 'POST',
+          body: formData,
+        });
 
-      console.log('Response status:', response.status);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Try to get the response body regardless of status
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.log('Response body:', errorData);
+        } catch (e) {
+          console.error('Failed to parse response as JSON:', e);
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorData?.error || 'Unknown error'}`);
+        }
+
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (data.status === 'success' && data.firebaseOutputUrl) {
+          setOutputImage(data.firebaseOutputUrl);
+          // Only reset form after successful generation
+          setPrompt("");
+          setImages([]);
+          inputRef.current?.focus();
+        } else {
+          throw new Error(data.error || 'Failed to generate image');
+        }
+      } catch (error) {
+        console.error('Error generating image:', error);
+        setError(error instanceof Error ? error.message : 'Failed to generate image');
       }
-
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (data.status === 'success' && data.firebaseOutputUrl) {
-        setOutputImage(data.firebaseOutputUrl);
-        // Only reset form after successful generation
-        setPrompt("");
-        setImages([]);
-        inputRef.current?.focus();
-      } else {
-        throw new Error(data.error || 'Failed to generate image');
-      }
-    } catch (error) {
-      console.error('Error generating image:', error);
-      setError(error instanceof Error ? error.message : 'Failed to generate image');
     } finally {
       setIsLoading(false);
     }
