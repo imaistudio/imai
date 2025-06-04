@@ -7,7 +7,7 @@ import UnifiedPromptContainer from "./components/unified-prompt-container";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
 
 const texts = [
-  "Comming",
+  "Coming",
   "Soon",
   "IMAI",
   "Creating",
@@ -40,9 +40,25 @@ export default function Home() {
     }
   }, [loading, currentUser, modalShown, openModal, closeModal]);
 
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        <MorphingText texts={texts} />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full min-h-max flex flex-col items-center justify-center">
-      <UnifiedPromptContainer></UnifiedPromptContainer>
+    <div className="w-full min-h-screen flex flex-col items-center justify-center">
+      <UnifiedPromptContainer />
     </div>
   );
 }

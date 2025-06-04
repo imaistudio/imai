@@ -4,6 +4,7 @@ import React, { useCallback, useState, useRef } from "react";
 import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Define types for our component
 interface ImageAsset {
@@ -18,8 +19,11 @@ interface PromptSuggestion {
 }
 
 export default function UnifiedPromptContainer() {
+  const { user } = useAuth();
   const [prompt, setPrompt] = useState("");
   const [images, setImages] = useState<ImageAsset[]>([]);
+  const [outputImage, setOutputImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const productFileInputRef = useRef<HTMLInputElement>(null);
@@ -27,34 +31,73 @@ export default function UnifiedPromptContainer() {
   const colorFileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle form submission
-  const handleSubmit = useCallback((e?: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
     }
     
     if (!prompt && images.length === 0) return;
+    if (!user) {
+      console.error('User must be logged in');
+      return;
+    }
 
-    // Find images by type
-    const productImage = images.find(img => img.type === 'product')?.path || '';
-    const designImage = images.find(img => img.type === 'design')?.path || '';
-    const colorImage = images.find(img => img.type === 'color')?.path || '';
+    setIsLoading(true);
+    try {
+      // Find images by type
+      const productImage = images.find(img => img.type === 'product')?.path || '';
+      const designImage = images.find(img => img.type === 'design')?.path || '';
+      const colorImage = images.find(img => img.type === 'color')?.path || '';
 
-    // Create result object
-    const result = {
-      productImagePath: productImage,
-      designImagePath: designImage,
-      colorImagePath: colorImage,
-      prompt
-    };
+      // Create form data
+      const formData = new FormData();
+      formData.append('prompt', prompt);
+      
+      // Convert base64 images to files if they exist
+      if (productImage) {
+        const productFile = await fetch(productImage).then(r => r.blob());
+        formData.append('product_image', new File([productFile], 'product.jpg', { type: 'image/jpeg' }));
+      }
+      if (designImage) {
+        const designFile = await fetch(designImage).then(r => r.blob());
+        formData.append('design_image', new File([designFile], 'design.jpg', { type: 'image/jpeg' }));
+      }
+      if (colorImage) {
+        const colorFile = await fetch(colorImage).then(r => r.blob());
+        formData.append('color_image', new File([colorFile], 'color.jpg', { type: 'image/jpeg' }));
+      }
 
-    // Log the result
-    console.log(JSON.stringify(result, null, 2));
+      // Add user ID
+      formData.append('userid', user.uid);
+
+      // Call the API
+      const response = await fetch('/api/design', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate image');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success' && data.firebaseOutputUrl) {
+        setOutputImage(data.firebaseOutputUrl);
+      } else {
+        throw new Error(data.error || 'Failed to generate image');
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoading(false);
+    }
 
     // Reset form
     setPrompt("");
     setImages([]);
     inputRef.current?.focus();
-  }, [prompt, images]);
+  }, [prompt, images, user]);
 
   // Handle keyboard events
   const handleKeyDown = useCallback(
@@ -148,7 +191,7 @@ export default function UnifiedPromptContainer() {
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex w-full max-w-xl flex-col items-center gap-8">
           <h1 className="text-3xl font-semibold leading-9 text-default-foreground">
-            Let's Get Started
+            Genrate Newness
           </h1>
           <div className="flex w-full flex-col gap-4">
             <Form
@@ -275,6 +318,24 @@ export default function UnifiedPromptContainer() {
                 </Button>
               </div>
             </Form>
+            
+            {isLoading && (
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            )}
+            
+            {outputImage && (
+              <div className="mt-4">
+                <Image
+                  src={outputImage}
+                  alt="Generated design"
+                  width={512}
+                  height={512}
+                  className="rounded-lg shadow-lg"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
