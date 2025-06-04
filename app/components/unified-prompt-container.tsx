@@ -1,6 +1,6 @@
 // Create a new unified component file that combines all functionality
 
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
@@ -29,6 +29,13 @@ export default function UnifiedPromptContainer() {
   const productFileInputRef = useRef<HTMLInputElement>(null);
   const designFileInputRef = useRef<HTMLInputElement>(null);
   const colorFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus the input on mount
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   // Handle form submission
   const handleSubmit = useCallback(async (e?: React.FormEvent) => {
@@ -191,7 +198,7 @@ export default function UnifiedPromptContainer() {
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex w-full max-w-xl flex-col items-center gap-8">
           <h1 className="text-3xl font-semibold leading-9 text-default-foreground">
-            Genrate Newness
+            Generate Newness
           </h1>
           <div className="flex w-full flex-col gap-4">
             <Form
@@ -205,7 +212,6 @@ export default function UnifiedPromptContainer() {
               
               <textarea
                 ref={inputRef}
-                autoFocus
                 className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
                 maxLength={1000}
                 name="content"
