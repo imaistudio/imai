@@ -320,13 +320,20 @@ export default function UnifiedPromptContainer() {
             
             {outputImage && (
               <div className="mt-4">
-                <Image
-                  src={outputImage}
-                  alt="Generated design"
-                  width={512}
-                  height={512}
-                  className="rounded-lg shadow-lg"
-                />
+                <div className="relative">
+                  <img
+                    src={outputImage}
+                    alt="Generated design"
+                    width={512}
+                    height={512}
+                    className="rounded-lg shadow-lg w-[512px] h-[512px] object-cover"
+                    onError={(e) => {
+                      console.error('Error loading image:', e);
+                      const imgElement = e.currentTarget;
+                      imgElement.style.display = 'none';
+                    }}
+                  />
+                </div>
               </div>
             )}
           </div>
