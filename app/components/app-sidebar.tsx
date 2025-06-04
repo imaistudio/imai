@@ -22,11 +22,6 @@ import { IMAIIcon } from "./imai"
 
 // This is sample data.
 const data = {
-  user: {
-    name: "IMAI",
-    email: "IMAI.Studio",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
       name: "Mayank",
@@ -115,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
