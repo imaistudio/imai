@@ -1,8 +1,8 @@
 Todays Task 
 
-Fix Design Route 
-Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-Chat ui with API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
+1.Add in Sidebar Explore Page | Library 
+2.Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+3.Chat ui with API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
 
 
 
