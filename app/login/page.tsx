@@ -189,7 +189,7 @@ const handleAppleSignIn = async () => {
               <div className="relative z-10 flex flex-col items-end gap-4">
                 <User
                   avatarProps={{
-                    src: "https://ca.slack-edge.com/T08P88BGAU9-U08P88BGZMF-284e46963f86-512",
+                    src: "https://ca.slack-edge.com/T08P88BGAU9-U08NUGVDXQD-efea55cbd792-512",
                   }}
                   classNames={{
                     base: "flex flex-row-reverse",
@@ -197,7 +197,7 @@ const handleAppleSignIn = async () => {
                     description: "text-white/60",
                   }}
                   description="Founder & CEO at IMAI"
-                  name="Mayank Garg"
+                  name="Viola Schritter"
                 />
                 <p className="w-full text-right text-2xl text-white/60">
                   <span className="font-medium">“</span>

@@ -1,10 +1,12 @@
 Todays Task 
 
-2. Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-3. Chat ui with API Call Back Complete Villoa | Contact Salman | 
-4. SideBar Libary | Pinned Messages | Folders  with Test Data 
-5. Chat Window Basic With ChatID Loading 
-6. paginiation firebase Explore Page 
+Fix Design Route 
+Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+Chat ui with API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
+
+
+
+
 
 Extra to do 
 firebase auth - Apple | Reset Email
@@ -12,3 +14,6 @@ load user chats in sidebar
 search functionality - Form from Sidebae
 Create Folder 
 Pin Messages 
+3. SideBar Libary | Pinned Messages | Folders  with Test Data 
+4. Chat Window Basic With ChatID Loading 
+5. paginiation firebase Explore Page 
