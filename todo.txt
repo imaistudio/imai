@@ -8,4 +8,7 @@
 8.  Pin Chats
 9.  ChatWindow With ChatID Loading System
 10. Pagination to Explore Page 
-
+11. Add Remove Popup During Signout 
+12. Webp Convert Function if the images are above 25MB
+13. Postman Readme.md for all the routes 
+14. Pixel Perfect UI 
