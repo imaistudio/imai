@@ -1,19 +1,11 @@
-Todays Task 
+1.  Sibebar Search Form , New Chatbotton ,Explore , Library 
+2.  Crud Operations for storing the chats,sidebar,...etc - Whole Schema
+3.  Chat ui with API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
+4.  Firebase Auth Apple | Reset 
+5.  Load User Chats in SideBar
+6.  Create Folder 
+7.  Search Chats
+8.  Pin Chats
+9.  ChatWindow With ChatID Loading System
+10. Pagination to Explore Page 
 
-1.Add in Sidebar Explore Page | Library 
-2.Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-3.Chat ui with API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
-
-
-
-
-
-Extra to do 
-firebase auth - Apple | Reset Email
-load user chats in sidebar 
-search functionality - Form from Sidebae
-Create Folder 
-Pin Messages 
-3. SideBar Libary | Pinned Messages | Folders  with Test Data 
-4. Chat Window Basic With ChatID Loading 
-5. paginiation firebase Explore Page 
