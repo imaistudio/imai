@@ -1,3 +1,13 @@
+Current Goals
+2. Move the Image Data in Other Place Without Changing the Data
+3. Add in all the Viloa Content 
+5. Push to Vercel
+
+
+
+
+
+
 1.  Sibebar Search Form , New Chatbotton ,Explore , Library 
 2.  Crud Operations for storing the chats,sidebar,...etc - Whole Schema
 3.  Chat ui with API Call Back Complete Villoa | Contact Salman | Add in DropBox Content

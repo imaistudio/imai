@@ -30,9 +30,18 @@ export default function Home() {
     }
   }, [loading, currentUser, modalShown, openModal, closeModal]);
 
+
+  const handleFormSubmission = (data:any) => {
+    console.log('Bruhhhhhhhhh!:', data);
+  };
+
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center">
-      <UnifiedPromptContainer />
+      <UnifiedPromptContainer 
+        onSubmit={handleFormSubmission}
+        placeholder="Enter your custom prompt here"
+        maxLength={2000}
+      />
     </div>
   );
 }
