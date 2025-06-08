@@ -5,7 +5,7 @@ import Footer from "../components/footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/react";
-import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 const IMAGES_PER_PAGE = 50;
 
@@ -38,18 +38,24 @@ export default function Reset() {
     try {
       const folderRef = ref(storage, `${userId}/output`);
       const res = await listAll(folderRef);
+
       const urlPromises = res.items.map(async (item) => {
         const url = await getDownloadURL(item);
-        return { url, name: item.name };
+        const metadata = await getMetadata(item); // ✅ correct usage
+        return {
+          url,
+          name: item.name,
+          createdAt: new Date(metadata.timeCreated).getTime(),
+        };
       });
 
       const files = await Promise.all(urlPromises);
+
       const sortedUrls = files
-        .sort((a, b) => a.name.localeCompare(b.name)) // ascending by filename
-        .reverse() // so newest filenames appear first
+        .sort((a, b) => b.createdAt - a.createdAt) // newest first
         .map((file) => file.url);
+
       setImages(sortedUrls);
-      // Initialize first “page” of images
       setPaginatedImages(sortedUrls.slice(0, IMAGES_PER_PAGE));
       setPage(1);
     } catch (error) {
