@@ -8,7 +8,6 @@ import { Icon } from "@iconify/react";
 import {
   ProductType,
   ProductImages,
-  ProductSpecificDesigns,
   defaultProductImages,
   productSpecificDesigns,
   defaultDesignImages,
@@ -193,12 +192,6 @@ export default function UnifiedPromptContainer({
             ))}
           </div>
         </div>
-
-        {drawerType === "design" && selectedProductType && (
-          <div className="mt-2 mb-2 text-xs text-default-500 text-center">
-            Showing designs for {selectedProductType}
-          </div>
-        )}
       </div>
     );
   };
