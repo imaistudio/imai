@@ -1,10 +1,5 @@
 Current Goals
-2. Move the Image Data in Other Place Without Changing the Data
-3. Add in all the Viloa Content 
-5. Push to Vercel
-
-
-
+1. Add in all the Viloa Content 
 
 
 
