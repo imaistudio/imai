@@ -277,6 +277,19 @@ export default function UnifiedPromptContainer({
                   );
                 })}
               </div>
+              <div className="flex items-center space-x-2">
+              <Button
+                isIconOnly
+                radius="full"
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  // Placeholder: Add your voice recognition logic here
+                  console.log("Voice input clicked");
+                }}
+              >
+                <Icon icon="lucide:mic" width={20} />
+              </Button>
               <Button
                 isIconOnly
                 color={!prompt && images.length === 0 ? "default" : "primary"}
@@ -292,6 +305,7 @@ export default function UnifiedPromptContainer({
                   width={20}
                 />
               </Button>
+            </div>
             </div>
           </Form>
         </div>
