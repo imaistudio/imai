@@ -4,7 +4,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-// Import constants from the separate file
 import {
 	ProductType,
 	ProductImages,
@@ -17,6 +16,37 @@ import {
 	colorPlaceholders,
 } from "@/constants/inputs";
 
+interface SpeechRecognitionEvent extends Event {
+	results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+	error: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+	continuous: boolean;
+	lang: string;
+	interimResults: boolean;
+	maxAlternatives: number;
+	start(): void;
+	stop(): void;
+	onresult: (event: SpeechRecognitionEvent) => void;
+	onerror: (event: SpeechRecognitionErrorEvent) => void;
+	onend: () => void;
+}
+
+interface SpeechRecognitionConstructor {
+	new (): SpeechRecognition;
+}
+
+declare global {
+	interface Window {
+		SpeechRecognition?: SpeechRecognitionConstructor;
+		webkitSpeechRecognition?: SpeechRecognitionConstructor;
+	}
+}
+
 interface ImageAsset {
 	type: "product" | "design" | "color";
 	path: string;
@@ -26,13 +56,11 @@ interface ImageAsset {
 
 type DrawerType = "product" | "design" | "color";
 
-// Add interface for the submission data
 interface SubmissionData {
 	prompt: string;
 	images: ImageAsset[];
 }
 
-// Add interface for component props
 interface UnifiedPromptContainerProps {
 	onSubmit?: (data: SubmissionData) => void;
 	placeholder?: string;
@@ -50,16 +78,102 @@ export default function UnifiedPromptContainer({
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [selectedProductType, setSelectedProductType] =
 		useState<ProductType | null>(null);
-
 	const inputRef = useRef<HTMLTextAreaElement>(null);
+
+	// Voice state
+	const [isRecording, setIsRecording] = useState(false);
+	const [recognition, setRecognition] = useState<SpeechRecognition | null>(
+		null
+	);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const animationIdRef = useRef<number | null>(null);
+
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const SpeechRecognitionConstructor =
+				window.webkitSpeechRecognition || window.SpeechRecognition;
+
+			if (SpeechRecognitionConstructor) {
+				const recog: SpeechRecognition = new SpeechRecognitionConstructor();
+				recog.continuous = false;
+				recog.lang = "en-US";
+				recog.interimResults = false;
+				recog.maxAlternatives = 1;
+
+				recog.onresult = (event: SpeechRecognitionEvent) => {
+					const speechResult = event.results[0][0].transcript;
+					setPrompt((prev) => prev + (prev ? " " : "") + speechResult);
+				};
+
+				recog.onerror = (event: SpeechRecognitionErrorEvent) => {
+					console.error("Speech recognition error", event.error);
+				};
+
+				recog.onend = () => {
+					setIsRecording(false);
+					if (animationIdRef.current) {
+						cancelAnimationFrame(animationIdRef.current);
+						animationIdRef.current = null;
+					}
+				};
+
+				setRecognition(recog);
+			}
+		}
+	}, []);
+
+	const startWaveform = () => {
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
+
+		let x = 0;
+		const draw = () => {
+			const width = canvas.width;
+			const height = canvas.height;
+			ctx.clearRect(0, 0, width, height);
+
+			ctx.beginPath();
+			const amplitude = 5 + Math.random() * 15;
+			const frequency = 0.05;
+			ctx.moveTo(0, height / 2);
+			for (let i = 0; i < width; i++) {
+				const y = height / 2 + Math.sin(i * frequency + x) * amplitude;
+				ctx.lineTo(i, y);
+			}
+			ctx.strokeStyle = "#3b82f6"; // Tailwind blue-500
+			ctx.lineWidth = 2;
+			ctx.stroke();
+
+			x += 0.05;
+			animationIdRef.current = requestAnimationFrame(draw);
+		};
+
+		draw();
+	};
+
+	const toggleVoiceInput = () => {
+		if (!recognition) return;
+		if (isRecording) {
+			recognition.stop();
+			if (animationIdRef.current) {
+				cancelAnimationFrame(animationIdRef.current);
+				animationIdRef.current = null;
+			}
+			setIsRecording(false);
+		} else {
+			setPrompt("");
+			recognition.start();
+			startWaveform();
+			setIsRecording(true);
+		}
+	};
 
 	useEffect(() => {
 		const productImage = images.find((img) => img.type === "product");
-		if (
-			productImage &&
-			productImage.productType &&
-			productImage.productType !== "custom"
-		) {
+		if (productImage?.productType && productImage.productType !== "custom") {
 			setSelectedProductType(productImage.productType as ProductType);
 		} else if (!productImage) {
 			setSelectedProductType(null);
@@ -72,10 +186,7 @@ export default function UnifiedPromptContainer({
 			prompt: prompt.trim(),
 			images: images,
 		};
-		// Call the callback function if provided
-		if (onSubmit) {
-			onSubmit(submissionData);
-		}
+		if (onSubmit) onSubmit(submissionData);
 	};
 
 	const handleUpload = (
@@ -153,89 +264,70 @@ export default function UnifiedPromptContainer({
 		if (!drawerOpen || !drawerType) return null;
 
 		let presetMap: ProductImages;
-		let titleSuffix = "";
-
 		if (drawerType === "product") {
 			presetMap = defaultProductImages;
 		} else if (drawerType === "design") {
 			presetMap = getDesignCategories();
-			titleSuffix = selectedProductType ? ` for ${selectedProductType}` : "";
 		} else {
 			presetMap = defaultColorImages;
 		}
 
+		const presetKeys = Object.keys(presetMap);
+		const first = presetKeys[0];
+		const reordered = [first, "UPLOAD_MARKER", ...presetKeys.slice(1)];
+
 		return (
 			<div className="w-full bg-default-100 rounded-t-lg shadow-sm pl-4 py-2 pr-4 z-10 mb-4">
-				{/* <div className="flex justify-between items-center mb-3">
-          <h2 className="text-base font-semibold capitalize">
-            Choose {drawerType}{titleSuffix}
-          </h2>
-          <Button onPress={() => setDrawerOpen(false)} isIconOnly size="sm" variant="light">
-            <Icon icon="lucide:x" width={16} />
-          </Button>
-        </div> */}
-
 				<div className="flex overflow-x-auto gap-4 pb-2 hide-scrollbar">
 					<div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
-						{(() => {
-							const isProduct = drawerType === "product";
-							const isDesign = drawerType === "design";
-							const isColor = drawerType === "color";
-
-							const presetKeys = Object.keys(presetMap);
-							const first = presetKeys[0];
-							const rest = presetKeys.slice(1);
-
-							const reordered = [first, "UPLOAD_MARKER", ...rest];
-
-							return reordered.map((label) => {
-								if (label === "UPLOAD_MARKER") {
-									return (
-										<div key="upload" className="flex flex-col items-center">
-											<label className="w-24 h-24 flex items-center justify-center bg-[#fafafa] dark:bg-[#18181b] border rounded-lg text-xs cursor-pointer hover:border-primary">
-												<Icon icon="lucide:upload" width={18} />
-												<input
-													type="file"
-													accept="image/*"
-													onChange={(e) => handleUpload(drawerType, e)}
-													className="hidden"
-												/>
-											</label>
-											<span className="mt-1 text-xs text-center capitalize">
-												Upload {drawerType}
-											</span>
-										</div>
-									);
-								}
-
-								const urls = presetMap[label];
-								const imageSrc = isProduct
-									? defaultPlaceholders[label as ProductType]
-									: isDesign
-										? designPlaceholders[label] || "/placeholders/default.jpg"
-										: colorPlaceholders[label] || "/placeholders/default.jpg";
-
+						{reordered.map((label) => {
+							if (label === "UPLOAD_MARKER") {
 								return (
-									<div key={label} className="flex flex-col items-center">
-										<button
-											onClick={() =>
-												selectRandomFromLabel(label, urls, drawerType)
-											}
-											className="w-24 h-24 bg-[#fafafa] dark:bg-[#18181b] border rounded-lg flex items-center justify-center hover:border-primary"
-										>
-											<Image
-												alt={label}
-												src={imageSrc}
-												className="w-full h-full object-cover rounded-md"
+									<div key="upload" className="flex flex-col items-center">
+										<label className="w-24 h-24 flex items-center justify-center bg-[#fafafa] dark:bg-[#18181b] border rounded-lg text-xs cursor-pointer hover:border-primary">
+											<Icon icon="lucide:upload" width={18} />
+											<input
+												type="file"
+												accept="image/*"
+												onChange={(e) => handleUpload(drawerType, e)}
+												className="hidden"
 											/>
-										</button>
-										<span className="mt-1 text-xs capitalize text-center">
-											{label}
+										</label>
+										<span className="mt-1 text-xs text-center capitalize">
+											Upload {drawerType}
 										</span>
 									</div>
 								);
-							});
-						})()}
+							}
+
+							const urls = presetMap[label];
+							const imageSrc =
+								drawerType === "product"
+									? (defaultPlaceholders as Record<string, string>)[label]
+									: drawerType === "design"
+										? (designPlaceholders as Record<string, string>)[label]
+										: (colorPlaceholders as Record<string, string>)[label];
+
+							return (
+								<div key={label} className="flex flex-col items-center">
+									<button
+										onClick={() =>
+											selectRandomFromLabel(label, urls, drawerType)
+										}
+										className="w-24 h-24 bg-[#fafafa] dark:bg-[#18181b] border rounded-lg flex items-center justify-center hover:border-primary"
+									>
+										<Image
+											alt={label}
+											src={imageSrc}
+											className="w-full h-full object-cover rounded-md"
+										/>
+									</button>
+									<span className="mt-1 text-xs capitalize text-center">
+										{label}
+									</span>
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			</div>
@@ -283,6 +375,15 @@ export default function UnifiedPromptContainer({
 		"color",
 	] as const;
 
+	// Cleanup animation frame on unmount
+	useEffect(() => {
+		return () => {
+			if (animationIdRef.current) {
+				cancelAnimationFrame(animationIdRef.current);
+			}
+		};
+	}, []);
+
 	return (
 		<div className="flex h-screen max-h-[calc(100vh-140px)] w-full relative">
 			<div className="flex h-full w-full items-center justify-center">
@@ -293,6 +394,7 @@ export default function UnifiedPromptContainer({
 					>
 						{renderDrawer()}
 						{renderImageAssets()}
+
 						<textarea
 							ref={inputRef}
 							className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
@@ -304,6 +406,16 @@ export default function UnifiedPromptContainer({
 							value={prompt}
 							onChange={(e) => setPrompt(e.target.value)}
 						/>
+
+						{isRecording && (
+							<canvas
+								ref={canvasRef}
+								width={300}
+								height={30}
+								className="w-full mb-2"
+							/>
+						)}
+
 						<div className="flex w-full items-center justify-between px-3 pb-3">
 							<div className="flex space-x-2">
 								{buttonTypes.map((type) => {
@@ -344,10 +456,10 @@ export default function UnifiedPromptContainer({
 									radius="full"
 									size="sm"
 									variant="light"
-									onPress={() => {
-										// Placeholder: Add your voice recognition logic here
-										console.log("Voice input clicked");
-									}}
+									onPress={toggleVoiceInput}
+									className={
+										isRecording ? "bg-primary animate-pulse text-white" : ""
+									}
 								>
 									<Icon icon="lucide:mic" width={20} />
 								</Button>

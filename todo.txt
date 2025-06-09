@@ -1,5 +1,5 @@
 Current Goals
-1. Add in all the Viloa Content | Fix the Ordering | Add Randomizer in the Colors Drawer | Add Text To Speach 
+1. Add in all the Viloa Content | Add Randomizer in the Colors Drawer | Add Text To Speach 
 2. Add in Default Promot with horizontal scrolling | Call back function to Return images 
 3. Sidebar SearchForm | New Chat button | Explore | Library | Designer 
 
