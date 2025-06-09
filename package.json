@@ -9,8 +9,10 @@
     "lint": "eslint --fix"
   },
   "dependencies": {
+    "@ai-sdk/fal": "^0.1.12",
     "@anthropic-ai/sdk": "^0.52.0",
     "@fal-ai/client": "^1.5.0",
+    "@fal-ai/server-proxy": "^1.1.1",
     "@fal-ai/serverless-client": "^0.15.0",
     "@heroui/button": "2.2.19",
     "@heroui/code": "2.2.14",
