@@ -131,40 +131,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
     
-    // Get the image file
-    const imageFile = formData.get('image') as File | null;
-    if (!imageFile) {
+    // Extract userid (required parameter from intent route)
+    const userid = (formData.get('userid') as string | null)?.trim();
+    if (!userid) {
       return NextResponse.json(
-        { status: 'error', error: 'Image file is required' },
+        { status: 'error', error: 'Missing "userid" parameter' },
         { status: 400 }
       );
     }
     
-    // Get optional parameters
-    const scale = parseInt(formData.get('scale') as string) || 2;
-    const enhance_face = (formData.get('enhance_face') as string)?.toLowerCase() !== 'false';
-    const enhance_details = (formData.get('enhance_details') as string)?.toLowerCase() !== 'false';
+    // 🎯 NEW: Check for image_url parameter first (URL-based approach)
+    const imageUrl = (formData.get('image_url') as string | null)?.trim();
+    let imageToProcess: string;
     
-    console.log('Starting image upscaling...');
-    console.log(`Parameters: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`);
-    
-    // Save the uploaded file temporarily
-    const tempImagePath = await saveImageFile(imageFile);
-    
-    try {
-      // Upload to Cloudinary and get URL
-      const imageUrl = await uploadToCloudinary(tempImagePath);
-      console.log('Image uploaded to Cloudinary:', imageUrl);
+    if (imageUrl) {
+      // URL-based approach - use the provided Cloudinary URL directly
+      console.log('🔗 Using provided image URL for upscaling:', imageUrl);
+      imageToProcess = imageUrl;
+    } else {
+      // Fallback: File-based approach (backward compatibility)
+      const imageFile = formData.get('image') as File | null;
+      if (!imageFile) {
+        return NextResponse.json(
+          { status: 'error', error: 'Either "image_url" or "image" file is required' },
+          { status: 400 }
+        );
+      }
       
-      // Upscale the image
-      const upscaledImageUrl = await upscaleImage(imageUrl, {
-        scale,
-        enhance_face,
-        enhance_details,
-      });
-      
-      console.log('Upscaling completed!');
-      console.log('Upscaled image URL:', upscaledImageUrl);
+      console.log('📁 Using file-based approach - uploading to Cloudinary...');
+      // Save the uploaded file temporarily and upload to Cloudinary
+      const tempImagePath = await saveImageFile(imageFile);
+      imageToProcess = await uploadToCloudinary(tempImagePath);
       
       // Clean up temp file
       try {
@@ -174,31 +171,40 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } catch (cleanupError) {
         console.warn('Could not clean up temporary file:', cleanupError);
       }
-      
-      const response: UpscaleResponse = {
-        status: 'success',
-        imageUrl: upscaledImageUrl,
-      };
-      
-      return NextResponse.json(response);
-      
-    } catch (processingError) {
-      // Clean up temp file on error
-      try {
-        const fs = require('fs');
-        fs.unlinkSync(tempImagePath);
-      } catch (cleanupError) {
-        console.warn('Could not clean up temporary file after error:', cleanupError);
-      }
-      throw processingError;
     }
     
-  } catch (error: any) {
-    console.error('API Error:', error);
+    // Get optional parameters
+    const scale = parseInt(formData.get('scale') as string) || 2;
+    const enhance_face = (formData.get('enhance_face') as string)?.toLowerCase() !== 'false';
+    const enhance_details = (formData.get('enhance_details') as string)?.toLowerCase() !== 'false';
+    
+    console.log('Starting image upscaling...');
+    console.log(`Parameters: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`);
+    console.log(`Image to process: ${imageToProcess}`);
+    
+    // Upscale the image using the URL (no additional Cloudinary upload needed!)
+    const upscaledImageUrl = await upscaleImage(imageToProcess, {
+      scale,
+      enhance_face,
+      enhance_details,
+    });
+    
+    console.log('Upscaling completed!');
+    console.log('Upscaled image URL:', upscaledImageUrl);
+    
+    const response: UpscaleResponse = {
+      status: 'success',
+      imageUrl: upscaledImageUrl,
+    };
+    
+    return NextResponse.json(response);
+    
+  } catch (processingError) {
+    console.error('Error processing upscale request:', processingError);
     
     const response: UpscaleResponse = {
       status: 'error',
-      error: error.message || 'Unknown error occurred',
+      error: processingError instanceof Error ? processingError.message : 'Unknown error occurred',
     };
     
     return NextResponse.json(response, { status: 500 });
