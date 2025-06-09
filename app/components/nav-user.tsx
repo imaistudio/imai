@@ -38,6 +38,7 @@ import { IMAIIcon } from "@/app/components/imai";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, firestore } from "@/lib/firebase";
+const MODAL_SHOWN_KEY = "modalDismissedOnce";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -83,6 +84,7 @@ export function NavUser() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      localStorage.removeItem(MODAL_SHOWN_KEY);
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
