@@ -202,9 +202,25 @@ export const defaultDesignImages: ProductImages = {
 
 // Default Color Images
 export const defaultColorImages: ProductImages = {
-  warm: ["/defaults/warm1.jpg", "/defaults/warm2.jpg"],
-  cool: ["/defaults/cool1.jpg", "/defaults/cool2.jpg"],
-  neutral: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  neutral: ["/defaults/warm1.jpg"],
+  pastal: ["/defaults/warm1.jpg"],
+  fall: ["/defaults/warm1.jpg"],
+  earth: ["/defaults/warm1.jpg"],
+  romantic: ["/defaults/warm1.jpg"],
+  warm: ["/defaults/warm1.jpg"],
+  moody: ["/defaults/warm1.jpg"],
+  cool: ["/defaults/warm1.jpg"],
+  contemporary: ["/defaults/warm1.jpg"],
+  vintage: ["/defaults/warm1.jpg"],
+  spring: ["/defaults/warm1.jpg"],
+  vibrant: ["/defaults/warm1.jpg"],
+  winter: ["/defaults/warm1.jpg"],
+  jewel: ["/defaults/warm1.jpg"],
+  summer: ["/defaults/warm1.jpg"],
+  cyberpunk: ["/defaults/warm1.jpg"],
+  tropical: ["/defaults/warm1.jpg"],
+  analgous: ["/defaults/warm1.jpg"],
+  neon: ["/defaults/warm1.jpg"],
 };
 
 // Placeholders
