@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { getAuth } from 'firebase-admin/auth';
-// import { initializeApp, getApps, cert } from 'firebase-admin/app';
-// import { getStorage } from 'firebase-admin/storage';
 import Anthropic from '@anthropic-ai/sdk';
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -12,7 +9,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Helper function to upload image to Cloudinary and return URL
 async function uploadImageToCloudinary(file: File): Promise<string> {
   try {
     console.log(`📤 Uploading ${file.name} (${file.size}b) to Cloudinary...`);
@@ -96,54 +92,6 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\nYOUR_KEY_CONTENT\\n-----END 
 
   return formattedKey;
 }
-
-// FIREBASE COMMENTED OUT FOR TESTING - Initialize Firebase Admin (only once) - with fallback for testing
-/*
-let firebaseInitialized = false;
-if (!getApps().length) {
-  // Check for required environment variables
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
-  
-  if (!privateKey || !projectId || !clientEmail || !storageBucket) {
-    console.error('Firebase Configuration Error:');
-    console.error('Missing environment variables:');
-    if (!privateKey) console.error('- FIREBASE_PRIVATE_KEY');
-    if (!projectId) console.error('- FIREBASE_PROJECT_ID');
-    if (!clientEmail) console.error('- FIREBASE_CLIENT_EMAIL');
-    if (!storageBucket) console.error('- NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET');
-    console.log('Skipping Firebase initialization for intent testing');
-    firebaseInitialized = false;
-  } else {
-    try {
-      const formattedPrivateKey = formatFirebasePrivateKey(privateKey);
-      
-      if (formattedPrivateKey === 'SKIP_FIREBASE_INIT') {
-        console.log('Skipping Firebase initialization - testing intent logic only');
-        firebaseInitialized = false;
-      } else {
-        initializeApp({
-          credential: cert({
-            projectId: projectId,
-            clientEmail: clientEmail,
-            privateKey: formattedPrivateKey,
-          }),
-          storageBucket: storageBucket,
-        });
-        
-        console.log('Firebase initialized successfully');
-        firebaseInitialized = true;
-      }
-    } catch (error) {
-      console.error('Firebase initialization failed:', error);
-      console.log('Skipping Firebase initialization for intent testing');
-      firebaseInitialized = false;
-    }
-  }
-}
-*/
 
 // Skip Firebase for now - using Cloudinary for image handling
 let firebaseInitialized = false;
