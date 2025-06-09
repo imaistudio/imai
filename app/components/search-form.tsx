@@ -50,7 +50,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
   return (
     <>
       <form autoComplete="off" {...props}>
-        <SidebarGroup className="py-2">
+        <SidebarGroup className="py-1">
           <div className="flex items-center gap-2 w-full">
             <SidebarGroupContent className="relative w-[92%]">
               <Label htmlFor="search" className="sr-only">
@@ -70,22 +70,22 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
               className="w-[8%] flex items-center justify-center rounded-md pointer-events-none"
               aria-label="New Chat"
             >
-              <SquarePen className="text-black dark:text-white opacity-50 hover:opacity-100 pointer-events-none" />
+              <SquarePen className="text-black dark:text-white pointer-events-none" />
             </button>
           </div>
         </SidebarGroup>
       </form>
 
       {/* Below Form Buttons */}
-      <div className="flex flex-col gap-4 px-2">
+      <div className="flex flex-col gap-1 px-2">
         {/* Explore */}
         <button
           type="button"
           onClick={() => router.push("/explore")}
-          className="flex items-center gap-4 text-sm font-medium text-gray-700 dark:text-white"
+          className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white hover:font-semibold"
         >
           <span>
-            <LayoutGrid className="p-1 h-8 w-8 object-cover rounded-md" />
+            <LayoutGrid className="p-1.5 h-8 w-8 object-cover rounded-md" />
           </span>
           Explore
         </button>
@@ -95,13 +95,13 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
           <button
             type="button"
             onClick={() => router.push("/library")}
-            className="flex items-center gap-4 text-sm font-medium text-gray-700 dark:text-white"
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white hover:font-semibold"
           >
             <span>
               <img
                 src={latestImageUrl ?? "/logo.svg"}
                 alt="Library"
-                className="h-8 w-8 object-cover rounded-md"
+                className="p-0.5 h-8 w-8 object-cover rounded-md"
               />
             </span>
             Library
