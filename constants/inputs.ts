@@ -11,7 +11,7 @@ export interface ProductSpecificDesigns {
   };
 }
 
-// Product Images
+// Default Product Images
 export const defaultProductImages: Record<ProductType, string[]> = {
   tshirt: ["/designs/tshirt/tshirt1.jpg", "/designs/tshirt/tshirt2.jpg", "/designs/tshirt/tshirt3.jpg"],
   pillow: ["/designs/pillow/pillow1.jpg", "/designs/pillow/pillow2.jpg", "/designs/pillow/pillow3.jpg"],
@@ -37,140 +37,6 @@ export const defaultProductImages: Record<ProductType, string[]> = {
   vechile: ["/designs/vechile/vechile1.jpg", "/designs/vechile/vechile2.jpg", "/designs/vechile/vechile3.jpg"],
   glasses: ["/designs/glasses/glasses1.jpg", "/designs/glasses/glasses2.jpg", "/designs/glasses/glasses3.jpg"],
   watches: ["/designs/watches/watches1.jpg", "/designs/watches/watches2.jpg", "/designs/watches/watches3.jpg"],
-};
-
-// Product Specific Designs
-export const productSpecificDesigns: ProductSpecificDesigns = {
-  tshirt: {
-    graphic: ["/designs/tshirt/graphic1.jpg", "/designs/tshirt/graphic2.jpg"],
-    typography: ["/designs/tshirt/typography1.jpg", "/designs/tshirt/typography2.jpg"],
-    vintage: ["/designs/tshirt/vintage1.jpg", "/designs/tshirt/vintage2.jpg"],
-    minimal: ["/designs/tshirt/minimal1.jpg", "/designs/tshirt/minimal2.jpg"],
-    patterns: ["/designs/shoes/patterns1.jpg", "/designs/shoes/patterns2.jpg"],
-    illustrations: ["/designs/shoes/illustrations1.jpg", "/designs/shoes/illustrations2.jpg"],
-    custom: ["/designs/shoes/custom1.jpg", "/designs/shoes/custom2.jpg"],
-    ecofriendly:["/designs/totebag/eco-friendly1.jpg", "/designs/totebag/eco-friendly2.jpg"],
-    bookish: ["/designs/totebag/bookish1.jpg", "/designs/totebag/bookish2.jpg"],
-    cute: ["/designs/totebag/cute1.jpg", "/designs/totebag/cute2.jpg"],
-    modern: ["/designs/sofa/modern1.jpg", "/designs/sofa/modern2.jpg"],
-    chesterfield: ["/designs/sofa/chesterfield1.jpg", "/designs/sofa/chesterfield2.jpg"],
-    sectional: ["/designs/sofa/sectional1.jpg", "/designs/sofa/sectional2.jpg"],
-  },
-  pillow: {
-    floral: ["/designs/pillow/floral1.jpg", "/designs/pillow/floral2.jpg"],
-    geometric: ["/designs/pillow/geometric1.jpg", "/designs/pillow/geometric2.jpg"],
-    abstract: ["/designs/pillow/abstract1.jpg", "/designs/pillow/abstract2.jpg"],
-  },
-  shoes: {
-    patterns: ["/designs/shoes/patterns1.jpg", "/designs/shoes/patterns2.jpg"],
-    illustrations: ["/designs/shoes/illustrations1.jpg", "/designs/shoes/illustrations2.jpg"],
-    custom: ["/designs/shoes/custom1.jpg", "/designs/shoes/custom2.jpg"],
-  },
-  phonecase: {
-    artistic: ["/designs/phonecase/artistic1.jpg", "/designs/phonecase/artistic2.jpg"],
-    photography: ["/designs/phonecase/photography1.jpg", "/designs/phonecase/photography2.jpg"],
-    marble: ["/designs/phonecase/marble1.jpg", "/designs/phonecase/marble2.jpg"],
-  },
-  wallart: {
-    nature: ["/designs/wallart/nature1.jpg", "/designs/wallart/nature2.jpg"],
-    urban: ["/designs/wallart/urban1.jpg", "/designs/wallart/urban2.jpg"],
-    portraits: ["/designs/wallart/portraits1.jpg", "/designs/wallart/portraits2.jpg"],
-  },
-  hoodie: {
-    slogans: ["/designs/hoodie/slogans1.jpg", "/designs/hoodie/slogans2.jpg"],
-    bands: ["/designs/hoodie/bands1.jpg", "/designs/hoodie/bands2.jpg"],
-    artistic: ["/designs/hoodie/artistic1.jpg", "/designs/hoodie/artistic2.jpg"],
-  },
-  coffecup: {
-    funny: ["/designs/coffecup/funny1.jpg", "/designs/coffecup/funny2.jpg"],
-    inspirational: ["/designs/coffecup/inspirational1.jpg", "/designs/coffecup/inspirational2.jpg"],
-    minimalist: ["/designs/coffecup/minimalist1.jpg", "/designs/coffecup/minimalist2.jpg"],
-  },
-  totebag: {
-    ecofriendly:["/designs/totebag/eco-friendly1.jpg", "/designs/totebag/eco-friendly2.jpg"],
-    bookish: ["/designs/totebag/bookish1.jpg", "/designs/totebag/bookish2.jpg"],
-    cute: ["/designs/totebag/cute1.jpg", "/designs/totebag/cute2.jpg"],
-  },
-  blanket: {
-    cozy: ["/designs/blanket/cozy1.jpg", "/designs/blanket/cozy2.jpg"],
-    kids: ["/designs/blanket/kids1.jpg", "/designs/blanket/kids2.jpg"],
-    holiday: ["/designs/blanket/holiday1.jpg", "/designs/blanket/holiday2.jpg"],
-  },
-  earrings: {
-    bohemian: ["/designs/earrings/bohemian1.jpg", "/designs/earrings/bohemian2.jpg"],
-    studs: ["/designs/earrings/studs1.jpg", "/designs/earrings/studs2.jpg"],
-    dangle: ["/designs/earrings/dangle1.jpg", "/designs/earrings/dangle2.jpg"],
-  },
-  sofa: {
-    modern: ["/designs/sofa/modern1.jpg", "/designs/sofa/modern2.jpg"],
-    chesterfield: ["/designs/sofa/chesterfield1.jpg", "/designs/sofa/chesterfield2.jpg"],
-    sectional: ["/designs/sofa/sectional1.jpg", "/designs/sofa/sectional2.jpg"],
-  },
-  scarf: {
-    silk: ["/designs/scarf/silk1.jpg", "/designs/scarf/silk2.jpg"],
-    wool: ["/designs/scarf/wool1.jpg", "/designs/scarf/wool2.jpg"],
-    infinity: ["/designs/scarf/infinity1.jpg", "/designs/scarf/infinity2.jpg"],
-  },
-  backpack: {
-    hiking: ["/designs/backpack/hiking1.jpg", "/designs/backpack/hiking2.jpg"],
-    laptop: ["/designs/backpack/laptop1.jpg", "/designs/backpack/laptop2.jpg"],
-    fashion: ["/designs/backpack/fashion1.jpg", "/designs/backpack/fashion2.jpg"],
-  },
-  lamp: {
-    desk: ["/designs/lamp/desk1.jpg", "/designs/lamp/desk2.jpg"],
-    floor: ["/designs/lamp/floor1.jpg", "/designs/lamp/floor2.jpg"],
-    bedside: ["/designs/lamp/bedside1.jpg", "/designs/lamp/bedside2.jpg"],
-  },
-  dress: {
-    summer: ["/designs/dress/summer1.jpg", "/designs/dress/summer2.jpg"],
-    formal: ["/designs/dress/formal1.jpg", "/designs/dress/formal2.jpg"],
-    casual: ["/designs/dress/casual1.jpg", "/designs/dress/casual2.jpg"],
-  },
-  jean: {
-    skinny: ["/designs/jean/skinny1.jpg", "/designs/jean/skinny2.jpg"],
-    bootcut: ["/designs/jean/bootcut1.jpg", "/designs/jean/bootcut2.jpg"],
-    ripped: ["/designs/jean/ripped1.jpg", "/designs/jean/ripped2.jpg"],
-  },
-  plate: {
-    ceramic: ["/designs/plate/ceramic1.jpg", "/designs/plate/ceramic2.jpg"],
-    dinner: ["/designs/plate/dinner1.jpg", "/designs/plate/dinner2.jpg"],
-    decorative: ["/designs/plate/decorative1.jpg", "/designs/plate/decorative2.jpg"],
-  },
-  notebook: {
-    lined: ["/designs/notebook/lined1.jpg", "/designs/notebook/lined2.jpg"],
-    dotted: ["/designs/notebook/dotted1.jpg", "/designs/notebook/dotted2.jpg"],
-    planner: ["/designs/notebook/planner1.jpg", "/designs/notebook/planner2.jpg"],
-  },
-  shoulderbag: {
-    leather: ["/designs/shoulderbag/leather1.jpg", "/designs/shoulderbag/leather2.jpg"],
-    canvas: ["/designs/shoulderbag/canvas1.jpg", "/designs/shoulderbag/canvas2.jpg"],
-    crossbody: ["/designs/shoulderbag/crossbody1.jpg", "/designs/shoulderbag/crossbody2.jpg"],
-  },
-  vase: {
-    glass: ["/designs/vase/glass1.jpg", "/designs/vase/glass2.jpg"],
-    ceramic: ["/designs/vase/ceramic1.jpg", "/designs/vase/ceramic2.jpg"],
-    bud: ["/designs/vase/bud1.jpg", "/designs/vase/bud2.jpg"],
-  },
-  toys: {
-    plush: ["/designs/toys/plush1.jpg", "/designs/toys/plush2.jpg"],
-    wooden: ["/designs/toys/wooden1.jpg", "/designs/toys/wooden2.jpg"],
-    educational: ["/designs/toys/educational1.jpg", "/designs/toys/educational2.jpg"],
-  },
-  vechile: {
-    cars: ["/designs/vechile/cars1.jpg", "/designs/vechile/cars2.jpg"],
-    bikes: ["/designs/vechile/bikes1.jpg", "/designs/vechile/bikes2.jpg"],
-    trucks: ["/designs/vechile/trucks1.jpg", "/designs/vechile/trucks2.jpg"],
-  },
-  glasses: {
-    sunglasses: ["/designs/glasses/sunglasses1.jpg", "/designs/glasses/sunglasses2.jpg"],
-    reading: ["/designs/glasses/reading1.jpg", "/designs/glasses/reading2.jpg"],
-    "blue-light": ["/designs/glasses/blue-light1.jpg", "/designs/glasses/blue-light2.jpg"],
-  },
-  watches: {
-    classic: ["/designs/watches/classic1.jpg", "/designs/watches/classic2.jpg"],
-    sport: ["/designs/watches/sport1.jpg", "/designs/watches/sport2.jpg"],
-    smart: ["/designs/watches/smart1.jpg", "/designs/watches/smart2.jpg"],
-  },
 };
 
 // Default Design Images
@@ -223,7 +89,8 @@ export const defaultColorImages: ProductImages = {
   neon: ["/defaults/warm1.jpg"],
 };
 
-// Placeholders
+
+//Default Product Placeholders
 export const defaultPlaceholders: Record<ProductType, string> = {
   tshirt: "/placeholders/tshirt.jpg",
   pillow: "/placeholders/pillow.jpg",
@@ -251,85 +118,131 @@ export const defaultPlaceholders: Record<ProductType, string> = {
   watches: "/placeholders/watches.jpg",
 };
 
+// Design Placeholder
 export const designPlaceholders: Record<string, string> = {
-  graphic: "/placeholders/graphic.jpg",
-  typography: "/placeholders/typography.jpg",
-  vintage: "/placeholders/vintage.jpg",
-  minimal: "/placeholders/minimal.jpg",
-  abstract: "/placeholders/abstract.jpg",
-  pattern: "/placeholders/pattern.jpg",
-  geometric: "/placeholders/geometric.jpg",
-  floral: "/placeholders/floral.jpg",
-  quotes: "/placeholders/quotes.jpg",
-  patterns: "/placeholders/patterns.jpg",
-  illustrations: "/placeholders/illustrations.jpg",
-  motivational: "/placeholders/motivational.jpg",
+  minimalsleek: "/placeholders/minimalsleek.jpg",
+  animeinspired: "/placeholders/animeinspired.jpg",
+  undersun: "/placeholders/undersun.jpg",
+  quiteluxury: "/placeholders/quiteluxury.jpg",
   artistic: "/placeholders/artistic.jpg",
-  photography: "/placeholders/photography.jpg",
-  marble: "/placeholders/marble.jpg",
-  nature: "/placeholders/nature.jpg",
-  urban: "/placeholders/urban.jpg",
-  portraits: "/placeholders/portraits.jpg",
-  slogans: "/placeholders/slogans.jpg",
-  bands: "/placeholders/bands.jpg",
-  funny: "/placeholders/funny.jpg",
-  inspirational: "/placeholders/inspirational.jpg",
-  minimalist: "/placeholders/minimalist.jpg",
-  ecofriendly: "/placeholders/eco-friendly.jpg",
-  bookish: "/placeholders/bookish.jpg",
-  cute: "/placeholders/cute.jpg",
-  cozy: "/placeholders/cozy.jpg",
-  kids: "/placeholders/kids.jpg",
-  holiday: "/placeholders/holiday.jpg",
-  bohemian: "/placeholders/bohemian.jpg",
-  studs: "/placeholders/studs.jpg",
-  dangle: "/placeholders/dangle.jpg",
-  modern: "/placeholders/modern.jpg",
-  chesterfield: "/placeholders/chesterfield.jpg",
-  sectional: "/placeholders/sectional.jpg",
-  silk: "/placeholders/silk.jpg",
-  wool: "/placeholders/wool.jpg",
-  infinity: "/placeholders/infinity.jpg",
-  hiking: "/placeholders/hiking.jpg",
-  laptop: "/placeholders/laptop.jpg",
-  fashion: "/placeholders/fashion.jpg",
-  desk: "/placeholders/desk.jpg",
-  floor: "/placeholders/floor.jpg",
-  bedside: "/placeholders/bedside.jpg",
-  summer: "/placeholders/summer.jpg",
-  formal: "/placeholders/formal.jpg",
-  casual: "/placeholders/casual.jpg",
-  skinny: "/placeholders/skinny.jpg",
-  bootcut: "/placeholders/bootcut.jpg",
-  ripped: "/placeholders/ripped.jpg",
-  ceramic: "/placeholders/ceramic.jpg",
-  dinner: "/placeholders/dinner.jpg",
-  decorative: "/placeholders/decorative.jpg",
-  lined: "/placeholders/lined.jpg",
-  dotted: "/placeholders/dotted.jpg",
-  planner: "/placeholders/planner.jpg",
-  leather: "/placeholders/leather.jpg",
-  canvas: "/placeholders/canvas.jpg",
-  crossbody: "/placeholders/crossbody.jpg",
-  glass: "/placeholders/glass.jpg",
-  bud: "/placeholders/bud.jpg",
-  plush: "/placeholders/plush.jpg",
-  wooden: "/placeholders/wooden.jpg",
-  educational: "/placeholders/educational.jpg",
-  cars: "/placeholders/cars.jpg",
-  bikes: "/placeholders/bikes.jpg",
-  trucks: "/placeholders/trucks.jpg",
-  sunglasses: "/placeholders/sunglasses.jpg",
-  reading: "/placeholders/reading.jpg",
-  bluelight: "/placeholders/blue-light.jpg",
-  classic: "/placeholders/classic.jpg",
-  sport: "/placeholders/sport.jpg",
-  smart: "/placeholders/smart.jpg",
-  custom: "/placeholders/custom.jpg",
+  bold: "/placeholders/bold.jpg",
+  eclectictraveler: "/placeholders/eclectictraveler.jpg",
+  futuristic: "/placeholders/futuristic.jpg",
+  traditonaljapanese: "/placeholders/traditonaljapanese.jpg",
+  romantic: "/placeholders/romantic.jpg",
+  mystical: "/placeholders/mystical.jpg",
+  sportysleek: "/placeholders/sportysleek.jpg",
+  funcoolquriky: "/placeholders/funcoolquriky.jpg",
+  essentail: "/placeholders/essentail.jpg",
+  vintagefeel: "/placeholders/vintagefeel.jpg",
+  abstractpattern: "/placeholders/abstractpattern.jpg",
+  colorpop: "/placeholders/colorpop.jpg",
+  animalprint: "/placeholders/animalprint.jpg",
+  romanticsoft: "/placeholders/romanticsoft.jpg",
+  tropicaltimes: "/placeholders/tropicaltimes.jpg",
+  timeless: "/placeholders/timeless.jpg",
+  seventy: "/placeholders/seventy.jpg",
+  luxury: "/placeholders/luxury.jpg",
 };
 
+// Color Placeholder
 export const colorPlaceholders: Record<string, string> = {
-  warm: "/placeholders/warm.jpg",
-  cool: "/placeholders/cool.jpg",
-  neutral: "/placeholders/neutral.jpg",
+  neutral: "/placeholders/warm.jpg",
+  pastal: "/placeholders/cool.jpg",
+  fall: "/placeholders/neutral.jpg",
+  earth: "/placeholders/neutral.jpg",
+  romantic: "/placeholders/neutral.jpg",
+  warm: "/placeholders/neutral.jpg",
+  moody: "/placeholders/neutral.jpg",
+  cool: "/placeholders/neutral.jpg",
+  contemporary: "/placeholders/neutral.jpg",
+  vintage: "/placeholders/neutral.jpg",
+  spring: "/placeholders/neutral.jpg",
+  vibrant: "/placeholders/neutral.jpg",
+  winter: "/placeholders/neutral.jpg",
+  summer: "/placeholders/neutral.jpg",
+  cyberpunk: "/placeholders/neutral.jpg",
+  tropical: "/placeholders/neutral.jpg",
+  analgous: "/placeholders/neutral.jpg",
+  neon: "/placeholders/neutral.jpg",  
+};
+
+
+
+// Product Specific Designs
+export const productSpecificDesigns: ProductSpecificDesigns = {
+  tshirt: {
+    // test: ["/designs/tshirt/graphic1.jpg", "/designs/tshirt/graphic2.jpg"],
+    // test2: ["/designs/tshirt/typography1.jpg", "/designs/tshirt/typography2.jpg"],
+    // test3: ["/designs/tshirt/vintage1.jpg", "/designs/tshirt/vintage2.jpg"],
+  },
+  pillow: {
+    
+  },
+  shoes: {
+    
+  },
+  phonecase: {
+   
+  },
+  wallart: {
+    
+  },
+  hoodie: {
+    
+  },
+  coffecup: {
+    
+  },
+  totebag: {
+   
+  },
+  blanket: {
+   
+  },
+  earrings: {
+    
+  },
+  sofa: {
+    
+  },
+  scarf: {
+    
+  },
+  backpack: {
+    
+  },
+  lamp: {
+    
+  },
+  dress: {
+    
+  },
+  jean: {
+    
+  },
+  plate: {
+    
+  },
+  notebook: {
+    
+  },
+  shoulderbag: {
+    
+  },
+  vase: {
+    
+  },
+  toys: {
+    
+  },
+  vechile: {
+   
+  },
+  glasses: {
+    
+  },
+  watches: {
+    
+  },
 };
