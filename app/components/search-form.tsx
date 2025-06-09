@@ -1,4 +1,4 @@
-import { Search, ListPlus } from "lucide-react";
+import { Search, SplinePointer } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
   SidebarGroup,
@@ -36,7 +36,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
             className="w-[8%] flex items-center justify-center rounded-md pointer-events-none"
             aria-label="New Chat"
           >
-            <ListPlus className="text-black dark:text-white"  />
+            <SplinePointer className="text-black dark:text-white opacity-50 hover:opacity-100"  />
           </button>
         </div>
       </SidebarGroup>
