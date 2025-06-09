@@ -155,8 +155,22 @@ export default function UnifiedPromptContainer({
         </div> */}
 
         <div className="flex overflow-x-auto gap-4 pb-2 hide-scrollbar">
-          <div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
-            <div className="flex flex-col items-center">
+  <div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
+    {(() => {
+      const isProduct = drawerType === "product";
+      const isDesign = drawerType === "design";
+      const isColor = drawerType === "color";
+
+      const presetKeys = Object.keys(presetMap);
+      const first = presetKeys[0];
+      const rest = presetKeys.slice(1);
+
+      const reordered = [first, "UPLOAD_MARKER", ...rest];
+
+      return reordered.map((label) => {
+        if (label === "UPLOAD_MARKER") {
+          return (
+            <div key="upload" className="flex flex-col items-center">
               <label className="w-24 h-24 flex items-center justify-center bg-[#fafafa] dark:bg-[#18181b] border rounded-lg text-xs cursor-pointer hover:border-primary">
                 <Icon icon="lucide:upload" width={18} />
                 <input
@@ -168,30 +182,36 @@ export default function UnifiedPromptContainer({
               </label>
               <span className="mt-1 text-xs text-center capitalize">Upload {drawerType}</span>
             </div>
+          );
+        }
 
-            {Object.entries(presetMap).map(([label, urls]) => (
-              <div key={label} className="flex flex-col items-center">
-                <button
-                  onClick={() => selectRandomFromLabel(label, urls, drawerType)}
-                  className="w-24 h-24 bg-[#fafafa] dark:bg-[#18181b] border rounded-lg flex items-center justify-center hover:border-primary"
-                >
-                  <Image
-                    alt={label}
-                    src={
-                      drawerType === "product"
-                        ? defaultPlaceholders[label as ProductType]
-                        : drawerType === "design"
-                        ? designPlaceholders[label] || "/placeholders/default.jpg"
-                        : colorPlaceholders[label] || "/placeholders/default.jpg"
-                    }
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                </button>
-                <span className="mt-1 text-xs capitalize text-center">{label}</span>
-              </div>
-            ))}
+        const urls = presetMap[label];
+        const imageSrc =
+          isProduct
+            ? defaultPlaceholders[label as ProductType]
+            : isDesign
+            ? designPlaceholders[label] || "/placeholders/default.jpg"
+            : colorPlaceholders[label] || "/placeholders/default.jpg";
+
+        return (
+          <div key={label} className="flex flex-col items-center">
+            <button
+              onClick={() => selectRandomFromLabel(label, urls, drawerType)}
+              className="w-24 h-24 bg-[#fafafa] dark:bg-[#18181b] border rounded-lg flex items-center justify-center hover:border-primary"
+            >
+              <Image
+                alt={label}
+                src={imageSrc}
+                className="w-full h-full object-cover rounded-md"
+              />
+            </button>
+            <span className="mt-1 text-xs capitalize text-center">{label}</span>
           </div>
-        </div>
+        );
+      });
+    })()}
+  </div>
+</div>
       </div>
     );
   };
