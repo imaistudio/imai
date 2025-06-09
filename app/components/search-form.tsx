@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import { useAuth } from "@/contexts/AuthContext";
 import { storage } from "@/lib/firebase";
-import { Search, LayoutGrid , SquarePen } from "lucide-react";
+import { Search, LayoutGrid, SquarePen } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
   SidebarGroup,
@@ -32,7 +32,6 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
         const items = await listAll(outputRef);
         setLibraryCount(items.items.length);
 
-        // Sort and get the latest image
         const sortedItems = items.items.sort((a, b) =>
           b.name.localeCompare(a.name)
         );
@@ -85,29 +84,29 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
           onClick={() => router.push("/explore")}
           className="flex items-center gap-4 text-sm font-medium text-gray-700 dark:text-white"
         >
-          <span className="">
-            <LayoutGrid className="p-1 h-8 w-8 object-cover rounded-md"></LayoutGrid>
+          <span>
+            <LayoutGrid className="p-1 h-8 w-8 object-cover rounded-md" />
           </span>
           Explore
         </button>
 
-        {/* Library */}
-        <button
-          type="button"
-          onClick={() => router.push("/library")}
-          className="flex items-center gap-4 text-sm font-medium text-gray-700 dark:text-white"
-        >
-          <span>
-            <img
-              src={latestImageUrl ?? "/logo.svg"}
-              alt="Library"
-              className="h-8 w-8 object-cover rounded-md"
-            />
-          </span>
-          Library
-        </button>
-
-        
+        {/* Library - only render if user ID exists */}
+        {user?.uid && (
+          <button
+            type="button"
+            onClick={() => router.push("/library")}
+            className="flex items-center gap-4 text-sm font-medium text-gray-700 dark:text-white"
+          >
+            <span>
+              <img
+                src={latestImageUrl ?? "/logo.svg"}
+                alt="Library"
+                className="h-8 w-8 object-cover rounded-md"
+              />
+            </span>
+            Library
+          </button>
+        )}
       </div>
     </>
   );
