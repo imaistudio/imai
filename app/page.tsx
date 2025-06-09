@@ -39,8 +39,8 @@ export default function Home() {
     <div className="w-full min-h-screen flex flex-col items-center justify-center">
       <UnifiedPromptContainer 
         onSubmit={handleFormSubmission}
-        placeholder="Enter your custom prompt here"
-        maxLength={2000}
+        placeholder="Reimagine artwork"
+        maxLength={500}
       />
     </div>
   );

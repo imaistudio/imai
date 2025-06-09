@@ -145,14 +145,14 @@ export default function UnifiedPromptContainer({
 
     return (
       <div className="w-full bg-default-100 rounded-t-lg shadow-sm pl-4 py-2 pr-4 z-10 mb-4">
-        <div className="flex justify-between items-center mb-3">
+        {/* <div className="flex justify-between items-center mb-3">
           <h2 className="text-base font-semibold capitalize">
             Choose {drawerType}{titleSuffix}
           </h2>
           <Button onPress={() => setDrawerOpen(false)} isIconOnly size="sm" variant="light">
             <Icon icon="lucide:x" width={16} />
           </Button>
-        </div>
+        </div> */}
 
         <div className="flex overflow-x-auto gap-4 pb-2 hide-scrollbar">
           <div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
