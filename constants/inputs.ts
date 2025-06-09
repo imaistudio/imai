@@ -175,9 +175,29 @@ export const productSpecificDesigns: ProductSpecificDesigns = {
 
 // Default Design Images
 export const defaultDesignImages: ProductImages = {
-  abstract: ["/defaults/abstract1.jpg", "/defaults/abstract2.jpg"],
-  pattern: ["/defaults/pattern1.jpg", "/defaults/pattern2.jpg"],
-  geometric: ["/defaults/geometric1.jpg", "/defaults/geometric2.jpg"],
+  minimalsleek: ["/defaults/abstract1.jpg", "/defaults/abstract2.jpg"],
+  animeinspired: ["/defaults/pattern1.jpg", "/defaults/pattern2.jpg"],
+  undersun: ["/defaults/geometric1.jpg", "/defaults/geometric2.jpg"],
+  quiteluxury: ["/defaults/warm1.jpg", "/defaults/warm2.jpg"],
+  artistic: ["/defaults/cool1.jpg", "/defaults/cool2.jpg"],
+  bold: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  eclectictraveler: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  futuristic: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  traditonaljapanese: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  romantic: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  mystical: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  sportysleek: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  funcoolquriky: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  essentail: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  vintagefeel: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  abstractpattern: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  colorpop: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  animalprint: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  romanticsoft: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  tropicaltimes: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  timeless: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  seventy: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+  luxury: ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
 };
 
 // Default Color Images

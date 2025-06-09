@@ -39,7 +39,7 @@ export default function Home() {
     <div className="w-full min-h-screen flex flex-col items-center justify-center">
       <UnifiedPromptContainer 
         onSubmit={handleFormSubmission}
-        placeholder="Reimagine artwork"
+        placeholder="Reimagine Artwork"
         maxLength={500}
       />
     </div>
