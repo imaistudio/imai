@@ -318,7 +318,7 @@ export default function UnifiedPromptContainer({
 									>
 										<img
 											src={imageSrc}
-											className="w-full h-full object-cover rounded-md bg-red"
+											className="w-full h-full object-cover rounded-md text-white"
 										/>
 									</button>
 									<span className="mt-1 text-xs capitalize text-center">

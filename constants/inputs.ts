@@ -1,5 +1,5 @@
 // Types
-export type ProductType = "tshirt" | "pillow" | "shoes" | "phonecase" | "wallart" | "hoodie" | "coffecup" | "totebag" | "blanket" | "earrings" | "sofa" | "scarf" | "backpack" | "lamp" | "dress" | "jean" | "plate" | "notebook" | "shoulderbag" | "vase" | "toys" | "vechile" | "glasses" | "watches" ;
+export type ProductType = "tshirt" | "pillow" | "shoes" | "phonecase" | "wallart" | "hoodie" | "coffecup" | "totebag" | "blanket" | "earrings" | "sofa" | "scarf" | "backpack" | "lamp" | "dress" | "jean" | "plate" | "notebook" | "shoulderbag" | "vase" | "toys" | "vehicles" | "glasses" | "watches" ;
 
 export interface ProductImages {
   [key: string]: string[];
@@ -34,7 +34,7 @@ export const defaultProductImages: Record<ProductType, string[]> = {
   shoulderbag: ["/designs/shoulderbag/shoulderbag1.jpg", "/designs/shoulderbag/shoulderbag2.jpg", "/designs/shoulderbag/shoulderbag3.jpg"],
   vase: ["/designs/vase/vase1.jpg", "/designs/vase/vase2.jpg", "/designs/vase/vase3.jpg"],
   toys: ["/designs/toys/toys1.jpg", "/designs/toys/toys2.jpg", "/designs/toys/toys3.jpg"],
-  vechile: ["/designs/vechile/vechile1.jpg", "/designs/vechile/vechile2.jpg", "/designs/vechile/vechile3.jpg"],
+  vehicles: ["/designs/vechile/vechile1.jpg", "/designs/vechile/vechile2.jpg", "/designs/vechile/vechile3.jpg"],
   glasses: ["/designs/glasses/glasses1.jpg", "/designs/glasses/glasses2.jpg", "/designs/glasses/glasses3.jpg"],
   watches: ["/designs/watches/watches1.jpg", "/designs/watches/watches2.jpg", "/designs/watches/watches3.jpg"],
 };
@@ -92,30 +92,30 @@ export const defaultColorImages: ProductImages = {
 
 //Default Product Placeholders
 export const defaultPlaceholders: Record<ProductType, string> = {
-  tshirt: "/icons/Bag.svg",
-  pillow: "/placeholders/pillow.jpg",
-  shoes: "/placeholders/shoes.jpg",
-  phonecase: "/placeholders/phonecase.jpg",
-  wallart: "/placeholders/wallart.jpg",
-  hoodie: "/placeholders/hoodie.jpg",
-  coffecup: "/placeholders/coffecup.jpg",
-  totebag: "/placeholders/totebag.jpg",
-  blanket: "/placeholders/blanket.jpg",
-  earrings: "/placeholders/earrings.jpg",
-  sofa: "/placeholders/sofa.jpg",
-  scarf: "/placeholders/scarf.jpg",
-  backpack: "/placeholders/backpack.jpg",
-  lamp: "/placeholders/lamp.jpg",
-  dress: "/placeholders/dress.jpg",
-  jean: "/placeholders/jean.jpg",
-  plate: "/placeholders/plate.jpg",
-  notebook: "/placeholders/notebook.jpg",
-  shoulderbag: "/placeholders/shoulderbag.jpg",
-  vase: "/placeholders/vase.jpg",
-  toys: "/placeholders/toys.jpg",
-  vechile: "/placeholders/vechile.jpg",
-  glasses: "/placeholders/glasses.jpg",
-  watches: "/placeholders/watches.jpg",
+  tshirt: "inputs/placeholders/t-shirt.svg",
+  pillow: "inputs/placeholders/pillow.svg",
+  shoes: "inputs/placeholders/shoes.svg",
+  phonecase: "inputs/placeholders/phonecase.svg",
+  wallart: "inputs/placeholders/wallart.svg",
+  hoodie: "inputs/placeholders/hoodie.svg",
+  coffecup: "inputs/placeholders/coffeecup.svg",
+  totebag: "inputs/placeholders/totebag.svg",
+  blanket: "inputs/placeholders/blanket.svg",
+  earrings: "inputs/placeholders/earrings.svg",
+  sofa: "inputs/placeholders/sofa.svg",
+  scarf: "inputs/placeholders/scarf.svg",
+  backpack: "inputs/placeholders/backpack.svg",
+  lamp: "inputs/placeholders/lamp.svg",
+  dress: "inputs/placeholders/dress.svg",
+  jean: "inputs/placeholders/jean.svg",
+  plate: "inputs/placeholders/plate.svg",
+  notebook: "inputs/placeholders/notebook.svg",
+  shoulderbag: "inputs/placeholders/shoulderbag.svg",
+  vase: "inputs/placeholders/vase.svg",
+  toys: "inputs/placeholders/toys.svg",
+  vehicles: "inputs/placeholders/vehicles.svg",
+  glasses: "inputs/placeholders/glasses.svg",
+  watches: "inputs/placeholders/watches.svg",
 };
 
 // Design Placeholder
@@ -236,7 +236,7 @@ export const productSpecificDesigns: ProductSpecificDesigns = {
   toys: {
     
   },
-  vechile: {
+  vehicles: {
    
   },
   glasses: {
