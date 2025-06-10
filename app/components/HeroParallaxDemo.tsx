@@ -10,32 +10,32 @@ export const products = [
     title: "Inspiring Newness",
     link: "#",
     thumbnail:
-      "/backgrounds/gen1.jpg",
+      "/backgrounds/gen1.webp",
   },
   {
     title: "Product Designing",
     link: "#",
     thumbnail:
-      "/backgrounds/gen2.jpg",
+      "/backgrounds/gen2.webp",
   },
   {
     title: "Design Patterns",
     link: "#",
     thumbnail:
-     "/backgrounds/gen3.jpeg",
+     "/backgrounds/gen3.webp",
   },
 
   {
     title: "Customize Products",
     link: "#",
     thumbnail:
-      "/backgrounds/gen4.jpg",
+      "/backgrounds/gen4.webp",
   },
   {
     title: "Context Continuty",
     link: "#",
     thumbnail:
-      "/backgrounds/gen5.jpg",
+      "/backgrounds/gen5.webp",
   },
   {
     title: "Inpaint & Outpaint AI",
@@ -48,50 +48,50 @@ export const products = [
     title: "Realism Upscaling",
     link: "#",
     thumbnail:
-      "/backgrounds/gen7.jpg",
+      "/backgrounds/gen7.webp",
   },
   {
     title: "Self Reference Context",
     link: "#",
     thumbnail:
-      "/backgrounds/gen8.jpg",
+      "/backgrounds/gen8.webp",
   },
   {
     title: "Multi Art Styles",
     link: "#",
     thumbnail:
-      "/backgrounds/gen9.avif",
+      "/backgrounds/gen9.webp",
   },
   {
     title: "Multi Modal",
     link: "#",
     thumbnail:
-      "/backgrounds/gen10.jpg",
+      "/backgrounds/gen10.webp",
   },
   {
     title: "Facial Context Consistency",
     link: "#",
     thumbnail:
-      "/backgrounds/gen11.jpeg",
+      "/backgrounds/gen11.webp",
   },
 
   {
     title: "Grid Output",
     link: "#",
     thumbnail:
-      "/backgrounds/gen12.jpg",
+      "/backgrounds/gen12.webp",
   },
   {
     title: "Art Guide Inspiration",
     link: "#",
     thumbnail:
-      "/backgrounds/gen13.png",
+      "/backgrounds/gen13.webp",
   },
   {
     title: "Color Emedding",
     link: "#",
     thumbnail:
-      "/backgrounds/gen14.jpg",
+      "/backgrounds/gen14.webp",
   },
   {
     title: "Explore IMAI",

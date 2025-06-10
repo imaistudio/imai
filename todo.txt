@@ -1,6 +1,6 @@
 Current Goals
 
-1. API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
+1. API Call Back Complete Villoa | Contact Salman | Add in DropBox Content - Inprogress
 2. Add in Default Promot with horizontal scrolling | Call back function to Return images 
 3. Stripe Payment Gateway With Billing | Checkout 
 4. Pagination to Explore Page 
