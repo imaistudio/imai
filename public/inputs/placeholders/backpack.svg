@@ -7,10 +7,13 @@ viewBox="0 0 97.28 97.1"
  xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
  <defs>
   <style type="text/css">
-   <![CDATA[
-    .str0 {stroke:black;stroke-width:0.15;stroke-miterlimit:22.9256}
-    .fil0 {fill:none}
-    .fil1 {fill:black}
+    <![CDATA[
+    .str0 {stroke-width:0.95;stroke-miterlimit:22.9256}
+    .fil0 {fill:none;stroke-width:0.95;}
+    .fil1 {fill:#000000;stroke-width:0.95}
+     @media (prefers-color-scheme: dark) {
+        .fil1 { fill: #ffffff; }
+    }
    ]]>
   </style>
  </defs>

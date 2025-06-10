@@ -8,9 +8,12 @@ viewBox="0 0 44.73 44.65"
  <defs>
   <style type="text/css">
    <![CDATA[
-    .str0 {stroke:black;stroke-width:0.42;stroke-miterlimit:22.9256}
+    .str0 {stroke-width:0.42;stroke-miterlimit:22.9256}
     .fil0 {fill:none}
-    .fil1 {fill:black}
+    .fil1 {fill:#000000}
+     @media (prefers-color-scheme: dark) {
+        .fil1 { fill: #ffffff; }
+    }
    ]]>
   </style>
  </defs>
