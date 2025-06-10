@@ -24,28 +24,43 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
   };
 
   useEffect(() => {
-    const fetchLibraryImage = async () => {
-      if (!user) return;
+  const fetchLibraryImage = async () => {
+    if (!user) return;
 
-      try {
-        const outputRef = ref(storage, `${user.uid}/output`);
-        const items = await listAll(outputRef);
-        setLibraryCount(items.items.length);
+    const cached = sessionStorage.getItem("libraryCache");
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      setLibraryCount(parsed.count);
+      setLatestImageUrl(parsed.url);
+      return;
+    }
 
-        const sortedItems = items.items.sort((a, b) =>
-          b.name.localeCompare(a.name)
-        );
-        if (sortedItems.length > 0) {
-          const url = await getDownloadURL(sortedItems[0]);
-          setLatestImageUrl(url);
-        }
-      } catch (error) {
-        console.error("Error fetching latest library image:", error);
-      }
-    };
+    try {
+      const outputRef = ref(storage, `${user.uid}/output`);
+      const items = await listAll(outputRef);
+      const sortedItems = items.items.sort((a, b) =>
+        b.name.localeCompare(a.name)
+      );
 
-    fetchLibraryImage();
-  }, [user]);
+      const url = sortedItems.length > 0
+        ? await getDownloadURL(sortedItems[0])
+        : null;
+
+      const result = {
+        count: items.items.length,
+        url,
+      };
+
+      sessionStorage.setItem("libraryCache", JSON.stringify(result));
+      setLibraryCount(result.count);
+      setLatestImageUrl(result.url);
+    } catch (error) {
+      console.error("Error fetching latest library image:", error);
+    }
+  };
+
+  fetchLibraryImage();
+}, [user]);
 
   return (
     <>

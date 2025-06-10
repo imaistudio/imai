@@ -34,35 +34,53 @@ export default function Reset() {
   }, [user?.uid]);
 
   const fetchImages = async (userId: string) => {
-    setIsLoading(true);
-    try {
-      const folderRef = ref(storage, `${userId}/output`);
-      const res = await listAll(folderRef);
+  setIsLoading(true);
 
-      const urlPromises = res.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        const metadata = await getMetadata(item); // ✅ correct usage
-        return {
-          url,
-          name: item.name,
-          createdAt: new Date(metadata.timeCreated).getTime(),
-        };
-      });
+  // Try to get cached data
+  const cached = sessionStorage.getItem(`imagesCache-${userId}`);
+  if (cached) {
+    const parsed = JSON.parse(cached);
+    setImages(parsed);
+    setPaginatedImages(parsed.slice(0, IMAGES_PER_PAGE));
+    setPage(1);
+    setIsLoading(false);
+    return;
+  }
 
-      const files = await Promise.all(urlPromises);
+  try {
+    const folderRef = ref(storage, `${userId}/output`);
+    const res = await listAll(folderRef);
 
-      const sortedUrls = files
-        .sort((a, b) => b.createdAt - a.createdAt) // newest first
-        .map((file) => file.url);
+    const urlPromises = res.items.map(async (item) => {
+      const url = await getDownloadURL(item);
+      const metadata = await getMetadata(item);
+      return {
+        url,
+        name: item.name,
+        createdAt: new Date(metadata.timeCreated).getTime(),
+      };
+    });
 
-      setImages(sortedUrls);
-      setPaginatedImages(sortedUrls.slice(0, IMAGES_PER_PAGE));
-      setPage(1);
-    } catch (error) {
-      console.error("Error loading images:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const files = await Promise.all(urlPromises);
+
+    const sortedUrls = files
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map((file) => file.url);
+
+    // Cache for the session
+    sessionStorage.setItem(
+      `imagesCache-${userId}`,
+      JSON.stringify(sortedUrls)
+    );
+
+    setImages(sortedUrls);
+    setPaginatedImages(sortedUrls.slice(0, IMAGES_PER_PAGE));
+    setPage(1);
+  } catch (error) {
+    console.error("Error loading images:", error);
+  } finally {
+    setIsLoading(false);
+  }
   };
 
   // Append the next batch when the user scrolls near the bottom
