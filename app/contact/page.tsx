@@ -104,7 +104,7 @@ export default function PromptContainer() {
         </div>
         ) : (
           <>
-            <h2 className="font-medium text-blue-600">Contact Us</h2>
+            <h2 className="font-medium text-blue-500">Contact Us</h2>
             <h1 className="text-3xl font-semibold text-black dark:text-white mb-8 text-center">
               How Can We Help You Today?
             </h1>
