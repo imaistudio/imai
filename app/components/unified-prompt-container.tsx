@@ -314,11 +314,11 @@ export default function UnifiedPromptContainer({
 										onClick={() =>
 											selectRandomFromLabel(label, urls, drawerType)
 										}
-										className="w-24 h-24 bg-[#fafafa] dark:bg-[#18181b] border rounded-lg flex items-center justify-center hover:border-primary"
+										className="w-24 h-24 flex items-center justify-center hover:border-primary"
 									>
 										<img
 											src={imageSrc}
-											className="w-full h-full object-cover rounded-md text-white"
+											className="w-full h-full object-cover rounded-md text-white bg-[#fafafa] dark:bg-[#18181b]"
 										/>
 									</button>
 									<span className="mt-1 text-xs capitalize text-center">
