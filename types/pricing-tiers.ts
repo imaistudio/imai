@@ -63,7 +63,7 @@ export const tiers: Array<Tier> = [
       yearly: "Custom",
       quarterly: "Custom",
     },
-    priceSuffix: "Contact us",
+    priceSuffix: "",
     features: [
       "Unlimited generations",
       "Ultra HD + custom resolutions",

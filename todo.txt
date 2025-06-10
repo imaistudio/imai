@@ -2,8 +2,7 @@ Current Goals
 
 1. Add in all the Viloa Content 
 2. Add in Default Promot with horizontal scrolling | Call back function to Return images 
-3. Explore | Library
-4. Stripe Payment Gateway With Billing | Checkout 
+3. Stripe Payment Gateway With Billing | Checkout 
 
 # Todo 
 Crud Operations for storing the chats,sidebar,...etc - Whole Schema

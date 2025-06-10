@@ -11,7 +11,7 @@ export default function FAQ() {
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 lg:flex-row lg:items-start lg:gap-12">
         <>
         <h2 className="inline-block lg:hidden">FAQs</h2>
-        <h2 className="hidden bg-gradient-to-br from-foreground-800 to-foreground-500 bg-clip-text pt-4 text-5xl font-semibold tracking-tight text-transparent dark:to-foreground-200 lg:inline-block">
+        <h2 className="hidden text-black dark:text-white pt-4 text-5xl font-semibold tracking-tight lg:inline-block">
             Frequently
             <br />
             asked
