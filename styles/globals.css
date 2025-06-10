@@ -136,3 +136,11 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.fil1 {
+  fill: #000000; /* black by default */
+}
+
+.dark .fil1 {
+  fill: #ffffff; /* white in dark mode */
+}
