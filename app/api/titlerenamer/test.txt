@@ -1,0 +1,411 @@
+# Title Renamer API Test Guide
+
+## Overview
+The Title Renamer API generates creative and descriptive titles, filenames, and names for images using AI analysis. Perfect for content organization, SEO optimization, and creative naming.
+
+## Base URL
+```
+POST http://localhost:3000/api/titlerenamer
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Image URL to analyze (provided by IntentRoute)
+
+## Optional Parameters
+- `naming_style` (string): Style of naming - "descriptive" | "creative" | "seo_friendly" | "technical" | "artistic" (default: "descriptive")
+- `length` (string): Title length - "short" | "medium" | "long" (default: "medium")
+- `purpose` (string): Intended use - "filename" | "title" | "caption" | "alt_text" | "seo" (default: "title")
+- `keywords` (string): Keywords to include in the name
+- `tone` (string): Tone of naming - "professional" | "casual" | "creative" | "technical" (default: "professional")
+
+---
+
+## CURL Examples
+
+### 1. Basic Title Generation (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=generate a creative title for this image" \
+  -F "product_image=@image.jpg"
+```
+
+### 2. SEO-Friendly Filename
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=create an SEO-friendly filename for this product image" \
+  -F "product_image=@product.jpg"
+```
+
+### 3. Direct API Call - Descriptive Title
+```bash
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "naming_style=descriptive" \
+  -F "length=medium" \
+  -F "purpose=title"
+```
+
+### 4. Creative Artistic Title
+```bash
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/artwork.jpg" \
+  -F "naming_style=artistic" \
+  -F "length=long" \
+  -F "tone=creative"
+```
+
+### 5. Technical Documentation
+```bash
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/diagram.jpg" \
+  -F "naming_style=technical" \
+  -F "purpose=filename" \
+  -F "tone=technical"
+```
+
+### 6. SEO Optimized with Keywords
+```bash
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/product.jpg" \
+  -F "naming_style=seo_friendly" \
+  -F "keywords=premium,luxury,modern" \
+  -F "purpose=seo"
+```
+
+### 7. Social Media Caption
+```bash
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/lifestyle.jpg" \
+  -F "naming_style=creative" \
+  -F "purpose=caption" \
+  -F "tone=casual" \
+  -F "length=short"
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Title Renamer API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: generate a descriptive title for this image
+- product_image: [file] test-image.jpg
+```
+
+### 2. Creative Title Generation
+```
+POST {{baseUrl}}/api/titlerenamer
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- naming_style: creative
+- length: medium
+- purpose: title
+- tone: creative
+```
+
+### 3. SEO-Friendly Filename
+```
+POST {{baseUrl}}/api/titlerenamer
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/product.jpg
+- naming_style: seo_friendly
+- purpose: filename
+- keywords: premium,quality,product
+- tone: professional
+```
+
+### 4. Technical Documentation
+```
+POST {{baseUrl}}/api/titlerenamer
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/diagram.jpg
+- naming_style: technical
+- purpose: filename
+- length: short
+- tone: technical
+```
+
+### 5. Social Media Caption
+```
+POST {{baseUrl}}/api/titlerenamer
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/lifestyle.jpg
+- naming_style: creative
+- purpose: caption
+- length: long
+- tone: casual
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "generated_titles": [
+    {
+      "title": "Modern Urban Sunset Skyline Photography",
+      "style": "descriptive",
+      "confidence": 0.92
+    },
+    {
+      "title": "Golden Hour City Architecture",
+      "style": "seo_friendly",
+      "confidence": 0.88
+    },
+    {
+      "title": "urban-sunset-skyline-modern-architecture.jpg",
+      "style": "filename",
+      "confidence": 0.90
+    }
+  ],
+  "primary_title": "Modern Urban Sunset Skyline Photography",
+  "alt_text": "A stunning urban skyline photographed during golden hour with modern architecture silhouetted against a warm sunset sky",
+  "image_analysis": {
+    "primary_subject": "urban skyline",
+    "scene_type": "architectural photography",
+    "mood": "dramatic and peaceful",
+    "colors": ["golden", "orange", "blue"],
+    "style": "professional photography"
+  },
+  "naming_style": "descriptive",
+  "length": "medium",
+  "purpose": "title"
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing image_url parameter. This endpoint expects to be called through intentroute."
+}
+```
+
+---
+
+## Naming Styles
+
+### 1. Descriptive
+- **Purpose**: Clear, factual descriptions
+- **Best for**: General use, documentation
+- **Example**: "Red Sports Car on Mountain Road"
+- **Characteristics**: Straightforward, informative
+
+### 2. Creative
+- **Purpose**: Artistic and imaginative names
+- **Best for**: Art projects, creative content
+- **Example**: "Crimson Thunder Racing Through Alpine Dreams"
+- **Characteristics**: Poetic, metaphorical
+
+### 3. SEO Friendly
+- **Purpose**: Search engine optimization
+- **Best for**: Web content, marketing
+- **Example**: "luxury-red-sports-car-mountain-road-photography"
+- **Characteristics**: Keyword-rich, URL-friendly
+
+### 4. Technical
+- **Purpose**: Precise, specification-based
+- **Best for**: Documentation, catalogs
+- **Example**: "Ferrari_458_Italia_Alpine_Road_2023_4K"
+- **Characteristics**: Specific, systematic
+
+### 5. Artistic
+- **Purpose**: Aesthetic and emotional appeal
+- **Best for**: Galleries, portfolios
+- **Example**: "Velocity and Solitude: A Mountain Encounter"
+- **Characteristics**: Evocative, emotional
+
+---
+
+## Purpose Types
+
+### Available Purposes
+- **title** - Main title for content
+- **filename** - File naming conventions
+- **caption** - Social media captions
+- **alt_text** - Accessibility descriptions
+- **seo** - Search engine optimization
+
+### Output Characteristics by Purpose
+- **title**: Engaging, readable, brand-appropriate
+- **filename**: URL-safe, concise, descriptive
+- **caption**: Engaging, hashtag-friendly, conversational
+- **alt_text**: Accessible, descriptive, screen-reader friendly
+- **seo**: Keyword-optimized, search-friendly
+
+---
+
+## Length Options
+
+### Available Lengths
+- **short** - 1-3 words, concise
+- **medium** - 4-8 words, balanced (recommended)
+- **long** - 9+ words, detailed
+
+### Use Case Recommendations
+- **short**: Filenames, tags, quick references
+- **medium**: Titles, headers, general use
+- **long**: Descriptions, captions, detailed content
+
+---
+
+## Testing Scenarios
+
+### 1. Content Type Tests
+- [ ] Portrait photographs
+- [ ] Landscape images
+- [ ] Product photography
+- [ ] Artwork and illustrations
+- [ ] Technical diagrams
+- [ ] Food photography
+- [ ] Architecture images
+- [ ] Abstract content
+
+### 2. Naming Style Tests
+- [ ] Descriptive naming accuracy
+- [ ] Creative naming originality
+- [ ] SEO-friendly format compliance
+- [ ] Technical naming precision
+- [ ] Artistic naming appeal
+
+### 3. Purpose-Specific Tests
+- [ ] Title generation quality
+- [ ] Filename format compliance
+- [ ] Caption engagement level
+- [ ] Alt-text accessibility
+- [ ] SEO keyword integration
+
+### 4. Length Variation Tests
+- [ ] Short name conciseness
+- [ ] Medium name balance
+- [ ] Long name detail level
+- [ ] Consistency across lengths
+
+### 5. Error Handling Tests
+- [ ] Invalid image URLs
+- [ ] Unsupported image formats
+- [ ] Very abstract images
+- [ ] Low-quality images
+- [ ] Network timeouts
+
+---
+
+## Common Use Cases
+
+### 1. E-commerce Product Naming
+```bash
+# SEO-friendly product titles
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=ecommerce-123" \
+  -F "image_url=https://example.com/product.jpg" \
+  -F "naming_style=seo_friendly" \
+  -F "keywords=premium,quality,modern" \
+  -F "purpose=seo"
+```
+
+### 2. Social Media Content
+```bash
+# Engaging social media captions
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=influencer-123" \
+  -F "image_url=https://example.com/lifestyle.jpg" \
+  -F "naming_style=creative" \
+  -F "purpose=caption" \
+  -F "tone=casual"
+```
+
+### 3. Photography Portfolio
+```bash
+# Artistic titles for photography
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=photographer-123" \
+  -F "image_url=https://example.com/photo.jpg" \
+  -F "naming_style=artistic" \
+  -F "length=long" \
+  -F "tone=creative"
+```
+
+### 4. Technical Documentation
+```bash
+# Technical filenames for documentation
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=technical-writer-123" \
+  -F "image_url=https://example.com/diagram.jpg" \
+  -F "naming_style=technical" \
+  -F "purpose=filename" \
+  -F "tone=technical"
+```
+
+### 5. Blog Content
+```bash
+# Descriptive titles for blog posts
+curl -X POST http://localhost:3000/api/titlerenamer \
+  -F "userid=blogger-123" \
+  -F "image_url=https://example.com/blog-image.jpg" \
+  -F "naming_style=descriptive" \
+  -F "purpose=title" \
+  -F "length=medium"
+```
+
+---
+
+## Best Practices
+
+### Choosing Naming Styles
+1. **E-commerce**: Use seo_friendly with relevant keywords
+2. **Social Media**: Use creative with casual tone
+3. **Documentation**: Use technical with professional tone
+4. **Art/Photography**: Use artistic with creative tone
+5. **General Content**: Use descriptive with professional tone
+
+### Purpose Selection Guidelines
+1. **Web Content**: Use title or seo purposes
+2. **File Organization**: Use filename purpose
+3. **Social Platforms**: Use caption purpose
+4. **Accessibility**: Use alt_text purpose
+5. **Marketing**: Use seo purpose
+
+### Keyword Integration
+- Include relevant product keywords for SEO
+- Use brand-specific terms when appropriate
+- Consider target audience language
+- Balance keyword density with readability
+
+### Troubleshooting
+- **Generic titles**: Add specific keywords or change style
+- **Too long/short**: Adjust length parameter
+- **Wrong tone**: Modify tone parameter
+- **Poor SEO**: Use seo_friendly style with keywords
+- **Not creative enough**: Try artistic or creative styles 

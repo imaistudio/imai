@@ -1,0 +1,390 @@
+# Reframe API Test Guide
+
+## Overview
+The Reframe API intelligently crops, reframes, and adjusts image compositions for different aspect ratios and use cases while preserving important visual elements.
+
+## Base URL
+```
+POST http://localhost:3000/api/reframe
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Image URL to reframe (provided by IntentRoute)
+
+## Optional Parameters
+- `target_aspect` (string): Target aspect ratio - "square" | "portrait" | "landscape" | "wide" | "story" (default: "square")
+- `focus_area` (string): Area to prioritize - "center" | "face" | "top" | "bottom" | "left" | "right" | "auto" (default: "auto")
+- `crop_style` (string): Cropping approach - "intelligent" | "centered" | "smart_crop" | "object_aware" (default: "intelligent")
+- `preserve_subjects` (boolean): Preserve human subjects (default: true)
+- `background_fill` (string): Background handling - "extend" | "blur" | "solid_color" | "transparent" (default: "extend")
+
+---
+
+## CURL Examples
+
+### 1. Basic Reframe (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=reframe this image for Instagram square format" \
+  -F "product_image=@image.jpg"
+```
+
+### 2. Portrait to Square
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=crop this portrait to square format while keeping the subject centered" \
+  -F "product_image=@portrait.jpg"
+```
+
+### 3. Direct API Call - Square Format
+```bash
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "target_aspect=square" \
+  -F "focus_area=center" \
+  -F "crop_style=intelligent"
+```
+
+### 4. Landscape to Story Format
+```bash
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/landscape.jpg" \
+  -F "target_aspect=story" \
+  -F "focus_area=auto" \
+  -F "background_fill=extend"
+```
+
+### 5. Face-Focused Reframe
+```bash
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/group-photo.jpg" \
+  -F "target_aspect=portrait" \
+  -F "focus_area=face" \
+  -F "preserve_subjects=true"
+```
+
+### 6. Wide Format for Banner
+```bash
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "target_aspect=wide" \
+  -F "crop_style=object_aware" \
+  -F "background_fill=blur"
+```
+
+### 7. Smart Crop with Extension
+```bash
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/product.jpg" \
+  -F "target_aspect=landscape" \
+  -F "crop_style=smart_crop" \
+  -F "background_fill=extend"
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Reframe API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: reframe this image for social media square format
+- product_image: [file] test-image.jpg
+```
+
+### 2. Instagram Square Reframe
+```
+POST {{baseUrl}}/api/reframe
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- target_aspect: square
+- focus_area: auto
+- crop_style: intelligent
+- preserve_subjects: true
+```
+
+### 3. Story Format Reframe
+```
+POST {{baseUrl}}/api/reframe
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/landscape.jpg
+- target_aspect: story
+- focus_area: center
+- background_fill: extend
+```
+
+### 4. Banner/Wide Format
+```
+POST {{baseUrl}}/api/reframe
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- target_aspect: wide
+- crop_style: object_aware
+- background_fill: blur
+```
+
+### 5. Portrait Focus Reframe
+```
+POST {{baseUrl}}/api/reframe
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/portrait.jpg
+- target_aspect: portrait
+- focus_area: face
+- crop_style: intelligent
+- preserve_subjects: true
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "reframed_image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+  "original_dimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "new_dimensions": {
+    "width": 1080,
+    "height": 1080
+  },
+  "target_aspect": "square",
+  "crop_method": "intelligent",
+  "focus_area_used": "auto",
+  "subjects_preserved": true,
+  "background_method": "extend"
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing image_url parameter. This endpoint expects to be called through intentroute."
+}
+```
+
+---
+
+## Aspect Ratios
+
+### Available Aspect Ratios
+- **square** (1:1) - Instagram posts, profile pictures
+- **portrait** (4:5) - Instagram portraits, vertical content
+- **landscape** (16:9) - YouTube thumbnails, standard photos
+- **wide** (21:9) - Banners, headers, cinematic
+- **story** (9:16) - Instagram/TikTok stories, vertical video
+
+### Use Case Recommendations
+- **Social Media Posts**: square, portrait
+- **Stories/Reels**: story (9:16)
+- **YouTube Thumbnails**: landscape (16:9)
+- **Website Banners**: wide (21:9)
+- **Profile Pictures**: square (1:1)
+
+---
+
+## Focus Areas
+
+### Available Focus Areas
+- **auto** - AI detects most important elements
+- **center** - Focus on image center
+- **face** - Prioritize human faces
+- **top** - Focus on upper portion
+- **bottom** - Focus on lower portion
+- **left** - Focus on left side
+- **right** - Focus on right side
+
+### Best Practices
+- Use **face** for portraits and group photos
+- Use **auto** for complex scenes
+- Use **center** for symmetric compositions
+- Use directional focus for off-center subjects
+
+---
+
+## Crop Styles
+
+### Available Styles
+- **intelligent** - AI-powered smart cropping (recommended)
+- **centered** - Simple center-based cropping
+- **smart_crop** - Object-aware intelligent cropping
+- **object_aware** - Preserves important objects and subjects
+
+### When to Use Each
+- **intelligent**: Most versatile, good for general use
+- **centered**: Simple compositions, symmetric subjects
+- **smart_crop**: Complex scenes with multiple elements
+- **object_aware**: Product photos, specific object focus
+
+---
+
+## Background Fill Options
+
+### Available Options
+- **extend** - AI extends background naturally (recommended)
+- **blur** - Blurs original background to fill space
+- **solid_color** - Uses dominant color for background
+- **transparent** - Creates transparent background (PNG)
+
+### Use Cases
+- **extend**: Natural-looking expansions
+- **blur**: Artistic effect, subject emphasis
+- **solid_color**: Clean, minimalist look
+- **transparent**: Overlays, graphic design
+
+---
+
+## Testing Scenarios
+
+### 1. Aspect Ratio Tests
+- [ ] Portrait to square conversion
+- [ ] Landscape to portrait conversion
+- [ ] Square to story format
+- [ ] Wide format creation
+- [ ] Custom aspect ratio handling
+
+### 2. Content Type Tests
+- [ ] Portrait photographs
+- [ ] Group photos
+- [ ] Landscape images
+- [ ] Product photos
+- [ ] Architecture images
+- [ ] Abstract content
+
+### 3. Focus Area Tests
+- [ ] Face detection and preservation
+- [ ] Auto-focus accuracy
+- [ ] Directional focus (top, bottom, left, right)
+- [ ] Center focus for symmetric content
+
+### 4. Background Fill Tests
+- [ ] Natural background extension
+- [ ] Blur effect quality
+- [ ] Color matching accuracy
+- [ ] Transparent background creation
+
+### 5. Error Handling Tests
+- [ ] Invalid aspect ratios
+- [ ] Very small images
+- [ ] Very large images
+- [ ] Corrupted image files
+- [ ] Network timeouts
+
+---
+
+## Common Use Cases
+
+### 1. Social Media Optimization
+```bash
+# Instagram square post
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=social-media-123" \
+  -F "message=convert this to Instagram square format" \
+  -F "product_image=@photo.jpg"
+```
+
+### 2. Story Content Creation
+```bash
+# Instagram/TikTok story format
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=content-creator-123" \
+  -F "image_url=https://example.com/landscape.jpg" \
+  -F "target_aspect=story" \
+  -F "focus_area=auto" \
+  -F "background_fill=extend"
+```
+
+### 3. Profile Picture Creation
+```bash
+# Square profile picture from portrait
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=user-123" \
+  -F "image_url=https://example.com/portrait.jpg" \
+  -F "target_aspect=square" \
+  -F "focus_area=face" \
+  -F "preserve_subjects=true"
+```
+
+### 4. Banner/Header Creation
+```bash
+# Wide banner format
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=designer-123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "target_aspect=wide" \
+  -F "crop_style=object_aware" \
+  -F "background_fill=blur"
+```
+
+### 5. Product Photo Optimization
+```bash
+# Product image for different platforms
+curl -X POST http://localhost:3000/api/reframe \
+  -F "userid=ecommerce-123" \
+  -F "image_url=https://example.com/product.jpg" \
+  -F "target_aspect=square" \
+  -F "crop_style=smart_crop" \
+  -F "background_fill=solid_color"
+```
+
+---
+
+## Best Practices
+
+### Choosing Target Aspect Ratios
+1. **Instagram Posts**: Use square (1:1)
+2. **Instagram Stories**: Use story (9:16)
+3. **YouTube Thumbnails**: Use landscape (16:9)
+4. **Website Headers**: Use wide (21:9)
+5. **Profile Pictures**: Use square (1:1)
+
+### Focus Area Selection
+1. **Portraits**: Always use "face" focus
+2. **Group Photos**: Use "face" or "auto"
+3. **Landscapes**: Use "auto" or "center"
+4. **Products**: Use "auto" or "center"
+5. **Complex Scenes**: Use "auto" for best results
+
+### Background Fill Guidelines
+1. **Natural Scenes**: Use "extend" for seamless expansion
+2. **Portraits**: Use "blur" for artistic effect
+3. **Products**: Use "solid_color" for clean look
+4. **Graphic Design**: Use "transparent" for overlays
+
+### Troubleshooting
+- **Poor crop results**: Try different crop styles
+- **Important elements cut off**: Adjust focus area
+- **Unnatural backgrounds**: Switch to blur or solid color
+- **Face not preserved**: Explicitly set focus_area to "face" 

@@ -1,0 +1,287 @@
+# Upscale API Test Guide
+
+## Overview
+The Upscale API enhances image resolution and quality using FAL AI AuraSR technology. It's designed to work through the IntentRoute architecture for optimal file handling.
+
+## Base URL
+```
+POST http://localhost:3000/api/upscale
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Image URL to upscale (provided by IntentRoute)
+
+## Optional Parameters
+- `scale` (number): Upscale factor (default: 2, range: 1-4)
+- `enhance_face` (boolean): Enable face enhancement (default: true)
+- `enhance_details` (boolean): Enable detail enhancement (default: true)
+
+---
+
+## CURL Examples
+
+### 1. Basic Upscale (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=upscale this image" \
+  -F "product_image=@image.jpg"
+```
+
+### 2. Direct API Call with URL
+```bash
+curl -X POST http://localhost:3000/api/upscale \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "scale=2" \
+  -F "enhance_face=true" \
+  -F "enhance_details=true"
+```
+
+### 3. High Scale Factor
+```bash
+curl -X POST http://localhost:3000/api/upscale \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "scale=4" \
+  -F "enhance_face=true" \
+  -F "enhance_details=true"
+```
+
+### 4. Face Enhancement Disabled
+```bash
+curl -X POST http://localhost:3000/api/upscale \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "scale=2" \
+  -F "enhance_face=false" \
+  -F "enhance_details=true"
+```
+
+### 5. Detail Enhancement Only
+```bash
+curl -X POST http://localhost:3000/api/upscale \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "scale=2" \
+  -F "enhance_face=false" \
+  -F "enhance_details=true"
+```
+
+### 6. Minimal Enhancement
+```bash
+curl -X POST http://localhost:3000/api/upscale \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "scale=2" \
+  -F "enhance_face=false" \
+  -F "enhance_details=false"
+```
+
+### 7. API Status Check
+```bash
+curl -X GET http://localhost:3000/api/upscale
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Upscale API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: upscale this image to 4x resolution
+- product_image: [file] test-image.jpg
+```
+
+### 2. Direct API Call
+```
+POST {{baseUrl}}/api/upscale
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- scale: 2
+- enhance_face: true
+- enhance_details: true
+```
+
+### 3. High Quality Upscale
+```
+POST {{baseUrl}}/api/upscale
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- scale: 4
+- enhance_face: true
+- enhance_details: true
+```
+
+### 4. Portrait Optimization
+```
+POST {{baseUrl}}/api/upscale
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/portrait.jpg
+- scale: 2
+- enhance_face: true
+- enhance_details: false
+```
+
+### 5. Product Image Optimization
+```
+POST {{baseUrl}}/api/upscale
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/product.jpg
+- scale: 3
+- enhance_face: false
+- enhance_details: true
+```
+
+### 6. API Health Check
+```
+GET {{baseUrl}}/api/upscale
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD..."
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing image_url parameter. This endpoint expects to be called through intentroute."
+}
+```
+
+### API Info Response (GET)
+```json
+{
+  "status": "ok",
+  "message": "Upscale API is running",
+  "note": "This API is designed to work through intentroute for file handling",
+  "endpoints": {
+    "POST": {
+      "description": "Upscale an image using FAL AI AuraSR",
+      "parameters": {
+        "userid": "string (required) - User ID from intentroute",
+        "image_url": "string (required) - Image URL from intentroute (Cloudinary)",
+        "scale": "number (optional) - Upscale factor (default: 2)",
+        "enhance_face": "boolean (optional) - Enhance faces (default: true)",
+        "enhance_details": "boolean (optional) - Enhance details (default: true)"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Testing Scenarios
+
+### 1. Quality Tests
+- [ ] Test different scale factors (2x, 3x, 4x)
+- [ ] Test with different image types (photos, graphics, logos)
+- [ ] Test enhancement combinations (face on/off, details on/off)
+
+### 2. Image Format Tests
+- [ ] JPG input images
+- [ ] PNG input images
+- [ ] WebP input images
+- [ ] Different resolutions (small, medium, large)
+
+### 3. Error Handling Tests
+- [ ] Missing userid parameter
+- [ ] Missing image_url parameter
+- [ ] Invalid image URL
+- [ ] Network timeout scenarios
+- [ ] Invalid scale values
+
+### 4. Performance Tests
+- [ ] Large image processing (>5MB)
+- [ ] Multiple concurrent requests
+- [ ] Processing time measurement
+- [ ] Memory usage monitoring
+
+### 5. Integration Tests
+- [ ] Full flow via IntentRoute
+- [ ] Cloudinary upload + upscale
+- [ ] Response format validation
+- [ ] Base64 output verification
+
+---
+
+## Common Use Cases
+
+### 1. E-commerce Product Images
+```bash
+# Enhance product photos for marketplace listings
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=ecommerce-user" \
+  -F "message=upscale product image for marketplace" \
+  -F "product_image=@product-photo.jpg"
+```
+
+### 2. Profile Picture Enhancement
+```bash
+# Enhance portrait with face optimization
+curl -X POST http://localhost:3000/api/upscale \
+  -F "userid=user-123" \
+  -F "image_url=https://example.com/profile.jpg" \
+  -F "scale=2" \
+  -F "enhance_face=true" \
+  -F "enhance_details=false"
+```
+
+### 3. Logo/Graphics Upscaling
+```bash
+# Upscale graphics without face enhancement
+curl -X POST http://localhost:3000/api/upscale \
+  -F "userid=designer-123" \
+  -F "image_url=https://example.com/logo.png" \
+  -F "scale=4" \
+  -F "enhance_face=false" \
+  -F "enhance_details=true"
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+1. **"Missing image_url parameter"** - Use IntentRoute for file uploads
+2. **Processing timeout** - Try smaller scale factor or smaller image
+3. **Poor quality output** - Adjust enhancement parameters
+4. **Large file size** - Consider compression after upscaling
+
+### Debugging Tips
+- Check console logs for processing progress
+- Verify image URL accessibility
+- Test with smaller images first
+- Monitor FAL AI service status 

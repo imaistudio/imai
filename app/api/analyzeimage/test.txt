@@ -1,0 +1,352 @@
+# Analyze Image API Test Guide
+
+## Overview
+The Analyze Image API uses GPT-4 Vision to analyze images and provide detailed descriptions, identifying objects, scenes, text, emotions, composition, and other visual elements.
+
+## Base URL
+```
+POST http://localhost:3000/api/analyzeimage
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Image URL to analyze (provided by IntentRoute)
+
+## Optional Parameters
+- `analysis_type` (string): Type of analysis - "general" | "detailed" | "technical" | "artistic" | "commercial" (default: "general")
+- `focus_areas` (array): Specific areas to focus on - ["objects", "text", "colors", "composition", "emotions", "style"]
+- `prompt` (string): Specific questions or analysis requests
+
+---
+
+## CURL Examples
+
+### 1. Basic Analysis (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=analyze this image and tell me what you see" \
+  -F "product_image=@image.jpg"
+```
+
+### 2. Detailed Analysis
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=provide detailed analysis of this image including colors, composition, and style" \
+  -F "product_image=@image.jpg"
+```
+
+### 3. Direct API Call - General Analysis
+```bash
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "analysis_type=general"
+```
+
+### 4. Technical Analysis
+```bash
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "analysis_type=technical" \
+  -F "focus_areas=[\"composition\", \"technical_quality\"]"
+```
+
+### 5. Commercial Analysis
+```bash
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/product.jpg" \
+  -F "analysis_type=commercial" \
+  -F "prompt=analyze this product photo for e-commerce suitability"
+```
+
+### 6. Artistic Analysis
+```bash
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/artwork.jpg" \
+  -F "analysis_type=artistic" \
+  -F "focus_areas=[\"style\", \"composition\", \"colors\"]"
+```
+
+### 7. Text Extraction
+```bash
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/document.jpg" \
+  -F "prompt=extract and transcribe all text visible in this image"
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Analyze Image API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: analyze this image in detail
+- product_image: [file] test-image.jpg
+```
+
+### 2. General Analysis
+```
+POST {{baseUrl}}/api/analyzeimage
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- analysis_type: general
+```
+
+### 3. Product Analysis
+```
+POST {{baseUrl}}/api/analyzeimage
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/product.jpg
+- analysis_type: commercial
+- prompt: evaluate this product photo quality and suggest improvements
+```
+
+### 4. Technical Assessment
+```
+POST {{baseUrl}}/api/analyzeimage
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/photo.jpg
+- analysis_type: technical
+- focus_areas: ["composition", "lighting", "technical_quality"]
+```
+
+### 5. Artistic Evaluation
+```
+POST {{baseUrl}}/api/analyzeimage
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/artwork.jpg
+- analysis_type: artistic
+- focus_areas: ["style", "colors", "emotions"]
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "analysis": {
+    "description": "This image shows a modern urban street scene during golden hour...",
+    "objects": ["buildings", "cars", "people", "street signs"],
+    "colors": {
+      "dominant": ["warm yellow", "orange", "deep blue"],
+      "palette": "warm urban sunset"
+    },
+    "composition": {
+      "rule_of_thirds": "well applied",
+      "leading_lines": "strong diagonal perspective",
+      "balance": "asymmetrical but harmonious"
+    },
+    "technical": {
+      "quality": "high",
+      "lighting": "natural golden hour",
+      "focus": "sharp foreground, slight background blur"
+    },
+    "mood": "energetic yet peaceful urban atmosphere",
+    "suggestions": ["crop slightly tighter", "enhance shadow details"]
+  },
+  "analysis_type": "detailed",
+  "confidence": 0.92
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing image_url parameter. This endpoint expects to be called through intentroute."
+}
+```
+
+---
+
+## Analysis Types
+
+### 1. General Analysis
+- **Purpose**: Basic overview and description
+- **Includes**: Objects, scene, basic composition
+- **Best for**: Quick understanding of image content
+
+### 2. Detailed Analysis
+- **Purpose**: Comprehensive analysis
+- **Includes**: Everything in general + colors, mood, technical quality
+- **Best for**: Complete image assessment
+
+### 3. Technical Analysis
+- **Purpose**: Photography and technical assessment
+- **Includes**: Composition rules, lighting, focus, technical quality
+- **Best for**: Photography evaluation and improvement
+
+### 4. Artistic Analysis
+- **Purpose**: Creative and aesthetic evaluation
+- **Includes**: Style, artistic elements, emotional impact
+- **Best for**: Art evaluation and style analysis
+
+### 5. Commercial Analysis
+- **Purpose**: Business and marketing assessment
+- **Includes**: Commercial viability, brand alignment, target audience
+- **Best for**: Marketing and e-commerce evaluation
+
+---
+
+## Focus Areas
+
+### Available Focus Areas
+- `objects` - Identify and describe objects in the image
+- `text` - Extract and transcribe visible text
+- `colors` - Analyze color palette and schemes
+- `composition` - Evaluate compositional elements
+- `emotions` - Assess emotional impact and mood
+- `style` - Analyze artistic style and aesthetic
+- `technical_quality` - Evaluate technical photographic aspects
+- `lighting` - Analyze lighting conditions and quality
+- `branding` - Assess brand elements and commercial appeal
+
+---
+
+## Testing Scenarios
+
+### 1. Content Type Tests
+- [ ] Portrait photographs
+- [ ] Landscape images
+- [ ] Product photos
+- [ ] Artwork and illustrations
+- [ ] Screenshots and UI elements
+- [ ] Documents with text
+- [ ] Charts and diagrams
+- [ ] Mixed content images
+
+### 2. Analysis Type Tests
+- [ ] General analysis for overview
+- [ ] Detailed analysis for comprehensive review
+- [ ] Technical analysis for photo quality
+- [ ] Artistic analysis for creative assessment
+- [ ] Commercial analysis for business use
+
+### 3. Quality Tests
+- [ ] High resolution images
+- [ ] Low resolution images
+- [ ] Blurry or poor quality images
+- [ ] Well-lit images
+- [ ] Dark or underexposed images
+- [ ] Overexposed images
+
+### 4. Content Complexity Tests
+- [ ] Simple single object images
+- [ ] Complex multi-object scenes
+- [ ] Abstract or artistic content
+- [ ] Technical diagrams
+- [ ] Text-heavy images
+- [ ] Colorful vs monochrome images
+
+### 5. Error Handling Tests
+- [ ] Invalid image URLs
+- [ ] Corrupted image files
+- [ ] Unsupported image formats
+- [ ] Very large image files
+- [ ] Network timeout scenarios
+
+---
+
+## Common Use Cases
+
+### 1. E-commerce Product Analysis
+```bash
+# Analyze product photo quality
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=ecommerce-123" \
+  -F "message=analyze this product photo and suggest improvements for online store" \
+  -F "product_image=@product.jpg"
+```
+
+### 2. Photography Assessment
+```bash
+# Technical photo evaluation
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=photographer-123" \
+  -F "image_url=https://example.com/photo.jpg" \
+  -F "analysis_type=technical" \
+  -F "prompt=evaluate composition and suggest improvements"
+```
+
+### 3. Content Moderation
+```bash
+# Analyze image content for appropriateness
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=moderator-123" \
+  -F "image_url=https://example.com/content.jpg" \
+  -F "prompt=analyze content for appropriateness and safety"
+```
+
+### 4. Art Appreciation
+```bash
+# Artistic analysis of artwork
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=art-lover-123" \
+  -F "image_url=https://example.com/painting.jpg" \
+  -F "analysis_type=artistic" \
+  -F "focus_areas=[\"style\", \"emotions\", \"composition\"]"
+```
+
+### 5. Document Processing
+```bash
+# Extract text from document images
+curl -X POST http://localhost:3000/api/analyzeimage \
+  -F "userid=document-processor-123" \
+  -F "image_url=https://example.com/document.jpg" \
+  -F "focus_areas=[\"text\"]" \
+  -F "prompt=extract all visible text accurately"
+```
+
+---
+
+## Best Practices
+
+### For Better Analysis Results
+1. **Use high-quality images** - Better resolution = better analysis
+2. **Be specific with prompts** - Clear questions get better answers
+3. **Choose appropriate analysis type** - Match the type to your needs
+4. **Use focus areas** - Narrow down to specific aspects
+5. **Consider image content** - Different content types may need different approaches
+
+### For API Integration
+1. **Handle response variations** - Analysis depth may vary by image
+2. **Implement timeout handling** - Complex images may take longer
+3. **Cache results** - Analysis results don't change for same image
+4. **Validate image URLs** - Ensure accessibility before analysis
+5. **Monitor API usage** - Track analysis costs and frequency
+
+### Troubleshooting
+- **Poor analysis quality** - Try higher resolution images
+- **Missing details** - Use more specific prompts or focus areas
+- **Timeout errors** - Reduce image size or complexity
+- **Inconsistent results** - Ensure consistent image quality and prompts

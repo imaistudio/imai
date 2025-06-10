@@ -1,0 +1,413 @@
+# IntentRoute API Test Guide
+
+## Overview
+The IntentRoute API is the main orchestrator that processes user messages with images, determines intent using Claude AI, uploads files to Cloudinary, and routes to appropriate specialized APIs. It's the recommended entry point for all image processing tasks.
+
+## Base URL
+```
+POST http://localhost:3000/api/intentroute
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+
+## Optional Parameters
+- `message` (string): User message describing what to do (highly recommended)
+- `product_image` (file): Primary image file
+- `design_image` (file): Design reference image
+- `color_image` (file): Color reference image
+- Any additional parameters that target APIs might need
+
+## Supported Target APIs
+- `/api/design` - Product composition and design
+- `/api/upscale` - Image upscaling and enhancement
+- `/api/mirrormagic` - Creative image transformations
+- `/api/clarityupscaler` - High-quality upscaling with clarity
+- `/api/promptenhancer` - Text prompt enhancement
+- `/api/analyzeimage` - Image analysis and description
+- `/api/reframe` - Image reframing and cropping
+- `/api/titlerenamer` - Title and naming suggestions
+- `/api/flowdesign` - Design workflow automation
+
+---
+
+## CURL Examples
+
+### 1. General Image Enhancement
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=enhance this image quality" \
+  -F "product_image=@image.jpg"
+```
+
+### 2. Product Design Composition
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=create a beautiful product composition" \
+  -F "product_image=@product.jpg" \
+  -F "design_image=@design.jpg" \
+  -F "color_image=@colors.jpg"
+```
+
+### 3. Image Upscaling
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=upscale this image to higher resolution" \
+  -F "product_image=@lowres-image.jpg"
+```
+
+### 4. Creative Transformation
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=transform this into a cyberpunk style artwork" \
+  -F "product_image=@photo.jpg"
+```
+
+### 5. Image Analysis
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=analyze this image and describe what you see" \
+  -F "product_image=@image.jpg"
+```
+
+### 6. Clarity Enhancement
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=make this image sharper and clearer" \
+  -F "product_image=@blurry-image.jpg"
+```
+
+### 7. Prompt Enhancement
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=enhance this prompt: make it more creative" \
+  -F "prompt=simple text prompt"
+```
+
+### 8. Batch Processing
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=process these images for e-commerce" \
+  -F "product_image=@product1.jpg" \
+  -F "design_image=@design1.jpg" \
+  -F "color_image=@color1.jpg"
+```
+
+### 9. Complex Design Workflow
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=create a professional product photo with this color scheme" \
+  -F "product_image=@product.jpg" \
+  -F "color_image=@colorscheme.jpg"
+```
+
+### 10. Advanced Instructions
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=upscale to 4x resolution with enhanced details and face optimization" \
+  -F "product_image=@portrait.jpg"
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "IntentRoute API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Basic Image Processing
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: enhance this image
+- product_image: [file] test-image.jpg
+```
+
+### 2. Design Composition
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: designer-123
+- message: create a beautiful composition combining these elements
+- product_image: [file] product.jpg
+- design_image: [file] design.jpg
+- color_image: [file] colors.jpg
+```
+
+### 3. Upscaling Request
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: photographer-123
+- message: upscale this photo to 4K resolution
+- product_image: [file] photo.jpg
+```
+
+### 4. Creative Transformation
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: artist-123
+- message: transform this into a steampunk artwork
+- product_image: [file] portrait.jpg
+```
+
+### 5. Image Analysis
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: analyst-123
+- message: analyze this image and provide detailed description
+- product_image: [file] complex-image.jpg
+```
+
+### 6. Batch Processing
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: ecommerce-123
+- message: optimize these images for online store
+- product_image: [file] product1.jpg
+- design_image: [file] background.jpg
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "message": "I've successfully enhanced your image! The upscaled version looks much sharper and has better detail resolution. The original image has been processed through our advanced AI enhancement system.",
+  "intent": {
+    "intent": "upscale_image",
+    "confidence": 0.95,
+    "endpoint": "/api/upscale",
+    "parameters": {
+      "workflow_type": "upscale_enhance",
+      "quality": "high"
+    },
+    "requiresFiles": true,
+    "explanation": "User requested image upscaling for better quality"
+  },
+  "result": {
+    "success": true,
+    "imageUrl": "https://v3.fal.media/files/example/enhanced-image.png"
+  },
+  "conversation_id": "test-user-123_1749484868917"
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing userid parameter",
+  "conversation_id": null
+}
+```
+
+---
+
+## Intent Recognition Examples
+
+### 1. Design Intents
+- "create a composition" → `/api/design`
+- "combine these images" → `/api/design` 
+- "apply this color scheme" → `/api/design`
+- "design a product photo" → `/api/design`
+
+### 2. Enhancement Intents
+- "upscale this image" → `/api/upscale` or `/api/clarityupscaler`
+- "make it sharper" → `/api/clarityupscaler`
+- "enhance quality" → `/api/upscale`
+- "increase resolution" → `/api/upscale`
+
+### 3. Creative Intents
+- "transform into art" → `/api/mirrormagic`
+- "cyberpunk style" → `/api/mirrormagic`
+- "artistic interpretation" → `/api/mirrormagic`
+- "black mirror effect" → `/api/mirrormagic`
+
+### 4. Analysis Intents
+- "describe this image" → `/api/analyzeimage`
+- "what do you see" → `/api/analyzeimage`
+- "analyze the content" → `/api/analyzeimage`
+
+### 5. Text Intents
+- "improve this prompt" → `/api/promptenhancer`
+- "enhance description" → `/api/promptenhancer`
+- "make it more creative" → `/api/promptenhancer`
+
+---
+
+## Testing Scenarios
+
+### 1. Intent Recognition Tests
+- [ ] Test clear upscaling requests
+- [ ] Test design composition requests
+- [ ] Test creative transformation requests
+- [ ] Test analysis requests
+- [ ] Test ambiguous messages
+- [ ] Test multiple intent scenarios
+
+### 2. File Handling Tests
+- [ ] Single image upload
+- [ ] Multiple image uploads (product + design + color)
+- [ ] Large file uploads (>10MB)
+- [ ] Different image formats (JPG, PNG, WebP, HEIC)
+- [ ] Invalid file uploads
+- [ ] No file scenarios
+
+### 3. Cloudinary Integration Tests
+- [ ] Successful uploads with URLs
+- [ ] Upload error handling
+- [ ] File format conversion (to PNG)
+- [ ] Auto-deletion testing (1 hour)
+- [ ] Concurrent upload handling
+
+### 4. API Routing Tests
+- [ ] Successful routing to design API
+- [ ] Successful routing to upscale API
+- [ ] Successful routing to mirrormagic API
+- [ ] Error handling for failed API calls
+- [ ] Response format consistency
+
+### 5. Error Handling Tests
+- [ ] Missing userid
+- [ ] No message or files
+- [ ] Invalid file types
+- [ ] Network failures
+- [ ] API timeout scenarios
+- [ ] Invalid intent responses
+
+### 6. Performance Tests
+- [ ] Response time measurement
+- [ ] Concurrent request handling
+- [ ] Memory usage monitoring
+- [ ] Cloudinary upload performance
+- [ ] End-to-end processing time
+
+---
+
+## Common Message Patterns
+
+### Design Requests
+```
+"Create a beautiful product composition"
+"Combine these elements into a cohesive design"
+"Apply this color palette to the product"
+"Design a professional product photo"
+"Merge the product with this background"
+```
+
+### Enhancement Requests
+```
+"Upscale this image to higher resolution"
+"Make this image clearer and sharper"
+"Enhance the quality of this photo"
+"Increase resolution to 4K"
+"Improve image clarity"
+```
+
+### Creative Requests
+```
+"Transform this into cyberpunk style"
+"Apply mirror magic effects"
+"Make this look like an oil painting"
+"Create an artistic interpretation"
+"Convert to black mirror aesthetic"
+```
+
+### Analysis Requests
+```
+"Analyze this image and describe it"
+"What do you see in this picture"
+"Describe the contents of this image"
+"Provide detailed image analysis"
+"Tell me about this photo"
+```
+
+---
+
+## Advanced Usage
+
+### 1. Parameter Passing
+You can include specific parameters that will be passed to target APIs:
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=upscale with maximum quality" \
+  -F "product_image=@image.jpg" \
+  -F "scale=4" \
+  -F "enhance_face=true"
+```
+
+### 2. Workflow Specification
+Guide the intent with specific workflow mentions:
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=create full composition with product, design and color" \
+  -F "product_image=@product.jpg" \
+  -F "design_image=@design.jpg" \
+  -F "color_image=@color.jpg"
+```
+
+### 3. Quality Control
+Specify quality requirements:
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=enhance with HD quality and maximum sharpness" \
+  -F "product_image=@image.jpg"
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+1. **"Missing userid parameter"** - Always include userid
+2. **"No intent detected"** - Provide clearer message about desired action
+3. **"File upload failed"** - Check file size and format
+4. **Timeout errors** - Try smaller files or simpler requests
+
+### Best Practices
+- Use descriptive messages about desired outcome
+- Include appropriate file types for the task
+- Test with smaller files first
+- Monitor processing times
+- Handle response errors gracefully
+
+### Debugging Tips
+- Check server logs for detailed processing info
+- Verify file uploads are successful
+- Test intent recognition with clear messages
+- Monitor Cloudinary upload status
+- Validate API routing decisions 

@@ -1,29 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import Anthropic from '@anthropic-ai/sdk';
+import { NextRequest, NextResponse } from "next/server";
+import { getAuth } from "firebase-admin/auth";
+import Anthropic from "@anthropic-ai/sdk";
 
-// Initialize Claude
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp?: string;
 }
 
 interface TitleRequest {
-  status: 'success' | 'error';
+  status: "success" | "error";
   title?: string;
   category?: string;
   error?: string;
 }
 
-/**
- * Generate intelligent chat session titles based on conversation content
- */
-async function generateChatTitle(messages: ChatMessage[]): Promise<{ title: string; category: string }> {
+async function generateChatTitle(
+  messages: ChatMessage[]
+): Promise<{ title: string; category: string }> {
   const systemPrompt = `You are a smart title generator for IMAI image platform chat sessions. Generate concise, descriptive titles (3-6 words) based on the conversation content.
 
 **Categories:**
@@ -54,11 +52,13 @@ Respond with JSON only:
 }`;
 
   try {
-    // Prepare conversation summary (last 6 messages max)
     const recentMessages = messages.slice(-6);
-    const conversationSummary = recentMessages.map((msg, index) => 
-      `${index + 1}. ${msg.role}: ${msg.content.substring(0, 150)}${msg.content.length > 150 ? '...' : ''}`
-    ).join('\n');
+    const conversationSummary = recentMessages
+      .map(
+        (msg, index) =>
+          `${index + 1}. ${msg.role}: ${msg.content.substring(0, 150)}${msg.content.length > 150 ? "..." : ""}`
+      )
+      .join("\n");
 
     const prompt = `Analyze this chat conversation and generate an appropriate title:
 
@@ -67,90 +67,94 @@ ${conversationSummary}
 Generate a short, descriptive title and category for this conversation.`;
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: "claude-sonnet-4-20250514",
       max_tokens: 200,
-      temperature: 0.3, // Low temperature for consistent titles
+      temperature: 0.3,
       system: systemPrompt,
       messages: [
         {
-          role: 'user',
-          content: prompt
-        }
-      ]
+          role: "user",
+          content: prompt,
+        },
+      ],
     });
 
     const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type from Claude');
+    if (content.type !== "text") {
+      throw new Error("Unexpected response type from Claude");
     }
 
-    // Parse JSON response
     let jsonStr = content.text.trim();
-    if (jsonStr.includes('```json')) {
-      jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+    if (jsonStr.includes("```json")) {
+      jsonStr = jsonStr.split("```json")[1].split("```")[0].trim();
     }
-    
-    const result = JSON.parse(jsonStr);
-    
-    return {
-      title: result.title || 'Chat Session',
-      category: result.category || 'conversation'
-    };
 
+    const result = JSON.parse(jsonStr);
+
+    return {
+      title: result.title || "Chat Session",
+      category: result.category || "conversation",
+    };
   } catch (error) {
-    console.error('Error generating title:', error);
-    
-    // Smart fallback based on message content
-    const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || '';
+    console.error("Error generating title:", error);
+
+    const lastUserMessage =
+      messages.filter((m) => m.role === "user").pop()?.content || "";
     const messageContent = lastUserMessage.toLowerCase();
-    
-    if (messageContent.includes('upscale') || messageContent.includes('enhance')) {
-      return { title: 'Image Enhancement', category: 'upscale' };
+
+    if (
+      messageContent.includes("upscale") ||
+      messageContent.includes("enhance")
+    ) {
+      return { title: "Image Enhancement", category: "upscale" };
     }
-    if (messageContent.includes('design') || messageContent.includes('create')) {
-      return { title: 'Design Creation', category: 'design' };
+    if (
+      messageContent.includes("design") ||
+      messageContent.includes("create")
+    ) {
+      return { title: "Design Creation", category: "design" };
     }
-    if (messageContent.includes('analyze') || messageContent.includes('describe')) {
-      return { title: 'Image Analysis', category: 'analysis' };
+    if (
+      messageContent.includes("analyze") ||
+      messageContent.includes("describe")
+    ) {
+      return { title: "Image Analysis", category: "analysis" };
     }
-    if (messageContent.includes('reframe') || messageContent.includes('crop')) {
-      return { title: 'Image Reframing', category: 'reframe' };
+    if (messageContent.includes("reframe") || messageContent.includes("crop")) {
+      return { title: "Image Reframing", category: "reframe" };
     }
-    
-    return { title: 'Chat Session', category: 'conversation' };
+
+    return { title: "Chat Session", category: "conversation" };
   }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
-    
-    // 1) Extract and validate userid
-    const userid = (formData.get('userid') as string | null)?.trim();
+
+    const userid = (formData.get("userid") as string | null)?.trim();
     if (!userid) {
       return NextResponse.json(
-        { status: 'error', error: 'Missing "userid" parameter' },
+        { status: "error", error: 'Missing "userid" parameter' },
         { status: 400 }
       );
     }
 
-    // Skip Firebase validation if in test mode
-    if (process.env.NODE_ENV !== 'development') {
+    if (process.env.NODE_ENV !== "development") {
       try {
         await getAuth().getUser(userid);
       } catch {
         return NextResponse.json(
-          { status: 'error', error: 'Invalid Firebase user ID' },
+          { status: "error", error: "Invalid Firebase user ID" },
           { status: 400 }
         );
       }
     }
 
-    // 2) Extract conversation messages
-    const messagesStr = formData.get('messages') as string;
+    const messagesStr = formData.get("messages") as string;
     if (!messagesStr) {
       return NextResponse.json(
-        { status: 'error', error: 'Missing "messages" parameter' },
+        { status: "error", error: 'Missing "messages" parameter' },
         { status: 400 }
       );
     }
@@ -160,37 +164,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       messages = JSON.parse(messagesStr);
     } catch {
       return NextResponse.json(
-        { status: 'error', error: 'Invalid JSON format for messages' },
+        { status: "error", error: "Invalid JSON format for messages" },
         { status: 400 }
       );
     }
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
-        { status: 'error', error: 'Messages must be a non-empty array' },
+        { status: "error", error: "Messages must be a non-empty array" },
         { status: 400 }
       );
     }
 
-    // 3) Generate title
     const { title, category } = await generateChatTitle(messages);
 
     const response: TitleRequest = {
-      status: 'success',
+      status: "success",
       title,
-      category
+      category,
     };
 
     return NextResponse.json(response);
-
   } catch (error: any) {
-    console.error('Title Renamer API Error:', error);
-    
+    console.error("Title Renamer API Error:", error);
+
     const errorResponse: TitleRequest = {
-      status: 'error',
-      error: error.message || 'Unknown error occurred'
+      status: "error",
+      error: error.message || "Unknown error occurred",
     };
-    
+
     return NextResponse.json(errorResponse, { status: 500 });
   }
-} 
+}

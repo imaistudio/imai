@@ -1,0 +1,226 @@
+# Design API Test Guide
+
+## Overview
+The Design API creates product compositions using GPT Image generation with support for multiple workflow types combining product, design, and color references.
+
+## Base URL
+```
+POST http://localhost:3000/api/design
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+
+## Optional Parameters
+- `product_image` (file): Product image file
+- `design_image` (file): Design reference image  
+- `color_image` (file): Color reference image
+- `product_image_url` (string): Product image URL (alternative to file)
+- `design_image_url` (string): Design image URL (alternative to file)
+- `color_image_url` (string): Color image URL (alternative to file)
+- `prompt` (string): User prompt for generation
+- `size` (string): Output size (default: "1024x1024")
+- `quality` (string): Image quality (default: "auto")
+- `n` (number): Number of images to generate (default: 1)
+- `background` (string): Background type (default: "opaque")
+- `output_format` (string): Output format (default: "png")
+- `output_compression` (number): Compression level (default: 0)
+- `stream` (boolean): Enable streaming (default: false)
+- `partial_images` (number): Partial images for streaming (default: 2)
+- `mainline_model` (string): Model version (default: "gpt-4.1")
+
+## Workflow Types (Auto-determined)
+1. `full_composition` - Requires: product + design + color images
+2. `product_color` - Requires: product + color images (no design)
+3. `product_design` - Requires: product + design images (no color)
+4. `color_design` - Requires: (color OR design) + prompt (no product)
+5. `color_prompt` - Requires: color image + prompt only
+6. `design_prompt` - Requires: design image + prompt only
+7. `prompt_only` - Requires: prompt only (no images)
+
+---
+
+## CURL Examples
+
+### 1. Full Composition (Product + Design + Color)
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "product_image=@product.jpg" \
+  -F "design_image=@design.jpg" \
+  -F "color_image=@color.jpg" \
+  -F "prompt=Create a stylish composition" \
+  -F "size=1024x1024" \
+  -F "quality=high"
+```
+
+### 2. Product + Color Only
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "product_image=@product.jpg" \
+  -F "color_image=@color.jpg" \
+  -F "prompt=Apply color scheme to product"
+```
+
+### 3. Product + Design Only
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "product_image=@product.jpg" \
+  -F "design_image=@design.jpg" \
+  -F "prompt=Apply design pattern"
+```
+
+### 4. URL-based Input (via IntentRoute)
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "product_image_url=https://example.com/product.jpg" \
+  -F "design_image_url=https://example.com/design.jpg" \
+  -F "prompt=Create composition"
+```
+
+### 5. Color + Prompt Only
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "color_image=@color.jpg" \
+  -F "prompt=Create a design using this color palette"
+```
+
+### 6. Design + Prompt Only
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "design_image=@design.jpg" \
+  -F "prompt=Create variations of this design"
+```
+
+### 7. Prompt Only (No Images)
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "prompt=Create a modern minimalist product design"
+```
+
+### 8. High Quality with Streaming
+```bash
+curl -X POST http://localhost:3000/api/design \
+  -F "userid=test-user-123" \
+  -F "product_image=@product.jpg" \
+  -F "prompt=Enhance this product" \
+  -F "quality=hd" \
+  -F "stream=true" \
+  -F "partial_images=3"
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Design API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Full Composition Request
+```
+POST {{baseUrl}}/api/design
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- product_image: [file] product.jpg
+- design_image: [file] design.jpg  
+- color_image: [file] color.jpg
+- prompt: Create a beautiful product composition
+- size: 1024x1024
+- quality: high
+- n: 1
+```
+
+### 2. Product Color Request
+```
+POST {{baseUrl}}/api/design
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- product_image: [file] product.jpg
+- color_image: [file] color.jpg
+- prompt: Apply this color scheme to the product
+```
+
+### 3. URL-based Request (IntentRoute Style)
+```
+POST {{baseUrl}}/api/design
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- product_image_url: https://res.cloudinary.com/example/image.jpg
+- design_image_url: https://res.cloudinary.com/example/design.jpg
+- prompt: Combine these elements
+```
+
+### 4. Advanced Parameters Request
+```
+POST {{baseUrl}}/api/design
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- product_image: [file] product.jpg
+- prompt: Create premium version
+- size: 1792x1024
+- quality: hd
+- n: 2
+- background: transparent
+- output_format: png
+- stream: true
+- mainline_model: gpt-4.1
+```
+
+---
+
+## Expected Response Format
+```json
+{
+  "status": "success",
+  "firebaseInputUrls": {
+    "product": "data:image/jpeg;base64,...",
+    "design": "data:image/jpeg;base64,...",
+    "color": "data:image/jpeg;base64,..."
+  },
+  "firebaseOutputUrl": "data:image/jpeg;base64,...",
+  "workflow_type": "full_composition",
+  "generated_prompt": "Create a beautiful composition...",
+  "revised_prompt": "A stunning product composition...",
+  "response_id": "chatcmpl-123",
+  "model_used": "gpt-image-1",
+  "generation_method": "responses_api",
+  "streaming_supported": true
+}
+```
+
+## Error Response Format
+```json
+{
+  "status": "error",
+  "error": "full_composition requires product, design, and color images"
+}
+```
+
+---
+
+## Testing Checklist
+- [ ] Test all 7 workflow types
+- [ ] Test file uploads vs URL inputs
+- [ ] Test parameter validation
+- [ ] Test different image formats (JPG, PNG, WebP)
+- [ ] Test various sizes and qualities
+- [ ] Test streaming functionality
+- [ ] Test error handling for missing inputs
+- [ ] Test concurrent requests
+- [ ] Test large file uploads
+- [ ] Test invalid image formats 

@@ -1,0 +1,311 @@
+# Prompt Enhancer API Test Guide
+
+## Overview
+The Prompt Enhancer API uses Claude AI to improve and enhance text prompts for better AI image generation results. It analyzes prompts and adds relevant details, style descriptors, and optimization.
+
+## Base URL
+```
+POST http://localhost:3000/api/promptenhancer
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `prompt` (string): Original prompt to enhance
+
+## Optional Parameters
+- `enhancement_type` (string): Type of enhancement - "creative" | "technical" | "commercial" | "artistic" (default: "creative")
+- `style` (string): Target style - "photorealistic" | "artistic" | "abstract" | "minimalist" | "vintage"
+- `mood` (string): Desired mood - "energetic" | "calm" | "dramatic" | "elegant" | "playful"
+- `target_use` (string): Intended use - "social_media" | "print" | "web" | "presentation" | "marketing"
+
+---
+
+## CURL Examples
+
+### 1. Basic Enhancement (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=enhance this prompt: a beautiful sunset"
+```
+
+### 2. Creative Enhancement
+```bash
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=test-user-123" \
+  -F "prompt=a cat sitting on a chair" \
+  -F "enhancement_type=creative" \
+  -F "style=artistic"
+```
+
+### 3. Technical Enhancement
+```bash
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=test-user-123" \
+  -F "prompt=product photo of smartphone" \
+  -F "enhancement_type=technical" \
+  -F "style=photorealistic"
+```
+
+### 4. Commercial Enhancement
+```bash
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=test-user-123" \
+  -F "prompt=modern office space" \
+  -F "enhancement_type=commercial" \
+  -F "target_use=marketing" \
+  -F "mood=professional"
+```
+
+### 5. Artistic Enhancement
+```bash
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=test-user-123" \
+  -F "prompt=abstract landscape" \
+  -F "enhancement_type=artistic" \
+  -F "style=abstract" \
+  -F "mood=dramatic"
+```
+
+### 6. Social Media Optimization
+```bash
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=test-user-123" \
+  -F "prompt=food photography" \
+  -F "enhancement_type=commercial" \
+  -F "target_use=social_media" \
+  -F "mood=appetizing"
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Prompt Enhancer API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: enhance this prompt for better AI image generation: simple landscape
+```
+
+### 2. Creative Enhancement
+```
+POST {{baseUrl}}/api/promptenhancer
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- prompt: portrait of a woman
+- enhancement_type: creative
+- style: artistic
+- mood: elegant
+```
+
+### 3. Technical Enhancement
+```
+POST {{baseUrl}}/api/promptenhancer
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- prompt: car product shot
+- enhancement_type: technical
+- style: photorealistic
+- target_use: commercial
+```
+
+### 4. Marketing Enhancement
+```
+POST {{baseUrl}}/api/promptenhancer
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- prompt: team meeting
+- enhancement_type: commercial
+- target_use: marketing
+- mood: professional
+- style: photorealistic
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "original_prompt": "a cat sitting on a chair",
+  "enhanced_prompt": "A majestic Maine Coon cat with luxurious fur sitting elegantly on a vintage leather armchair, soft natural lighting from a nearby window creating gentle shadows, warm and cozy atmosphere, photorealistic style, high detail, professional photography lighting, 8K resolution",
+  "enhancement_type": "creative",
+  "improvements": [
+    "Added specific cat breed for clarity",
+    "Enhanced furniture description",
+    "Added lighting details",
+    "Specified atmosphere and mood",
+    "Added technical quality parameters"
+  ],
+  "style_applied": "artistic",
+  "mood_applied": "elegant",
+  "estimated_quality_improvement": "85%"
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing prompt parameter"
+}
+```
+
+---
+
+## Enhancement Types
+
+### 1. Creative Enhancement
+- **Purpose**: Adds artistic and imaginative elements
+- **Best for**: Artistic projects, creative content
+- **Adds**: Visual details, atmosphere, artistic style references
+- **Example**: "cat" → "majestic Maine Coon in Renaissance painting style"
+
+### 2. Technical Enhancement
+- **Purpose**: Adds technical photography and quality specifications
+- **Best for**: Professional photography, product shots
+- **Adds**: Camera settings, lighting details, quality parameters
+- **Example**: "product photo" → "professional product photography, studio lighting, macro lens, 8K resolution"
+
+### 3. Commercial Enhancement
+- **Purpose**: Optimizes for business and marketing use
+- **Best for**: Marketing materials, advertisements
+- **Adds**: Brand-appropriate language, commercial appeal, target audience considerations
+- **Example**: "office space" → "modern corporate office with professional lighting, suitable for business presentations"
+
+### 4. Artistic Enhancement
+- **Purpose**: Emphasizes artistic style and creative expression
+- **Best for**: Art projects, creative portfolios
+- **Adds**: Art movement references, color theory, composition rules
+- **Example**: "landscape" → "impressionist landscape painting with vibrant colors and loose brushstrokes"
+
+---
+
+## Testing Scenarios
+
+### 1. Prompt Types
+- [ ] Simple object descriptions
+- [ ] Scene descriptions
+- [ ] Portrait requests
+- [ ] Product photography
+- [ ] Abstract concepts
+- [ ] Technical subjects
+- [ ] Creative scenes
+
+### 2. Enhancement Types
+- [ ] Creative enhancement results
+- [ ] Technical enhancement results
+- [ ] Commercial enhancement results
+- [ ] Artistic enhancement results
+
+### 3. Style Applications
+- [ ] Photorealistic style
+- [ ] Artistic style
+- [ ] Abstract style
+- [ ] Minimalist style
+- [ ] Vintage style
+
+### 4. Target Use Cases
+- [ ] Social media optimization
+- [ ] Print optimization
+- [ ] Web optimization
+- [ ] Presentation optimization
+- [ ] Marketing optimization
+
+### 5. Error Handling
+- [ ] Empty prompts
+- [ ] Very long prompts
+- [ ] Invalid enhancement types
+- [ ] Invalid style parameters
+- [ ] Missing userid
+
+---
+
+## Common Use Cases
+
+### 1. Social Media Content
+```bash
+# Enhance for Instagram posts
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=influencer-123" \
+  -F "prompt=coffee cup on table" \
+  -F "enhancement_type=commercial" \
+  -F "target_use=social_media" \
+  -F "mood=cozy"
+```
+
+### 2. Product Photography
+```bash
+# Technical product shot enhancement
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=photographer-123" \
+  -F "prompt=watch photography" \
+  -F "enhancement_type=technical" \
+  -F "style=photorealistic"
+```
+
+### 3. Artistic Projects
+```bash
+# Creative art enhancement
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=artist-123" \
+  -F "prompt=fantasy castle" \
+  -F "enhancement_type=artistic" \
+  -F "style=fantasy" \
+  -F "mood=mystical"
+```
+
+### 4. Marketing Materials
+```bash
+# Commercial marketing enhancement
+curl -X POST http://localhost:3000/api/promptenhancer \
+  -F "userid=marketer-123" \
+  -F "prompt=business team working" \
+  -F "enhancement_type=commercial" \
+  -F "target_use=marketing" \
+  -F "mood=dynamic"
+```
+
+---
+
+## Best Practices
+
+### Writing Original Prompts
+1. **Be specific but not overly detailed** - Leave room for enhancement
+2. **Include main subject clearly** - Core elements should be clear
+3. **Mention context if important** - Setting, environment, purpose
+4. **Avoid technical jargon initially** - Let the enhancer add technical details
+
+### Choosing Enhancement Types
+1. **Creative** - For artistic and imaginative projects
+2. **Technical** - For professional photography needs
+3. **Commercial** - For business and marketing materials
+4. **Artistic** - For fine art and creative expression
+
+### Parameter Selection
+- **Style**: Match your intended visual outcome
+- **Mood**: Align with emotional impact desired
+- **Target Use**: Consider where the image will be used
+- **Enhancement Type**: Choose based on project goals
+
+### Troubleshooting
+- **Generic results** - Try different enhancement types
+- **Too technical** - Use creative enhancement instead
+- **Not specific enough** - Add style and mood parameters
+- **Overly complex** - Start with simpler original prompts 
