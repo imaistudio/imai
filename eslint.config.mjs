@@ -44,6 +44,9 @@ export default defineConfig([globalIgnores([
     "!**/tsup.config.ts",
 ]), {
     extends: fixupConfigRules(compat.extends(
+        "eslint:recommended",
+        "@typescript-eslint/recommended",
+        "next/core-web-vitals",
         "plugin:react/recommended",
         "plugin:prettier/recommended",
         "plugin:react-hooks/recommended",
