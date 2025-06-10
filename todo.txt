@@ -1,19 +1,18 @@
 Current Goals
 
-1. Add in all the Viloa Content 
+1. API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
 2. Add in Default Promot with horizontal scrolling | Call back function to Return images 
 3. Stripe Payment Gateway With Billing | Checkout 
+4. Pagination to Explore Page 
+5. Postman Readme.md for all the routes 
 
 # Todo 
 Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-Chat ui with API Call Back Complete Villoa | Contact Salman | Add in DropBox Content
 Firebase Auth Apple | Reset 
 Load User Chats in SideBar
 Create Folder 
 Search Chats
 Pin Chats
 ChatWindow With ChatID Loading System
-Pagination to Explore Page 
 Webp Convert Function if the images are above 25MB
-Postman Readme.md for all the routes 
 Pixel Perfect UI 

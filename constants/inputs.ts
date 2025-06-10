@@ -92,7 +92,7 @@ export const defaultColorImages: ProductImages = {
 
 //Default Product Placeholders
 export const defaultPlaceholders: Record<ProductType, string> = {
-  tshirt: "/placeholders/tshirt.jpg",
+  tshirt: "/icons/Bag.svg",
   pillow: "/placeholders/pillow.jpg",
   shoes: "/placeholders/shoes.jpg",
   phonecase: "/placeholders/phonecase.jpg",
@@ -120,7 +120,7 @@ export const defaultPlaceholders: Record<ProductType, string> = {
 
 // Design Placeholder
 export const designPlaceholders: Record<string, string> = {
-  minimalsleek: "/placeholders/minimalsleek.jpg",
+  minimalsleek: "/icons/Abstract.jpg",
   animeinspired: "/placeholders/animeinspired.jpg",
   undersun: "/placeholders/undersun.jpg",
   quiteluxury: "/placeholders/quiteluxury.jpg",
