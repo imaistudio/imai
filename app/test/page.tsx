@@ -2,30 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { firestore, auth } from "@/lib/firebase";
-import {
-  doc,
-  setDoc,
-  serverTimestamp,
-  collection,
-  writeBatch,
-} from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { v4 as uuidv4 } from "uuid";
+const now = new Date();
 
 const sampleImages = [
-  "https://images.unsplash.com/photo-1728443139578-cdfbf43e1a72?q=80&w=2964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1541363111435-5c1b7d867904?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1747582411588-f9b4acabe995?q=80&w=3027&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1749324440929-6a9b5cb008b7?q=80&w=3035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "https://images.unsplash.com/photo-1728443139578-cdfbf43e1a72?q=80&w=2964&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1541363111435-5c1b7d867904?q=80&w=2940&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1747582411588-f9b4acabe995?q=80&w=3027&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1749324440929-6a9b5cb008b7?q=80&w=3035&auto=format&fit=crop",
 ];
 
 const sampleTexts = [
-  "Can you show me something modern?",
-  "That looks great! Any more like that?",
-  "Try a vintage aesthetic next.",
-  "Looks too dark, make it brighter.",
-  "Perfect! Save this style.",
-  "What about a pastel version?",
+  "Generate a sunset over mountains",
+  "Try a pastel color scheme",
+  "Add vintage film grain effect",
+  "Make it feel more modern",
+  "Remove the dark shadows",
+  "Perfect! Save this one",
 ];
 
 export default function TestChatPage() {
@@ -48,38 +43,39 @@ export default function TestChatPage() {
 
     const docId = uuidv4();
     const chatId = `${userId}_${docId}`;
-    const chatPath = `users/${userId}/Chats`;
+    const chatRef = doc(firestore, `chats/${userId}/Chats/${docId}`);
 
-    const batch = writeBatch(firestore);
-    const baseData = {
-      chatId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      userId,
-    };
+    const timestamp = serverTimestamp();
 
     const messages = Array.from({ length: 50 }).map((_, idx) => {
       const isUser = idx % 2 === 0;
       const isImage = Math.random() < 0.5;
+
       return {
-        ...baseData,
         sender: isUser ? "user" : "agent",
         type: isImage ? "images" : "prompt",
         text: isImage ? "" : getRandom(sampleTexts),
         images: isImage ? [getRandom(sampleImages)] : [],
+        createdAt: now,
+        updatedAt: now,
+        userId,
+        chatId,
       };
     });
 
-    messages.forEach((msg, idx) => {
-      const msgRef = doc(firestore, `${chatPath}/${docId}_msg${idx}`);
-      batch.set(msgRef, msg);
-    });
+    const chatDoc = {
+      chatId,
+      userId,
+      createdAt: now,
+      updatedAt: now,
+      messages,
+    };
 
     try {
-      await batch.commit();
+      await setDoc(chatRef, chatDoc);
       setNewDocId(docId);
     } catch (err) {
-      console.error("❌ Failed to create dummy messages:", err);
+      console.error("❌ Failed to create chat:", err);
     }
   };
 
