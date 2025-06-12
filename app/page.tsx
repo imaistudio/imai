@@ -40,7 +40,7 @@ export default function Home() {
   <div className="relative h-screen w-full overflow-hidden hide-scrollbar">
   {/* ChatWindow fills the screen */}
   <div className="absolute inset-0 overflow-y-auto hide-scrollbar">
-    {/* <ChatWindow chatId="uTiXKRbCYbhWnBbkLFZoMdEMdgf2_2681d98a-a29c-4d74-8fe4-fa98e1fe3d68" /> */}
+    <ChatWindow chatId="uTiXKRbCYbhWnBbkLFZoMdEMdgf2_2cd79cf4-44df-4941-8c26-4d86d9281955" />
   </div>
 
   {/* Sticky prompt at the bottom */}

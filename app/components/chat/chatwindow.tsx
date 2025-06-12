@@ -131,24 +131,10 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
     };
   }, [userId]);
 
-  if (loading) {
-    return (
-      <div className="w-full flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Loading chat...</div>
-      </div>
-    );
-  }
 
-  if (!userId) {
-    return (
-      <div className="w-full flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Please sign in to view chats.</div>
-      </div>
-    );
-  }
 
   return (
-    <div className="w-full flex flex-col min-h-screen hide-scrollbar">
+    <div className="w-full flex flex-col min-h-screen hide-scrollbar pb-12 md:pb-32  lg:pb-44">
       <div 
         ref={chatContainerRef}
         className="flex-1 w-full pl-12 pr-12 p-4 overflow-y-auto hide-scrollbar"
