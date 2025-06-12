@@ -79,20 +79,15 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
 
     const fetchChatMessages = async () => {
       try {
-        // First, try to load from session storage
         const cachedMessages = loadFromSessionStorage();
         if (cachedMessages) {
           setMessages(cachedMessages);
         }
-
-        // Set up real-time listener for messages
         const docRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
         const unsubscribe = onSnapshot(docRef, (doc) => {
           if (doc.exists()) {
             const chatData = doc.data();
             const firebaseMessages = chatData.messages as ChatMessage[];
-            
-            // Sort by createdAt with proper type checking
             const sorted = [...firebaseMessages].sort((a, b) => {
               const aSeconds = a.createdAt && typeof a.createdAt === 'object' 
                 ? (a.createdAt as Timestamp).seconds || (a.createdAt as any).seconds
@@ -106,7 +101,6 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
             setMessages(sorted);
             saveToSessionStorage(sorted);
           } else {
-            // Clear cache if chat doesn't exist
             setMessages([]);
             if (userId && chatId) {
               const cacheKey = getCacheKey(userId, chatId);
@@ -114,8 +108,6 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
             }
           }
         });
-
-        // Cleanup listener on unmount
         return () => unsubscribe();
       } catch (err) {
         console.error("❌ Error loading chat:", err);
@@ -125,7 +117,6 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
     fetchChatMessages();
   }, [userId, chatId, loading]);
 
-  // Clear session storage when component unmounts or user changes
   useEffect(() => {
     return () => {
       // Optional: Clear session storage on unmount
@@ -159,7 +150,7 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
                     msg.type === "prompt"
                       ? msg.sender === "user"
                         ? "bg-blue-500 text-white rounded-xl px-4 py-2"
-                        : "bg-gray-200 text-black dark:bg-blue-500 dark:text-white rounded-xl px-4 py-2"
+                        : "bg-blue-500 text-black dark:bg-blue-500 dark:text-white rounded-xl px-4 py-2"
                       : "p-0 bg-transparent"
                   }`}
                 >
@@ -172,7 +163,7 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
                           key={`${index}-${i}`}
                           src={img}
                           alt={`image-${i}`}
-                          className="w-36 lg:w-42 h-auto max-h-76 object-cover rounded-md"
+                          className="w-36 lg:w-52 h-auto max-h-76 object-cover rounded-md"
                           loading="lazy"
                         />
                       ))}
