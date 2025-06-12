@@ -43,7 +43,7 @@ export default function TestChatPage() {
 
     const docId = uuidv4();
     const chatId = `${userId}_${docId}`;
-    const chatRef = doc(firestore, `chats/${userId}/${docId}`);
+    const chatRef = doc(firestore, `Chats/${userId}/Prompts/${docId}`);
 
     const timestamp = serverTimestamp();
 

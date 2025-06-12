@@ -87,7 +87,7 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
 
         // Then fetch from Firebase (this will update cache if there are changes)
         const chatIdPart = chatId.includes("_") ? chatId.split("_")[1] : chatId;
-        const docRef = doc(firestore, `chats/${userId}/${chatIdPart}`);
+        const docRef = doc(firestore, `Chats/${userId}/Prompts/${chatIdPart}`);
         const chatSnap = await getDoc(docRef);
 
         if (chatSnap.exists()) {
