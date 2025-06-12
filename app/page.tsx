@@ -4,24 +4,70 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
 import ChatWindow from "./components/chat/chatwindow";
-import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { v4 as uuidv4 } from "uuid";
 
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
+const USER_CHAT_ID_KEY = "userChatId";
 
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
-  const [currentChatId, setCurrentChatId] = useState<string>("");
+  const [currentChatId, setCurrentChatId] = useState<string>(() => {
+    // Check localStorage only on client
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(USER_CHAT_ID_KEY) || "";
+    }
+    return "";
+  });
 
   const [modalShown, setModalShown] = useState<boolean>(() => {
-    // Check localStorage only on client
     if (typeof window !== "undefined") {
       return localStorage.getItem(MODAL_SHOWN_KEY) === "true";
     }
     return false;
   });
+
+  // Initialize or fetch user's chat ID from Firestore
+  useEffect(() => {
+    const initializeUserChat = async () => {
+      if (!currentUser) return;
+
+      try {
+        // Check if user has an active chat in Firestore
+        const userChatRef = doc(firestore, `users/${currentUser.uid}/activeChat`, 'current');
+        const userChatDoc = await getDoc(userChatRef);
+
+        if (userChatDoc.exists()) {
+          // User has an existing chat, use that
+          const { chatId } = userChatDoc.data();
+          setCurrentChatId(chatId);
+          localStorage.setItem(USER_CHAT_ID_KEY, chatId);
+        } else {
+          // Create new chat ID for user
+          const newChatId = `${currentUser.uid}_${uuidv4()}`;
+          await setDoc(userChatRef, { chatId: newChatId });
+          setCurrentChatId(newChatId);
+          localStorage.setItem(USER_CHAT_ID_KEY, newChatId);
+        }
+      } catch (error) {
+        console.error("Error initializing user chat:", error);
+      }
+    };
+
+    if (!loading && currentUser) {
+      initializeUserChat();
+    }
+  }, [currentUser, loading]);
+
+  // Clear chat ID when user logs out
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      localStorage.removeItem(USER_CHAT_ID_KEY);
+      setCurrentChatId("");
+    }
+  }, [loading, currentUser]);
 
   useEffect(() => {
     if (!loading && !currentUser && !modalShown) {
@@ -30,10 +76,8 @@ export default function Home() {
       setModalShown(true);
     }
 
-    // Optional: Close modal if user logs in (optional behavior)
     if (!loading && currentUser && modalShown) {
       closeModal();
-      // Note: you might not want to reset localStorage here
     }
   }, [loading, currentUser, modalShown, openModal, closeModal]);
 
@@ -47,12 +91,15 @@ export default function Home() {
     }
 
     try {
-      // Generate a unique chat ID if not exists
+      // Use existing chat ID or create new one if none exists
       const chatId = currentChatId || `${currentUser.uid}_${uuidv4()}`;
       console.log('Using chat ID:', chatId);
       
       if (!currentChatId) {
         setCurrentChatId(chatId);
+        // Store the new chat ID in Firestore
+        const userChatRef = doc(firestore, `users/${currentUser.uid}/activeChat`, 'current');
+        await setDoc(userChatRef, { chatId });
       }
 
       // Store user's message in Firestore
@@ -72,9 +119,13 @@ export default function Home() {
 
       console.log('Storing user message in Firestore:', userMessage);
 
-      // Store the user message
+      // Get existing messages first
+      const chatDoc = await getDoc(chatRef);
+      const existingMessages = chatDoc.exists() ? chatDoc.data().messages || [] : [];
+
+      // Store the user message by appending to existing messages
       await setDoc(chatRef, {
-        messages: [userMessage]
+        messages: [...existingMessages, userMessage]
       }, { merge: true });
       console.log('Successfully stored user message in Firestore');
 
@@ -117,9 +168,13 @@ export default function Home() {
 
         console.log('Storing agent message in Firestore:', agentMessage);
 
+        // Get the latest messages including the user message we just added
+        const updatedChatDoc = await getDoc(chatRef);
+        const updatedMessages = updatedChatDoc.exists() ? updatedChatDoc.data().messages || [] : [];
+
         // Update Firestore with both messages
         await setDoc(chatRef, {
-          messages: [userMessage, agentMessage]
+          messages: [...updatedMessages, agentMessage]
         }, { merge: true });
         console.log('Successfully stored both messages in Firestore');
       }
