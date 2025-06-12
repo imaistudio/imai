@@ -384,9 +384,9 @@ export default function UnifiedPromptContainer({
 	}, []);
 
 	return (
-		<div className="flex h-screen max-h-[calc(100vh-140px)] w-full relative">
+		<div className="flex h-auto w-full relative">
 			<div className="flex h-full w-full items-center justify-center">
-				<div className="relative w-full max-w-xl flex flex-col items-center gap-8">
+				<div className="relative w-full max-w-4xl flex flex-col items-center gap-8">
 					<Form
 						onSubmit={handleSubmit}
 						className="flex w-full flex-col gap-0 rounded-medium bg-default-100 overflow-hidden"
