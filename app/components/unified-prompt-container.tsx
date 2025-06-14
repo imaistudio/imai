@@ -384,7 +384,7 @@ export default function UnifiedPromptContainer({
 							src={getPlaceholder(image)}
 						/>
 						{image.type === "color" && image.colorIndex !== undefined && (
-							<div className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+							<div className="absolute -top-2 -right-2  text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
 								{image.colorIndex + 1}
 							</div>
 						)}
