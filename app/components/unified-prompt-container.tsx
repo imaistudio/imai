@@ -47,7 +47,7 @@ declare global {
 	}
 }
 
-interface ImageAsset {
+export interface ImageAsset {
 	type: "product" | "design" | "color";
 	path: string;
 	productType?: string;
@@ -59,7 +59,9 @@ type DrawerType = "product" | "design" | "color";
 
 interface SubmissionData {
 	prompt: string;
-	images: ImageAsset[];
+	product: string;
+	design: string[];
+	color: string[];
 }
 
 interface UnifiedPromptContainerProps {
@@ -183,10 +185,19 @@ export default function UnifiedPromptContainer({
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		
+		// Separate images by type
+		const productImage = images.find(img => img.type === "product");
+		const designImages = images.filter(img => img.type === "design");
+		const colorImages = images.filter(img => img.type === "color");
+
 		const submissionData: SubmissionData = {
 			prompt: prompt.trim(),
-			images: images,
+			product: productImage?.productType === "custom" ? productImage.path : productImage?.productType || "",
+			design: designImages.map(img => img.path),
+			color: colorImages.map(img => img.path)
 		};
+		
 		if (onSubmit) onSubmit(submissionData);
 	};
 
