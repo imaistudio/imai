@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { firestore, auth } from "@/lib/firebase";
 import { doc, getDoc, Timestamp, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { ImageZoomModal } from "@/components/ImageZoomModal";
 
 interface ChatMessage {
   sender: "user" | "agent";
@@ -159,12 +160,11 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
                   {msg.type === "images" && msg.images && msg.images.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {msg.images.map((img, i) => (
-                        <img
+                        <ImageZoomModal
                           key={`${index}-${i}`}
                           src={img}
                           alt={`image-${i}`}
                           className="w-36 lg:w-52 h-auto max-h-76 object-cover rounded-md"
-                          loading="lazy"
                         />
                       ))}
                     </div>

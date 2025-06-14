@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { ImageZoomModal } from "@/components/ImageZoomModal";
 const IMAGES_PER_PAGE = 50;
 
 export default function Reset() {
@@ -16,7 +17,7 @@ export default function Reset() {
   const [images, setImages] = useState<string[]>([]);
   // Currently visible subset (for infinite scroll)
   const [paginatedImages, setPaginatedImages] = useState<string[]>([]);
-  // Which “page” we’re on (1-based). page = 1 means the first IMAGES_PER_PAGE, etc.
+  // Which "page" we're on (1-based). page = 1 means the first IMAGES_PER_PAGE, etc.
   const [page, setPage] = useState(1);
   // Toggle while fetching from storage
   const [isLoading, setIsLoading] = useState(true);
@@ -34,53 +35,53 @@ export default function Reset() {
   }, [user?.uid]);
 
   const fetchImages = async (userId: string) => {
-  setIsLoading(true);
+    setIsLoading(true);
 
-  // Try to get cached data
-  const cached = sessionStorage.getItem(`imagesCache-${userId}`);
-  if (cached) {
-    const parsed = JSON.parse(cached);
-    setImages(parsed);
-    setPaginatedImages(parsed.slice(0, IMAGES_PER_PAGE));
-    setPage(1);
-    setIsLoading(false);
-    return;
-  }
+    // Try to get cached data
+    const cached = sessionStorage.getItem(`imagesCache-${userId}`);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      setImages(parsed);
+      setPaginatedImages(parsed.slice(0, IMAGES_PER_PAGE));
+      setPage(1);
+      setIsLoading(false);
+      return;
+    }
 
-  try {
-    const folderRef = ref(storage, `${userId}/output`);
-    const res = await listAll(folderRef);
+    try {
+      const folderRef = ref(storage, `${userId}/output`);
+      const res = await listAll(folderRef);
 
-    const urlPromises = res.items.map(async (item) => {
-      const url = await getDownloadURL(item);
-      const metadata = await getMetadata(item);
-      return {
-        url,
-        name: item.name,
-        createdAt: new Date(metadata.timeCreated).getTime(),
-      };
-    });
+      const urlPromises = res.items.map(async (item) => {
+        const url = await getDownloadURL(item);
+        const metadata = await getMetadata(item);
+        return {
+          url,
+          name: item.name,
+          createdAt: new Date(metadata.timeCreated).getTime(),
+        };
+      });
 
-    const files = await Promise.all(urlPromises);
+      const files = await Promise.all(urlPromises);
 
-    const sortedUrls = files
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .map((file) => file.url);
+      const sortedUrls = files
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .map((file) => file.url);
 
-    // Cache for the session
-    sessionStorage.setItem(
-      `imagesCache-${userId}`,
-      JSON.stringify(sortedUrls)
-    );
+      // Cache for the session
+      sessionStorage.setItem(
+        `imagesCache-${userId}`,
+        JSON.stringify(sortedUrls)
+      );
 
-    setImages(sortedUrls);
-    setPaginatedImages(sortedUrls.slice(0, IMAGES_PER_PAGE));
-    setPage(1);
-  } catch (error) {
-    console.error("Error loading images:", error);
-  } finally {
-    setIsLoading(false);
-  }
+      setImages(sortedUrls);
+      setPaginatedImages(sortedUrls.slice(0, IMAGES_PER_PAGE));
+      setPage(1);
+    } catch (error) {
+      console.error("Error loading images:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Append the next batch when the user scrolls near the bottom
@@ -131,7 +132,7 @@ export default function Reset() {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
               {paginatedImages.map((url, index) => (
-                <img
+                <ImageZoomModal
                   key={index}
                   src={url}
                   alt={`User output ${index}`}
@@ -139,7 +140,7 @@ export default function Reset() {
                 />
               ))}
             </div>
-            {/* Optional: A little “Loading…” indicator at the bottom while fetching more.
+            {/* Optional: A little "Loading..." indicator at the bottom while fetching more.
                 You can conditionally show this only if page * IMAGES_PER_PAGE < images.length. */}
             {page * IMAGES_PER_PAGE < images.length && (
               <div className="flex justify-center my-6">
