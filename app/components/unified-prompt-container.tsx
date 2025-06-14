@@ -52,6 +52,7 @@ interface ImageAsset {
 	path: string;
 	productType?: string;
 	designCategory?: string;
+	colorIndex?: number;
 }
 
 type DrawerType = "product" | "design" | "color";
@@ -226,8 +227,25 @@ export default function UnifiedPromptContainer({
 				designCategory: label,
 				productType: selectedProductType || undefined,
 			}),
+			...(type === "color" && {
+				colorIndex: images.filter(img => img.type === "color").length
+			}),
 		};
-		setImages((prev) => [...prev.filter((img) => img.type !== type), newImage]);
+		
+		if (type === "color") {
+			// Keep only the two most recent color selections
+			const colorImages = images.filter(img => img.type === "color");
+			if (colorImages.length >= 2) {
+				setImages(prev => [
+					...prev.filter(img => img.type !== "color"),
+					newImage
+				]);
+			} else {
+				setImages(prev => [...prev, newImage]);
+			}
+		} else {
+			setImages(prev => [...prev.filter(img => img.type !== type), newImage]);
+		}
 		setDrawerOpen(false);
 	};
 
@@ -280,10 +298,10 @@ export default function UnifiedPromptContainer({
 			<div className="w-full bg-default-100 rounded-t-lg shadow-sm pl-4 py-2 pr-4 z-10 mb-4">
 				<div className="flex overflow-x-auto gap-4 pb-2 hide-scrollbar">
 					<div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
-						{reordered.map((label) => {
+						{reordered.map((label, index) => {
 							if (label === "UPLOAD_MARKER") {
 								return (
-									<div key="upload" className="flex flex-col items-center">
+									<div key={`upload-${drawerType}`} className="flex flex-col items-center">
 										<label className="w-24 h-24 flex items-center justify-center bg-[#fafafa] dark:bg-[#18181b] border rounded-lg text-xs cursor-pointer hover:border-primary">
 											<Icon icon="lucide:upload" width={18} />
 											<input
@@ -309,7 +327,7 @@ export default function UnifiedPromptContainer({
 										: (colorPlaceholders as Record<string, string>)[label];
 
 							return (
-								<div key={label} className="flex flex-col items-center">
+								<div key={`${drawerType}-${label}-${index}`} className="flex flex-col items-center">
 									<button
 										onClick={() =>
 											selectRandomFromLabel(label, urls, drawerType)
@@ -348,7 +366,10 @@ export default function UnifiedPromptContainer({
 							variant="light"
 							onPress={() =>
 								setImages((prev) =>
-									prev.filter((img) => img.type !== image.type)
+									prev.filter((img) => 
+										img.type !== image.type || 
+										(img.type === "color" && img.colorIndex !== image.colorIndex)
+									)
 								)
 							}
 						>
@@ -362,6 +383,11 @@ export default function UnifiedPromptContainer({
 							className="h-14 w-14 rounded-small border-small border-default-200/50 object-cover"
 							src={getPlaceholder(image)}
 						/>
+						{image.type === "color" && image.colorIndex !== undefined && (
+							<div className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+								{image.colorIndex + 1}
+							</div>
+						)}
 					</div>
 				</Badge>
 			))}
