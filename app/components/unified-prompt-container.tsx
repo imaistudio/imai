@@ -343,11 +343,11 @@ export default function UnifiedPromptContainer({
 										onClick={() =>
 											selectRandomFromLabel(label, urls, drawerType)
 										}
-										className="w-24 h-24 flex items-center justify-center hover:border-primary"
+										className="w-24 h-24 flex items-center justify-center"
 									>
 										<img
 											src={imageSrc}
-											className="w-full h-full object-cover rounded-md text-white bg-[#fafafa] dark:bg-[#18181b]"
+											className="w-full h-full object-cover rounded-md text-white bg-[#fafafa] dark:bg-transparent"
 										/>
 									</button>
 									<span className="mt-1 text-xs capitalize text-center">
@@ -431,17 +431,19 @@ export default function UnifiedPromptContainer({
 						{renderDrawer()}
 						{renderImageAssets()}
 
-						<textarea
-							ref={inputRef}
-							className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
-							maxLength={maxLength}
-							name="content"
-							placeholder={placeholder}
-							rows={1}
-							spellCheck={false}
-							value={prompt}
-							onChange={(e) => setPrompt(e.target.value)}
-						/>
+						{!drawerOpen && (
+							<textarea
+								ref={inputRef}
+								className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
+								maxLength={maxLength}
+								name="content"
+								placeholder={placeholder}
+								rows={1}
+								spellCheck={false}
+								value={prompt}
+								onChange={(e) => setPrompt(e.target.value)}
+							/>
+						)}
 
 						{isRecording && (
 							<canvas
