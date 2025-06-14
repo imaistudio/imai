@@ -1,5 +1,6 @@
 import Footer from "../components/footer";
 import Header from "../components/header";
+import { ImageZoomModal } from "../components/ImageZoomModal";
 
 // pages/index.tsx
 export default function Masonry() {
@@ -32,7 +33,7 @@ export default function Masonry() {
       <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
         {images.map((src, index) => (
           <div key={index} className="w-full break-inside-avoid overflow-hidden rounded-2xl shadow-md">
-            <img
+            <ImageZoomModal
               src={src}
               alt={`Masonry ${index + 1}`}
               className="w-full h-auto rounded-2xl object-cover"
