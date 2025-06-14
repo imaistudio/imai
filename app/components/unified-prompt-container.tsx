@@ -471,8 +471,12 @@ export default function UnifiedPromptContainer({
 												size="sm"
 												variant="light"
 												onPress={() => {
-													setDrawerType(type);
-													setDrawerOpen(true);
+													if (drawerType === type && drawerOpen) {
+														setDrawerOpen(false);
+													} else {
+														setDrawerType(type);
+														setDrawerOpen(true);
+													}
 												}}
 												className={
 													isActive
