@@ -1,6 +1,12 @@
 {
-  "name": "IMAI.Studio",
-  "short_name": "IMAI",
+  "name": "IMAI.studio - AI Image Generation Platform",
+  "short_name": "IMAI.studio",
+  "description": "Creating newness through AI-powered image generation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +21,24 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#000000",
-  "background_color": "#000000",
-  "display": "standalone"
+  "categories": ["productivity", "utilities", "art"],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Generate Image",
+      "short_name": "Generate",
+      "description": "Start generating a new AI image",
+      "url": "/generate",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false
 }

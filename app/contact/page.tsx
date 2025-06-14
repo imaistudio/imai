@@ -1,5 +1,4 @@
-'use client';
-
+"use client";
 import { useState, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
@@ -9,6 +8,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import { Icon } from "@iconify/react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact IMAI.studio | AI Image Generation Support",
+  description: "Get in touch with IMAI.studio's support team. We're here to help with your AI image generation needs, technical questions, and creative projects.",
+  keywords: "contact IMAI.studio, AI art support, AI image generation help, digital art assistance, AI creativity support, artificial intelligence art contact, AI art customer service, creative AI help, AI art technical support, digital art contact",
+};
 
 export default function PromptContainer() {
   const [prompt, setPrompt] = useState<string>('');

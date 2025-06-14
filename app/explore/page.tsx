@@ -1,8 +1,8 @@
+"use client"
 import Footer from "../components/footer";
 import Header from "../components/header";
 import { ImageZoomModal } from "../components/ImageZoomModal";
 
-// pages/index.tsx
 export default function Masonry() {
   const images = [
     '/masonry/1.jpeg',

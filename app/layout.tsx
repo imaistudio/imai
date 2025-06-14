@@ -19,14 +19,62 @@ const openSans = Open_Sans({
 
 
 export const metadata: Metadata = {
-  title: "IMAI",
-  description: "Generate Newness",
+  title: "IMAI.studio - AI Image Generation Platform",
+  description: "Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio's advanced AI technology.",
+  keywords: "AI image generation, artificial intelligence, image creation, AI art, digital art, IMAI.studio",
+  authors: [{ name: "IMAI.studio" }],
+  creator: "IMAI.studio",
+  publisher: "IMAI.studio",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://imai.studio'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://imai.studio',
+    title: 'IMAI.studio - AI Image Generation Platform',
+    description: 'Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio.',
+    siteName: 'IMAI.studio',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'IMAI.studio - AI Image Generation Platform',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'IMAI.studio - AI Image Generation Platform',
+    description: 'Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio.',
+    images: ['/og-image.jpg'],
+    creator: '@imaistudio',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   other: {
-    "apple-mobile-web-app-title": "IMAI",
-    "theme-color": "#ffffff", 
+    "apple-mobile-web-app-title": "IMAI.studio",
+    "theme-color": "#ffffff",
   },
   icons: {
     icon: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
 };
 
