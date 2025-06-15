@@ -36,7 +36,7 @@ export const ImageZoomModal = ({ src, alt = '', className }: ImageZoomModalProps
       <img
         src={src}
         alt={alt}
-        className={cn('cursor-zoom-in', className)}
+        className={cn(className)}
         onClick={() => setIsOpen(true)}
       />
 
