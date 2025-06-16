@@ -222,17 +222,9 @@ export default function UnifiedPromptContainer({
 			prompt: prompt.trim(),
 			product: productImage?.productType === "custom" 
 				? productImage.path // Return the actual Firebase URL for uploaded images
-				: productImage?.productType || "",
-			design: designImages.map(img => 
-				img.path.includes('firebasestorage.googleapis.com') 
-					? img.path // Return Firebase URL for uploaded images
-					: extractFilename(img.path) // Return filename for preset images
-			),
-			color: colorImages.map(img => 
-				img.path.includes('firebasestorage.googleapis.com') 
-					? img.path // Return Firebase URL for uploaded images
-					: extractFilename(img.path) // Return filename for preset images
-			)
+				: productImage?.path || productImage?.productType || "", // Return full path for preset images
+			design: designImages.map(img => img.path), // Return full path for all design images
+			color: colorImages.map(img => img.path) // Return full path for all color images
 		};
 		
 		if (onSubmit) onSubmit(submissionData);
