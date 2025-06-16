@@ -260,8 +260,8 @@ export default function UnifiedPromptContainer({
 			const fileExtension = file.name.split('.').pop();
 			const fileName = `${type}_${timestamp}.${fileExtension}`;
 			
-			// Create storage reference: userid/inputs/filename
-			const storageRef = ref(storage, `${user.uid}/inputs/${fileName}`);
+			// Create storage reference: userid/input/filename
+			const storageRef = ref(storage, `${user.uid}/input/${fileName}`);
 			
 			// Upload file
 			const snapshot = await uploadBytes(storageRef, file);
