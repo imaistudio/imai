@@ -3,6 +3,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { storage, auth } from '@/lib/firebase';
 
 import {
 	ProductType,
@@ -84,7 +87,9 @@ export default function UnifiedPromptContainer({
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [selectedProductType, setSelectedProductType] =
 		useState<ProductType | null>(null);
+	const [uploadingImages, setUploadingImages] = useState<Set<DrawerType>>(new Set());
 	const inputRef = useRef<HTMLTextAreaElement>(null);
+	const [user, loading, error] = useAuthState(auth);
 
 	// Voice state
 	const [isRecording, setIsRecording] = useState(false);
@@ -192,6 +197,14 @@ export default function UnifiedPromptContainer({
 			// For uploaded files (data URLs), return a generic filename
 			return 'uploaded-image';
 		}
+		if (path.includes('firebasestorage.googleapis.com')) {
+			// For Firebase Storage URLs, extract filename from the path
+			const urlParts = path.split('/');
+			const encodedPath = urlParts[urlParts.length - 1];
+			const decodedPath = decodeURIComponent(encodedPath.split('?')[0]);
+			const pathParts = decodedPath.split('/');
+			return pathParts[pathParts.length - 1];
+		}
 		// Extract filename from path
 		const parts = path.split('/');
 		return parts[parts.length - 1];
@@ -208,35 +221,76 @@ export default function UnifiedPromptContainer({
 		const submissionData: SubmissionData = {
 			prompt: prompt.trim(),
 			product: productImage?.productType === "custom" 
-				? extractFilename(productImage.path) 
+				? productImage.path // Return the actual Firebase URL for uploaded images
 				: productImage?.productType || "",
-			design: designImages.map(img => extractFilename(img.path)),
-			color: colorImages.map(img => extractFilename(img.path))
+			design: designImages.map(img => 
+				img.path.includes('firebasestorage.googleapis.com') 
+					? img.path // Return Firebase URL for uploaded images
+					: extractFilename(img.path) // Return filename for preset images
+			),
+			color: colorImages.map(img => 
+				img.path.includes('firebasestorage.googleapis.com') 
+					? img.path // Return Firebase URL for uploaded images
+					: extractFilename(img.path) // Return filename for preset images
+			)
 		};
 		
 		if (onSubmit) onSubmit(submissionData);
 	};
 
-	const handleUpload = (
+	const handleUpload = async (
 		type: DrawerType,
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const file = e.target.files?.[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = () => {
-				const newImage: ImageAsset = {
-					type,
-					path: reader.result as string,
-					...(type === "product" && { productType: "custom" }),
-				};
-				setImages((prev) => [
-					...prev.filter((img) => img.type !== type),
-					newImage,
-				]);
-				setDrawerOpen(false);
+		if (!file) return;
+
+		// Check if user is authenticated
+		if (!user) {
+			console.error('User must be authenticated to upload images');
+			// You might want to show a toast notification or redirect to login
+			return;
+		}
+
+		setUploadingImages(prev => new Set(Array.from(prev).concat(type)));
+
+		try {
+			// Create a unique filename
+			const timestamp = Date.now();
+			const fileExtension = file.name.split('.').pop();
+			const fileName = `${type}_${timestamp}.${fileExtension}`;
+			
+			// Create storage reference: userid/inputs/filename
+			const storageRef = ref(storage, `${user.uid}/inputs/${fileName}`);
+			
+			// Upload file
+			const snapshot = await uploadBytes(storageRef, file);
+			
+			// Get download URL
+			const downloadURL = await getDownloadURL(snapshot.ref);
+			
+			// Create new image asset with Firebase URL
+			const newImage: ImageAsset = {
+				type,
+				path: downloadURL,
+				...(type === "product" && { productType: "custom" }),
 			};
-			reader.readAsDataURL(file);
+			
+			setImages((prev) => [
+				...prev.filter((img) => img.type !== type),
+				newImage,
+			]);
+			
+			setDrawerOpen(false);
+		} catch (error) {
+			console.error('Error uploading image:', error);
+			// You might want to show an error notification to the user
+		} finally {
+			setUploadingImages(prev => {
+				const newSet = new Set(Array.from(prev));
+				newSet.delete(type);
+				return newSet;
+			});
 		}
 	};
 
@@ -327,19 +381,25 @@ export default function UnifiedPromptContainer({
 					<div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
 						{reordered.map((label, index) => {
 							if (label === "UPLOAD_MARKER") {
+								const isUploading = uploadingImages.has(drawerType);
 								return (
 									<div key={`upload-${drawerType}`} className="flex flex-col items-center">
-										<label className="w-24 h-24 flex items-center justify-center bg-[#fafafa] dark:bg-[#18181b] border rounded-lg text-xs cursor-pointer hover:border-primary">
-											<Icon icon="lucide:upload" width={18} />
+										<label className={`w-24 h-24 flex items-center justify-center bg-[#fafafa] dark:bg-[#18181b] border rounded-lg text-xs ${isUploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-primary'}`}>
+											{isUploading ? (
+												<Icon icon="lucide:loader-2" width={18} className="animate-spin" />
+											) : (
+												<Icon icon="lucide:upload" width={18} />
+											)}
 											<input
 												type="file"
 												accept="image/*"
 												onChange={(e) => handleUpload(drawerType, e)}
 												className="hidden"
+												disabled={isUploading}
 											/>
 										</label>
 										<span className="mt-1 text-xs text-center capitalize">
-											Upload {drawerType}
+											{isUploading ? 'Uploading...' : `Upload ${drawerType}`}
 										</span>
 									</div>
 								);
