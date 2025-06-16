@@ -1,6 +1,6 @@
 {
   "defaultImages": {
-    "minimalsleek": ["/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp", "public/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"],
+    "minimalsleek": ["/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp", "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"],
     "animeinspired": ["/inputs/designs/general/animeinspired/animeinspired1.webp", "/inputs/designs/general/animeinspired/animeinspired2.webp","/inputs/designs/general/animeinspired/animeinspired3.webp","/inputs/designs/general/animeinspired/animeinspired4.webp","/inputs/designs/general/animeinspired/animeinspired5.webp","/inputs/designs/general/animeinspired/animeinspired6.webp","/inputs/designs/general/animeinspired/animeinspired7.webp","/inputs/designs/general/animeinspired/animeinspired8.webp","/inputs/designs/general/animeinspired/animeinspired9.webp"],
     "undersun": ["/defaults/geometric1.jpg", "/defaults/geometric2.jpg"],
     "quiteluxury": ["/inputs/designs/general/quietluxury/quietluxury1.webp", "/inputs/designs/general/quietluxury/quietluxury2.webp", "/inputs/designs/general/quietluxury/quietluxury3.webp", "/inputs/designs/general/quietluxury/quietluxury4.webp"],
