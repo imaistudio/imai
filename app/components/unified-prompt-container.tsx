@@ -186,6 +186,17 @@ export default function UnifiedPromptContainer({
 		}
 	}, [images]);
 
+	// Helper function to extract filename from path
+	const extractFilename = (path: string): string => {
+		if (path.startsWith('data:')) {
+			// For uploaded files (data URLs), return a generic filename
+			return 'uploaded-image';
+		}
+		// Extract filename from path
+		const parts = path.split('/');
+		return parts[parts.length - 1];
+	};
+
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		
@@ -196,9 +207,11 @@ export default function UnifiedPromptContainer({
 
 		const submissionData: SubmissionData = {
 			prompt: prompt.trim(),
-			product: productImage?.productType === "custom" ? productImage.path : productImage?.productType || "",
-			design: designImages.map(img => img.path),
-			color: colorImages.map(img => img.path)
+			product: productImage?.productType === "custom" 
+				? extractFilename(productImage.path) 
+				: productImage?.productType || "",
+			design: designImages.map(img => extractFilename(img.path)),
+			color: colorImages.map(img => extractFilename(img.path))
 		};
 		
 		if (onSubmit) onSubmit(submissionData);
@@ -443,19 +456,30 @@ export default function UnifiedPromptContainer({
 						{renderDrawer()}
 						{renderImageAssets()}
 
-						{!drawerOpen && (
-							<textarea
-								ref={inputRef}
-								className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
-								maxLength={maxLength}
-								name="content"
-								placeholder={placeholder}
-								rows={1}
-								spellCheck={false}
-								value={prompt}
-								onChange={(e) => setPrompt(e.target.value)}
-							/>
-						)}
+					{!drawerOpen && (
+						<textarea
+							ref={inputRef}
+							className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
+							maxLength={maxLength}
+							name="content"
+							placeholder={placeholder}
+							rows={1}
+							spellCheck={false}
+							value={prompt}
+							onChange={(e) => setPrompt(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" && !e.shiftKey) {
+									e.preventDefault();
+									if (prompt.trim() || images.length > 0) {
+										const form = e.currentTarget.closest('form');
+										if (form) {
+											form.requestSubmit();
+										}
+									}
+								}
+							}}
+						/>
+					)}
 
 						{isRecording && (
 							<canvas
