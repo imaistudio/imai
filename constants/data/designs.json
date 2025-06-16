@@ -7,8 +7,8 @@
     "artistic": ["/inputs/designs/general/artistic/artistic1.webp", "/inputs/designs/general/artistic/artistic2.webp", "/inputs/designs/general/artistic/artistic3.webp", "/inputs/designs/general/artistic/artistic4.webp", "/inputs/designs/general/artistic/artistic5.webp", "/inputs/designs/general/artistic/artistic6.webp", "/inputs/designs/general/artistic/artistic7.webp", "/inputs/designs/general/artistic/artistic8.webp", "/inputs/designs/general/artistic/artistic9.webp", "/inputs/designs/general/artistic/artistic10.webp" , "/inputs/designs/general/artistic/artistic11.webp", "/inputs/designs/general/artistic/artistic12.webp", "/inputs/designs/general/artistic/artistic13.webp" ],
     "bold": ["/inputs/designs/general/bold/bold1.webp", "/inputs/designs/general/bold/bold2.webp", "/inputs/designs/general/bold/bold3.webp", "/inputs/designs/general/bold/bold4.webp", "/inputs/designs/general/bold/bold5.webp"],
     "eclectictraveler": ["/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves1.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves2.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves3.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves4.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves5.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves6.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves7.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves8.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves9.webp","/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves10.webp"],
-    "futuristic": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
-    "traditonaljapanese": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
+    "futuristic": ["/inputs/designs/general/futuristic/futuristic1.webp", "/inputs/designs/general/futuristic/futuristic2.webp", "/inputs/designs/general/futuristic/futuristic3.webp", "/inputs/designs/general/futuristic/futuristic4.webp", "/inputs/designs/general/futuristic/futuristic5.webp", "/inputs/designs/general/futuristic/futuristic6.webp" , "/inputs/designs/general/futuristic/futuristic7.webp", "/inputs/designs/general/futuristic/futuristic8.webp", "/inputs/designs/general/futuristic/futuristic9.webp"],
+    "traditonaljapanese": ["/inputs/designs/general/traditionaljapanese/traditionaljapanese1.webp"],
     "romantic": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
     "mystical": ["/inputs/designs/general/mystical/mystical1.webp"],
     "sportysleek": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
@@ -18,11 +18,9 @@
     "abstractpattern": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
     "colorpop": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
     "animalprint": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
-    "romanticsoft": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
     "tropicaltimes": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
     "timeless": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
-    "seventy": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"],
-    "luxury": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"]
+    "seventy": ["/defaults/neutral1.jpg", "/defaults/neutral2.jpg"]
   },
   "placeholders": {
     "minimalsleek": "/inputs/placeholders/bags/minimalsleeksophisticated.webp",
@@ -43,10 +41,8 @@
     "abstractpattern": "/inputs/placeholders/general/abstractpattern.webp",
     "colorpop": "/inputs/placeholders/bags/colorpop.webp",
     "animalprint": "/inputs/placeholders/general/animalprint.webp",
-    "romanticsoft": "/inputs/placeholders/general/romanticsoft.webp",
     "tropicaltimes": "/inputs/placeholders/general/tropicaltimes.webp",
     "timeless": "/inputs/placeholders/general/timeless.webp",
-    "seventy": "/inputs/placeholders/general/seventy.webp",
-    "luxury": "/inputs/placeholders/general/luxury.webp"
+    "seventy": "/inputs/placeholders/general/seventy.webp"
   }
 } 
