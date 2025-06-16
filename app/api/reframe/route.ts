@@ -17,13 +17,36 @@ async function processReframe(
     console.log("Image URL:", imageUrl);
     console.log("Target size:", options.imageSize);
 
-    console.log("⚠️ Using placeholder reframe - returning original image");
+    // Map imageSize to aspect ratios for FAL AI
+    const aspectRatioMap: { [key: string]: string } = {
+      square_hd: "1:1",
+      square: "1:1",
+      portrait: "3:4",
+      landscape: "4:3",
+    };
+
+    const targetAspectRatio = aspectRatioMap[options.imageSize] || "1:1";
+    console.log("🎯 Target aspect ratio:", targetAspectRatio);
+
+    // Use FAL AI's image reframing service
+    const result = await fal.subscribe("fal-ai/image-editing/reframe", {
+      input: {
+        image_url: imageUrl,
+        aspect_ratio: targetAspectRatio,
+        guidance_scale: 3.5,
+        num_inference_steps: 30,
+        output_format: "jpeg",
+      },
+    });
+
+    console.log("✅ Reframe processing completed");
+    console.log("Reframed image URL:", result.data.images[0].url);
 
     return {
       requestId: "reframe_" + Date.now(),
       images: [
         {
-          url: imageUrl,
+          url: result.data.images[0].url,
         },
       ],
       downloadedPath: null,

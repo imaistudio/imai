@@ -36,7 +36,7 @@ POST http://localhost:3000/api/intentroute
 ### 1. General Image Enhancement
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=enhance this image quality" \
   -F "product_image=@image.jpg"
 ```
@@ -44,7 +44,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 2. Product Design Composition
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=create a beautiful product composition" \
   -F "product_image=@product.jpg" \
   -F "design_image=@design.jpg" \
@@ -54,7 +54,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 3. Image Upscaling
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=upscale this image to higher resolution" \
   -F "product_image=@lowres-image.jpg"
 ```
@@ -62,7 +62,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 4. Creative Transformation
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=transform this into a cyberpunk style artwork" \
   -F "product_image=@photo.jpg"
 ```
@@ -70,7 +70,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 5. Image Analysis
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=analyze this image and describe what you see" \
   -F "product_image=@image.jpg"
 ```
@@ -78,7 +78,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 6. Clarity Enhancement
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=make this image sharper and clearer" \
   -F "product_image=@blurry-image.jpg"
 ```
@@ -86,7 +86,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 7. Prompt Enhancement
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=enhance this prompt: make it more creative" \
   -F "prompt=simple text prompt"
 ```
@@ -94,7 +94,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 8. Batch Processing
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=process these images for e-commerce" \
   -F "product_image=@product1.jpg" \
   -F "design_image=@design1.jpg" \
@@ -104,7 +104,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 9. Complex Design Workflow
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=create a professional product photo with this color scheme" \
   -F "product_image=@product.jpg" \
   -F "color_image=@colorscheme.jpg"
@@ -113,7 +113,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 ### 10. Advanced Instructions
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=upscale to 4x resolution with enhanced details and face optimization" \
   -F "product_image=@portrait.jpg"
 ```
@@ -132,7 +132,7 @@ POST {{baseUrl}}/api/intentroute
 Content-Type: multipart/form-data
 
 Body (form-data):
-- userid: test-user-123
+- userid: uTiXKRbCYbhWnBbkLFZoMdEMdgf2
 - message: enhance this image
 - product_image: [file] test-image.jpg
 ```
@@ -219,7 +219,7 @@ Body (form-data):
     "success": true,
     "imageUrl": "https://v3.fal.media/files/example/enhanced-image.png"
   },
-  "conversation_id": "test-user-123_1749484868917"
+  "conversation_id": "uTiXKRbCYbhWnBbkLFZoMdEMdgf2_1749484868917"
 }
 ```
 
@@ -361,7 +361,7 @@ Body (form-data):
 You can include specific parameters that will be passed to target APIs:
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=upscale with maximum quality" \
   -F "product_image=@image.jpg" \
   -F "scale=4" \
@@ -372,7 +372,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 Guide the intent with specific workflow mentions:
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=create full composition with product, design and color" \
   -F "product_image=@product.jpg" \
   -F "design_image=@design.jpg" \
@@ -383,7 +383,7 @@ curl -X POST http://localhost:3000/api/intentroute \
 Specify quality requirements:
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
   -F "message=enhance with HD quality and maximum sharpness" \
   -F "product_image=@image.jpg"
 ```

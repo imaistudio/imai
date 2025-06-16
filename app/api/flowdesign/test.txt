@@ -423,4 +423,42 @@ curl -X POST http://localhost:3000/api/flowdesign \
 - **Style inconsistency**: Provide detailed brand guidelines
 - **Platform mismatch**: Verify target platform specifications
 - **Processing timeout**: Reduce complexity or image size
-- **Quality issues**: Adjust enhancement level and style preferences 
+- **Quality issues**: Adjust enhancement level and style preferences
+
+FLOW DESIGN API TEST
+
+Input Required:
+- product_image_url: string (optional) - Cloudinary URL of product image
+- design_image_url: string (optional) - Cloudinary URL of design image
+- color_image_url: string (optional) - Cloudinary URL of color image
+- prompt: string (optional) - User description
+
+Alternative (file upload):
+- image1: File (optional) - First image file
+- image2: File (optional) - Second image file
+- image3: File (optional) - Third image file
+
+Route: POST /api/flowdesign
+
+Output:
+- success: boolean
+- imageUrl: string - Final generated image URL
+- inputImages: array - URLs of input images processed
+- concatenatedImage: string - URL of concatenated input images
+- designAnalysis: string - AI analysis of design elements
+- enhancedPrompt: string - Enhanced prompt used for generation
+- basePrompt: string - Original user prompt
+
+Example:
+{
+  "success": true,
+  "imageUrl": "/generated/final_1234567890.png",
+  "inputImages": [
+    "/generated/input_1_1234567890.png",
+    "/generated/input_2_1234567890.png"
+  ],
+  "concatenatedImage": "/generated/concatenated_1234567890.png",
+  "designAnalysis": "The composition features modern geometric elements...",
+  "enhancedPrompt": "Create a professional design based on these elements...",
+  "basePrompt": "Create a modern design"
+} 
