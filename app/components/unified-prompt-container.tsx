@@ -14,6 +14,9 @@ import {
 	defaultPlaceholders,
 	designPlaceholders,
 	colorPlaceholders,
+	productLabels,
+	designLabels,
+	colorLabels,
 } from "@/constants/inputs";
 
 interface SpeechRecognitionEvent extends Event {
@@ -337,6 +340,14 @@ export default function UnifiedPromptContainer({
 										? (designPlaceholders as Record<string, string>)[label]
 										: (colorPlaceholders as Record<string, string>)[label];
 
+							// Get custom label or fallback to original label
+							const customLabel = 
+								drawerType === "product"
+									? productLabels[label as ProductType] || label
+									: drawerType === "design"
+										? designLabels[label] || label
+										: colorLabels[label] || label;
+
 							return (
 								<div key={`${drawerType}-${label}-${index}`} className="flex flex-col items-center">
 									<button
@@ -350,9 +361,10 @@ export default function UnifiedPromptContainer({
 											className="w-full h-full object-cover rounded-md text-white bg-[#fafafa] dark:bg-transparent"
 										/>
 									</button>
-									<span className="mt-1 text-xs capitalize text-center">
-										{label}
-									</span>
+									<span 
+										className="mt-1 text-xs text-center"
+										dangerouslySetInnerHTML={{ __html: customLabel }}
+									/>
 								</div>
 							);
 						})}
