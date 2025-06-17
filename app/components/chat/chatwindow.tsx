@@ -194,7 +194,7 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
                                 key={`${index}-${i}`}
                                 src={img}
                                 alt={`image-${i}`}
-                                className="w-32 h-32 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                                className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
                               />
                             ))}
                           </div>
