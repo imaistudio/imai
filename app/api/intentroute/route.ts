@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import sharp from 'sharp'; // Added for image conversion
+
 import { getAuth } from 'firebase-admin/auth';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
+
+// Set maximum function duration to 300 seconds (5 minutes)
+export const maxDuration = 300;
 
 // Initialize Firebase Admin if not already initialized
 if (!getApps().length) {
