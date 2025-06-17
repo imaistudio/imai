@@ -10,11 +10,41 @@ import { getStorage } from "firebase-admin/storage";
 export const maxDuration = 300; // 5 minute in seconds
 export const dynamic = "force-dynamic";
 
-// Firebase disabled - intentroute handles all file operations
+// Initialize Firebase Admin SDK
 let firebaseInitialized = false;
-console.log(
-  "🔥 Firebase disabled in design route - using intentroute for file handling"
-);
+
+try {
+  // Check if Firebase app is already initialized
+  if (getApps().length === 0) {
+    // Validate required environment variables
+    if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !process.env.FIREBASE_PRIVATE_KEY) {
+      throw new Error("Missing required Firebase environment variables");
+    }
+
+    // Clean up the private key (remove quotes and fix newlines)
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
+
+    // Initialize Firebase Admin
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: privateKey,
+      }),
+      storageBucket: `${process.env.FIREBASE_PROJECT_ID}.appspot.com`,
+    });
+
+    console.log("🔥 Firebase Admin SDK initialized successfully");
+  } else {
+    console.log("🔥 Firebase Admin SDK already initialized");
+  }
+  
+  firebaseInitialized = true;
+} catch (error) {
+  console.error("❌ Failed to initialize Firebase Admin SDK:", error);
+  console.log("🔄 Continuing without Firebase - file operations will be limited");
+  firebaseInitialized = false;
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
