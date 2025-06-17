@@ -132,72 +132,6 @@ async function uploadBufferToFirebase(
 }
 
 /**
- * Converts an input File object (from FormData) to a JPEG Buffer.
- */
-async function fileToJpegBuffer(file: File): Promise<Buffer> {
-  try {
-    if (!file) {
-      throw new Error("No file provided");
-    }
-
-    if (!file.type || !file.type.startsWith("image/")) {
-      throw new Error(
-        `Invalid file type: ${file.type || 'unknown'}. Only image files are supported.`
-      );
-    }
-
-    // Add file size limit check (10MB)
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error(
-        `File size too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
-      );
-    }
-
-    console.log(
-      `Processing file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`
-    );
-
-    const arrayBuffer = await file.arrayBuffer();
-    if (!arrayBuffer || arrayBuffer.byteLength === 0) {
-      throw new Error("Failed to read file data");
-    }
-
-    const inputBuffer = Buffer.from(arrayBuffer);
-
-    // Validate the input buffer
-    if (!inputBuffer || inputBuffer.length === 0) {
-      throw new Error("Failed to create buffer from file data");
-    }
-
-    // Use sharp to convert any input image format to JPEG with optimization
-    const jpegBuffer = await sharp(inputBuffer)
-      .resize(2048, 2048, {
-        // Limit maximum dimensions
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .jpeg({
-        quality: 85, // Slightly lower quality for better performance
-        mozjpeg: true, // Use mozjpeg for better compression
-      })
-      .toBuffer();
-
-    if (!jpegBuffer || jpegBuffer.length === 0) {
-      throw new Error("Failed to convert image to JPEG format");
-    }
-
-    console.log(
-      `Successfully converted image to JPEG, size: ${jpegBuffer.length} bytes`
-    );
-    return jpegBuffer;
-  } catch (error: any) {
-    console.error("Error in fileToJpegBuffer:", error);
-    throw new Error(`Failed to process image: ${error.message}`);
-  }
-}
-
-/**
  * Validates the required inputs for each workflow type.
  */
 function validateWorkflowInputs(
@@ -880,57 +814,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       console.log("Skipping Firebase user validation - testing mode");
     }
 
-    // 2) Retrieve files/URLs (if any) and prompt
-    const productImageEntry = formData.get("product_image");
-    const designImageEntry = formData.get("design_image");
-    const colorImageEntry = formData.get("color_image");
-    
-    // Handle both File objects and string URLs for image inputs
-    const productImage = (productImageEntry instanceof File) ? productImageEntry : null;
-    const designImage = (designImageEntry instanceof File) ? designImageEntry : null;
-    const colorImage = (colorImageEntry instanceof File) ? colorImageEntry : null;
-    
-    const productImageUrl = formData.get("product_image_url") as string | null || 
-                          (typeof productImageEntry === 'string' ? productImageEntry : null);
-    const designImageUrl = formData.get("design_image_url") as string | null || 
-                         (typeof designImageEntry === 'string' ? designImageEntry : null);
-    const colorImageUrl = formData.get("color_image_url") as string | null || 
-                        (typeof colorImageEntry === 'string' ? colorImageEntry : null);
+    // 2) Extract image URLs and prompt - all inputs are URLs now
+    const productImageUrl = formData.get("product_image") as string | null;
+    const designImageUrl = formData.get("design_image") as string | null;
+    const colorImageUrl = formData.get("color_image") as string | null;
     const prompt = (formData.get("prompt") as string)?.trim() || "";
 
-    // Extract preset selections
-    const presetProductType = formData.get("preset_product_type") as
-      | string
-      | null;
-    const presetDesignStyle = formData.get("preset_design_style") as
-      | string
-      | null;
-    const presetColorPalette = formData.get("preset_color_palette") as
-      | string
-      | null;
-
     console.log("Input detection:", {
-      hasProductFile: !!productImage,
-      hasDesignFile: !!designImage,
-      hasColorFile: !!colorImage,
       hasProductUrl: !!productImageUrl,
       hasDesignUrl: !!designImageUrl,
       hasColorUrl: !!colorImageUrl,
-      hasPresetProduct: !!presetProductType,
-      hasPresetDesign: !!presetDesignStyle,
-      hasPresetColor: !!presetColorPalette,
-      productImageEntry: typeof productImageEntry,
-      designImageEntry: typeof designImageEntry,
-      colorImageEntry: typeof colorImageEntry,
+      hasPrompt: !!prompt,
+      productImageUrl,
+      designImageUrl,
+      colorImageUrl,
     });
 
-    // 3) Infer workflow_type based on which inputs are present
-    let workflow_type: string;
-    const hasProduct =
-      !!productImage || !!productImageUrl || !!presetProductType;
-    const hasDesign = !!designImage || !!designImageUrl || !!presetDesignStyle;
-    const hasColor = !!colorImage || !!colorImageUrl || !!presetColorPalette;
+    // 3) Determine workflow type based on URL presence
+    const hasProduct = !!productImageUrl;
+    const hasDesign = !!designImageUrl;
+    const hasColor = !!colorImageUrl;
 
+    let workflow_type: string;
     try {
       workflow_type = determineWorkflowType(
         hasProduct,
@@ -963,7 +868,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const mainlineModel =
       (formData.get("mainline_model") as string) || "gpt-4.1";
 
-    // 5) Validate that this inferred workflow is valid
+    // 5) Validate workflow inputs
     const validation = validateWorkflowInputs(
       workflow_type,
       hasProduct,
@@ -978,107 +883,74 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 6) Process input images (files or URLs) and run analyses
+    // 6) Analyze images using URLs directly (no need to upload inputs)
     const inputUrls: { product?: string; design?: string; color?: string } = {};
     const analyses: { product?: string; design?: string; color?: string } = {};
 
     try {
-      // Handle product image (file, URL, or preset)
-      if (productImage && firebaseInitialized) {
-        console.log("Processing product image file...");
-        const productBuffer = await fileToJpegBuffer(productImage);
-        const productPath = `${userid}/input/${uuidv4()}.jpg`;
-        const productUrl = await uploadBufferToFirebase(
-          productBuffer,
-          productPath
-        );
-        inputUrls.product = productUrl;
-        analyses.product = await analyzeImageWithGPT4Vision(
-          productUrl,
-          "product"
-        );
-        console.log("Product image file processed successfully");
-      } else if (productImageUrl) {
-        console.log("Using product image URL:", productImageUrl);
+      // Handle product image analysis
+      if (productImageUrl) {
+        console.log("Analyzing product image URL:", productImageUrl);
         inputUrls.product = productImageUrl;
-        analyses.product = await analyzeImageWithGPT4Vision(
-          productImageUrl,
-          "product"
-        );
-        console.log("Product image URL processed successfully");
-      } else if (presetProductType) {
-        console.log("Using preset product type:", presetProductType);
-        analyses.product = `A ${presetProductType} product ready for design application. This is a ${presetProductType} that will serve as the base for the design composition.`;
-        console.log("Preset product type processed successfully");
-      }
-
-      // Handle design image (file, URL, or preset)
-      if (designImage && firebaseInitialized) {
-        console.log("Processing design image file...");
-        const designBuffer = await fileToJpegBuffer(designImage);
-        const designPath = `${userid}/input/${uuidv4()}.jpg`;
-        const designUrl = await uploadBufferToFirebase(
-          designBuffer,
-          designPath
-        );
-        inputUrls.design = designUrl;
-        analyses.design = await analyzeImageWithGPT4Vision(
-          designUrl,
-          "design reference"
-        );
-        console.log("Design image file processed successfully");
-      } else if (designImageUrl) {
-        console.log("Using design image URL:", designImageUrl);
-        inputUrls.design = designImageUrl;
-        analyses.design = await analyzeImageWithGPT4Vision(
-          designImageUrl,
-          "design reference"
-        );
-        console.log("Design image URL processed successfully");
-      } else if (presetDesignStyle) {
-        console.log("Using preset design style:", presetDesignStyle);
-        analyses.design = `Apply a ${presetDesignStyle} design style. This design should embody the characteristics and aesthetic of ${presetDesignStyle} style, incorporating its typical patterns, motifs, and visual elements.`;
-        console.log("Preset design style processed successfully");
-      }
-
-      // Handle color image (file, URL, or preset)
-      if (colorImage && firebaseInitialized) {
-        console.log("Processing color image file...");
-        const colorBuffer = await fileToJpegBuffer(colorImage);
-        const colorPath = `${userid}/input/${uuidv4()}.jpg`;
-        const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
-        inputUrls.color = colorUrl;
-        analyses.color = await analyzeImageWithGPT4Vision(
-          colorUrl,
-          "color reference"
-        );
-        console.log("Color image file processed successfully");
-      } else if (colorImageUrl) {
-        console.log("Using color image URL:", colorImageUrl);
-        inputUrls.color = colorImageUrl;
-        analyses.color = await analyzeImageWithGPT4Vision(
-          colorImageUrl,
-          "color reference"
-        );
-        console.log("Color image URL processed successfully");
-      } else if (presetColorPalette) {
-        console.log("Using preset color palette:", presetColorPalette);
-        // Handle multiple color palettes (comma-separated)
-        const colorPalettes = presetColorPalette.includes(",")
-          ? presetColorPalette.split(",").map((p) => p.trim())
-          : [presetColorPalette];
-
-        if (colorPalettes.length > 1) {
-          analyses.color = `Combine and blend ${colorPalettes.join(" and ")} color palettes. Create a harmonious fusion that incorporates the characteristic colors from each palette: ${colorPalettes.map((p) => `${p} tones`).join(", ")}. Ensure the colors work together cohesively in the overall composition.`;
+        
+        // Check if it's a preset (contains path segments) or uploaded image (Firebase URL)
+        if (productImageUrl.includes('firebasestorage.googleapis.com') || productImageUrl.startsWith('http')) {
+          analyses.product = await analyzeImageWithGPT4Vision(
+            productImageUrl,
+            "product"
+          );
         } else {
-          analyses.color = `Use a ${presetColorPalette} color palette. Apply colors that are characteristic of the ${presetColorPalette} color scheme, ensuring harmony and visual appeal in the overall composition.`;
+          // It's a preset type identifier
+          analyses.product = `A ${productImageUrl} product ready for design application. This is a ${productImageUrl} that will serve as the base for the design composition.`;
         }
-        console.log("Preset color palette processed successfully");
+        console.log("Product image processed successfully");
+      }
+
+      // Handle design image analysis
+      if (designImageUrl) {
+        console.log("Analyzing design image URL:", designImageUrl);
+        inputUrls.design = designImageUrl;
+        
+        if (designImageUrl.includes('firebasestorage.googleapis.com') || designImageUrl.startsWith('http')) {
+          analyses.design = await analyzeImageWithGPT4Vision(
+            designImageUrl,
+            "design reference"
+          );
+        } else {
+          // It's a preset style identifier
+          analyses.design = `Apply a ${designImageUrl} design style. This design should embody the characteristics and aesthetic of ${designImageUrl} style, incorporating its typical patterns, motifs, and visual elements.`;
+        }
+        console.log("Design image processed successfully");
+      }
+
+      // Handle color image analysis
+      if (colorImageUrl) {
+        console.log("Analyzing color image URL:", colorImageUrl);
+        inputUrls.color = colorImageUrl;
+        
+        if (colorImageUrl.includes('firebasestorage.googleapis.com') || colorImageUrl.startsWith('http')) {
+          analyses.color = await analyzeImageWithGPT4Vision(
+            colorImageUrl,
+            "color reference"
+          );
+        } else {
+          // It's a preset color palette identifier
+          const colorPalettes = colorImageUrl.includes(",")
+            ? colorImageUrl.split(",").map((p) => p.trim())
+            : [colorImageUrl];
+
+          if (colorPalettes.length > 1) {
+            analyses.color = `Combine and blend ${colorPalettes.join(" and ")} color palettes. Create a harmonious fusion that incorporates the characteristic colors from each palette: ${colorPalettes.map((p) => `${p} tones`).join(", ")}. Ensure the colors work together cohesively in the overall composition.`;
+          } else {
+            analyses.color = `Use a ${colorImageUrl} color palette. Apply colors that are characteristic of the ${colorImageUrl} color scheme, ensuring harmony and visual appeal in the overall composition.`;
+          }
+        }
+        console.log("Color image processed successfully");
       }
     } catch (error: any) {
-      console.error("Error processing images:", error);
+      console.error("Error analyzing images:", error);
       const errorMessage =
-        error?.message || "Unknown error occurred while processing images";
+        error?.message || "Unknown error occurred while analyzing images";
       return NextResponse.json(
         { status: "error", error: errorMessage },
         { status: 500 }
@@ -1106,10 +978,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       partial_images: partialImages,
     };
 
+    // Only pass URLs that are actual image URLs (not preset identifiers) to the generation
+    const imageUrlsForGeneration: { product?: string; design?: string; color?: string } = {};
+    
+    if (inputUrls.product && (inputUrls.product.includes('firebasestorage.googleapis.com') || inputUrls.product.startsWith('http'))) {
+      imageUrlsForGeneration.product = inputUrls.product;
+    }
+    if (inputUrls.design && (inputUrls.design.includes('firebasestorage.googleapis.com') || inputUrls.design.startsWith('http'))) {
+      imageUrlsForGeneration.design = inputUrls.design;
+    }
+    if (inputUrls.color && (inputUrls.color.includes('firebasestorage.googleapis.com') || inputUrls.color.startsWith('http'))) {
+      imageUrlsForGeneration.color = inputUrls.color;
+    }
+
     const generationResult = await composeProductWithGPTImage(
       workflowPrompt,
       generationOptions,
-      inputUrls
+      Object.keys(imageUrlsForGeneration).length > 0 ? imageUrlsForGeneration : undefined
     );
 
     if (generationResult.results.length === 0) {
@@ -1157,7 +1042,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // 10) Return enhanced success response
+    // 9) Return enhanced success response
     const responsePayload: ComposeProductResponse = {
       status: "success",
       firebaseInputUrls: inputUrls,
