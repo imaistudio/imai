@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
-import UnifiedPromptContainer from '../components/unified-prompt-container';
-import { Button } from "@heroui/react";
-import { Icon } from "@iconify/react";
+import UnifiedPromptContainer from '@/app/components/unified-prompt-container';
+import { Card, CardBody, CardHeader, Divider, Code, Spinner, Button } from '@heroui/react';
+import { Icon } from '@iconify/react';
 
 interface SubmissionData {
   prompt: string;
@@ -14,321 +14,445 @@ interface SubmissionData {
   color: string[];
 }
 
-interface DesignAPIResponse {
-  status: string;
-  firebaseInputUrls?: {
-    product?: string;
-    design?: string;
-    color?: string;
-  };
-  firebaseOutputUrl?: string;
-  workflow_type?: string;
-  generated_prompt?: string;
-  revised_prompt?: string;
-  response_id?: string;
-  model_used?: string;
-  generation_method?: "responses_api" | "image_api";
-  streaming_supported?: boolean;
+interface ChatResponse {
+  status: "success" | "error";
+  message: string;
+  intent?: "text_conversation" | "image_generation";
+  result?: any;
+  conversation_id?: string;
   error?: string;
+}
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp?: string;
 }
 
 export default function TestPage() {
   const [user, loading, error] = useAuthState(auth);
-  const [apiResponse, setApiResponse] = useState<DesignAPIResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [submissionData, setSubmissionData] = useState<SubmissionData | null>(null);
+  const [responses, setResponses] = useState<ChatResponse[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([]);
+
+  // Auto-scroll to bottom when new responses are added
+  useEffect(() => {
+    const scrollElement = document.getElementById('responses-container');
+    if (scrollElement) {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    }
+  }, [responses]);
 
   const handleSubmission = async (data: SubmissionData) => {
-    console.log("Submission data received:", data);
-    setSubmissionData(data);
-    
     if (!user) {
-      console.error("User not authenticated");
-      setApiResponse({
-        status: "error",
-        error: "User not authenticated. Please sign in first."
-      });
+      console.error('User must be authenticated');
       return;
     }
 
-    setIsLoading(true);
-    setApiResponse(null);
+    setIsSubmitting(true);
 
     try {
-      // Prepare FormData for the API call
+      // Create FormData for the API call
       const formData = new FormData();
-      formData.append("userid", user.uid);
-      formData.append("prompt", data.prompt || "");
-
-      // Handle product image/URL
-      if (data.product) {
-        if (data.product.startsWith('http')) {
-          formData.append("product_image_url", data.product);
-        } else {
-          formData.append("preset_product_type", data.product);
-        }
-      }
-
-      // Handle design images/URLs
-      if (data.design && data.design.length > 0) {
-        const designUrl = data.design[0]; // Use first design for now
-        if (designUrl.startsWith('http')) {
-          formData.append("design_image_url", designUrl);
-        } else {
-          formData.append("preset_design_style", designUrl);
-        }
-      }
-
-      // Handle color images/URLs
-      if (data.color && data.color.length > 0) {
-        const colorUrl = data.color[0]; // Use first color for now
-        if (colorUrl.startsWith('http')) {
-          formData.append("color_image_url", colorUrl);
-        } else {
-          formData.append("preset_color_palette", colorUrl);
-        }
-      }
-
-      // Optional parameters with defaults
-      formData.append("size", "1024x1024");
-      formData.append("quality", "auto");
-      formData.append("n", "1");
-      formData.append("background", "opaque");
-      formData.append("output_format", "png");
-      formData.append("output_compression", "0");
-
-      console.log("Calling design API with FormData...");
       
-      const response = await fetch('/api/design', {
+      // Add user ID from Firebase auth
+      formData.append('userid', user.uid);
+      
+      // Add the prompt as message
+      formData.append('message', data.prompt);
+      
+      // Add conversation history
+      formData.append('conversation_history', JSON.stringify(conversationHistory));
+
+      // Handle product data
+      if (data.product) {
+        if (data.product.startsWith('http') || data.product.startsWith('data:')) {
+          // It's an image URL or base64 - treat as uploaded image
+          formData.append('product_image', data.product);
+        } else {
+          // It's a preset selection
+          formData.append('preset_product', data.product);
+        }
+      }
+
+      // Handle design data
+      data.design.forEach((designItem, index) => {
+        if (designItem.startsWith('http') || designItem.startsWith('data:')) {
+          // It's an image URL or base64
+          formData.append(`design_image_${index}`, designItem);
+        } else {
+          // It's a preset selection
+          formData.append(`preset_design_${index}`, designItem);
+        }
+      });
+
+      // Handle color data
+      data.color.forEach((colorItem, index) => {
+        if (colorItem.startsWith('http') || colorItem.startsWith('data:')) {
+          // It's an image URL or base64
+          formData.append(`color_image_${index}`, colorItem);
+        } else {
+          // It's a preset selection
+          formData.append(`preset_color_${index}`, colorItem);
+        }
+      });
+
+      // Make API call to intentroute
+      const response = await fetch('/api/intentroute', {
         method: 'POST',
         body: formData,
       });
 
-      const result: DesignAPIResponse = await response.json();
-      console.log("API Response:", result);
+      const result: ChatResponse = await response.json();
       
-      setApiResponse(result);
+      // Debug: Log the API response structure
+      console.log('API Response:', result);
+      if (result.result) {
+        console.log('Result structure:', Object.keys(result.result));
+        console.log('Full result:', result.result);
+      }
+      
+      // Add user message to conversation history
+      const userMessage: ChatMessage = {
+        role: 'user',
+        content: data.prompt,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Add assistant response to conversation history
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: result.message,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Update conversation history
+      setConversationHistory(prev => [...prev, userMessage, assistantMessage]);
+      
+      // Add response to display list
+      setResponses(prev => [...prev, result]);
+
     } catch (error) {
-      console.error("Error calling design API:", error);
-      setApiResponse({
-        status: "error",
-        error: `Failed to call API: ${error instanceof Error ? error.message : 'Unknown error'}`
-      });
+      console.error('Error submitting to API:', error);
+      const errorResponse: ChatResponse = {
+        status: 'error',
+        message: 'Failed to connect to API',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+      setResponses(prev => [...prev, errorResponse]);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const clearResults = () => {
-    setApiResponse(null);
-    setSubmissionData(null);
+  const clearResponses = () => {
+    setResponses([]);
+    setConversationHistory([]);
+  };
+
+  const formatTimestamp = (timestamp?: string) => {
+    if (!timestamp) return new Date().toLocaleTimeString();
+    return new Date(timestamp).toLocaleTimeString();
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center space-x-2">
-          <Icon icon="lucide:loader-2" className="animate-spin" width={24} />
-          <span>Loading...</span>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="lg" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Icon icon="lucide:alert-circle" className="text-red-500 mx-auto mb-2" width={48} />
-          <h2 className="text-xl font-semibold text-red-600 mb-2">Authentication Error</h2>
-          <p className="text-gray-600">{error.message}</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:alert-circle" className="text-danger" />
+              <h3>Authentication Error</h3>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <p>Error loading authentication: {error.message}</p>
+          </CardBody>
+        </Card>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Icon icon="lucide:user-x" className="text-gray-400 mx-auto mb-4" width={64} />
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">Authentication Required</h2>
-          <p className="text-gray-600 mb-4">Please sign in to test the design API.</p>
-          <Button 
-            color="primary"
-            onClick={() => window.location.href = '/login'}
-          >
-            Go to Login
-          </Button>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:user-x" className="text-warning" />
+              <h3>Authentication Required</h3>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <p>Please sign in to use this test page.</p>
+          </CardBody>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Design API Test Page
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Test the unified prompt input with Firebase auth and design API
-          </p>
-          <div className="mt-4 p-4 bg-green-100 dark:bg-green-900 rounded-lg">
-            <p className="text-green-800 dark:text-green-200">
-              ✅ Authenticated as: <strong>{user.email}</strong>
-            </p>
-          </div>
-        </div>
+    <div className="container mx-auto p-4 max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Test Page - Intent Route</h1>
+        <p className="text-default-600">
+          Connected to intentroute API | User ID: <Code size="sm">{user.uid}</Code>
+        </p>
+      </div>
 
-        {/* Unified Prompt Container */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Unified Prompt Input
-            </h2>
-            <UnifiedPromptContainer 
-              onSubmit={handleSubmission}
-              placeholder="Enter your design prompt..."
-              maxLength={1000}
-            />
-          </div>
-        </div>
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="max-w-4xl mx-auto mb-8">
-            <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
-              <div className="flex items-center space-x-3">
-                <Icon icon="lucide:loader-2" className="animate-spin text-blue-600" width={24} />
-                <div>
-                  <h3 className="font-semibold text-blue-900 dark:text-blue-100">
-                    Processing Request...
-                  </h3>
-                  <p className="text-blue-700 dark:text-blue-200">
-                    Calling the design API with your inputs. This may take a few moments.
-                  </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Input */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <h2 className="text-xl font-semibold">Input Component</h2>
+            </CardHeader>
+            <CardBody>
+              <UnifiedPromptContainer
+                onSubmit={handleSubmission}
+                placeholder="Test your prompt here..."
+                maxLength={2000}
+              />
+              {isSubmitting && (
+                <div className="flex items-center gap-2 mt-4 p-3 bg-primary-50 rounded-lg">
+                  <Spinner size="sm" />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">Processing request...</span>
+                    <span className="text-xs text-default-600">
+                      Image generation may take 20-60 seconds
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
+              )}
+            </CardBody>
+          </Card>
 
-        {/* Submission Data Display */}
-        {submissionData && (
-          <div className="max-w-4xl mx-auto mb-8">
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Submission Data
-                </h3>
-                <Button size="sm" variant="light" onClick={clearResults}>
+          {/* User Info Card */}
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold">User Information</h3>
+            </CardHeader>
+            <CardBody className="space-y-2">
+              <div><strong>User ID:</strong> <Code size="sm">{user.uid}</Code></div>
+              <div><strong>Email:</strong> {user.email || 'Not available'}</div>
+              <div><strong>Display Name:</strong> {user.displayName || 'Not set'}</div>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Right Column - Responses */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">API Responses ({responses.length})</h2>
+              {responses.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={clearResponses}
+                  startContent={<Icon icon="lucide:trash-2" />}
+                >
                   Clear
                 </Button>
-              </div>
-              <pre className="bg-gray-50 dark:bg-gray-900 p-4 rounded text-sm overflow-auto">
-                {JSON.stringify(submissionData, null, 2)}
-              </pre>
-            </div>
-          </div>
-        )}
-
-        {/* API Response Display */}
-        {apiResponse && (
-          <div className="max-w-4xl mx-auto">
-            <div className={`rounded-lg p-6 ${
-              apiResponse.status === 'error' 
-                ? 'bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700'
-                : 'bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700'
-            }`}>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className={`text-lg font-semibold ${
-                  apiResponse.status === 'error' 
-                    ? 'text-red-900 dark:text-red-100'
-                    : 'text-green-900 dark:text-green-100'
-                }`}>
-                  API Response
-                </h3>
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  apiResponse.status === 'error'
-                    ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200'
-                    : 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
-                }`}>
-                  {apiResponse.status}
-                </div>
-              </div>
-
-              {/* Error Display */}
-              {apiResponse.error && (
-                <div className="mb-4 p-4 bg-red-100 dark:bg-red-800 rounded-lg">
-                  <h4 className="font-semibold text-red-900 dark:text-red-100 mb-2">Error:</h4>
-                  <p className="text-red-800 dark:text-red-200">{apiResponse.error}</p>
-                </div>
               )}
+            </CardHeader>
+            <CardBody>
+              <div 
+                id="responses-container"
+                className="space-y-4 max-h-96 overflow-y-auto"
+              >
+                {responses.length === 0 ? (
+                  <div className="text-center text-default-500 py-8">
+                    <Icon icon="lucide:message-circle" className="mx-auto mb-2" width={48} height={48} />
+                    <p>No responses yet. Submit a prompt to see API responses here.</p>
+                  </div>
+                ) : (
+                  responses.map((response, index) => (
+                    <Card key={index} className={`${response.status === 'error' ? 'border-danger' : 'border-success'}`}>
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start w-full">
+                          <div className="flex items-center gap-2">
+                            <Icon 
+                              icon={response.status === 'success' ? 'lucide:check-circle' : 'lucide:x-circle'} 
+                              className={response.status === 'success' ? 'text-success' : 'text-danger'}
+                            />
+                            <span className="font-semibold">Response #{index + 1}</span>
+                          </div>
+                          <Code size="sm" color={response.status === 'success' ? 'success' : 'danger'}>
+                            {response.status}
+                          </Code>
+                        </div>
+                      </CardHeader>
+                      <CardBody className="space-y-3">
+                        {/* Status and Intent */}
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          {response.intent && (
+                            <div>
+                              <strong>Intent:</strong> 
+                              <Code size="sm" className="ml-1">
+                                {response.intent}
+                              </Code>
+                            </div>
+                          )}
+                          {response.conversation_id && (
+                            <div>
+                              <strong>Conv ID:</strong> 
+                              <Code size="sm" className="ml-1">
+                                {response.conversation_id.split('_')[1]}
+                              </Code>
+                            </div>
+                          )}
+                        </div>
 
-              {/* Success Response Details */}
-              {apiResponse.status === 'success' && (
-                <div className="space-y-4">
-                  {apiResponse.workflow_type && (
-                    <div>
-                      <h4 className="font-semibold text-green-900 dark:text-green-100 mb-2">
-                        Workflow Type:
-                      </h4>
-                      <p className="text-green-800 dark:text-green-200">{apiResponse.workflow_type}</p>
-                    </div>
-                  )}
+                        <Divider />
 
-                  {apiResponse.generated_prompt && (
-                    <div>
-                      <h4 className="font-semibold text-green-900 dark:text-green-100 mb-2">
-                        Generated Prompt:
-                      </h4>
-                      <p className="text-green-800 dark:text-green-200">{apiResponse.generated_prompt}</p>
-                    </div>
-                  )}
+                        {/* Message */}
+                        <div>
+                          <strong>Message:</strong>
+                          <p className="mt-1 p-2 bg-default-100 rounded text-sm">
+                            {response.message}
+                          </p>
+                        </div>
 
-                  {apiResponse.firebaseOutputUrl && (
-                    <div>
-                      <h4 className="font-semibold text-green-900 dark:text-green-100 mb-2">
-                        Generated Image:
-                      </h4>
-                      <img 
-                        src={apiResponse.firebaseOutputUrl} 
-                        alt="Generated design" 
-                        className="max-w-full h-auto rounded-lg shadow-lg"
-                      />
-                    </div>
-                  )}
+                        {/* Error */}
+                        {response.error && (
+                          <div>
+                            <strong className="text-danger">Error:</strong>
+                            <Code color="danger" className="block mt-1 text-xs">
+                              {response.error}
+                            </Code>
+                          </div>
+                        )}
 
-                  {apiResponse.model_used && (
-                    <div>
-                      <h4 className="font-semibold text-green-900 dark:text-green-100 mb-2">
-                        Model Used:
-                      </h4>
-                      <p className="text-green-800 dark:text-green-200">{apiResponse.model_used}</p>
+                        {/* Result */}
+                        {response.result && (
+                          <div>
+                            <strong>Result:</strong>
+                            
+                            {/* Display generated images if they exist */}
+                            {(response.result.firebaseOutputUrl || response.result.image_url || response.result.output_url || response.result.generated_image) && (
+                              <div className="mt-2 mb-3">
+                                <p className="text-sm font-medium mb-2">Generated Image:</p>
+                                <img 
+                                  src={response.result.firebaseOutputUrl || response.result.image_url || response.result.output_url || response.result.generated_image} 
+                                  alt="Generated design" 
+                                  className="max-w-full h-auto rounded-lg border border-default-200 shadow-sm"
+                                  style={{ maxHeight: '300px' }}
+                                  onError={(e) => {
+                                    console.error('Failed to load generated image');
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                                
+                                {/* Display the Firebase URL */}
+                                {response.result.firebaseOutputUrl && (
+                                  <div className="mt-2 p-2 bg-default-50 rounded border">
+                                    <p className="text-xs font-medium text-default-700 mb-1">Firebase URL:</p>
+                                    <Code size="sm" className="break-all text-xs">
+                                      {response.result.firebaseOutputUrl}
+                                    </Code>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Display multiple images if they exist in an array */}
+                            {response.result.images && Array.isArray(response.result.images) && (
+                              <div className="mt-2 mb-3">
+                                <p className="text-sm font-medium mb-2">Generated Images:</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                  {response.result.images.map((imageUrl: string, imgIndex: number) => (
+                                    <img 
+                                      key={imgIndex}
+                                      src={imageUrl} 
+                                      alt={`Generated design ${imgIndex + 1}`} 
+                                      className="w-full h-auto rounded-lg border border-default-200 shadow-sm"
+                                      style={{ maxHeight: '200px', objectFit: 'cover' }}
+                                      onError={(e) => {
+                                        console.error(`Failed to load generated image ${imgIndex + 1}`);
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Success status display */}
+                            {response.result.status === 'success' && (
+                              <div className="mt-2 mb-3 p-2 bg-success-50 border border-success-200 rounded-lg">
+                                <div className="flex items-center gap-2">
+                                  <Icon icon="lucide:check-circle" className="text-success" width={16} />
+                                  <span className="text-sm font-medium text-success-700">
+                                    Design Generated Successfully!
+                                  </span>
+                                </div>
+                                {response.result.execution_time && (
+                                  <p className="text-xs text-success-600 mt-1">
+                                    Generated in {response.result.execution_time}ms
+                                  </p>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Raw JSON for debugging */}
+                            <details className="mt-2">
+                              <summary className="text-sm cursor-pointer hover:text-primary">
+                                Show Raw JSON Response
+                              </summary>
+                              <Code className="block mt-1 text-xs max-h-32 overflow-y-auto">
+                                {JSON.stringify(response.result, null, 2)}
+                              </Code>
+                            </details>
+                          </div>
+                        )}
+                      </CardBody>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Conversation History */}
+          {conversationHistory.length > 0 && (
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Conversation History ({conversationHistory.length})</h3>
+              </CardHeader>
+              <CardBody>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {conversationHistory.map((msg, index) => (
+                    <div 
+                      key={index} 
+                      className={`p-2 rounded text-sm ${
+                        msg.role === 'user' 
+                          ? 'bg-primary-50 border-l-2 border-primary' 
+                          : 'bg-default-100 border-l-2 border-success'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <strong className="capitalize">{msg.role}:</strong>
+                        <span className="text-xs text-default-500">
+                          {formatTimestamp(msg.timestamp)}
+                        </span>
+                      </div>
+                      <p>{msg.content}</p>
                     </div>
-                  )}
+                  ))}
                 </div>
-              )}
-
-              {/* Raw Response */}
-              <details className="mt-4">
-                <summary className={`cursor-pointer font-medium ${
-                  apiResponse.status === 'error' 
-                    ? 'text-red-900 dark:text-red-100'
-                    : 'text-green-900 dark:text-green-100'
-                }`}>
-                  Raw API Response
-                </summary>
-                <pre className="mt-2 bg-gray-50 dark:bg-gray-900 p-4 rounded text-sm overflow-auto">
-                  {JSON.stringify(apiResponse, null, 2)}
-                </pre>
-              </details>
-            </div>
-          </div>
-        )}
+              </CardBody>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );

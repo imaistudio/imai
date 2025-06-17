@@ -140,9 +140,9 @@ async function fileToJpegBuffer(file: File): Promise<Buffer> {
       throw new Error("No file provided");
     }
 
-    if (!file.type.startsWith("image/")) {
+    if (!file.type || !file.type.startsWith("image/")) {
       throw new Error(
-        `Invalid file type: ${file.type}. Only image files are supported.`
+        `Invalid file type: ${file.type || 'unknown'}. Only image files are supported.`
       );
     }
 
@@ -881,12 +881,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 2) Retrieve files/URLs (if any) and prompt
-    const productImage = formData.get("product_image") as File | null;
-    const designImage = formData.get("design_image") as File | null;
-    const colorImage = formData.get("color_image") as File | null;
-    const productImageUrl = formData.get("product_image_url") as string | null;
-    const designImageUrl = formData.get("design_image_url") as string | null;
-    const colorImageUrl = formData.get("color_image_url") as string | null;
+    const productImageEntry = formData.get("product_image");
+    const designImageEntry = formData.get("design_image");
+    const colorImageEntry = formData.get("color_image");
+    
+    // Handle both File objects and string URLs for image inputs
+    const productImage = (productImageEntry instanceof File) ? productImageEntry : null;
+    const designImage = (designImageEntry instanceof File) ? designImageEntry : null;
+    const colorImage = (colorImageEntry instanceof File) ? colorImageEntry : null;
+    
+    const productImageUrl = formData.get("product_image_url") as string | null || 
+                          (typeof productImageEntry === 'string' ? productImageEntry : null);
+    const designImageUrl = formData.get("design_image_url") as string | null || 
+                         (typeof designImageEntry === 'string' ? designImageEntry : null);
+    const colorImageUrl = formData.get("color_image_url") as string | null || 
+                        (typeof colorImageEntry === 'string' ? colorImageEntry : null);
     const prompt = (formData.get("prompt") as string)?.trim() || "";
 
     // Extract preset selections
@@ -910,6 +919,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       hasPresetProduct: !!presetProductType,
       hasPresetDesign: !!presetDesignStyle,
       hasPresetColor: !!presetColorPalette,
+      productImageEntry: typeof productImageEntry,
+      designImageEntry: typeof designImageEntry,
+      colorImageEntry: typeof colorImageEntry,
     });
 
     // 3) Infer workflow_type based on which inputs are present
