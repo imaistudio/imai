@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { v2 as cloudinary } from "cloudinary";
+import sharp from 'sharp'; // Added for image conversion
+import { getAuth } from 'firebase-admin/auth';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getStorage } from 'firebase-admin/storage';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Initialize Firebase Admin if not already initialized
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  });
+}
 
 // Supported image formats for processing
 const SUPPORTED_IMAGE_FORMATS = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -77,50 +86,89 @@ async function processBase64Image(base64Data: string, filename: string = 'image.
   }
 }
 
-async function uploadImageToCloudinary(file: File): Promise<string> {
+async function uploadImageToFirebaseStorage(file: File, userid: string, isOutput: boolean = false): Promise<string> {
   try {
-    console.log(`📤 Uploading ${file.name} (${file.size}b) to Cloudinary...`);
+    console.log(`📤 Uploading ${file.name} (${file.size}b) to Firebase Storage...`);
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            resource_type: "image",
-            folder: "intent_route_uploads",
-            public_id: `${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}`,
-            format: "png", // Always convert to PNG for consistency
-            quality: "auto:best",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        )
-        .end(buffer);
+    // Get Firebase Storage bucket
+    const bucket = getStorage().bucket();
+    
+    // Create storage path: userid/input or userid/output
+    const folder = isOutput ? 'output' : 'input';
+    const timestamp = Date.now();
+    const fileName = `${timestamp}_${file.name.replace(/\.[^/.]+$/, ".png")}`;
+    const filePath = `${userid}/${folder}/${fileName}`;
+    
+    // Create file reference
+    const fileRef = bucket.file(filePath);
+    
+    // Upload the file
+    await fileRef.save(buffer, {
+      metadata: {
+        contentType: 'image/png',
+        metadata: {
+          uploadedAt: new Date().toISOString(),
+          originalName: file.name,
+          userId: userid,
+          folder: folder
+        }
+      }
     });
 
-    const uploadResult = result as any;
-    console.log(
-      `✅ Cloudinary upload successful (converted to PNG): ${uploadResult.secure_url}`
-    );
+    // Make the file publicly accessible
+    await fileRef.makePublic();
+    
+    // Get the public URL
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+    
+    console.log(`✅ Firebase Storage upload successful: ${publicUrl}`);
 
-    // Schedule deletion after 1 hour for testing
-    setTimeout(async () => {
-      try {
-        await cloudinary.uploader.destroy(uploadResult.public_id);
-        console.log(`🗑️ Deleted temporary image: ${uploadResult.public_id}`);
-      } catch (error) {
-        console.error("Error deleting temporary image:", error);
-      }
-    }, 3600000); // 1 hour
+    // Schedule deletion after 24 hours for temporary files (inputs only)
+    // Output files are permanent for user access
+    if (!isOutput) {
+      setTimeout(async () => {
+        try {
+          await fileRef.delete();
+          console.log(`🗑️ Deleted temporary input image: ${filePath}`);
+        } catch (error) {
+          console.error("Error deleting temporary image:", error);
+        }
+      }, 24 * 3600000); // 24 hours for inputs
+    }
 
-    return uploadResult.secure_url;
+    return publicUrl;
   } catch (error) {
-    console.error("❌ Cloudinary upload failed:", error);
-    throw new Error(`Failed to upload ${file.name} to Cloudinary: ${error}`);
+    console.error("❌ Firebase Storage upload failed:", error);
+    throw new Error(`Failed to upload ${file.name} to Firebase Storage: ${error}`);
+  }
+}
+
+async function saveOutputImageToFirebase(imageUrl: string, userid: string, endpoint: string): Promise<string> {
+  try {
+    console.log(`💾 Saving output image to Firebase Storage for user ${userid}...`);
+    
+    // Fetch the image from the URL
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    
+    const blob = await response.blob();
+    const fileName = `${endpoint.replace('/api/', '')}_output_${Date.now()}.png`;
+    const file = new File([blob], fileName, { type: 'image/png' });
+    
+    // Upload to Firebase Storage in the output folder
+    const firebaseUrl = await uploadImageToFirebaseStorage(file, userid, true);
+    
+    console.log(`✅ Output image saved to Firebase Storage: ${firebaseUrl}`);
+    return firebaseUrl;
+  } catch (error) {
+    console.error("❌ Failed to save output image to Firebase:", error);
+    // Return original URL as fallback
+    return imageUrl;
   }
 }
 
@@ -169,8 +217,8 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\nYOUR_KEY_CONTENT\\n-----END 
   return formattedKey;
 }
 
-let firebaseInitialized = false;
-console.log("🔥 Firebase disabled - using Cloudinary for image handling");
+let firebaseInitialized = true;
+console.log("🔥 Firebase initialized - using Firebase Storage for image handling");
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -1188,7 +1236,7 @@ async function routeToAPI(
     // Create FormData for the API call
     const formData = new FormData();
     formData.append("userid", userid);
-    console.log("🔗 Using URL-based API routing with imageUrls:", imageUrls);
+    console.log("🔗 Using Firebase Storage with imageUrls:", imageUrls);
 
     // Helper function to extract category from preset path
     const extractPresetCategory = (path: string): string => {
@@ -1605,12 +1653,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (firebaseInitialized) {
       try {
-        // await getAuth().getUser(userid);
-      } catch {
-        console.log("❌ Invalid Firebase user ID");
+        await getAuth().getUser(userid);
+        console.log("✅ Firebase user ID validated successfully");
+      } catch (error) {
+        console.log("❌ Invalid Firebase user ID:", error);
         return NextResponse.json(
-          { status: "error", error: "Invalid Firebase user ID" },
-          { status: 400 }
+          { status: "error", error: "Invalid Firebase user ID - authentication required" },
+          { status: 401 }
         );
       }
     } else {
@@ -1739,7 +1788,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 const blob = await response.blob();
                 const file = new File([blob], `${key.replace('_url', '')}.png`, { type: 'image/png' });
                 const processedFile = await validateAndProcessImage(file);
-                const imageUrl = await uploadImageToCloudinary(processedFile);
+                const imageUrl = await uploadImageToFirebaseStorage(processedFile, userid);
                 
                 // Convert URL field to standard image field
                 const standardKey = key.replace('_url', '_image');
@@ -1755,7 +1804,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 const blob = await response.blob();
                 const file = new File([blob], `${key.replace('_url', '')}.png`, { type: 'image/png' });
                 const processedFile = await validateAndProcessImage(file);
-                const imageUrl = await uploadImageToCloudinary(processedFile);
+                const imageUrl = await uploadImageToFirebaseStorage(processedFile, userid);
                 
                 // Convert URL field to standard image field
                 const standardKey = key.replace('_url', '_image');
@@ -1772,7 +1821,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             console.log(`📄 Processing base64: ${key}`);
             const base64Data = value as string;
             const processedFile = await processBase64Image(base64Data, `${key.replace('_base64', '')}.png`);
-            const imageUrl = await uploadImageToCloudinary(processedFile);
+            const imageUrl = await uploadImageToFirebaseStorage(processedFile, userid);
             
             // Convert base64 field to standard image field
             const standardKey = key.replace('_base64', '_image');
@@ -1783,7 +1832,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           if (value instanceof File) {
             console.log(`📁 Processing file: ${key}`);
             const processedFile = await validateAndProcessImage(value);
-            const imageUrl = await uploadImageToCloudinary(processedFile);
+            const imageUrl = await uploadImageToFirebaseStorage(processedFile, userid);
             return { key, value: imageUrl, type: 'file' };
           }
           
@@ -1894,18 +1943,48 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           imageUrls
         );
 
-        // 🔧 Process base64 URLs in API results to prevent Firestore serialization issues
-        if (apiResult && apiResult.firebaseOutputUrl && typeof apiResult.firebaseOutputUrl === 'string') {
-          if (apiResult.firebaseOutputUrl.startsWith('data:image/')) {
-            console.log("🔄 Converting base64 output URL to Cloudinary URL for Firestore compatibility...");
-            try {
-              const processedFile = await processBase64Image(apiResult.firebaseOutputUrl, 'design_output.png');
-              const cloudinaryUrl = await uploadImageToCloudinary(processedFile);
-              apiResult.firebaseOutputUrl = cloudinaryUrl;
-              console.log("✅ Converted base64 to Cloudinary URL:", cloudinaryUrl);
-            } catch (error) {
-              console.error("❌ Failed to convert base64 URL:", error);
-              // Keep original base64 URL as fallback, but this might still cause Firestore issues
+        // 🔧 Process output images and save to Firebase Storage
+        if (apiResult && apiResult.status === 'success') {
+          // Handle different possible output URL fields
+          const outputUrl = apiResult.firebaseOutputUrl || apiResult.data_url || apiResult.outputUrl || apiResult.output_image || apiResult.imageUrl;
+          
+          if (outputUrl && typeof outputUrl === 'string') {
+            if (outputUrl.startsWith('data:image/')) {
+              console.log("🔄 Converting base64 output URL to Firebase Storage URL...");
+              try {
+                const processedFile = await processBase64Image(outputUrl, 'design_output.png');
+                const firebaseUrl = await uploadImageToFirebaseStorage(processedFile, userid, true);
+                
+                // Update all possible output URL fields
+                if (apiResult.firebaseOutputUrl) apiResult.firebaseOutputUrl = firebaseUrl;
+                if (apiResult.data_url) apiResult.data_url = firebaseUrl;
+                if (apiResult.outputUrl) apiResult.outputUrl = firebaseUrl;
+                if (apiResult.output_image) apiResult.output_image = firebaseUrl;
+                if (apiResult.imageUrl) apiResult.imageUrl = firebaseUrl;
+                
+                console.log("✅ Converted base64 to Firebase Storage URL:", firebaseUrl);
+              } catch (error) {
+                console.error("❌ Failed to convert base64 URL:", error);
+                // Keep original base64 URL as fallback
+              }
+            } else if (outputUrl.startsWith('http')) {
+              // Save external URL to Firebase Storage
+              console.log("💾 Saving external output image to Firebase Storage...");
+              try {
+                const firebaseUrl = await saveOutputImageToFirebase(outputUrl, userid, intentAnalysis.endpoint);
+                
+                // Update the result to use Firebase URL
+                if (apiResult.firebaseOutputUrl) apiResult.firebaseOutputUrl = firebaseUrl;
+                if (apiResult.data_url) apiResult.data_url = firebaseUrl;
+                if (apiResult.outputUrl) apiResult.outputUrl = firebaseUrl;
+                if (apiResult.output_image) apiResult.output_image = firebaseUrl;
+                if (apiResult.imageUrl) apiResult.imageUrl = firebaseUrl;
+                
+                console.log("✅ Output image saved to Firebase Storage:", firebaseUrl);
+              } catch (error) {
+                console.error("❌ Failed to save output image:", error);
+                // Keep original URL as fallback
+              }
             }
           }
         }
