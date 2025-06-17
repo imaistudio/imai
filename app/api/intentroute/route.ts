@@ -1229,9 +1229,11 @@ async function routeToAPI(
   imageUrls: Record<string, string> = {}
 ): Promise<any> {
   try {
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+    // For internal API calls, use relative URLs in production to avoid authentication issues
+    // Only use full URL in development
+    const baseUrl = process.env.NODE_ENV === 'development' 
+      ? "http://localhost:3000"
+      : ""; // Use relative URLs in production for internal calls
 
     // Create FormData for the API call
     const formData = new FormData();
@@ -1780,7 +1782,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             
             if (url.startsWith('/')) {
               // Local path - convert to full URL
-              const fullUrl = `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'}${url}`;
+              // Use relative URLs in production to avoid authentication issues
+            const fullUrl = process.env.NODE_ENV === 'development' 
+              ? `http://localhost:3000${url}`
+              : url; // Use relative URL in production
               console.log(`🔄 Converting local path to full URL: ${fullUrl}`);
               
               try {
