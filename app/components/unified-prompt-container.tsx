@@ -228,6 +228,13 @@ export default function UnifiedPromptContainer({
 		};
 		
 		if (onSubmit) onSubmit(submissionData);
+		
+		// Clear form after submission
+		setPrompt("");
+		setImages([]);
+		setDrawerOpen(false);
+		setDrawerType(null);
+		setSelectedProductType(null);
 	};
 
 	const handleUpload = async (
@@ -247,10 +254,10 @@ export default function UnifiedPromptContainer({
 		setUploadingImages(prev => new Set(Array.from(prev).concat(type)));
 
 		try {
-			// Create a unique filename
-			const timestamp = Date.now();
+			// Create a unique filename using original name
 			const fileExtension = file.name.split('.').pop();
-			const fileName = `${type}_${timestamp}.${fileExtension}`;
+			const baseName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+			const fileName = `${type}_${baseName}.${fileExtension}`;
 			
 			// Create storage reference: userid/input/filename
 			const storageRef = ref(storage, `${user.uid}/input/${fileName}`);
@@ -508,30 +515,30 @@ export default function UnifiedPromptContainer({
 						{renderDrawer()}
 						{renderImageAssets()}
 
-					{!drawerOpen && (
-						<textarea
-							ref={inputRef}
-							className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
-							maxLength={maxLength}
-							name="content"
-							placeholder={placeholder}
-							rows={1}
-							spellCheck={false}
-							value={prompt}
-							onChange={(e) => setPrompt(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" && !e.shiftKey) {
-									e.preventDefault();
-									if (prompt.trim() || images.length > 0) {
-										const form = e.currentTarget.closest('form');
-										if (form) {
-											form.requestSubmit();
+						{!drawerOpen && (
+							<textarea
+								ref={inputRef}
+								className="min-h-[40px] text-medium h-auto w-full py-0 !bg-transparent shadow-none pr-3 pl-[20px] pt-3 pb-4 outline-none resize-none"
+								maxLength={maxLength}
+								name="content"
+								placeholder={placeholder}
+								rows={1}
+								spellCheck={false}
+								value={prompt}
+								onChange={(e) => setPrompt(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" && !e.shiftKey) {
+										e.preventDefault();
+										if (prompt.trim() || images.length > 0) {
+											const form = e.currentTarget.closest('form');
+											if (form) {
+												form.requestSubmit();
+											}
 										}
 									}
-								}
-							}}
-						/>
-					)}
+								}}
+							/>
+						)}
 
 						{isRecording && (
 							<canvas
@@ -595,8 +602,8 @@ export default function UnifiedPromptContainer({
 								</Button>
 								<Button
 									isIconOnly
-									color={!prompt && images.length === 0 ? "default" : "primary"}
-									isDisabled={!prompt && images.length === 0}
+									color={prompt.trim() || images.length > 0 ? "primary" : "default"}
+									isDisabled={!prompt.trim() && images.length === 0}
 									radius="full"
 									size="sm"
 									type="submit"
@@ -605,7 +612,7 @@ export default function UnifiedPromptContainer({
 									<Icon
 										className={cn(
 											"[&>path]:stroke-[2px]",
-											!prompt && images.length === 0
+											!prompt.trim() && images.length === 0
 												? "text-default-600"
 												: "text-primary-foreground"
 										)}

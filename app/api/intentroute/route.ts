@@ -196,12 +196,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       
       const isValidFile = value instanceof File && value.size > 0;
       const isBase64 = typeof value === "string" && value.startsWith("data:image/");
+      const isImageUrl = typeof value === "string" && 
+        (value.includes('firebasestorage.googleapis.com') || 
+         value.startsWith('http') || 
+         value.trim().length > 0); // Include any non-empty string as potential image reference
       
-      return isImageField && (isValidFile || isBase64);
+      return isImageField && (isValidFile || isBase64 || isImageUrl);
     });
 
     const hasPresets = entries.some(([key, value]) => {
       return key.startsWith("preset_") && typeof value === "string" && value.trim().length > 0;
+    });
+
+    console.log("🔍 Content check:", { 
+      hasImages, 
+      hasPresets, 
+      hasMessage: !!message,
+      imageEntries: entries.filter(([key]) => ["product_image", "design_image", "color_image"].includes(key))
     });
 
     if (!message && !hasImages && !hasPresets) {

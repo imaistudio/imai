@@ -34,6 +34,7 @@ export default function TestPage() {
   const [responses, setResponses] = useState<ChatResponse[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([]);
+  const [submissionData, setSubmissionData] = useState<SubmissionData[]>([]);
 
   // Auto-scroll to bottom when new responses are added
   useEffect(() => {
@@ -48,6 +49,9 @@ export default function TestPage() {
       console.error('User must be authenticated');
       return;
     }
+
+    // Store the submission data for display
+    setSubmissionData(prev => [...prev, { ...data, timestamp: new Date().toISOString() } as SubmissionData & { timestamp: string }]);
 
     setIsSubmitting(true);
 
@@ -148,6 +152,7 @@ export default function TestPage() {
   const clearResponses = () => {
     setResponses([]);
     setConversationHistory([]);
+    setSubmissionData([]);
   };
 
   const formatTimestamp = (timestamp?: string) => {
@@ -250,6 +255,136 @@ export default function TestPage() {
 
         {/* Right Column - Responses */}
         <div className="space-y-4">
+          {/* Unified Prompt Output */}
+          {submissionData.length > 0 && (
+            <Card>
+              <CardHeader className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Unified Prompt Output ({submissionData.length})</h2>
+                {submissionData.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={clearResponses}
+                    startContent={<Icon icon="lucide:trash-2" />}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </CardHeader>
+              <CardBody>
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {submissionData.map((submission, index) => (
+                    <Card key={index} className="border-primary">
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start w-full">
+                          <div className="flex items-center gap-2">
+                            <Icon icon="lucide:send" className="text-primary" />
+                            <span className="font-semibold">Submission #{index + 1}</span>
+                          </div>
+                          <Code size="sm" color="primary">
+                            {(submission as any).timestamp ? formatTimestamp((submission as any).timestamp) : 'Now'}
+                          </Code>
+                        </div>
+                      </CardHeader>
+                      <CardBody className="space-y-3">
+                        {/* Prompt */}
+                        <div>
+                          <strong>Prompt:</strong>
+                          <p className="mt-1 p-2 bg-primary-50 rounded text-sm">
+                            {submission.prompt}
+                          </p>
+                        </div>
+
+                        <Divider />
+
+                        {/* Product */}
+                        {submission.product && (
+                          <div>
+                            <strong>Product:</strong>
+                            {submission.product.startsWith('http') || submission.product.startsWith('data:') ? (
+                              <div className="mt-2">
+                                <p className="text-sm text-default-600 mb-1">Uploaded Image:</p>
+                                <img 
+                                  src={submission.product} 
+                                  alt="Product" 
+                                  className="max-w-32 h-auto rounded border border-default-200"
+                                />
+                              </div>
+                            ) : (
+                              <Code size="sm" className="ml-2">{submission.product}</Code>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Design */}
+                        {submission.design.length > 0 && (
+                          <div>
+                            <strong>Design ({submission.design.length}):</strong>
+                            <div className="mt-2 space-y-2">
+                              {submission.design.map((design, designIndex) => (
+                                <div key={designIndex} className="flex items-center gap-2">
+                                  <span className="text-xs bg-default-100 px-2 py-1 rounded">#{designIndex + 1}</span>
+                                  {design.startsWith('http') || design.startsWith('data:') ? (
+                                    <div>
+                                      <p className="text-xs text-default-600 mb-1">Uploaded Image:</p>
+                                      <img 
+                                        src={design} 
+                                        alt={`Design ${designIndex + 1}`} 
+                                        className="max-w-24 h-auto rounded border border-default-200"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <Code size="sm">{design}</Code>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Color */}
+                        {submission.color.length > 0 && (
+                          <div>
+                            <strong>Color ({submission.color.length}):</strong>
+                            <div className="mt-2 space-y-2">
+                              {submission.color.map((color, colorIndex) => (
+                                <div key={colorIndex} className="flex items-center gap-2">
+                                  <span className="text-xs bg-default-100 px-2 py-1 rounded">#{colorIndex + 1}</span>
+                                  {color.startsWith('http') || color.startsWith('data:') ? (
+                                    <div>
+                                      <p className="text-xs text-default-600 mb-1">Uploaded Image:</p>
+                                      <img 
+                                        src={color} 
+                                        alt={`Color ${colorIndex + 1}`} 
+                                        className="max-w-24 h-auto rounded border border-default-200"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <Code size="sm">{color}</Code>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Raw JSON for debugging */}
+                        <details className="mt-2">
+                          <summary className="text-sm cursor-pointer hover:text-primary">
+                            Show Raw Submission Data
+                          </summary>
+                          <Code className="block mt-1 text-xs max-h-32 overflow-y-auto">
+                            {JSON.stringify(submission, null, 2)}
+                          </Code>
+                        </details>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          )}
+
           <Card>
             <CardHeader className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">API Responses ({responses.length})</h2>
