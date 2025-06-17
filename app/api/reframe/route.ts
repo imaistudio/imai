@@ -1,9 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { getAuth } from "firebase-admin/auth";
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+
+// Initialize Firebase Admin if not already initialized
+let firebaseInitialized = false;
+try {
+  if (!getApps().length) {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      }),
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    });
+  }
+  firebaseInitialized = true;
+  console.log("🔥 Firebase initialized for reframe route");
+} catch (error) {
+  console.warn("⚠️ Firebase initialization failed, running in test mode:", error);
+  firebaseInitialized = false;
+}
 
 fal.config({
   credentials: process.env.FAL_KEY,
 });
+
+// Add configuration for longer timeout
+export const maxDuration = 60;
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -60,6 +85,31 @@ async function processReframe(
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
+
+    // Extract and validate userid
+    const userid = (formData.get("userid") as string | null)?.trim();
+    if (!userid) {
+      return NextResponse.json(
+        { status: "error", error: 'Missing "userid" parameter' },
+        { status: 400 }
+      );
+    }
+
+    // Validate Firebase user ID
+    if (firebaseInitialized) {
+      try {
+        await getAuth().getUser(userid);
+        console.log("✅ Firebase user ID validated successfully for reframe");
+      } catch (error) {
+        console.log("❌ Invalid Firebase user ID for reframe:", error);
+        return NextResponse.json(
+          { status: "error", error: "Invalid Firebase user ID - authentication required" },
+          { status: 401 }
+        );
+      }
+    } else {
+      console.log("Skipping Firebase user validation - testing mode");
+    }
 
     const imageUrl = (formData.get("image_url") as string | null)?.trim();
     const imageFile = formData.get("image") as File;
