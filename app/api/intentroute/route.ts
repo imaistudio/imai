@@ -1610,10 +1610,98 @@ async function routeToAPI(
       
       const response = await designPOST(mockRequest as any);
       return await response.json();
+    } else if (endpoint === "/api/reframe") {
+      // Import and call the reframe API logic directly
+      const { POST: reframePOST } = await import("../reframe/route");
+      
+      // Create a mock NextRequest object with the FormData
+      const mockRequest = new Request("http://localhost:3000/api/reframe", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await reframePOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/upscale") {
+      // Import and call the upscale API logic directly
+      const { POST: upscalePOST } = await import("../upscale/route");
+      
+      const mockRequest = new Request("http://localhost:3000/api/upscale", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await upscalePOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/analyzeimage") {
+      // Import and call the analyzeimage API logic directly
+      const { POST: analyzeImagePOST } = await import("../analyzeimage/route");
+      
+      const mockRequest = new Request("http://localhost:3000/api/analyzeimage", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await analyzeImagePOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/flowdesign") {
+      // Import and call the flowdesign API logic directly
+      const { POST: flowDesignPOST } = await import("../flowdesign/route");
+      
+      const mockRequest = new Request("http://localhost:3000/api/flowdesign", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await flowDesignPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/kling") {
+      // Import and call the kling API logic directly
+      const { POST: klingPOST } = await import("../kling/route");
+      
+      const mockRequest = new Request("http://localhost:3000/api/kling", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await klingPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/mirrormagic") {
+      // Import and call the mirrormagic API logic directly
+      const { POST: mirrorMagicPOST } = await import("../mirrormagic/route");
+      
+      const mockRequest = new Request("http://localhost:3000/api/mirrormagic", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await mirrorMagicPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/promptenhancer") {
+      // Import and call the promptenhancer API logic directly
+      const { POST: promptEnhancerPOST } = await import("../promptenhancer/route");
+      
+      const mockRequest = new Request("http://localhost:3000/api/promptenhancer", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await promptEnhancerPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/titlerenamer") {
+      // Import and call the titlerenamer API logic directly
+      const { POST: titleRenamerPOST } = await import("../titlerenamer/route");
+      
+      const mockRequest = new Request("http://localhost:3000/api/titlerenamer", {
+        method: "POST",
+        body: formData,
+      });
+      
+      const response = await titleRenamerPOST(mockRequest as any);
+      return await response.json();
     } else {
-      // For other endpoints, fall back to HTTP calls for now
-      // TODO: Implement direct imports for other endpoints
-      throw new Error(`Direct import not implemented for ${endpoint}. HTTP calls not supported in production.`);
+      // For endpoints not yet implemented with direct imports
+      throw new Error(`Direct import not implemented for ${endpoint}. Please add direct import support for this endpoint.`);
     }
   } catch (error) {
     console.error(`Error calling ${endpoint}:`, error);
