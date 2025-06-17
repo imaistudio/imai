@@ -1,0 +1,426 @@
+# Flow Design API Test Guide
+
+## Overview
+The Flow Design API orchestrates complex multi-step design workflows, combining multiple image processing operations in sequence to create sophisticated design outputs.
+
+## Base URL
+```
+POST http://localhost:3000/api/flowdesign
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `workflow_type` (string): Type of workflow - "product_enhancement" | "social_media_suite" | "brand_package" | "creative_series" | "e_commerce_optimize"
+
+## Optional Parameters
+- `primary_image` (file): Main image for the workflow
+- `secondary_images` (array): Additional images for multi-image workflows
+- `style_preferences` (object): Style and aesthetic preferences
+- `output_formats` (array): Desired output formats and sizes
+- `brand_guidelines` (object): Brand colors, fonts, style requirements
+- `target_platforms` (array): Intended platforms - ["instagram", "facebook", "website", "print"]
+
+---
+
+## CURL Examples
+
+### 1. Product Enhancement Workflow (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=create a complete product enhancement workflow for e-commerce" \
+  -F "product_image=@product.jpg"
+```
+
+### 2. Social Media Suite Workflow
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=generate a complete social media suite with different formats" \
+  -F "product_image=@image.jpg"
+```
+
+### 3. Direct API Call - Product Enhancement
+```bash
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=test-user-123" \
+  -F "workflow_type=product_enhancement" \
+  -F "primary_image=@product.jpg" \
+  -F "target_platforms=[\"instagram\", \"website\"]" \
+  -F "style_preferences={\"mood\": \"professional\", \"color_scheme\": \"modern\"}"
+```
+
+### 4. Brand Package Workflow
+```bash
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=test-user-123" \
+  -F "workflow_type=brand_package" \
+  -F "primary_image=@logo.jpg" \
+  -F "brand_guidelines={\"primary_color\": \"#007BFF\", \"style\": \"minimalist\"}" \
+  -F "output_formats=[\"square\", \"landscape\", \"portrait\"]"
+```
+
+### 5. Creative Series Workflow
+```bash
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=test-user-123" \
+  -F "workflow_type=creative_series" \
+  -F "primary_image=@artwork.jpg" \
+  -F "style_preferences={\"artistic_style\": \"impressionist\", \"variations\": 5}" \
+  -F "target_platforms=[\"website\", \"print\"]"
+```
+
+### 6. E-commerce Optimization Workflow
+```bash
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=test-user-123" \
+  -F "workflow_type=e_commerce_optimize" \
+  -F "primary_image=@product.jpg" \
+  -F "output_formats=[\"square\", \"wide\", \"vertical\"]" \
+  -F "style_preferences={\"background\": \"white\", \"enhancement\": \"high\"}"
+```
+
+### 7. Multi-Image Workflow
+```bash
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=test-user-123" \
+  -F "workflow_type=social_media_suite" \
+  -F "primary_image=@main.jpg" \
+  -F "secondary_images=@bg1.jpg" \
+  -F "secondary_images=@bg2.jpg" \
+  -F "target_platforms=[\"instagram\", \"facebook\", \"twitter\"]"
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Flow Design API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: create a complete product marketing suite with multiple formats
+- product_image: [file] product.jpg
+```
+
+### 2. Product Enhancement Workflow
+```
+POST {{baseUrl}}/api/flowdesign
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- workflow_type: product_enhancement
+- primary_image: [file] product.jpg
+- target_platforms: ["instagram", "website", "print"]
+- style_preferences: {"mood": "premium", "enhancement": "maximum"}
+```
+
+### 3. Social Media Suite
+```
+POST {{baseUrl}}/api/flowdesign
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- workflow_type: social_media_suite
+- primary_image: [file] lifestyle.jpg
+- target_platforms: ["instagram", "facebook", "twitter", "tiktok"]
+- output_formats: ["square", "story", "landscape"]
+```
+
+### 4. Brand Package Creation
+```
+POST {{baseUrl}}/api/flowdesign
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- workflow_type: brand_package
+- primary_image: [file] logo.jpg
+- brand_guidelines: {"primary_color": "#FF6B35", "secondary_color": "#004E89", "style": "modern"}
+- output_formats: ["square", "wide", "vertical", "favicon"]
+```
+
+### 5. Creative Series Generation
+```
+POST {{baseUrl}}/api/flowdesign
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- workflow_type: creative_series
+- primary_image: [file] artwork.jpg
+- style_preferences: {"variations": 6, "style": "abstract", "color_variations": true}
+- target_platforms: ["website", "print", "gallery"]
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "workflow_type": "product_enhancement",
+  "workflow_id": "flow_123456789",
+  "steps_completed": [
+    {
+      "step": "image_analysis",
+      "status": "completed",
+      "output": "Product identified as premium watch, professional lighting detected"
+    },
+    {
+      "step": "background_enhancement",
+      "status": "completed",
+      "output": "data:image/jpeg;base64,..."
+    },
+    {
+      "step": "color_optimization",
+      "status": "completed",
+      "output": "data:image/jpeg;base64,..."
+    },
+    {
+      "step": "multi_format_generation",
+      "status": "completed",
+      "outputs": {
+        "square": "data:image/jpeg;base64,...",
+        "landscape": "data:image/jpeg;base64,...",
+        "portrait": "data:image/jpeg;base64,..."
+      }
+    }
+  ],
+  "final_outputs": {
+    "enhanced_product": "data:image/jpeg;base64,...",
+    "instagram_square": "data:image/jpeg;base64,...",
+    "website_banner": "data:image/jpeg;base64,...",
+    "print_ready": "data:image/jpeg;base64,..."
+  },
+  "metadata": {
+    "processing_time": 45.2,
+    "steps_total": 4,
+    "quality_score": 0.92,
+    "style_applied": "professional_premium"
+  },
+  "recommendations": [
+    "Consider using enhanced_product for main listings",
+    "Instagram_square optimized for social engagement",
+    "Print_ready version suitable for catalogs"
+  ]
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Invalid workflow_type. Supported types: product_enhancement, social_media_suite, brand_package, creative_series, e_commerce_optimize",
+  "workflow_id": null
+}
+```
+
+---
+
+## Workflow Types
+
+### 1. Product Enhancement
+- **Purpose**: Comprehensive product photo optimization
+- **Steps**: Analysis → Background enhancement → Color optimization → Multi-format generation
+- **Outputs**: Enhanced product, social formats, print-ready
+- **Best for**: E-commerce, catalogs, marketing materials
+
+### 2. Social Media Suite
+- **Purpose**: Complete social media content package
+- **Steps**: Analysis → Platform optimization → Format generation → Engagement optimization
+- **Outputs**: Instagram square, stories, Facebook post, Twitter header
+- **Best for**: Social media marketing, content creation
+
+### 3. Brand Package
+- **Purpose**: Comprehensive brand asset creation
+- **Steps**: Brand analysis → Style application → Multi-format generation → Consistency check
+- **Outputs**: Logo variations, brand colors, format templates
+- **Best for**: Brand identity, marketing consistency
+
+### 4. Creative Series
+- **Purpose**: Artistic variation generation
+- **Steps**: Style analysis → Creative interpretation → Variation generation → Artistic enhancement
+- **Outputs**: Multiple artistic variations, style adaptations
+- **Best for**: Art projects, creative portfolios, galleries
+
+### 5. E-commerce Optimize
+- **Purpose**: Platform-specific e-commerce optimization
+- **Steps**: Product analysis → Background removal → Enhancement → Platform formatting
+- **Outputs**: Marketplace formats, thumbnail versions, detail views
+- **Best for**: Online stores, marketplace listings
+
+---
+
+## Style Preferences
+
+### Available Style Options
+```json
+{
+  "mood": ["professional", "casual", "premium", "playful", "elegant"],
+  "color_scheme": ["modern", "vintage", "monochrome", "vibrant", "pastel"],
+  "artistic_style": ["realistic", "impressionist", "abstract", "minimalist", "pop_art"],
+  "enhancement": ["minimal", "moderate", "high", "maximum"],
+  "background": ["transparent", "white", "black", "blur", "artistic"]
+}
+```
+
+### Brand Guidelines Format
+```json
+{
+  "primary_color": "#007BFF",
+  "secondary_color": "#6C757D",
+  "accent_color": "#FFC107",
+  "font_style": "modern",
+  "logo_placement": "top_right",
+  "style": "minimalist"
+}
+```
+
+---
+
+## Platform-Specific Outputs
+
+### Instagram
+- **Square**: 1080x1080 (posts)
+- **Stories**: 1080x1920 (stories/reels)
+- **Carousel**: 1080x1080 (multi-image posts)
+
+### Facebook
+- **Post**: 1200x630 (feed posts)
+- **Cover**: 820x312 (profile covers)
+- **Event**: 1920x1080 (event banners)
+
+### Website
+- **Hero**: 1920x1080 (hero sections)
+- **Banner**: 728x90 (web banners)
+- **Thumbnail**: 300x200 (preview images)
+
+### Print
+- **A4**: 2480x3508 (print documents)
+- **Poster**: 3000x4000 (large format)
+- **Business Card**: 1050x600 (small format)
+
+---
+
+## Testing Scenarios
+
+### 1. Workflow Type Tests
+- [ ] Product enhancement complete flow
+- [ ] Social media suite generation
+- [ ] Brand package creation
+- [ ] Creative series generation
+- [ ] E-commerce optimization
+
+### 2. Multi-Step Processing Tests
+- [ ] Sequential step execution
+- [ ] Error handling between steps
+- [ ] Partial workflow completion
+- [ ] Step-by-step progress tracking
+
+### 3. Output Format Tests
+- [ ] Platform-specific sizing
+- [ ] Quality consistency across formats
+- [ ] Brand guideline adherence
+- [ ] Style preference application
+
+### 4. Complex Input Tests
+- [ ] Multiple image inputs
+- [ ] Complex style preferences
+- [ ] Detailed brand guidelines
+- [ ] Multiple target platforms
+
+### 5. Error Recovery Tests
+- [ ] Failed step recovery
+- [ ] Invalid input handling
+- [ ] Timeout management
+- [ ] Resource limitation handling
+
+---
+
+## Common Use Cases
+
+### 1. E-commerce Product Launch
+```bash
+# Complete product suite for online store
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=ecommerce-123" \
+  -F "workflow_type=e_commerce_optimize" \
+  -F "primary_image=@new-product.jpg" \
+  -F "target_platforms=[\"amazon\", \"shopify\", \"instagram\"]" \
+  -F "style_preferences={\"background\": \"white\", \"enhancement\": \"high\"}"
+```
+
+### 2. Social Media Campaign
+```bash
+# Complete social media content package
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=marketer-123" \
+  -F "workflow_type=social_media_suite" \
+  -F "primary_image=@campaign-image.jpg" \
+  -F "target_platforms=[\"instagram\", \"facebook\", \"twitter\", \"linkedin\"]" \
+  -F "brand_guidelines={\"primary_color\": \"#FF6B35\", \"style\": \"modern\"}"
+```
+
+### 3. Brand Identity Package
+```bash
+# Complete brand asset creation
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=designer-123" \
+  -F "workflow_type=brand_package" \
+  -F "primary_image=@logo.jpg" \
+  -F "brand_guidelines={\"primary_color\": \"#2C3E50\", \"secondary_color\": \"#E74C3C\"}" \
+  -F "output_formats=[\"square\", \"wide\", \"vertical\", \"circular\"]"
+```
+
+### 4. Art Portfolio Series
+```bash
+# Creative artwork variations
+curl -X POST http://localhost:3000/api/flowdesign \
+  -F "userid=artist-123" \
+  -F "workflow_type=creative_series" \
+  -F "primary_image=@original-artwork.jpg" \
+  -F "style_preferences={\"variations\": 8, \"artistic_style\": \"impressionist\"}" \
+  -F "target_platforms=[\"website\", \"print\", \"gallery\"]"
+```
+
+---
+
+## Best Practices
+
+### Workflow Selection
+1. **E-commerce**: Use product_enhancement or e_commerce_optimize
+2. **Marketing**: Use social_media_suite
+3. **Branding**: Use brand_package
+4. **Creative Projects**: Use creative_series
+5. **Multi-purpose**: Use product_enhancement with multiple platforms
+
+### Style Preference Guidelines
+- **Professional**: Use "professional" mood with "modern" color scheme
+- **Creative**: Use "artistic_style" with "vibrant" colors
+- **E-commerce**: Use "premium" mood with "high" enhancement
+- **Social Media**: Use "playful" mood with platform-specific optimization
+
+### Platform Optimization
+- **Instagram**: Focus on square and story formats
+- **Facebook**: Emphasize landscape and cover formats
+- **Website**: Prioritize hero and banner sizes
+- **Print**: Ensure high resolution and color accuracy
+
+### Troubleshooting
+- **Workflow failures**: Check input image quality and format
+- **Style inconsistency**: Provide detailed brand guidelines
+- **Platform mismatch**: Verify target platform specifications
+- **Processing timeout**: Reduce complexity or image size
+- **Quality issues**: Adjust enhancement level and style preferences 

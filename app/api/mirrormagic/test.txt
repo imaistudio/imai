@@ -1,0 +1,344 @@
+# Mirror Magic API Test Guide
+
+## Overview
+The Mirror Magic API transforms images using AI with various creative workflows including remix, black mirror effects, and standard transformations. Works through IntentRoute for optimal file handling.
+
+## Base URL
+```
+POST http://localhost:3000/api/mirrormagic
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Source image URL (provided by IntentRoute)
+
+## Optional Parameters
+- `prompt` (string): Text prompt for transformation (optional for some workflows)
+- `workflow` (string): Transformation type - "remix" | "black_mirror" | "standard" (default: "standard")
+- `size` (string): Output size - "square" | "portrait" | "landscape" (default: "square")
+- `quality` (string): Image quality - "standard" | "hd" (default: "standard") 
+- `n` (number): Number of variations to generate (default: 1)
+
+---
+
+## CURL Examples
+
+### 1. Basic Mirror Magic (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=apply mirror magic to this image" \
+  -F "product_image=@image.jpg"
+```
+
+### 2. Mirror Magic with Prompt
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=transform this into a cyberpunk style" \
+  -F "product_image=@image.jpg"
+```
+
+### 3. Direct API Call - Standard Workflow
+```bash
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "workflow=standard" \
+  -F "size=square" \
+  -F "quality=standard"
+```
+
+### 4. Remix Workflow with Prompt
+```bash
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "prompt=transform into a futuristic sci-fi scene" \
+  -F "workflow=remix" \
+  -F "size=landscape" \
+  -F "quality=hd"
+```
+
+### 5. Black Mirror Effect
+```bash
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "prompt=dark dystopian future version" \
+  -F "workflow=black_mirror" \
+  -F "size=portrait" \
+  -F "quality=hd"
+```
+
+### 6. Multiple Variations
+```bash
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
+  -F "prompt=artistic interpretation" \
+  -F "workflow=remix" \
+  -F "n=3" \
+  -F "quality=hd"
+```
+
+### 7. High Quality Portrait
+```bash
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=test-user-123" \
+  -F "image_url=https://res.cloudinary.com/example/portrait.jpg" \
+  -F "prompt=elegant vintage style" \
+  -F "workflow=remix" \
+  -F "size=portrait" \
+  -F "quality=hd"
+```
+
+### 8. API Status Check
+```bash
+curl -X GET http://localhost:3000/api/mirrormagic
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Mirror Magic API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: apply mirror magic transformation
+- product_image: [file] test-image.jpg
+```
+
+### 2. Standard Transformation
+```
+POST {{baseUrl}}/api/mirrormagic
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- workflow: standard
+- size: square
+- quality: standard
+```
+
+### 3. Creative Remix
+```
+POST {{baseUrl}}/api/mirrormagic
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- prompt: transform into an oil painting masterpiece
+- workflow: remix
+- size: landscape
+- quality: hd
+```
+
+### 4. Black Mirror Style
+```
+POST {{baseUrl}}/api/mirrormagic
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- prompt: dystopian tech noir atmosphere
+- workflow: black_mirror
+- size: portrait
+- quality: hd
+- n: 1
+```
+
+### 5. Batch Generation
+```
+POST {{baseUrl}}/api/mirrormagic
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://res.cloudinary.com/example/image.jpg
+- prompt: artistic variations
+- workflow: remix
+- size: square
+- quality: hd
+- n: 3
+```
+
+### 6. API Health Check
+```
+GET {{baseUrl}}/api/mirrormagic
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "output_image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+  "analysis": "The image depicts a modern urban scene with...",
+  "enhanced_prompt": "A stunning transformation of the original image into...",
+  "workflow_used": "remix",
+  "note": "Successfully transformed using AI-powered mirror magic"
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing image_url parameter. This endpoint expects to be called through intentroute."
+}
+```
+
+### API Info Response (GET)
+```json
+{
+  "status": "ok",
+  "message": "Mirror Magic API is running",
+  "note": "This API is designed to work through intentroute for file handling",
+  "workflows": ["standard", "remix", "black_mirror"],
+  "sizes": ["square", "portrait", "landscape"],
+  "quality_options": ["standard", "hd"]
+}
+```
+
+---
+
+## Workflow Descriptions
+
+### 1. Standard Workflow
+- **Purpose**: Basic image transformation
+- **Best for**: General image enhancement and style transfer
+- **Prompt**: Optional but recommended
+- **Example**: Converting photo to different artistic style
+
+### 2. Remix Workflow  
+- **Purpose**: Creative reinterpretation
+- **Best for**: Artistic transformations, style changes
+- **Prompt**: Highly recommended for better results
+- **Example**: "Transform into watercolor painting"
+
+### 3. Black Mirror Workflow
+- **Purpose**: Dark, dystopian transformations
+- **Best for**: Sci-fi, noir, cyberpunk aesthetics
+- **Prompt**: Optional, adds thematic direction
+- **Example**: "Cyberpunk neon-lit cityscape"
+
+---
+
+## Testing Scenarios
+
+### 1. Workflow Tests
+- [ ] Test standard workflow with and without prompt
+- [ ] Test remix workflow with creative prompts
+- [ ] Test black_mirror workflow with dystopian prompts
+- [ ] Compare results across different workflows
+
+### 2. Parameter Tests
+- [ ] Test different sizes (square, portrait, landscape)
+- [ ] Test quality differences (standard vs hd)
+- [ ] Test multiple variations (n=1,2,3)
+- [ ] Test prompt variations
+
+### 3. Image Type Tests
+- [ ] Portrait photographs
+- [ ] Landscape photographs  
+- [ ] Product images
+- [ ] Artistic images
+- [ ] Logo/graphic images
+
+### 4. Error Handling Tests
+- [ ] Missing userid parameter
+- [ ] Missing image_url parameter
+- [ ] Invalid workflow type
+- [ ] Invalid size parameter
+- [ ] Network timeout scenarios
+
+### 5. Performance Tests
+- [ ] Processing time for different workflows
+- [ ] Large image handling
+- [ ] Multiple concurrent requests
+- [ ] Memory usage monitoring
+
+---
+
+## Common Use Cases
+
+### 1. Artistic Style Transfer
+```bash
+# Convert photo to artistic style
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=artist-123" \
+  -F "message=transform this photo into an impressionist painting" \
+  -F "product_image=@photo.jpg"
+```
+
+### 2. Sci-Fi Transformation
+```bash
+# Create cyberpunk version
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=designer-123" \
+  -F "image_url=https://example.com/city.jpg" \
+  -F "prompt=cyberpunk neon-lit dystopian future" \
+  -F "workflow=black_mirror" \
+  -F "quality=hd"
+```
+
+### 3. Creative Product Photography
+```bash
+# Transform product image creatively
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=marketer-123" \
+  -F "image_url=https://example.com/product.jpg" \
+  -F "prompt=luxury premium aesthetic" \
+  -F "workflow=remix" \
+  -F "size=square" \
+  -F "quality=hd"
+```
+
+### 4. Portrait Enhancement
+```bash
+# Artistic portrait transformation
+curl -X POST http://localhost:3000/api/mirrormagic \
+  -F "userid=photographer-123" \
+  -F "image_url=https://example.com/portrait.jpg" \
+  -F "prompt=elegant vintage film photography" \
+  -F "workflow=remix" \
+  -F "size=portrait" \
+  -F "quality=hd"
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+1. **"Missing image_url parameter"** - Use IntentRoute for file uploads
+2. **Poor transformation quality** - Try more detailed prompts
+3. **Unexpected results** - Experiment with different workflows
+4. **Processing timeout** - Try standard quality for faster processing
+
+### Best Practices
+- Use descriptive prompts for better results
+- Choose appropriate workflow for desired outcome
+- Test with different quality settings
+- Consider image content when selecting size format
+
+### Debugging Tips
+- Check console logs for processing details
+- Verify image URL accessibility
+- Test with simpler prompts first
+- Monitor AI service response times 

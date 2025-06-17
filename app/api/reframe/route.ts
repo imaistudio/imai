@@ -19,10 +19,10 @@ async function processReframe(
 
     // Map imageSize to aspect ratios for FAL AI
     const aspectRatioMap: { [key: string]: string } = {
-      square_hd: "1:1",
-      square: "1:1",
-      portrait: "3:4",
-      landscape: "4:3",
+      "square_hd": "1:1",
+      "square": "1:1", 
+      "portrait": "3:4",
+      "landscape": "4:3"
     };
 
     const targetAspectRatio = aspectRatioMap[options.imageSize] || "1:1";
@@ -35,7 +35,7 @@ async function processReframe(
         aspect_ratio: targetAspectRatio,
         guidance_scale: 3.5,
         num_inference_steps: 30,
-        output_format: "jpeg",
+        output_format: "jpeg"
       },
     });
 

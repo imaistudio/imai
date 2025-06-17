@@ -131,45 +131,78 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
     <div className="w-full flex flex-col min-h-screen hide-scrollbar pb-12 md:pb-32  lg:pb-44">
       <div 
         ref={chatContainerRef}
-        className="flex-1 w-full pl-12 pr-12 p-4 overflow-y-auto hide-scrollbar"
+        className="flex-1 w-full pl-6 pr-6 p-4 overflow-y-auto hide-scrollbar"
       >
-        <div className="flex flex-col gap-4 min-h-full justify-end">
+        <div className="flex flex-col gap-6 min-h-full justify-end max-w-7xl mx-auto">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-500">
               No messages yet. Start a conversation!
             </div>
           ) : (
             messages.map((msg, index) => (
-              <div
-                key={`${msg.chatId}-${index}`}
-                className={`flex ${
-                  msg.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[60%] text-sm ${
-                    msg.type === "prompt"
-                      ? msg.sender === "user"
-                        ? "bg-blue-500 text-white rounded-xl px-4 py-2"
-                        : "bg-blue-500 text-black dark:bg-blue-500 dark:text-white rounded-xl px-4 py-2"
-                      : "p-0 bg-transparent"
-                  }`}
-                >
-                  {msg.type === "prompt" && msg.text && <p>{msg.text}</p>}
-
-                  {msg.type === "images" && msg.images && msg.images.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {msg.images.map((img, i) => (
-                        <ImageZoomModal
-                          key={`${index}-${i}`}
-                          src={img}
-                          alt={`image-${i}`}
-                          className="w-36 lg:w-52 h-auto max-h-76 object-cover rounded-md"
-                        />
-                      ))}
+              <div key={`${msg.chatId}-${index}`}>
+                {/* Handle user messages (keep text and images together) */}
+                {msg.sender === "user" ? (
+                  <div className="flex justify-end">
+                    <div
+                      className={`max-w-[75%] ${
+                        msg.type === "prompt" || (msg.images && msg.images.length > 0)
+                          ? ""
+                          : ""
+                      }`}
+                    >
+                      {msg.text && (
+                        <div className={`text-sm bg-primary text-primary-foreground rounded-2xl px-4 py-3 leading-relaxed ${msg.images && msg.images.length > 0 ? 'mb-3' : ''}`}>
+                          <p>{msg.text}</p>
+                        </div>
+                      )}
+                      {msg.images && msg.images.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {msg.images.map((img, i) => (
+                            <ImageZoomModal
+                              key={`${index}-${i}`}
+                              src={img}
+                              alt={`image-${i}`}
+                              className="w-32 h-32 object-cover rounded-lg "
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  /* Handle agent messages (separate text and images) */
+                  <>
+                    {/* Text bubble for agent */}
+                    {msg.text && (
+                      <div className="flex justify-start mb-2">
+                        <div className="max-w-[75%] bg-primary text-primary-foreground rounded-2xl px-4 py-3">
+                          <div className="text-sm leading-relaxed">
+                            <p>{msg.text}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Images without background for agent */}
+                    {msg.images && msg.images.length > 0 && (
+                      <div className="flex justify-start">
+                        <div className="max-w-[75%]">
+                          <div className="flex flex-wrap gap-2">
+                            {msg.images.map((img, i) => (
+                              <ImageZoomModal
+                                key={`${index}-${i}`}
+                                src={img}
+                                alt={`image-${i}`}
+                                className="w-32 h-32 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             ))
           )}
