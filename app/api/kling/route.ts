@@ -3,6 +3,9 @@ import { v2 as cloudinary } from 'cloudinary';
 import { fal } from '@fal-ai/client';
 import sharp from 'sharp';
 
+// Set maximum function duration to 300 seconds (5 minutes)
+export const maxDuration = 300;
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

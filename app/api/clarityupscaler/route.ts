@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Set maximum function duration to 300 seconds (5 minutes)
+export const maxDuration = 300;
+
 export async function POST(request: Request) {
   try {
     // Log the API key status (without exposing the actual key)

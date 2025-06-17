@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from "uuid";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
+// Set maximum function duration to 300 seconds (5 minutes)
+export const maxDuration = 300;
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

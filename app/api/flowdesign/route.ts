@@ -4,6 +4,9 @@ import sharp, { Sharp } from "sharp";
 import fs from "fs";
 import path from "path";
 
+// Set maximum function duration to 300 seconds (5 minutes)
+export const maxDuration = 300;
+
 interface ImageMetadata {
   width: number;
   height: number;

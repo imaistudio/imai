@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import * as fal from "@fal-ai/serverless-client";
 import { v4 as uuidv4 } from "uuid";
 
+// Set maximum function duration to 300 seconds (5 minutes)
+export const maxDuration = 300;
+
 fal.config({
   credentials: process.env.FAL_KEY,
 });
