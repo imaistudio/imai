@@ -31,21 +31,26 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isReady, setIsReady] = useState<boolean>(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const previousScrollHeight = useRef<number>(0);
   const isUserScrolling = useRef<boolean>(false);
   const lastMessageCount = useRef<number>(0);
+  const isInitialLoad = useRef<boolean>(true);
 
-  // Always scroll to bottom for new messages
-  const scrollToBottom = useCallback((smooth: boolean = true) => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ 
-        behavior: smooth ? "smooth" : "auto" 
-      });
-    }, smooth ? 50 : 0);
+  // Scroll to bottom function
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      if (isInitialLoad.current) {
+        // Instant scroll for initial load
+        messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+        isInitialLoad.current = false;
+      } else {
+        // Smooth scroll for new messages
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }
   }, []);
 
   // Maintain scroll position when loading older messages
@@ -149,25 +154,13 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
   useEffect(() => {
     if (!userId || !chatId || loading) return;
 
+    let unsubscribe: (() => void) | undefined;
+
     const loadMessages = async () => {
       try {
-        // Try to load from cache first for faster initial load
-        const cachedMessages = loadFromSessionStorage();
-        if (cachedMessages && cachedMessages.length > 0) {
-          setAllMessages(cachedMessages);
-          // Show the most recent messages first
-          const recentMessages = cachedMessages.slice(-MESSAGES_PER_PAGE);
-          setDisplayedMessages(recentMessages);
-          setHasMoreMessages(cachedMessages.length > MESSAGES_PER_PAGE);
-          setInitialLoadComplete(true);
-          lastMessageCount.current = cachedMessages.length;
-          setIsReady(true);
-          scrollToBottom(false); // Instant scroll on initial load
-        }
-
         // Set up real-time listener
         const docRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-        const unsubscribe = onSnapshot(docRef, (doc) => {
+        unsubscribe = onSnapshot(docRef, (doc) => {
           if (doc.exists()) {
             const chatData = doc.data();
             const firebaseMessages = chatData.messages as ChatMessage[];
@@ -191,36 +184,42 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
               const hasNewMessages = sorted.length > lastMessageCount.current;
               lastMessageCount.current = sorted.length;
               
-                             if (!initialLoadComplete) {
-                 // Initial load - show recent messages and scroll to bottom
-                 const recentMessages = sorted.slice(-MESSAGES_PER_PAGE);
-                 setDisplayedMessages(recentMessages);
-                 setHasMoreMessages(sorted.length > MESSAGES_PER_PAGE);
-                 setCurrentPage(1);
-                 setInitialLoadComplete(true);
-                 setIsReady(true);
-                 scrollToBottom(false); // Instant scroll on initial load
-               } else if (hasNewMessages && !isUserScrolling.current) {
+              if (!initialLoadComplete) {
+                // Initial load - show recent messages and scroll to bottom
+                const recentMessages = sorted.slice(-MESSAGES_PER_PAGE);
+                setDisplayedMessages(recentMessages);
+                setHasMoreMessages(sorted.length > MESSAGES_PER_PAGE);
+                setCurrentPage(1);
+                setInitialLoadComplete(true);
+                setTimeout(scrollToBottom, 100);
+              } else if (hasNewMessages && !isUserScrolling.current) {
                 // New messages arrived and user is at bottom - show them and scroll
                 const recentMessages = sorted.slice(-MESSAGES_PER_PAGE);
                 setDisplayedMessages(recentMessages);
                 setHasMoreMessages(sorted.length > MESSAGES_PER_PAGE);
                 setCurrentPage(1);
-                scrollToBottom();
-                             } else if (hasNewMessages && isUserScrolling.current) {
-                 // New messages arrived but user is scrolled up - just add to displayed messages
-                 const previousLength = sorted.length - (lastMessageCount.current - (sorted.length - lastMessageCount.current));
-                 const newMessagesCount = sorted.length - (allMessages.length || 0);
-                 if (newMessagesCount > 0) {
-                   const newMessages = sorted.slice(-newMessagesCount);
-                   setDisplayedMessages(prev => [...prev, ...newMessages]);
-                 }
-               }
+                setTimeout(scrollToBottom, 100);
+              } else if (hasNewMessages && isUserScrolling.current) {
+                // New messages arrived but user is scrolled up - just add to displayed messages
+                const newMessagesCount = sorted.length - (allMessages.length || 0);
+                if (newMessagesCount > 0) {
+                  const newMessages = sorted.slice(-newMessagesCount);
+                  setDisplayedMessages(prev => [...prev, ...newMessages]);
+                }
+              }
+            } else {
+              // No messages in the document
+              setAllMessages([]);
+              setDisplayedMessages([]);
+              setHasMoreMessages(false);
+              setInitialLoadComplete(true);
             }
           } else {
+            // Document doesn't exist
             setAllMessages([]);
             setDisplayedMessages([]);
             setHasMoreMessages(false);
+            setInitialLoadComplete(true);
             lastMessageCount.current = 0;
             if (userId && chatId) {
               const cacheKey = getCacheKey(userId, chatId);
@@ -228,8 +227,6 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
             }
           }
         });
-
-        return () => unsubscribe();
       } catch (err) {
         console.error("❌ Error loading chat:", err);
         setInitialLoadComplete(true);
@@ -237,7 +234,13 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
     };
 
     loadMessages();
-  }, [userId, chatId, loading, scrollToBottom, initialLoadComplete]);
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [userId, chatId, loading, scrollToBottom, allMessages.length]);
 
   // Add scroll event listener
   useEffect(() => {
@@ -247,13 +250,6 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
       return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [handleScroll, initialLoadComplete]);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (initialLoadComplete && displayedMessages.length > 0 && !isUserScrolling.current) {
-      scrollToBottom();
-    }
-  }, [displayedMessages.length, scrollToBottom, initialLoadComplete]);
 
   // Clean up session storage on unmount
   useEffect(() => {
@@ -285,7 +281,11 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
             </div>
           )}
           
-          {displayedMessages.length === 0 ? (
+          {!initialLoadComplete ? (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              Loading messages...
+            </div>
+          ) : displayedMessages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-500">
               No messages yet. Start a conversation!
             </div>
