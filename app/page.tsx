@@ -33,7 +33,7 @@ export default function Home() {
         setCurrentChatId(newChatId);
 
         // Create chat metadata for sidebar
-        const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
+        const sidebarRef = collection(firestore, `${currentUser.uid}/sidebar`);
         await addDoc(sidebarRef, {
           chatId: newChatId,
           chatSummary: "New Chat", // Default summary, will be updated when first message is sent
@@ -253,15 +253,6 @@ export default function Home() {
         console.log('Added color data:', data.color);
       }
 
-      console.log('Calling intent route API with formData:', {
-        userid: currentUser.uid,
-        message: data.prompt,
-        hasImages: allImages.length > 0,
-        imageCount: allImages.length,
-        hasProduct: !!data.product,
-        hasDesign: data.design?.length > 0,
-        hasColor: data.color?.length > 0
-      });
 
       const response = await fetch("/api/intentroute", {
         method: "POST",
@@ -394,12 +385,12 @@ export default function Home() {
         : firstMessage;
 
       // Find and update the sidebar document with this chatId
-      const sidebarCollection = collection(firestore, `users/${userId}/sidebar`);
+      const sidebarCollection = collection(firestore, `${userId}/sidebar`);
       const sidebarSnapshot = await getDoc(doc(sidebarCollection, chatId));
       
       // If we can't find by document ID, we'll need to query by chatId field
       // For now, let's create a simpler approach by using chatId as document ID
-      const sidebarDocRef = doc(firestore, `users/${userId}/sidebar/${chatId}`);
+      const sidebarDocRef = doc(firestore, `${userId}/sidebar/${chatId}`);
       
       await setDoc(sidebarDocRef, {
         chatId: chatId,
