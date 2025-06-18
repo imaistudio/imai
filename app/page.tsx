@@ -4,23 +4,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
 import ChatWindow from "./components/chat/chatwindow";
-import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
+import { doc, setDoc, Timestamp, getDoc, collection, addDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { v4 as uuidv4 } from "uuid";
 
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
-const USER_CHAT_ID_KEY = "userChatId";
 
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
-  const [currentChatId, setCurrentChatId] = useState<string>(() => {
-    // Check localStorage only on client
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(USER_CHAT_ID_KEY) || "";
-    }
-    return "";
-  });
+  const [currentChatId, setCurrentChatId] = useState<string>("");
 
   const [modalShown, setModalShown] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
@@ -29,42 +22,42 @@ export default function Home() {
     return false;
   });
 
-  // Initialize or fetch user's chat ID from Firestore
+  // Create a new chat every time user visits
   useEffect(() => {
-    const initializeUserChat = async () => {
+    const createNewChat = async () => {
       if (!currentUser) return;
 
       try {
-        // Check if user has an active chat in Firestore
-        const userChatRef = doc(firestore, `users/${currentUser.uid}/activeChat`, 'current');
-        const userChatDoc = await getDoc(userChatRef);
+        // Always create a new chat ID
+        const newChatId = `${currentUser.uid}_${uuidv4()}`;
+        setCurrentChatId(newChatId);
 
-        if (userChatDoc.exists()) {
-          // User has an existing chat, use that
-          const { chatId } = userChatDoc.data();
-          setCurrentChatId(chatId);
-          localStorage.setItem(USER_CHAT_ID_KEY, chatId);
-        } else {
-          // Create new chat ID for user
-          const newChatId = `${currentUser.uid}_${uuidv4()}`;
-          await setDoc(userChatRef, { chatId: newChatId });
-          setCurrentChatId(newChatId);
-          localStorage.setItem(USER_CHAT_ID_KEY, newChatId);
-        }
+        // Create chat metadata for sidebar
+        const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
+        await addDoc(sidebarRef, {
+          chatId: newChatId,
+          chatSummary: "New Chat", // Default summary, will be updated when first message is sent
+          userId: currentUser.uid,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          isPinned: false,
+          pinnedAt: null
+        });
+
+        console.log("Created new chat:", newChatId);
       } catch (error) {
-        console.error("Error initializing user chat:", error);
+        console.error("Error creating new chat:", error);
       }
     };
 
     if (!loading && currentUser) {
-      initializeUserChat();
+      createNewChat();
     }
   }, [currentUser, loading]);
 
   // Clear chat ID when user logs out
   useEffect(() => {
     if (!loading && !currentUser) {
-      localStorage.removeItem(USER_CHAT_ID_KEY);
       setCurrentChatId("");
     }
   }, [loading, currentUser]);
@@ -90,20 +83,14 @@ export default function Home() {
       return;
     }
 
-    try {
-      // Use existing chat ID or create new one if none exists
-      const chatId = currentChatId || `${currentUser.uid}_${uuidv4()}`;
-      console.log('Using chat ID:', chatId);
-      
-      if (!currentChatId) {
-        setCurrentChatId(chatId);
-        // Store the new chat ID in Firestore
-        const userChatRef = doc(firestore, `users/${currentUser.uid}/activeChat`, 'current');
-        await setDoc(userChatRef, { chatId });
-      }
+    if (!currentChatId) {
+      console.log('No chat ID available');
+      return;
+    }
 
+    try {
       // Store user's message in Firestore
-      const chatRef = doc(firestore, `chats/${currentUser.uid}/prompts/${chatId}`);
+      const chatRef = doc(firestore, `chats/${currentUser.uid}/prompts/${currentChatId}`);
       
       // Collect all images from the unified container data
       const allImages: string[] = [];
@@ -143,7 +130,7 @@ export default function Home() {
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         userId: currentUser.uid,
-        chatId: chatId
+        chatId: currentChatId
       };
 
       console.log('Storing user message in Firestore:', userMessage);
@@ -152,52 +139,57 @@ export default function Home() {
       const chatDoc = await getDoc(chatRef);
       const existingMessages = chatDoc.exists() ? chatDoc.data().messages || [] : [];
 
-              // Store the user message by appending to existing messages
+      // Store the user message by appending to existing messages
+      try {
+        // Create a completely safe message for Firestore
+        const safeUserMessage = {
+          sender: "user",
+          type: allImages.length > 0 ? "images" : "prompt",
+          text: String(data.prompt || ""),
+          images: allImages.filter(img => typeof img === 'string' && img.length > 0),
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          userId: String(currentUser.uid),
+          chatId: String(currentChatId)
+        };
+        
+        console.log('Safe user message for Firestore:', safeUserMessage);
+        
+        await setDoc(chatRef, {
+          messages: [...existingMessages, safeUserMessage]
+        }, { merge: true });
+        console.log('Successfully stored user message in Firestore');
+
+        // Update chat summary in sidebar if this is the first message
+        if (existingMessages.length === 0 && data.prompt) {
+          await updateChatSummary(currentUser.uid, currentChatId, data.prompt);
+        }
+      } catch (firestoreError: any) {
+        console.error('❌ Firestore error storing user message:', firestoreError);
+        console.error('Full error details:', {
+          name: firestoreError.name,
+          message: firestoreError.message,
+          code: firestoreError.code,
+          stack: firestoreError.stack
+        });
+        
+        // Final fallback - store only essential data
         try {
-          // Create a completely safe message for Firestore
-          const safeUserMessage = {
+          const minimalMessage = {
             sender: "user",
-            type: allImages.length > 0 ? "images" : "prompt",
             text: String(data.prompt || ""),
-            images: allImages.filter(img => typeof img === 'string' && img.length > 0),
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-            userId: String(currentUser.uid),
-            chatId: String(chatId)
+            timestamp: Timestamp.now(),
+            userId: String(currentUser.uid)
           };
           
-          console.log('Safe user message for Firestore:', safeUserMessage);
-          
           await setDoc(chatRef, {
-            messages: [...existingMessages, safeUserMessage]
+            messages: [...existingMessages, minimalMessage]
           }, { merge: true });
-          console.log('Successfully stored user message in Firestore');
-        } catch (firestoreError: any) {
-          console.error('❌ Firestore error storing user message:', firestoreError);
-          console.error('Full error details:', {
-            name: firestoreError.name,
-            message: firestoreError.message,
-            code: firestoreError.code,
-            stack: firestoreError.stack
-          });
-          
-          // Final fallback - store only essential data
-          try {
-            const minimalMessage = {
-              sender: "user",
-              text: String(data.prompt || ""),
-              timestamp: Timestamp.now(),
-              userId: String(currentUser.uid)
-            };
-            
-            await setDoc(chatRef, {
-              messages: [...existingMessages, minimalMessage]
-            }, { merge: true });
-            console.log('✅ Stored minimal user message in Firestore');
-          } catch (finalError) {
-            console.error('❌ Even minimal storage failed:', finalError);
-          }
+          console.log('✅ Stored minimal user message in Firestore');
+        } catch (finalError) {
+          console.error('❌ Even minimal storage failed:', finalError);
         }
+      }
 
       // Call the intent route API
       const formData = new FormData();
@@ -292,7 +284,7 @@ export default function Home() {
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           userId: currentUser.uid,
-          chatId: chatId
+          chatId: currentChatId
         };
 
         // Check for image outputs in the API result
@@ -347,7 +339,7 @@ export default function Home() {
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
             userId: String(currentUser.uid),
-            chatId: String(chatId)
+            chatId: String(currentChatId)
           };
           
           console.log('Safe agent message for Firestore:', safeAgentMessage);
@@ -390,6 +382,38 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error in chat submission:", error);
+    }
+  };
+
+  // Helper function to update chat summary in sidebar
+  const updateChatSummary = async (userId: string, chatId: string, firstMessage: string) => {
+    try {
+      // Generate a summary from the first message (first 50 characters)
+      const summary = firstMessage.length > 50 
+        ? firstMessage.substring(0, 50) + "..." 
+        : firstMessage;
+
+      // Find and update the sidebar document with this chatId
+      const sidebarCollection = collection(firestore, `users/${userId}/sidebar`);
+      const sidebarSnapshot = await getDoc(doc(sidebarCollection, chatId));
+      
+      // If we can't find by document ID, we'll need to query by chatId field
+      // For now, let's create a simpler approach by using chatId as document ID
+      const sidebarDocRef = doc(firestore, `users/${userId}/sidebar/${chatId}`);
+      
+      await setDoc(sidebarDocRef, {
+        chatId: chatId,
+        chatSummary: summary,
+        userId: userId,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        isPinned: false,
+        pinnedAt: null
+      }, { merge: true });
+
+      console.log('Updated chat summary:', summary);
+    } catch (error) {
+      console.error('Error updating chat summary:', error);
     }
   };
 
