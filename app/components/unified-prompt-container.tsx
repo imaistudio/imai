@@ -68,6 +68,9 @@ interface SubmissionData {
 	product: string;
 	design: string[];
 	color: string[];
+	productplaceholder: string;
+	designplaceholder: string[];
+	colorplaceholder: string[];
 }
 
 interface UnifiedPromptContainerProps {
@@ -218,13 +221,44 @@ export default function UnifiedPromptContainer({
 		const designImages = images.filter(img => img.type === "design");
 		const colorImages = images.filter(img => img.type === "color");
 
+		// Helper function to get placeholder for an image
+		const getImagePlaceholder = (image: ImageAsset): string => {
+			if (image.type === "product" && image.productType === "custom") {
+				return image.path; // Return the Firebase URL for custom uploads
+			}
+			if (image.type === "product" && image.productType && image.productType !== "custom") {
+				return defaultPlaceholders[image.productType as ProductType] || "";
+			}
+			if (image.type === "design") {
+				// Check if it's a custom upload (Firebase URL) or preset
+				if (image.path.includes('firebasestorage.googleapis.com')) {
+					return image.path; // Return the Firebase URL for custom uploads
+				}
+				return image.designCategory ? designPlaceholders[image.designCategory] || "" : "";
+			}
+			if (image.type === "color") {
+				// Check if it's a custom upload (Firebase URL) or preset
+				if (image.path.includes('firebasestorage.googleapis.com')) {
+					return image.path; // Return the Firebase URL for custom uploads
+				}
+				const label = Object.keys(colorPlaceholders).find((key) =>
+					image.path.includes(key)
+				);
+				return label ? colorPlaceholders[label] : "";
+			}
+			return "";
+		};
+
 		const submissionData: SubmissionData = {
 			prompt: prompt.trim(),
 			product: productImage?.productType === "custom" 
 				? productImage.path // Return the actual Firebase URL for uploaded images
 				: productImage?.path || productImage?.productType || "", // Return full path for preset images
 			design: designImages.map(img => img.path), // Return full path for all design images
-			color: colorImages.map(img => img.path) // Return full path for all color images
+			color: colorImages.map(img => img.path), // Return full path for all color images
+			productplaceholder: productImage ? getImagePlaceholder(productImage) : "",
+			designplaceholder: designImages.map(img => getImagePlaceholder(img)),
+			colorplaceholder: colorImages.map(img => getImagePlaceholder(img))
 		};
 		
 		if (onSubmit) onSubmit(submissionData);
@@ -273,6 +307,7 @@ export default function UnifiedPromptContainer({
 				type,
 				path: downloadURL,
 				...(type === "product" && { productType: "custom" }),
+				...(type === "design" && { designCategory: "custom" }),
 			};
 			
 			setImages((prev) => [
@@ -507,7 +542,7 @@ export default function UnifiedPromptContainer({
 	return (
 		<div className="flex h-auto w-full relative">
 			<div className="flex h-full w-full items-center justify-center">
-				<div className="relative w-full max-w-4xl flex flex-col items-center gap-8">
+				<div className="relative w-full md:max-w-4xl flex flex-col items-center gap-8">
 					<Form
 						onSubmit={handleSubmit}
 						className="flex w-full flex-col gap-0 rounded-medium bg-default-100 overflow-hidden"

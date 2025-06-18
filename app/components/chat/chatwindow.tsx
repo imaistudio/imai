@@ -273,7 +273,7 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
         ref={chatContainerRef}
         className="flex-1 w-full pl-6 pr-6 p-4 overflow-y-auto hide-scrollbar"
       >
-        <div className="flex flex-col gap-6 min-h-full justify-end max-w-7xl mx-auto">
+        <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto">
           {/* Loading indicator for older messages */}
           {loadingOlder && (
             <div className="flex justify-center py-4">
