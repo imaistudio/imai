@@ -487,12 +487,13 @@ export default function Home() {
       </div>
 
       {/* Sticky prompt at the bottom */}
-      <div className="absolute bottom-0 left-0 w-full p-4">
+      <div className="absolute bottom-0 left-0 w-full p-4 flex flex-col gap-2 bg-background text-center">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
           placeholder="Reimagine Artwork"
           maxLength={500}
         />
+        <small className="text-xs">AI-generated content may not be perfect. Review <a href="/terms" className="text-primary hover:underline">Terms & Conditions</a>.</small>
       </div>
     </div>
   );

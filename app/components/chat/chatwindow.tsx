@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { firestore, auth } from "@/lib/firebase";
-import { doc, getDoc, Timestamp, onSnapshot } from "firebase/firestore";
+import { doc, Timestamp, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 
