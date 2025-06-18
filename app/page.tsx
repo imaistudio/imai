@@ -487,7 +487,7 @@ export default function Home() {
       </div>
 
       {/* Sticky prompt at the bottom */}
-      <div className="absolute bottom-0 left-0 w-full p-4 flex flex-col gap-2 bg-background text-center">
+      <div className="absolute bottom-0 left-0 w-full pb-4 pl-4 pr-4 flex flex-col gap-2 bg-background text-center">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
           placeholder="Reimagine Artwork"
