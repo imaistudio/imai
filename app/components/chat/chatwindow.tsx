@@ -198,6 +198,7 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
                  setHasMoreMessages(sorted.length > MESSAGES_PER_PAGE);
                  setCurrentPage(1);
                  setInitialLoadComplete(true);
+                 setIsReady(true);
                  scrollToBottom(false); // Instant scroll on initial load
                } else if (hasNewMessages && !isUserScrolling.current) {
                 // New messages arrived and user is at bottom - show them and scroll
