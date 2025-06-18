@@ -31,6 +31,7 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [firstUserMessageTriggered, setFirstUserMessageTriggered] = useState<boolean>(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -38,6 +39,12 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
   const isUserScrolling = useRef<boolean>(false);
   const lastMessageCount = useRef<number>(0);
   const isInitialLoad = useRef<boolean>(true);
+
+  // Function to handle first user message
+  const handleFirstUserMessage = useCallback(() => {
+    console.log("first text !");
+    console.log("ChatId:", chatId);
+  }, [chatId]);
 
   // Scroll to bottom function
   const scrollToBottom = useCallback(() => {
@@ -179,6 +186,15 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
               // Update all messages
               setAllMessages(sorted);
               saveToSessionStorage(sorted);
+              
+              // Check for first user message and trigger function if not already triggered
+              if (!firstUserMessageTriggered) {
+                const firstUserMessage = sorted.find(msg => msg.sender === "user");
+                if (firstUserMessage) {
+                  handleFirstUserMessage();
+                  setFirstUserMessageTriggered(true);
+                }
+              }
               
               // Check if there are new messages
               const hasNewMessages = sorted.length > lastMessageCount.current;
