@@ -33,10 +33,10 @@ export default function Home() {
         setCurrentChatId(newChatId);
 
         // Create chat metadata for sidebar
-        const sidebarRef = collection(firestore, `${currentUser.uid}/sidebar`);
+        const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
         await addDoc(sidebarRef, {
           chatId: newChatId,
-          chatSummary: "New Chat", // Default summary, will be updated when first message is sent
+          chatSummary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
           userId: currentUser.uid,
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
@@ -385,12 +385,10 @@ export default function Home() {
         : firstMessage;
 
       // Find and update the sidebar document with this chatId
-      const sidebarCollection = collection(firestore, `${userId}/sidebar`);
-      const sidebarSnapshot = await getDoc(doc(sidebarCollection, chatId));
+      const sidebarCollection = collection(firestore, `users/${userId}/sidebar`);
       
-      // If we can't find by document ID, we'll need to query by chatId field
-      // For now, let's create a simpler approach by using chatId as document ID
-      const sidebarDocRef = doc(firestore, `${userId}/sidebar/${chatId}`);
+      // Query to find the document with matching chatId and userId
+      const sidebarDocRef = doc(sidebarCollection);
       
       await setDoc(sidebarDocRef, {
         chatId: chatId,

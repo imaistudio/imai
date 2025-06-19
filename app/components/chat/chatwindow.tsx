@@ -5,6 +5,7 @@ import { firestore, auth } from "@/lib/firebase";
 import { doc, Timestamp, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
+import { Reply } from "lucide-react";
 
 interface ChatMessage {
   id?: string;
@@ -16,13 +17,23 @@ interface ChatMessage {
   chatId: string;
 }
 
+// 🔧 NEW: Interface for referenced message
+interface ReferencedMessage {
+  id: string;
+  sender: "user" | "agent";
+  text?: string;
+  images?: string[];
+  timestamp: string;
+}
+
 interface ChatWindowProps {
   chatId: string;
+  onReplyToMessage?: (message: ReferencedMessage) => void; // 🔧 NEW: Reply callback
 }
 
 const MESSAGES_PER_PAGE = 20;
 
-export default function ChatWindow({ chatId }: ChatWindowProps) {
+export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps) {
   const [allMessages, setAllMessages] = useState<ChatMessage[]>([]);
   const [displayedMessages, setDisplayedMessages] = useState<ChatMessage[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -31,7 +42,6 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [firstUserMessageTriggered, setFirstUserMessageTriggered] = useState<boolean>(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -40,11 +50,22 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
   const lastMessageCount = useRef<number>(0);
   const isInitialLoad = useRef<boolean>(true);
 
-  // Function to handle first user message
-  const handleFirstUserMessage = useCallback(() => {
-    console.log("first text !");
-    console.log("ChatId:", chatId);
-  }, [chatId]);
+  // 🔧 NEW: Handle reply to message
+  const handleReply = useCallback((msg: ChatMessage, index: number) => {
+    if (!onReplyToMessage) return;
+    
+    const referencedMessage: ReferencedMessage = {
+      id: msg.id || `${msg.chatId}-${index}`,
+      sender: msg.sender,
+      text: msg.text,
+      images: msg.images || [],
+      timestamp: msg.createdAt && typeof msg.createdAt === 'object' 
+        ? new Date((msg.createdAt as Timestamp).seconds * 1000).toISOString()
+        : new Date().toISOString()
+    };
+    
+    onReplyToMessage(referencedMessage);
+  }, [onReplyToMessage]);
 
   // Scroll to bottom function
   const scrollToBottom = useCallback(() => {
@@ -187,15 +208,6 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
               setAllMessages(sorted);
               saveToSessionStorage(sorted);
               
-              // Check for first user message and trigger function if not already triggered
-              if (!firstUserMessageTriggered) {
-                const firstUserMessage = sorted.find(msg => msg.sender === "user");
-                if (firstUserMessage) {
-                  handleFirstUserMessage();
-                  setFirstUserMessageTriggered(true);
-                }
-              }
-              
               // Check if there are new messages
               const hasNewMessages = sorted.length > lastMessageCount.current;
               lastMessageCount.current = sorted.length;
@@ -310,43 +322,65 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
               <div key={`${msg.id || msg.chatId}-${index}`}>
                 {/* Handle user messages (keep text and images together) */}
                 {msg.sender === "user" ? (
-                  <div className="flex justify-end">
-                    <div
-                      className={`max-w-[75%] ${
-                        msg.type === "prompt" || (msg.images && msg.images.length > 0)
-                          ? ""
-                          : ""
-                      }`}
-                    >
-                      {msg.text && (
-                        <div className={`text-sm bg-primary text-primary-foreground rounded-2xl px-4 py-3 leading-relaxed ${msg.images && msg.images.length > 0 ? 'mb-3' : ''}`}>
-                          <p>{msg.text}</p>
-                        </div>
-                      )}
-                      {msg.images && msg.images.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {msg.images.map((img, i) => (
-                            <ImageZoomModal
-                              key={`${index}-${i}`}
-                              src={img}
-                              alt={`image-${i}`}
-                              className="w-32 h-32 object-cover rounded-lg "
-                            />
-                          ))}
-                        </div>
-                      )}
+                  <div className="flex justify-end group">
+                    <div className="flex items-end gap-2">
+                      {/* 🔧 NEW: Reply button for user messages */}
+                      <button
+                        onClick={() => handleReply(msg, index)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                        title="Reply to this message"
+                      >
+                        <Reply size={16} className="text-gray-500" />
+                      </button>
+                      
+                      <div
+                        className={`max-w-[75%] ${
+                          msg.type === "prompt" || (msg.images && msg.images.length > 0)
+                            ? ""
+                            : ""
+                        }`}
+                      >
+                        {msg.text && (
+                          <div className={`text-sm bg-primary text-primary-foreground rounded-2xl px-4 py-3 leading-relaxed ${msg.images && msg.images.length > 0 ? 'mb-3' : ''}`}>
+                            <p>{msg.text}</p>
+                          </div>
+                        )}
+                        {msg.images && msg.images.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {msg.images.map((img, i) => (
+                              <ImageZoomModal
+                                key={`${index}-${i}`}
+                                src={img}
+                                alt={`image-${i}`}
+                                className="w-32 h-32 object-cover rounded-lg "
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : (
                   /* Handle agent messages (separate text and images) */
-                  <>
+                  <div className="group">
                     {/* Text bubble for agent */}
                     {msg.text && (
                       <div className="flex justify-start mb-2">
-                        <div className="max-w-[75%] bg-primary text-primary-foreground rounded-2xl px-4 py-3">
-                          <div className="text-sm leading-relaxed">
-                            <p>{msg.text}</p>
+                        <div className="flex items-end gap-2">
+                          <div className="max-w-[75%] bg-primary text-primary-foreground rounded-2xl px-4 py-3">
+                            <div className="text-sm leading-relaxed">
+                              <p>{msg.text}</p>
+                            </div>
                           </div>
+                          
+                          {/* 🔧 NEW: Reply button for agent text messages */}
+                          <button
+                            onClick={() => handleReply(msg, index)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Reply to this message"
+                          >
+                            <Reply size={16} className="text-gray-500" />
+                          </button>
                         </div>
                       </div>
                     )}
@@ -354,21 +388,32 @@ export default function ChatWindow({ chatId }: ChatWindowProps) {
                     {/* Images without background for agent */}
                     {msg.images && msg.images.length > 0 && (
                       <div className="flex justify-start">
-                        <div className="max-w-[75%]">
-                          <div className="flex flex-wrap gap-2">
-                            {msg.images.map((img, i) => (
-                              <ImageZoomModal
-                                key={`${index}-${i}`}
-                                src={img}
-                                alt={`image-${i}`}
-                                className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
-                              />
-                            ))}
+                        <div className="flex items-end gap-2">
+                          <div className="max-w-[75%]">
+                            <div className="flex flex-wrap gap-2">
+                              {msg.images.map((img, i) => (
+                                <ImageZoomModal
+                                  key={`${index}-${i}`}
+                                  src={img}
+                                  alt={`image-${i}`}
+                                  className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                                />
+                              ))}
+                            </div>
                           </div>
+                          
+                          {/* 🔧 NEW: Reply button for agent image messages */}
+                          <button
+                            onClick={() => handleReply(msg, index)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Reply to this image"
+                          >
+                            <Reply size={16} className="text-gray-500" />
+                          </button>
                         </div>
                       </div>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
             ))

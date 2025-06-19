@@ -227,10 +227,18 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+// Enhanced interface for multi-step operations
+interface MultiStepOperation {
+  steps: IntentAnalysis[];
+  executionPlan: 'sequential' | 'parallel';
+  contextChain: boolean; // Whether to use output of previous step as input to next
+}
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp?: string;
+  images?: string[]; // Add images field
 }
 
 interface IntentAnalysis {
@@ -240,6 +248,9 @@ interface IntentAnalysis {
   parameters: Record<string, any>;
   requiresFiles: boolean;
   explanation: string;
+  isMultiStep?: boolean;
+  multiStepPlan?: MultiStepOperation;
+  targetImages?: string[]; // For multi-image operations
 }
 
 interface ChatResponse {
@@ -325,8 +336,10 @@ async function parseClaudeIntent(response: any): Promise<IntentAnalysis> {
   }
 
   // Validate endpoint format
-  if (intentAnalysis.endpoint !== 'none' && !intentAnalysis.endpoint.startsWith('/api/')) {
-    throw new Error('Invalid endpoint format: must be "none" or start with "/api/"');
+  if (intentAnalysis.endpoint !== 'none' && 
+      intentAnalysis.endpoint !== 'multi_step' && 
+      !intentAnalysis.endpoint.startsWith('/api/')) {
+    throw new Error('Invalid endpoint format: must be "none", "multi_step", or start with "/api/"');
   }
 
   console.log("✅ Parsed Claude intent analysis:", intentAnalysis);
@@ -339,6 +352,8 @@ async function analyzeIntent(
   formDataEntries: [string, FormDataEntryValue][] = [],
   lastGeneratedResult?: { imageUrl?: string; endpoint?: string; intent?: string }
 ): Promise<IntentAnalysis> {
+
+
   const smartFallbackAnalysis = (): IntentAnalysis => {
     const message = userMessage.toLowerCase();
 
@@ -456,15 +471,115 @@ async function analyzeIntent(
       };
     }
 
+    // 🎯 PRIORITY: Check for upscale/enhance requests even without new images (conversation context)
+    const upscaleKeywords = ["enhance", "upscale", "upcale", "upscal", "make bigger", "increase resolution", "improve quality", "make it bigger", "enhance it", "upscale it", "upcale it"];
+    const hasUpscaleRequest = upscaleKeywords.some(keyword => message.includes(keyword));
+    
+    if (hasUpscaleRequest && !hasProductImage && !hasDesignImage && !hasColorImage) {
+      // Check if this is actually a multi-step operation that wasn't caught earlier
+      if (message.includes('landscape') || message.includes('portrait') || message.includes('reframe') || message.includes('crop')) {
+        console.log("Smart fallback detected multi-step upscale + reframe operation");
+        const orientation = message.includes('landscape') ? 'landscape' : 
+                           message.includes('portrait') ? 'portrait' : 'auto';
+        
+        return {
+          intent: "upscale_image",
+          confidence: 0.95,
+          endpoint: "/api/upscale",
+          parameters: { quality: "auto" },
+          requiresFiles: true,
+          explanation: "First step of upscale + reframe operation",
+          isMultiStep: true,
+          multiStepPlan: {
+            steps: [
+              {
+                intent: 'upscale_image',
+                confidence: 0.95,
+                endpoint: '/api/upscale',
+                parameters: { quality: 'auto' },
+                requiresFiles: true,
+                explanation: 'Step 1: Upscale image',
+                isMultiStep: true
+              },
+              {
+                intent: 'reframe_image',
+                confidence: 0.95,
+                endpoint: '/api/reframe',
+                parameters: { imageSize: orientation },
+                requiresFiles: true,
+                explanation: 'Step 2: Reframe to ' + orientation,
+                isMultiStep: true
+              }
+            ],
+            executionPlan: 'sequential',
+            contextChain: true
+          }
+        };
+      }
+
+      console.log("Smart fallback detected upscale request without new images - using conversation context");
+      return {
+        intent: "upscale_image",
+        confidence: 0.95,
+        endpoint: "/api/upscale",
+        parameters: { quality: "auto" },
+        requiresFiles: true,
+        explanation: "User wants to upscale previous image from conversation context",
+      };
+    }
+
+    // Similar detection for other operations on previous results
+    const analyzeKeywords = ["analyze", "describe", "tell me about", "what is in", "what's in", "identify", "explain", "what do you see", "analyze it", "describe it"];
+    const hasAnalyzeRequest = analyzeKeywords.some(keyword => message.includes(keyword));
+    
+    if (hasAnalyzeRequest && !hasProductImage && !hasDesignImage && !hasColorImage) {
+      console.log("Smart fallback detected analyze request without new images - using conversation context");
+      return {
+        intent: "analyze_image",
+        confidence: 0.95,
+        endpoint: "/api/analyzeimage",
+        parameters: {},
+        requiresFiles: true,
+        explanation: "User wants to analyze previous image from conversation context",
+      };
+    }
+
+    const reframeKeywords = ["reframe", "crop", "landscape", "portrait", "square", "resize", "crop it", "reframe it", "make it square"];
+    const hasReframeRequest = reframeKeywords.some(keyword => message.includes(keyword));
+    
+    if (hasReframeRequest && !hasProductImage && !hasDesignImage && !hasColorImage) {
+      console.log("Smart fallback detected reframe request without new images - using conversation context");
+      
+      let imageSize = "square_hd"; // default
+      if (message.includes("landscape")) {
+        imageSize = "landscape";
+      } else if (message.includes("portrait")) {
+        imageSize = "portrait";
+      } else if (message.includes("square")) {
+        imageSize = "square_hd";
+      }
+      
+      return {
+        intent: "reframe_image",
+        confidence: 0.95,
+        endpoint: "/api/reframe",
+        parameters: { imageSize: imageSize },
+        requiresFiles: true,
+        explanation: `User wants to reframe previous image to ${imageSize} format`,
+      };
+    }
+
     // 🎯 PRIORITY: Check for specific image operations BEFORE general design routing
     if (hasProductImage || hasDesignImage || hasColorImage) {
       const imageCount = [hasProductImage, hasDesignImage, hasColorImage].filter(Boolean).length;
 
-      // UPSCALE requests
+      // UPSCALE requests (with typo tolerance)
       if (
         imageCount === 1 &&
         (message.includes("enhance") ||
           message.includes("upscale") ||
+          message.includes("upcale") || // Common typo
+          message.includes("upscal") || // Another typo
           message.includes("make bigger") ||
           message.includes("increase resolution") ||
           message.includes("improve quality"))
@@ -944,7 +1059,40 @@ PREDEFINED SELECTION RULES:
 2. If user selected predefined options + has text prompt → Combine both for design generation
 3. Predefined selections should be included in parameters for design endpoint
 
+MULTI-STEP OPERATIONS:
+- Detect when users want multiple operations: "upscale and make landscape", "create design and then upscale"
+- For multi-step operations, return intent "multi_step" with steps array
+- Use context_chain: true when output of step 1 becomes input of step 2
+- Common patterns: upscale→reframe, design→upscale, analyze→design
+
 RESPONSE FORMAT:
+
+For multi-step operations:
+{
+  "intent": "multi_step",
+  "confidence": 0.8-0.95,
+  "endpoint": "multi_step",
+  "parameters": {
+    "steps": [
+      {
+        "intent": "upscale_image",
+        "endpoint": "/api/upscale",
+        "parameters": {"quality": "auto"}
+      },
+      {
+        "intent": "reframe_image", 
+        "endpoint": "/api/reframe",
+        "parameters": {"imageSize": "landscape"}
+      }
+    ],
+    "execution_plan": "sequential",
+    "context_chain": true
+  },
+  "requiresFiles": true,
+  "explanation": "Multi-step operation: upscale → reframe to landscape"
+}
+
+For single operations:
 {
   "intent": "casual_conversation|create_design|design|upscale_image|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title",
   "confidence": 0.8-0.95,
@@ -961,12 +1109,24 @@ RESPONSE FORMAT:
   "explanation": "Brief explanation including context awareness"
 }`;
 
-  // Try smart fallback first for speed optimization
+  // Try smart fallback for simple, clear operations only
   const smartResult = smartFallbackAnalysis();
-  if (smartResult.confidence >= 0.9) {
-    console.log("⚡ Using smart fallback analysis (high confidence) - skipping Claude for speed");
+  
+  // Only use smart fallback for very simple, single-operation requests
+  // Complex requests (multi-step, multi-image, ambiguous) should go to Claude
+  const isComplexRequest = userMessage.toLowerCase().includes(' and ') || 
+                          userMessage.toLowerCase().includes('then') ||
+                          userMessage.toLowerCase().includes('both') ||
+                          userMessage.toLowerCase().includes('all') ||
+                          userMessage.toLowerCase().includes('multiple') ||
+                          userMessage.split(' ').length > 10; // Long messages likely complex
+  
+  if (smartResult.confidence >= 0.95 && !isComplexRequest) {
+    console.log("⚡ Using smart fallback for simple operation - skipping Claude");
     return smartResult;
   }
+  
+  console.log("🧠 Using Claude for intelligent analysis (complex/ambiguous request)");
 
   try {
     console.log("🧠 Analyzing intent with Claude Sonnet 4...");
@@ -1394,7 +1554,8 @@ async function routeToAPI(
         imageUrls.design_image ||
         imageUrls.design_image_image ||
         imageUrls.color_image ||
-        imageUrls.color_image_image;
+        imageUrls.color_image_image ||
+        parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
         formData.append("image_url", imageUrl);
@@ -1416,13 +1577,15 @@ async function routeToAPI(
         imageUrls.design_image ||
         imageUrls.design_image_image ||
         imageUrls.color_image ||
-        imageUrls.color_image_image;
+        imageUrls.color_image_image ||
+        parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
         formData.append("image_url", imageUrl);
         console.log("🔗 Added image_url for upscaling:", imageUrl);
       } else {
         console.log("🔍 Available imageUrls keys:", Object.keys(imageUrls));
+        console.log("🔍 Available parameters:", Object.keys(parameters));
         throw new Error("No image URL found for upscaling");
       }
 
@@ -1443,7 +1606,8 @@ async function routeToAPI(
         imageUrls.design_image ||
         imageUrls.design_image_image ||
         imageUrls.color_image ||
-        imageUrls.color_image_image;
+        imageUrls.color_image_image ||
+        parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
         formData.append("image_url", imageUrl);
@@ -1466,7 +1630,8 @@ async function routeToAPI(
       const imageUrl =
         imageUrls.product_image ||
         imageUrls.design_image ||
-        imageUrls.color_image;
+        imageUrls.color_image ||
+        parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
         const clarityPayload = {
@@ -1494,7 +1659,8 @@ async function routeToAPI(
       const imageUrl =
         imageUrls.product_image ||
         imageUrls.design_image ||
-        imageUrls.color_image;
+        imageUrls.color_image ||
+        parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
         formData.append("image_url", imageUrl);
@@ -1519,7 +1685,8 @@ async function routeToAPI(
       const imageUrl =
         imageUrls.product_image ||
         imageUrls.design_image ||
-        imageUrls.color_image;
+        imageUrls.color_image ||
+        parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
         formData.append("image_url", imageUrl);
@@ -1820,6 +1987,98 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
+    // 🔧 ENHANCED: Handle explicit reference with smart chain resolution and multi-image support
+    const explicitReferenceStr = formData.get("explicit_reference") as string;
+    let explicitReference: { imageUrl?: string; endpoint?: string; intent?: string; text?: string; images?: string[] } | undefined;
+    
+    // Smart reference chain resolution function
+    const resolveReferenceChain = (reference: any, conversationHistory: ChatMessage[]): { images: string[], text: string, chainLength: number } => {
+      let currentRef = reference;
+      let allImages: string[] = [];
+      let allText: string[] = [];
+      let chainLength = 0;
+      const visitedIds = new Set(); // Prevent infinite loops
+
+      while (currentRef && chainLength < 10) { // Max chain depth of 10
+        chainLength++;
+        
+        // Prevent infinite loops
+        if (currentRef.id && visitedIds.has(currentRef.id)) {
+          console.log("🔄 Reference chain loop detected, breaking");
+          break;
+        }
+        if (currentRef.id) visitedIds.add(currentRef.id);
+
+        // Extract images and text from current reference
+        if (currentRef.images && Array.isArray(currentRef.images)) {
+          allImages.push(...currentRef.images);
+        }
+        if (currentRef.text) {
+          allText.push(currentRef.text);
+        }
+
+        // Look for nested references in the text (like "this" or "that" pointing to another message)
+        const textToCheck = currentRef.text?.toLowerCase() || '';
+        if (textToCheck.includes('this') || textToCheck.includes('that') || textToCheck.includes('it')) {
+          // Find the most recent message before this one that has images
+          const currentTimestamp = new Date(currentRef.timestamp || 0).getTime();
+          let foundNextRef = false;
+          
+          for (let i = conversationHistory.length - 1; i >= 0; i--) {
+            const msg = conversationHistory[i];
+            const msgTimestamp = new Date(msg.timestamp || 0).getTime();
+            
+            if (msgTimestamp < currentTimestamp && (msg as any).images && (msg as any).images.length > 0) {
+              currentRef = {
+                images: (msg as any).images,
+                text: msg.content,
+                timestamp: msg.timestamp,
+                id: `chain_${i}`
+              };
+              foundNextRef = true;
+              break;
+            }
+          }
+          
+          if (!foundNextRef) break;
+        } else {
+          break; // No more chain references
+        }
+      }
+
+      return {
+        images: Array.from(new Set(allImages)), // Remove duplicates
+        text: allText.join(' → '),
+        chainLength
+      };
+    };
+
+
+
+    if (explicitReferenceStr) {
+      try {
+        const reference = JSON.parse(explicitReferenceStr);
+        
+        // Resolve reference chain to get all images and context
+        const resolvedChain = resolveReferenceChain(reference, conversationHistory);
+        
+        explicitReference = {
+          imageUrl: resolvedChain.images[0], // Primary image
+          text: resolvedChain.text,
+          images: resolvedChain.images, // All images in the chain
+          // We don't have endpoint/intent from the reference, but that's ok
+        };
+        
+        console.log(`🔧 Explicit reference resolved (chain length: ${resolvedChain.chainLength}):`, {
+          imageCount: resolvedChain.images.length,
+          images: resolvedChain.images,
+          text: resolvedChain.text
+        });
+      } catch (error) {
+        console.log("⚠️ Could not parse explicit reference:", error);
+      }
+    }
+
     console.log("✅ Validation passed, proceeding with intent analysis");
 
     const imageUrls: Record<string, string> = {};
@@ -1974,27 +2233,42 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const msg = conversationHistory[i];
         if (msg.role === "assistant") {
           try {
-            // Try to extract result info from assistant message - look for various patterns
-            const firebaseUrlMatch = msg.content.match(/firebaseOutputUrl['":\s]*([^"'\s,}]+)/);
-            const imageUrlMatch = msg.content.match(/imageUrl['":\s]*([^"'\s,}]+)/);
-            const outputUrlMatch = msg.content.match(/outputUrl['":\s]*([^"'\s,}]+)/);
-            const dataUrlMatch = msg.content.match(/data_url['":\s]*([^"'\s,}]+)/);
+            let extractedImageUrl: string | undefined;
+            let extractedEndpoint: string | undefined;
+            let extractedIntent: string | undefined;
             
-            // Look for endpoint and intent information
+            // 🔧 FIX: First check if the message has images field (stored from frontend)
+            if ((msg as any).images && Array.isArray((msg as any).images) && (msg as any).images.length > 0) {
+              extractedImageUrl = (msg as any).images[0]; // Use the first image
+              console.log("🔍 Found image URL in message images field:", extractedImageUrl);
+            }
+            
+            // Fallback: Try to extract result info from assistant message content - look for various patterns
+            if (!extractedImageUrl) {
+              const firebaseUrlMatch = msg.content.match(/firebaseOutputUrl['":\s]*([^"'\s,}]+)/);
+              const imageUrlMatch = msg.content.match(/imageUrl['":\s]*([^"'\s,}]+)/);
+              const outputUrlMatch = msg.content.match(/outputUrl['":\s]*([^"'\s,}]+)/);
+              const dataUrlMatch = msg.content.match(/data_url['":\s]*([^"'\s,}]+)/);
+              
+              extractedImageUrl = firebaseUrlMatch?.[1] || imageUrlMatch?.[1] || 
+                                outputUrlMatch?.[1] || dataUrlMatch?.[1];
+            }
+            
+            // Look for endpoint and intent information in content
             const endpointMatch = msg.content.match(/endpoint['":\s]*([^"'\s,}]+)/) || 
                                  msg.content.match(/→\s*([\/\w]+)/); // Match "→ /api/design" pattern
             const intentMatch = msg.content.match(/intent['":\s]*([^"'\s,}]+)/) ||
                                msg.content.match(/Intent:\s*(\w+)/); // Match "Intent: design" pattern
             
-            // Extract image URL from any of the possible fields
-            const extractedImageUrl = firebaseUrlMatch?.[1] || imageUrlMatch?.[1] || 
-                                     outputUrlMatch?.[1] || dataUrlMatch?.[1];
+            extractedEndpoint = endpointMatch?.[1];
+            extractedIntent = intentMatch?.[1];
             
-            if (extractedImageUrl || endpointMatch || intentMatch) {
+            // If we found an image URL or other context info, use it
+            if (extractedImageUrl || extractedEndpoint || extractedIntent) {
               lastGeneratedResult = {
                 imageUrl: extractedImageUrl,
-                endpoint: endpointMatch?.[1],
-                intent: intentMatch?.[1]
+                endpoint: extractedEndpoint,
+                intent: extractedIntent
               };
               console.log("🔍 Extracted last result context:", lastGeneratedResult);
               break;
@@ -2010,10 +2284,127 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       effectiveMessage,
       conversationHistory,
       entries,
-      lastGeneratedResult
+      explicitReference || lastGeneratedResult // 🔧 Prioritize explicit reference over auto-detected
     );
 
     console.log("Intent Analysis:", intentAnalysis);
+
+    // 🎯 INTELLIGENT: Handle Claude-detected multi-step operations
+    if (intentAnalysis.intent === 'multi_step' && intentAnalysis.parameters?.steps) {
+      const steps = intentAnalysis.parameters.steps;
+      console.log(`🧠 Executing Claude-detected multi-step operation: ${steps.length} steps`);
+      let currentResult = null;
+      let allResults: any[] = [];
+      
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        console.log(`⚡ Executing step ${i + 1}: ${step.intent}`);
+        
+        // For steps after the first, use the output of the previous step if context_chain is enabled
+        let stepImageUrls = { ...imageUrls };
+        if (i > 0 && intentAnalysis.parameters.context_chain && currentResult?.firebaseOutputUrl) {
+          stepImageUrls.product_image = currentResult.firebaseOutputUrl;
+          console.log(`🔗 Using previous step output as input: ${currentResult.firebaseOutputUrl}`);
+        }
+        
+        try {
+          const stepResult = await routeToAPI(
+            step.endpoint,
+            step.parameters || {},
+            formData,
+            userid,
+            effectiveMessage,
+            stepImageUrls,
+            request
+          );
+          
+          currentResult = stepResult;
+          allResults.push({ stepIndex: i + 1, ...stepResult });
+          console.log(`✅ Step ${i + 1} completed:`, stepResult.status);
+          
+          // Process output image for Firebase storage
+          if (stepResult && stepResult.status === 'success') {
+            const outputUrl = stepResult.firebaseOutputUrl || stepResult.data_url || stepResult.outputUrl || stepResult.output_image || stepResult.imageUrl;
+            
+            if (outputUrl && typeof outputUrl === 'string' && outputUrl.startsWith('data:image/')) {
+              console.log(`🔄 Converting step ${i + 1} base64 output to Firebase Storage...`);
+              try {
+                const processedFile = await processBase64Image(outputUrl, `step_${i + 1}_output.png`);
+                const firebaseUrl = await uploadImageToFirebaseStorage(processedFile, userid, true);
+                
+                // Update current result with Firebase URL
+                currentResult = {
+                  ...stepResult,
+                  firebaseOutputUrl: firebaseUrl,
+                  data_url: firebaseUrl,
+                  outputUrl: firebaseUrl,
+                  output_image: firebaseUrl,
+                  imageUrl: firebaseUrl
+                };
+                
+                console.log(`✅ Step ${i + 1} output saved to Firebase:`, firebaseUrl);
+              } catch (error) {
+                console.error(`❌ Failed to save step ${i + 1} output:`, error);
+              }
+            }
+          }
+        } catch (error: any) {
+          console.error(`❌ Step ${i + 1} failed:`, error);
+          allResults.push({
+            stepIndex: i + 1,
+            status: "error",
+            error: error.message || "Unknown error"
+          });
+          break; // Stop execution on error
+        }
+      }
+      
+      // Return the final result
+      const finalResult = currentResult || allResults[allResults.length - 1];
+      const successCount = allResults.filter(r => r.status === 'success').length;
+      const successMessage = `🎉 Multi-step operation completed! Successfully executed ${successCount} out of ${steps.length} steps.`;
+      
+      const chatResponse: ChatResponse = {
+        status: finalResult?.status || "error",
+        message: successMessage,
+        intent: intentAnalysis,
+        result: finalResult,
+        conversation_id: `${userid}_${Date.now()}`,
+      };
+
+      return NextResponse.json(chatResponse);
+    }
+
+
+
+    // 🔧 FIX: Add reference image URL to imageUrls if no new images uploaded but reference exists
+    const referenceResult = explicitReference || lastGeneratedResult;
+    if (referenceResult?.imageUrl && Object.keys(imageUrls).length === 0) {
+      const sourceType = explicitReference ? "explicit reference" : "previous result";
+      console.log(`🔄 No new images uploaded - using ${sourceType} image for operation`);
+      
+      // Determine the correct image field based on the current intent
+      if (intentAnalysis.intent === 'upscale_image' || 
+          intentAnalysis.intent === 'analyze_image' || 
+          intentAnalysis.intent === 'reframe_image' ||
+          intentAnalysis.intent === 'clarity_upscale' ||
+          intentAnalysis.intent === 'create_video' ||
+          intentAnalysis.intent === 'mirror_magic') {
+        // For single-image operations, use product_image as the standard field
+        imageUrls.product_image = referenceResult.imageUrl;
+        console.log(`✅ Added ${sourceType} image as product_image:`, referenceResult.imageUrl);
+      } else if (intentAnalysis.intent === 'design' && referenceResult.imageUrl) {
+        // For design operations, add as product_image for modification
+        imageUrls.product_image = referenceResult.imageUrl;
+        console.log(`✅ Added ${sourceType} image as product_image for design modification:`, referenceResult.imageUrl);
+      }
+      
+      // Also add to intent parameters if not already set
+      if (!intentAnalysis.parameters.reference_image_url) {
+        intentAnalysis.parameters.reference_image_url = referenceResult.imageUrl;
+        console.log(`✅ Added reference_image_url to intent parameters:`, referenceResult.imageUrl);
+      }
+    }
 
     let apiResult = null;
     let responseMessage = "";

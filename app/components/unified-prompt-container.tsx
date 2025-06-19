@@ -73,16 +73,29 @@ interface SubmissionData {
 	colorplaceholder: string[];
 }
 
+// 🔧 NEW: Interface for referenced message
+interface ReferencedMessage {
+	id: string;
+	sender: "user" | "agent";
+	text?: string;
+	images?: string[];
+	timestamp: string;
+}
+
 interface UnifiedPromptContainerProps {
 	onSubmit?: (data: SubmissionData) => void;
 	placeholder?: string;
 	maxLength?: number;
+	referencedMessage?: ReferencedMessage | null; // 🔧 NEW: Referenced message prop
+	onClearReference?: () => void; // 🔧 NEW: Clear reference callback
 }
 
 export default function UnifiedPromptContainer({
 	onSubmit,
 	placeholder = "Reimagine ArtWork",
 	maxLength = 1000,
+	referencedMessage, // 🔧 NEW: Referenced message prop
+	onClearReference, // 🔧 NEW: Clear reference callback
 }: UnifiedPromptContainerProps) {
 	const [prompt, setPrompt] = useState("");
 	const [images, setImages] = useState<ImageAsset[]>([]);
@@ -481,6 +494,56 @@ export default function UnifiedPromptContainer({
 		);
 	};
 
+	// 🔧 NEW: Render referenced message display
+	const renderReferencedMessage = () => {
+		if (!referencedMessage) return null;
+		
+		return (
+			<div className="mx-3 mt-3 p-3 bg-default-50 border-l-4 border-primary rounded-r-md">
+				<div className="flex items-start justify-between">
+					<div className="flex-1">
+						<div className="flex items-center gap-2 mb-1">
+							<Icon icon="lucide:reply" width={14} className="text-primary" />
+							<span className="text-xs font-medium text-default-600">
+								Replying to {referencedMessage.sender === "user" ? "You" : "Assistant"}
+							</span>
+						</div>
+						{referencedMessage.text && (
+							<p className="text-sm text-default-700 mb-2 line-clamp-2">
+								{referencedMessage.text}
+							</p>
+						)}
+						{referencedMessage.images && referencedMessage.images.length > 0 && (
+							<div className="flex gap-1 mb-2">
+								{referencedMessage.images.slice(0, 3).map((img, i) => (
+									<img
+										key={i}
+										src={img}
+										alt={`Referenced image ${i + 1}`}
+										className="w-8 h-8 object-cover rounded border"
+									/>
+								))}
+								{referencedMessage.images.length > 3 && (
+									<div className="w-8 h-8 bg-default-200 rounded border flex items-center justify-center text-xs">
+										+{referencedMessage.images.length - 3}
+									</div>
+								)}
+							</div>
+						)}
+					</div>
+					<Button
+						isIconOnly
+						size="sm"
+						variant="light"
+						onPress={onClearReference}
+					>
+						<Icon icon="lucide:x" width={14} />
+					</Button>
+				</div>
+			</div>
+		);
+	};
+
 	const renderImageAssets = () => (
 		<div className="group flex gap-2 pl-[20px] pt-4 pr-3 pb-2">
 			{images.map((image, index) => (
@@ -548,6 +611,7 @@ export default function UnifiedPromptContainer({
 						className="flex w-full flex-col gap-0 rounded-medium bg-default-100 overflow-hidden"
 					>
 						{renderDrawer()}
+						{renderReferencedMessage()} {/* 🔧 NEW: Show referenced message */}
 						{renderImageAssets()}
 
 						{!drawerOpen && (
