@@ -7,13 +7,24 @@ import ChatWindow from "./components/chat/chatwindow";
 import { doc, setDoc, Timestamp, getDoc, collection, addDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { v4 as uuidv4 } from "uuid";
-
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
+
+// 🔧 NEW: Interface for reply/reference functionality
+interface ReferencedMessage {
+  id: string;
+  sender: "user" | "agent";
+  text?: string;
+  images?: string[];
+  timestamp: string;
+}
 
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
   const [currentChatId, setCurrentChatId] = useState<string>("");
+  
+  // 🔧 NEW: State for reply/reference functionality
+  const [referencedMessage, setReferencedMessage] = useState<ReferencedMessage | null>(null);
 
   const [modalShown, setModalShown] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
@@ -36,7 +47,7 @@ export default function Home() {
         const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
         await addDoc(sidebarRef, {
           chatId: newChatId,
-          chatSummary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+          chatSummary: "lorem issump", // Default summary, will be updated when first message is sent
           userId: currentUser.uid,
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
@@ -73,6 +84,17 @@ export default function Home() {
       closeModal();
     }
   }, [loading, currentUser, modalShown, openModal, closeModal]);
+
+  // 🔧 NEW: Function to handle reply to message
+  const handleReplyToMessage = (message: ReferencedMessage) => {
+    setReferencedMessage(message);
+    console.log('Setting referenced message:', message);
+  };
+
+  // 🔧 NEW: Function to clear reference
+  const clearReference = () => {
+    setReferencedMessage(null);
+  };
 
   const handleFormSubmission = async (data: any) => {
     console.log('Form submission started with data:', data);
@@ -196,6 +218,41 @@ export default function Home() {
       formData.append("userid", currentUser.uid);
       formData.append("message", data.prompt || "");
 
+      // 🔧 FIX: Add conversation history for context awareness
+      try {
+        const chatDoc = await getDoc(chatRef);
+        if (chatDoc.exists()) {
+          const existingMessages = chatDoc.data().messages || [];
+          // Convert to the format expected by intentroute
+          const conversationHistory = existingMessages.map((msg: any) => ({
+            role: msg.sender === "user" ? "user" : "assistant",
+            content: msg.text || "",
+            timestamp: msg.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            images: msg.images || [], // 🔧 FIX: Include images field for context extraction
+          }));
+          formData.append("conversation_history", JSON.stringify(conversationHistory));
+          console.log('Added conversation history to API call:', conversationHistory.length, 'messages');
+        }
+      } catch (error) {
+        console.warn('Failed to load conversation history:', error);
+      }
+
+      // 🔧 NEW: Add explicit reference if user selected one
+      if (referencedMessage) {
+        const reference = {
+          id: referencedMessage.id,
+          sender: referencedMessage.sender,
+          text: referencedMessage.text || "",
+          images: referencedMessage.images || [],
+          timestamp: referencedMessage.timestamp
+        };
+        formData.append("explicit_reference", JSON.stringify(reference));
+        console.log('Added explicit reference to API call:', reference);
+        
+        // Clear the reference after sending
+        clearReference();
+      }
+
       // Helper function to determine if a string is a Firebase URL or local path
       const isFirebaseUrl = (path: string): boolean => {
         return path.includes('firebasestorage.googleapis.com') || path.startsWith('http');
@@ -253,6 +310,15 @@ export default function Home() {
         console.log('Added color data:', data.color);
       }
 
+      console.log('Calling intent route API with formData:', {
+        userid: currentUser.uid,
+        message: data.prompt,
+        hasImages: allImages.length > 0,
+        imageCount: allImages.length,
+        hasProduct: !!data.product,
+        hasDesign: data.design?.length > 0,
+        hasColor: data.color?.length > 0
+      });
 
       const response = await fetch("/api/intentroute", {
         method: "POST",
@@ -386,9 +452,11 @@ export default function Home() {
 
       // Find and update the sidebar document with this chatId
       const sidebarCollection = collection(firestore, `users/${userId}/sidebar`);
+      const sidebarSnapshot = await getDoc(doc(sidebarCollection, chatId));
       
-      // Query to find the document with matching chatId and userId
-      const sidebarDocRef = doc(sidebarCollection);
+      // If we can't find by document ID, we'll need to query by chatId field
+      // For now, let's create a simpler approach by using chatId as document ID
+      const sidebarDocRef = doc(firestore, `users/${userId}/sidebar/${chatId}`);
       
       await setDoc(sidebarDocRef, {
         chatId: chatId,
@@ -496,7 +564,10 @@ export default function Home() {
     <div className="relative h-screen w-full overflow-hidden hide-scrollbar">
       {/* ChatWindow fills the screen */}
       <div className="absolute inset-0 overflow-y-auto hide-scrollbar">
-        <ChatWindow chatId={currentChatId} />
+        <ChatWindow 
+          chatId={currentChatId} 
+          onReplyToMessage={handleReplyToMessage}
+        />
       </div>
 
       {/* Sticky prompt at the bottom */}
@@ -505,6 +576,8 @@ export default function Home() {
           onSubmit={handleFormSubmission}
           placeholder="Reimagine Artwork"
           maxLength={500}
+          referencedMessage={referencedMessage}
+          onClearReference={clearReference}
         />
         <small className="text-xs">AI-generated content may not be perfect. Review <a href="/terms" className="text-primary hover:underline">Terms & Conditions</a>.</small>
       </div>
