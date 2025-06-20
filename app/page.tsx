@@ -33,43 +33,62 @@ export default function Home() {
     return false;
   });
 
-  // Create a new chat every time user visits
+  // Create or restore chat based on session
   useEffect(() => {
-    const createNewChat = async () => {
+    const initializeChat = async () => {
       if (!currentUser) return;
 
       try {
-        // Always create a new chat ID
-        const newChatId = `${currentUser.uid}_${uuidv4()}`;
-        setCurrentChatId(newChatId);
+        // Check if there's an existing chat ID in sessionStorage for this user
+        const sessionKey = `currentChatId_${currentUser.uid}`;
+        const existingChatId = sessionStorage.getItem(sessionKey);
 
-        // Create chat metadata for sidebar
-        const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
-        await addDoc(sidebarRef, {
-          chatId: newChatId,
-          chatSummary: "lorem issump", // Default summary, will be updated when first message is sent
-          userId: currentUser.uid,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now(),
-          isPinned: false,
-          pinnedAt: null
-        });
+        if (existingChatId) {
+          // Use existing chat from session
+          setCurrentChatId(existingChatId);
+          console.log("Restored existing chat from session:", existingChatId);
+        } else {
+          // Create a new chat only if none exists in session
+          const newChatId = `${currentUser.uid}_${uuidv4()}`;
+          setCurrentChatId(newChatId);
 
-        console.log("Created new chat:", newChatId);
+          // Store in sessionStorage
+          sessionStorage.setItem(sessionKey, newChatId);
+
+          // Create chat metadata for sidebar
+          const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
+          await addDoc(sidebarRef, {
+            chatId: newChatId,
+            chatSummary: "lorem issump", // Default summary, will be updated when first message is sent
+            userId: currentUser.uid,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+            isPinned: false,
+            pinnedAt: null
+          });
+
+          console.log("Created new chat:", newChatId);
+        }
       } catch (error) {
-        console.error("Error creating new chat:", error);
+        console.error("Error initializing chat:", error);
       }
     };
 
     if (!loading && currentUser) {
-      createNewChat();
+      initializeChat();
     }
   }, [currentUser, loading]);
 
-  // Clear chat ID when user logs out
+  // Clear chat ID and session when user logs out
   useEffect(() => {
     if (!loading && !currentUser) {
       setCurrentChatId("");
+      // Clear any existing chat sessions when user logs out
+      Object.keys(sessionStorage).forEach(key => {
+        if (key.startsWith('currentChatId_')) {
+          sessionStorage.removeItem(key);
+        }
+      });
     }
   }, [loading, currentUser]);
 
