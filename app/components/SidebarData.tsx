@@ -52,8 +52,10 @@ export default function SidebarData() {
   }, [currentUser]);
 
   const handleItemClick = (item: SidebarItem) => {
-    console.log("Switching to chat:", item.chatId);
+    console.log("🔄 Sidebar: Switching to chat:", item.chatId);
+    console.log("🔄 Current chat ID before switch:", currentChatId);
     switchToChat(item.chatId);
+    console.log("🔄 Switch command sent for chat:", item.chatId);
   };
 
   if (!currentUser) {

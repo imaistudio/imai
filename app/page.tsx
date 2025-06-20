@@ -22,6 +22,11 @@ export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
   const { currentChatId, createNewChat } = useChat();
+
+  // Debug: Track currentChatId changes
+  useEffect(() => {
+    console.log("🏠 Page: currentChatId changed to:", currentChatId);
+  }, [currentChatId]);
   
   // 🔧 NEW: State for reply/reference functionality
   const [referencedMessage, setReferencedMessage] = useState<ReferencedMessage | null>(null);
@@ -35,21 +40,36 @@ export default function Home() {
 
   // Create new chat for new sessions (when no current chat exists)
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const initializeSessionChat = async () => {
       if (!currentUser || loading) return;
 
-      // Only create a new chat if there's no current chat ID
+      // Only create a new chat if there's no current chat ID AND we're not in the middle of a chat switch
       if (!currentChatId) {
-        try {
-          console.log("No current chat found, creating new session chat");
-          await createNewChat();
-        } catch (error) {
-          console.error("Error creating session chat:", error);
-        }
+        // Add a small delay to ensure any chat switching operations have completed
+        timeoutId = setTimeout(async () => {
+          // Double-check that we still don't have a chat ID after the delay
+          if (!currentChatId) {
+            try {
+              console.log("No current chat found, creating new session chat");
+              await createNewChat();
+            } catch (error) {
+              console.error("Error creating session chat:", error);
+            }
+          }
+        }, 100);
       }
     };
 
     initializeSessionChat();
+
+    // Cleanup function
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [currentUser, loading, currentChatId, createNewChat]);
 
   useEffect(() => {

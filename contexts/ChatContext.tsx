@@ -93,15 +93,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   const switchToChat = (chatId: string) => {
-    if (!chatId || !currentUser) return;
+    if (!chatId || !currentUser) {
+      console.log("❌ ChatContext: Cannot switch chat - missing chatId or user:", { chatId, hasUser: !!currentUser });
+      return;
+    }
+    
+    console.log("🔄 ChatContext: Switching from", currentChatId, "to", chatId);
     
     // Update session storage
     const sessionKey = `currentChatId_${currentUser.uid}`;
     sessionStorage.setItem(sessionKey, chatId);
+    console.log("📝 ChatContext: Updated session storage with key:", sessionKey, "value:", chatId);
     
     // Update current chat
     setCurrentChatId(chatId);
-    console.log("Switched to chat:", chatId);
+    console.log("✅ ChatContext: Set current chat ID to:", chatId);
   };
 
   const value: ChatContextType = {

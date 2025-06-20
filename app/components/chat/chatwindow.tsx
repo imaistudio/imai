@@ -178,6 +178,24 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
     return null;
   };
 
+  // Reset state when chatId changes
+  useEffect(() => {
+    if (!chatId) return;
+    
+    // Reset all state when switching chats
+    setAllMessages([]);
+    setDisplayedMessages([]);
+    setInitialLoadComplete(false);
+    setLoadingOlder(false);
+    setHasMoreMessages(true);
+    setCurrentPage(1);
+    lastMessageCount.current = 0;
+    isInitialLoad.current = true;
+    isUserScrolling.current = false;
+    
+    console.log('🔄 Chat switched to:', chatId);
+  }, [chatId]);
+
   // Load and monitor messages
   useEffect(() => {
     if (!userId || !chatId || loading) return;
@@ -268,7 +286,7 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
         unsubscribe();
       }
     };
-  }, [userId, chatId, loading, scrollToBottom, allMessages.length]);
+  }, [userId, chatId, loading, scrollToBottom]);
 
   // Add scroll event listener
   useEffect(() => {
