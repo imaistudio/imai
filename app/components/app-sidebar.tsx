@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { NavUser } from "./nav-user";
 import { SearchForm } from "./search-form";
+import SidebarData from "./SidebarData";
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -18,7 +19,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarHeader>
 			<SearchForm></SearchForm>
 			</SidebarHeader>
-			<SidebarContent></SidebarContent>
+			<SidebarContent>
+				<SidebarData />
+			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />
 			</SidebarFooter>
