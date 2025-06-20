@@ -93,8 +93,10 @@ export default function SidebarData() {
                 : "hover:bg-muted/50"
             }`}
           >
-            <small className="w-3/4 text-sm text-foreground truncate whitespace-nowrap overflow-hidden">
-              {item.chatSummary || "Untitled Chat"}
+            <small className="text-sm text-foreground truncate whitespace-nowrap overflow-hidden">
+              {(item.chatSummary?.length > 30
+                ? item.chatSummary.slice(0, 30) + "..."
+                : item.chatSummary) || "Untitled Chat"}
             </small>
           </div>
         ))}
