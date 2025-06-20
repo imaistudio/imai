@@ -59,7 +59,7 @@ export default function Home() {
           const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
           await addDoc(sidebarRef, {
             chatId: newChatId,
-            chatSummary: "lorem issump", // Default summary, will be updated when first message is sent
+            chatSummary: "New Chat", // Default summary, will be updated when first message is sent
             userId: currentUser.uid,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),

@@ -1,18 +1,19 @@
-Current Goals
+Todo 
 
-1. API Call Back Complete Villoa | Contact Salman | Add in DropBox Content - Inprogress
-2. Add in Default Promot with horizontal scrolling | Call back function to Return images 
-3. Stripe Payment Gateway With Billing | Checkout 
-4. Pagination to Explore Page 
-5. Postman Readme.md for all the routes 
+1. Sidebar Link to Load Chat 
+2. Link New ChatButton To Start a New Chat 
+3. in Sidebar Compoent add in pin | create folder and add chats into it 
+4. search bar search the entier chat and updates the list  
+5. load all the presets and add in test code to veryify the path 
+6. New Chat Show Default Promot With horizontal Scrooling 
+7. Pagination to Explore Page and firestore database 
+8. Stripe Payment Gateway 
 
-# Todo 
-Crud Operations for storing the chats,sidebar,...etc - Whole Schema
-Firebase Auth Apple | Reset 
-Load User Chats in SideBar
-Create Folder 
-Search Chats
-Pin Chats
-ChatWindow With ChatID Loading System
-Webp Convert Function if the images are above 25MB
-Pixel Perfect UI 
+Extras 
+
+1.Phone Auth 
+2.Apple Auth 
+3.Reset Email
+
+
+Pixel Perfect UI - Page By Page 
