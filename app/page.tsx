@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
+import { useChat } from "@/contexts/ChatContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
 import ChatWindow from "./components/chat/chatwindow";
 import { doc, setDoc, Timestamp, getDoc, collection, addDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
-import { v4 as uuidv4 } from "uuid";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
 
 // 🔧 NEW: Interface for reply/reference functionality
@@ -21,7 +21,7 @@ interface ReferencedMessage {
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
-  const [currentChatId, setCurrentChatId] = useState<string>("");
+  const { currentChatId, createNewChat } = useChat();
   
   // 🔧 NEW: State for reply/reference functionality
   const [referencedMessage, setReferencedMessage] = useState<ReferencedMessage | null>(null);
@@ -33,64 +33,24 @@ export default function Home() {
     return false;
   });
 
-  // Create or restore chat based on session
+  // Create new chat for new sessions (when no current chat exists)
   useEffect(() => {
-    const initializeChat = async () => {
-      if (!currentUser) return;
+    const initializeSessionChat = async () => {
+      if (!currentUser || loading) return;
 
-      try {
-        // Check if there's an existing chat ID in sessionStorage for this user
-        const sessionKey = `currentChatId_${currentUser.uid}`;
-        const existingChatId = sessionStorage.getItem(sessionKey);
-
-        if (existingChatId) {
-          // Use existing chat from session
-          setCurrentChatId(existingChatId);
-          console.log("Restored existing chat from session:", existingChatId);
-        } else {
-          // Create a new chat only if none exists in session
-          const newChatId = `${currentUser.uid}_${uuidv4()}`;
-          setCurrentChatId(newChatId);
-
-          // Store in sessionStorage
-          sessionStorage.setItem(sessionKey, newChatId);
-
-          // Create chat metadata for sidebar
-          const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
-          await addDoc(sidebarRef, {
-            chatId: newChatId,
-            chatSummary: "New Chat", // Default summary, will be updated when first message is sent
-            userId: currentUser.uid,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-            isPinned: false,
-            pinnedAt: null
-          });
-
-          console.log("Created new chat:", newChatId);
+      // Only create a new chat if there's no current chat ID
+      if (!currentChatId) {
+        try {
+          console.log("No current chat found, creating new session chat");
+          await createNewChat();
+        } catch (error) {
+          console.error("Error creating session chat:", error);
         }
-      } catch (error) {
-        console.error("Error initializing chat:", error);
       }
     };
 
-    if (!loading && currentUser) {
-      initializeChat();
-    }
-  }, [currentUser, loading]);
-
-  // Clear chat ID and session when user logs out
-  useEffect(() => {
-    if (!loading && !currentUser) {
-      setCurrentChatId("");
-      // Clear any existing chat sessions when user logs out
-      Object.keys(sessionStorage).forEach(key => {
-        if (key.startsWith('currentChatId_')) {
-          sessionStorage.removeItem(key);
-        }
-      });
-    }
-  }, [loading, currentUser]);
+    initializeSessionChat();
+  }, [currentUser, loading, currentChatId, createNewChat]);
 
   useEffect(() => {
     if (!loading && !currentUser && !modalShown) {
@@ -469,25 +429,16 @@ export default function Home() {
         ? firstMessage.substring(0, 50) + "..." 
         : firstMessage;
 
-      // Find and update the sidebar document with this chatId
-      const sidebarCollection = collection(firestore, `users/${userId}/sidebar`);
-      const sidebarSnapshot = await getDoc(doc(sidebarCollection, chatId));
-      
-      // If we can't find by document ID, we'll need to query by chatId field
-      // For now, let's create a simpler approach by using chatId as document ID
+      // Update the sidebar document (now using chatId as document ID)
       const sidebarDocRef = doc(firestore, `users/${userId}/sidebar/${chatId}`);
       
+      // Only update the summary and updatedAt, preserve other fields
       await setDoc(sidebarDocRef, {
-        chatId: chatId,
         chatSummary: summary,
-        userId: userId,
-        createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
-        isPinned: false,
-        pinnedAt: null
       }, { merge: true });
 
-      console.log('Updated chat summary:', summary);
+      console.log('Updated chat summary to:', summary);
     } catch (error) {
       console.error('Error updating chat summary:', error);
     }

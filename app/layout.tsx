@@ -9,6 +9,7 @@ import { GlobalModalProvider } from "@/contexts/GlobalModalContext";
 import GlobalModal from "@/app/components/GlobalModal";
 import ConditionalSidebar from "./components/ConditionalSidebar";
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ChatProvider } from '@/contexts/ChatContext';
 import { GoogleTagManager } from "@/app/components/seo/GoogleTagManager";
 import { AhrefsAnalytics } from "@/app/components/seo/AhrefsAnalytics";
 import { SEOHead } from "@/app/components/seo/SEOHead";
@@ -190,12 +191,14 @@ export default function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
             <main>
               <AuthProvider>
+              <ChatProvider>
               <GlobalModalProvider>
                 <ConditionalSidebar>
                     {children}
                 </ConditionalSidebar>
                 <GlobalModal />
               </GlobalModalProvider>
+              </ChatProvider>
               </AuthProvider>
               <SpeedInsights />
               <Analytics />

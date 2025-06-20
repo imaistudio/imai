@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChat } from "@/contexts/ChatContext";
 
 interface SidebarItem {
   id: string;
@@ -17,6 +18,7 @@ interface SidebarItem {
 
 export default function SidebarData() {
   const { user: currentUser } = useAuth();
+  const { currentChatId, switchToChat } = useChat();
   const [sidebarItems, setSidebarItems] = useState<SidebarItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,17 +52,8 @@ export default function SidebarData() {
   }, [currentUser]);
 
   const handleItemClick = (item: SidebarItem) => {
-    console.log("Chat ID:", item.chatId);
-    console.log("Item Details:", {
-      id: item.id,
-      chatId: item.chatId,
-      chatSummary: item.chatSummary,
-      userId: item.userId,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-      isPinned: item.isPinned,
-      pinnedAt: item.pinnedAt
-    });
+    console.log("Switching to chat:", item.chatId);
+    switchToChat(item.chatId);
   };
 
   if (!currentUser) {
@@ -94,12 +87,15 @@ export default function SidebarData() {
           <div
             key={item.id}
             onClick={() => handleItemClick(item)}
-            className="p-2 rounded-lg"
+            className={`p-2 rounded-lg cursor-pointer transition-colors ${
+              currentChatId === item.chatId 
+                ? "bg-primary/10 border border-primary/20" 
+                : "hover:bg-muted/50"
+            }`}
           >
-            <small className="text-sm text-foreground line-clamp-2">
+            <small className="w-3/4 text-sm text-foreground truncate whitespace-nowrap overflow-hidden">
               {item.chatSummary || "Untitled Chat"}
             </small>
-
           </div>
         ))}
       </div>

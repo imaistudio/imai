@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChat } from "@/contexts/ChatContext";
 import { storage } from "@/lib/firebase";
 import { Search, LayoutGrid, SquarePen } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -16,11 +17,17 @@ import {
 export function SearchForm({ ...props }: React.ComponentProps<"form">) {
   const router = useRouter();
   const { user } = useAuth();
+  const { createNewChat } = useChat();
   const [libraryCount, setLibraryCount] = useState<number>(0);
   const [latestImageUrl, setLatestImageUrl] = useState<string | null>(null);
 
-  const handleNewChatClick = () => {
-    console.log("New Chat");
+  const handleNewChatClick = async () => {
+    try {
+      await createNewChat();
+      console.log("New chat created successfully");
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
   };
 
   useEffect(() => {
@@ -82,10 +89,10 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
             <button
               type="button"
               onClick={handleNewChatClick}
-              className="w-[8%] flex items-center justify-center rounded-md pointer-events-none"
+              className="w-[8%] flex items-center justify-center rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
               aria-label="New Chat"
             >
-              <SquarePen className="text-black dark:text-white pointer-events-none" />
+              <SquarePen className="text-black dark:text-white" />
             </button>
           </div>
         </SidebarGroup>
