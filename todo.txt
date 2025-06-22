@@ -1,5 +1,9 @@
 Todo 
 
+if chat empty remove it imdeitaly 
+prevent submit spam 
+
+
 1. Sidebar Link to Load Chat 
 2. Link New ChatButton To Start a New Chat 
 3. in Sidebar Compoent add in pin | create folder and add chats into it 

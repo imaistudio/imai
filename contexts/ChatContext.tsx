@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { collection, addDoc, Timestamp, doc, setDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
@@ -10,6 +10,8 @@ interface ChatContextType {
   setCurrentChatId: (chatId: string) => void;
   createNewChat: () => Promise<void>;
   switchToChat: (chatId: string) => void;
+  isLoading: boolean;
+  isSwitching: boolean;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -17,13 +19,21 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { user: currentUser, loading } = useAuth();
   const [currentChatId, setCurrentChatId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+  
+  // Ref to track the last switch operation to prevent race conditions
+  const lastSwitchRef = useRef<string>("");
+  const switchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize chat when user is loaded
   useEffect(() => {
     const initializeChat = async () => {
-      if (!currentUser) return;
+      if (!currentUser || isLoading) return;
 
       try {
+        setIsLoading(true);
+        
         // Check if there's an existing chat ID in sessionStorage for this user
         const sessionKey = `currentChatId_${currentUser.uid}`;
         const existingChatId = sessionStorage.getItem(sessionKey);
@@ -31,11 +41,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         if (existingChatId) {
           // Use existing chat from session
           setCurrentChatId(existingChatId);
-          console.log("Restored existing chat from session:", existingChatId);
+          console.log("✅ Restored existing chat from session:", existingChatId);
         }
         // Note: New chat creation is now handled in page.tsx for new sessions
       } catch (error) {
-        console.error("Error initializing chat:", error);
+        console.error("❌ Error initializing chat:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -48,6 +60,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!loading && !currentUser) {
       setCurrentChatId("");
+      setIsLoading(false);
+      setIsSwitching(false);
+      
       // Clear any existing chat sessions when user logs out
       Object.keys(sessionStorage).forEach(key => {
         if (key.startsWith('currentChatId_')) {
@@ -79,42 +94,82 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     });
 
     setCurrentChatId(newChatId);
-    console.log("Created new chat:", newChatId);
+    console.log("✅ Created new chat:", newChatId);
     
     return newChatId;
   };
 
   const createNewChat = async () => {
     try {
+      setIsLoading(true);
       await createNewChatInternal();
     } catch (error) {
-      console.error("Error creating new chat:", error);
+      console.error("❌ Error creating new chat:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const switchToChat = (chatId: string) => {
+  // Debounced chat switching with optimistic updates
+  const switchToChat = useCallback((chatId: string) => {
     if (!chatId || !currentUser) {
       console.log("❌ ChatContext: Cannot switch chat - missing chatId or user:", { chatId, hasUser: !!currentUser });
       return;
     }
-    
+
+    // Prevent duplicate switches
+    if (chatId === currentChatId || chatId === lastSwitchRef.current) {
+      console.log("🔄 ChatContext: Already on this chat or switch in progress:", chatId);
+      return;
+    }
+
+    // Clear any pending switch operations
+    if (switchTimeoutRef.current) {
+      clearTimeout(switchTimeoutRef.current);
+    }
+
     console.log("🔄 ChatContext: Switching from", currentChatId, "to", chatId);
     
-    // Update session storage
-    const sessionKey = `currentChatId_${currentUser.uid}`;
-    sessionStorage.setItem(sessionKey, chatId);
-    console.log("📝 ChatContext: Updated session storage with key:", sessionKey, "value:", chatId);
-    
-    // Update current chat
+    // Track the switch operation
+    lastSwitchRef.current = chatId;
+    setIsSwitching(true);
+
+    // Optimistic update - update UI immediately
     setCurrentChatId(chatId);
-    console.log("✅ ChatContext: Set current chat ID to:", chatId);
-  };
+    
+    // Update session storage asynchronously
+    switchTimeoutRef.current = setTimeout(() => {
+      try {
+        const sessionKey = `currentChatId_${currentUser.uid}`;
+        sessionStorage.setItem(sessionKey, chatId);
+        console.log("📝 ChatContext: Updated session storage with key:", sessionKey, "value:", chatId);
+      } catch (error) {
+        console.error("❌ Error updating session storage:", error);
+      } finally {
+        setIsSwitching(false);
+        lastSwitchRef.current = "";
+      }
+    }, 50); // Small delay to batch operations
+    
+    console.log("✅ ChatContext: Optimistically set current chat ID to:", chatId);
+  }, [currentUser, currentChatId]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (switchTimeoutRef.current) {
+        clearTimeout(switchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const value: ChatContextType = {
     currentChatId,
     setCurrentChatId,
     createNewChat,
-    switchToChat
+    switchToChat,
+    isLoading,
+    isSwitching
   };
 
   return (

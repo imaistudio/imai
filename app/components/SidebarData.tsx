@@ -18,9 +18,10 @@ interface SidebarItem {
 
 export default function SidebarData() {
   const { user: currentUser } = useAuth();
-  const { currentChatId, switchToChat } = useChat();
+  const { currentChatId, switchToChat, isSwitching } = useChat();
   const [sidebarItems, setSidebarItems] = useState<SidebarItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [clickingItem, setClickingItem] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentUser) {
@@ -44,18 +45,35 @@ export default function SidebarData() {
       setSidebarItems(items);
       setLoading(false);
     }, (error) => {
-      console.error("Error fetching sidebar data:", error);
+      console.error("❌ Error fetching sidebar data:", error);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [currentUser]);
 
-  const handleItemClick = (item: SidebarItem) => {
-    console.log("🔄 Sidebar: Switching to chat:", item.chatId);
-    console.log("🔄 Current chat ID before switch:", currentChatId);
-    switchToChat(item.chatId);
-    console.log("🔄 Switch command sent for chat:", item.chatId);
+  const handleItemClick = async (item: SidebarItem) => {
+    // Prevent multiple clicks and clicking on already active chat
+    if (clickingItem || isSwitching || currentChatId === item.chatId) {
+      return;
+    }
+
+    try {
+      setClickingItem(item.chatId);
+      console.log("🔄 Sidebar: Switching to chat:", item.chatId);
+      console.log("🔄 Current chat ID before switch:", currentChatId);
+      
+      switchToChat(item.chatId);
+      console.log("🔄 Switch command sent for chat:", item.chatId);
+      
+      // Brief delay to show visual feedback
+      setTimeout(() => {
+        setClickingItem(null);
+      }, 200);
+    } catch (error) {
+      console.error("❌ Error switching chat:", error);
+      setClickingItem(null);
+    }
   };
 
   if (!currentUser) {
@@ -69,7 +87,10 @@ export default function SidebarData() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4 text-muted-foreground">
-        Loading...
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          Loading chats...
+        </div>
       </div>
     );
   }
@@ -85,23 +106,41 @@ export default function SidebarData() {
   return (
     <div className="h-full overflow-y-auto hide-scrollbar">
       <div className="space-y-1 p-2">
-        {sidebarItems.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => handleItemClick(item)}
-            className={`p-2 rounded-lg cursor-pointer transition-colors ${
-              currentChatId === item.chatId 
-                ? "bg-primary/10 border border-primary/20" 
-                : "hover:bg-muted/50"
-            }`}
-          >
-            <small className="text-sm text-foreground truncate whitespace-nowrap overflow-hidden">
-              {(item.chatSummary?.length > 30
-                ? item.chatSummary.slice(0, 30) + "..."
-                : item.chatSummary) || "Untitled Chat"}
-            </small>
-          </div>
-        ))}
+        {sidebarItems.map((item) => {
+          const isActive = currentChatId === item.chatId;
+          const isClicking = clickingItem === item.chatId;
+          const isDisabled = isSwitching || clickingItem !== null;
+          
+          return (
+            <div
+              key={item.id}
+              onClick={() => handleItemClick(item)}
+              className={`p-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                isActive 
+                  ? "bg-primary/10 border border-primary/20" 
+                  : isDisabled
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-muted/50"
+              } ${
+                isClicking ? "scale-95 bg-primary/5" : ""
+              }`}
+              style={{
+                pointerEvents: isDisabled ? 'none' : 'auto'
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <small className="text-sm text-foreground truncate whitespace-nowrap overflow-hidden flex-1">
+                  {(item.chatSummary?.length > 30
+                    ? item.chatSummary.slice(0, 30) + "..."
+                    : item.chatSummary) || "Untitled Chat"}
+                </small>
+                {(isClicking || (isSwitching && isActive)) && (
+                  <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin ml-2 flex-shrink-0"></div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

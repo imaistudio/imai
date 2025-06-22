@@ -21,7 +21,7 @@ interface ReferencedMessage {
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
-  const { currentChatId, createNewChat } = useChat();
+  const { currentChatId, createNewChat, isLoading: chatLoading } = useChat();
 
   // Debug: Track currentChatId changes
   useEffect(() => {
@@ -30,6 +30,9 @@ export default function Home() {
   
   // 🔧 NEW: State for reply/reference functionality
   const [referencedMessage, setReferencedMessage] = useState<ReferencedMessage | null>(null);
+  
+  // 🔧 OPTIMIZED: Track if we've already attempted to create a session chat
+  const [sessionChatAttempted, setSessionChatAttempted] = useState(false);
 
   const [modalShown, setModalShown] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
@@ -38,39 +41,38 @@ export default function Home() {
     return false;
   });
 
-  // Create new chat for new sessions (when no current chat exists)
+  // 🔧 OPTIMIZED: Create new chat for new sessions (simplified logic)
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-
     const initializeSessionChat = async () => {
-      if (!currentUser || loading) return;
+      // Don't create new chat if:
+      // - User not loaded or loading
+      // - Already have a current chat
+      // - Already attempted to create session chat
+      // - Chat context is still loading
+      if (!currentUser || loading || currentChatId || sessionChatAttempted || chatLoading) {
+        return;
+      }
 
-      // Only create a new chat if there's no current chat ID AND we're not in the middle of a chat switch
-      if (!currentChatId) {
-        // Add a small delay to ensure any chat switching operations have completed
-        timeoutId = setTimeout(async () => {
-          // Double-check that we still don't have a chat ID after the delay
-          if (!currentChatId) {
-            try {
-              console.log("No current chat found, creating new session chat");
-              await createNewChat();
-            } catch (error) {
-              console.error("Error creating session chat:", error);
-            }
-          }
-        }, 100);
+      try {
+        console.log("🏠 No current chat found, creating new session chat");
+        setSessionChatAttempted(true);
+        await createNewChat();
+      } catch (error) {
+        console.error("❌ Error creating session chat:", error);
+        // Reset attempt flag on error so we can try again
+        setSessionChatAttempted(false);
       }
     };
 
     initializeSessionChat();
+  }, [currentUser, loading, currentChatId, sessionChatAttempted, chatLoading, createNewChat]);
 
-    // Cleanup function
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [currentUser, loading, currentChatId, createNewChat]);
+  // Reset session chat attempt flag when user changes or logs out
+  useEffect(() => {
+    if (!currentUser) {
+      setSessionChatAttempted(false);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (!loading && !currentUser && !modalShown) {
@@ -552,6 +554,16 @@ export default function Home() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden hide-scrollbar">
+      {/* Loading overlay for chat switching */}
+      {chatLoading && (
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex items-center gap-3 bg-card p-4 rounded-lg shadow-lg border">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm text-muted-foreground">Loading chat...</span>
+          </div>
+        </div>
+      )}
+      
       {/* ChatWindow fills the screen */}
       <div className="absolute inset-0 overflow-y-auto hide-scrollbar">
         <ChatWindow 
