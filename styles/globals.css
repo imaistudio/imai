@@ -137,10 +137,10 @@
   scrollbar-width: none;
 }
 
-.fil1 {
-  fill: #000000; /* black by default */
+:root {
+  --icon-color: #000; /* Black in light mode */
 }
 
-.dark .fil1 {
-  fill: #ffffff; /* white in dark mode */
+.dark {
+  --icon-color: #fff; /* White in dark mode */
 }
