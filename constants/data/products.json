@@ -80,13 +80,13 @@
 		"streetwear": "/inputs/placeholders/fashion/sportysleek.webp",
 		"comfy": "/inputs/placeholders/fashion/comfy.webp",
 		"youthful": "/inputs/placeholders/fashion/youthful.webp",
-		"edgy": "public/inputs/placeholders/fashion/edgy.webp",
+		"edgy": "/inputs/placeholders/fashion/edgy.webp",
 		"minimalist": "/inputs/placeholders/fashion/minimalist.webp",
 		"prints": "/inputs/placeholders/fashion/prints.webp",
 		"fashionforward": "/inputs/placeholders/fashion/fashionforwarddenim&floralprint.webp",
 		"boldstructured": "/inputs/placeholders/fashion/boldstructuredgraphic.webp",
 		"luxury": "/inputs/placeholders/fashion/luxury.webp",
-		"powerfullfeminity": "public/inputs/placeholders/fashion/powerfulfeminity.webp",
+		"powerfullfeminity": "/inputs/placeholders/fashion/powerfulfeminity.webp",
 		"romanticflower": "/inputs/placeholders/fashion/romanticflowerdetailing.webp",
 		"consciousfloral": "/inputs/placeholders/fashion/consciousfloralembroidery.webp",
 		"artisticencounters": "/inputs/placeholders/fashion/artistic.webp",
@@ -224,7 +224,7 @@
 				"/inputs/designs/homedecor/melting/melting1.webp",
 				"/inputs/designs/homedecor/melting/melting2.webp",
 				"/inputs/designs/homedecor/melting/melting3.webp",
-				"public/inputs/designs/homedecor/melting/melting4.webp"
+				"/inputs/designs/homedecor/melting/melting4.webp"
 			],
 			"primordialart": [
 				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
@@ -286,7 +286,7 @@
 				"/inputs/designs/homedecor/melting/melting1.webp",
 				"/inputs/designs/homedecor/melting/melting2.webp",
 				"/inputs/designs/homedecor/melting/melting3.webp",
-				"public/inputs/designs/homedecor/melting/melting4.webp"
+				"/inputs/designs/homedecor/melting/melting4.webp"
 			],
 			"primordialart": [
 				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
@@ -531,7 +531,7 @@
 				"/inputs/designs/homedecor/melting/melting1.webp",
 				"/inputs/designs/homedecor/melting/melting2.webp",
 				"/inputs/designs/homedecor/melting/melting3.webp",
-				"public/inputs/designs/homedecor/melting/melting4.webp"
+				"/inputs/designs/homedecor/melting/melting4.webp"
 			],
 			"primordialart": [
 				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
@@ -714,7 +714,7 @@
 				"/inputs/designs/homedecor/melting/melting1.webp",
 				"/inputs/designs/homedecor/melting/melting2.webp",
 				"/inputs/designs/homedecor/melting/melting3.webp",
-				"public/inputs/designs/homedecor/melting/melting4.webp"
+				"/inputs/designs/homedecor/melting/melting4.webp"
 			],
 			"primordialart": [
 				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
