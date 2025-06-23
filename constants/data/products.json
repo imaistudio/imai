@@ -32,33 +32,46 @@
     "watches": ["inputs/placeholders/watches.svg"]
   },
   "placeholders": {
-    "tshirt": "inputs/placeholders/t-shirt.svg",
-    "pillow": "inputs/placeholders/pillow.svg",
-    "shoes": "inputs/placeholders/shoes.svg",
-    "phonecase": "inputs/placeholders/phonecase.svg",
-    "wallart": "inputs/placeholders/wallart.svg",
-    "hoodie": "inputs/placeholders/hoodie.svg",
-    "coffecup": "inputs/placeholders/coffeecup.svg",
-    "totebag": "inputs/placeholders/totebag.svg",
-    "blanket": "inputs/placeholders/blanket.svg",
-    "earrings": "inputs/placeholders/earrings.svg",
-    "sofa": "inputs/placeholders/sofa.svg",
-    "scarf": "inputs/placeholders/scarf.svg",
-    "backpack": "inputs/placeholders/backpack.svg",
-    "lamp": "inputs/placeholders/lamp.svg",
-    "dress": "inputs/placeholders/dress.svg",
-    "jean": "inputs/placeholders/jean.svg",
-    "plate": "inputs/placeholders/plate.svg",
-    "notebook": "inputs/placeholders/notebook.svg",
-    "shoulderbag": "inputs/placeholders/shoulderbag.svg",
-    "vase": "inputs/placeholders/vase.svg",
-    "toys": "inputs/placeholders/toys.svg",
-    "vehicles": "inputs/placeholders/vehicles.svg",
-    "glasses": "inputs/placeholders/glasses.svg",
-    "watches": "inputs/placeholders/watches.svg"
+    "tshirt": "/inputs/placeholders/t-shirt.svg",
+    "pillow": "/inputs/placeholders/pillow.svg",
+    "shoes": "/inputs/placeholders/shoes.svg",
+    "phonecase": "/inputs/placeholders/phonecase.svg",
+    "wallart": "/inputs/placeholders/wallart.svg",
+    "hoodie": "/inputs/placeholders/hoodie.svg",
+    "coffecup": "/inputs/placeholders/coffeecup.svg",
+    "totebag": "/inputs/placeholders/totebag.svg",
+    "blanket": "/inputs/placeholders/blanket.svg",
+    "earrings": "/inputs/placeholders/earrings.svg",
+    "sofa": "/inputs/placeholders/sofa.svg",
+    "scarf": "/inputs/placeholders/scarf.svg",
+    "backpack": "/inputs/placeholders/backpack.svg",
+    "lamp": "/inputs/placeholders/lamp.svg",
+    "dress": "/inputs/placeholders/dress.svg",
+    "jean": "/inputs/placeholders/jean.svg",
+    "plate": "/inputs/placeholders/plate.svg",
+    "notebook": "/inputs/placeholders/notebook.svg",
+    "shoulderbag": "/inputs/placeholders/shoulderbag.svg",
+    "vase": "/inputs/placeholders/vase.svg",
+    "toys": "/inputs/placeholders/toys.svg",
+    "vehicles": "/inputs/placeholders/vehicles.svg",
+    "glasses": "/inputs/placeholders/glasses.svg",
+    "watches": "/inputs/placeholders/watches.svg",
+    "streetwear": "/inputs/placeholders/fashion/sportysleek.webp",
+    "comfy": "/inputs/placeholders/fashion/comfy.webp"
+
   },
   "specificDesigns": {
-    "tshirt": {},
+    "tshirt": {
+      "streetwear": [
+        "/inputs/designs/fashions/streetwear/streetwear1.webp",
+        "/inputs/designs/fashions/streetwear/streetwear2.webp",
+        "/inputs/designs/fashions/streetwear/streetwear3.webp"
+      ],
+      "comfy": [
+        "/inputs/designs/fashions/comfy/comfy1.webp"
+      ]
+      
+    },
     "pillow": {},
     "shoes": {},
     "phonecase": {},
