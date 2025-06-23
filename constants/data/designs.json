@@ -1,48 +1,285 @@
 {
-  "defaultImages": {
-    "minimalsleek": ["/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp", "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"],
-    "animeinspired": ["/inputs/designs/general/animeinspired/animeinspired1.webp", "/inputs/designs/general/animeinspired/animeinspired2.webp","/inputs/designs/general/animeinspired/animeinspired3.webp","/inputs/designs/general/animeinspired/animeinspired4.webp","/inputs/designs/general/animeinspired/animeinspired5.webp","/inputs/designs/general/animeinspired/animeinspired6.webp","/inputs/designs/general/animeinspired/animeinspired7.webp","/inputs/designs/general/animeinspired/animeinspired8.webp","/inputs/designs/general/animeinspired/animeinspired9.webp"],
-    "undersun": ["/inputs/designs/general/fununderthesun/fununderthesun1.webp", "/inputs/designs/general/fununderthesun/fununderthesun2.webp","/inputs/designs/general/fununderthesun/fununderthesun3.webp","/inputs/designs/general/fununderthesun/fununderthesun4.webp","/inputs/designs/general/fununderthesun/fununderthesun5.webp","/inputs/designs/general/fununderthesun/fununderthesun6.webp","/inputs/designs/general/fununderthesun/fununderthesun7.webp"],
-    "quiteluxury": ["/inputs/designs/general/quietluxury/quietluxury1.webp", "/inputs/designs/general/quietluxury/quietluxury2.webp", "/inputs/designs/general/quietluxury/quietluxury3.webp", "/inputs/designs/general/quietluxury/quietluxury4.webp"],
-    "artistic": ["/inputs/designs/general/artistic/artistic1.webp", "/inputs/designs/general/artistic/artistic2.webp", "/inputs/designs/general/artistic/artistic3.webp", "/inputs/designs/general/artistic/artistic4.webp", "/inputs/designs/general/artistic/artistic5.webp", "/inputs/designs/general/artistic/artistic6.webp", "/inputs/designs/general/artistic/artistic7.webp", "/inputs/designs/general/artistic/artistic8.webp", "/inputs/designs/general/artistic/artistic9.webp", "/inputs/designs/general/artistic/artistic10.webp" , "/inputs/designs/general/artistic/artistic11.webp", "/inputs/designs/general/artistic/artistic12.webp", "/inputs/designs/general/artistic/artistic13.webp" ],
-    "bold": ["/inputs/designs/general/bold/bold1.webp", "/inputs/designs/general/bold/bold2.webp", "/inputs/designs/general/bold/bold3.webp", "/inputs/designs/general/bold/bold4.webp", "/inputs/designs/general/bold/bold5.webp"],
-    "eclectictraveler": ["/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves1.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves2.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves3.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves4.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves5.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves6.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves7.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves8.webp", "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves9.webp","/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves10.webp"],
-    "futuristic": ["/inputs/designs/general/futuristic/futuristic1.webp", "/inputs/designs/general/futuristic/futuristic2.webp", "/inputs/designs/general/futuristic/futuristic3.webp", "/inputs/designs/general/futuristic/futuristic4.webp", "/inputs/designs/general/futuristic/futuristic5.webp", "/inputs/designs/general/futuristic/futuristic6.webp" , "/inputs/designs/general/futuristic/futuristic7.webp", "/inputs/designs/general/futuristic/futuristic8.webp", "/inputs/designs/general/futuristic/futuristic9.webp"],
-    "traditonaljapanese": ["/inputs/designs/general/traditionaljapanese/traditionaljapanese1.webp"],
-    "romantic": ["/inputs/designs/general/romantic/romantic1.webp", "/inputs/designs/general/romantic/romantic2.webp", "/inputs/designs/general/romantic/romantic3.webp", "/inputs/designs/general/romantic/romantic4.webp", "/inputs/designs/general/romantic/romantic5.webp"],
-    "mystical": ["/inputs/designs/general/mystical/mystical1.webp"],
-    "sportysleek": ["/inputs/designs/general/sportysleek/sportysleek1.webp", "/inputs/designs/general/sportysleek/sportysleek2.webp", "/inputs/designs/general/sportysleek/sportysleek3.webp", "/inputs/designs/general/sportysleek/sportysleek5.webp", "/inputs/designs/general/sportysleek/sportysleek6.webp", "/inputs/designs/general/sportysleek/sportysleek7.webp", "/inputs/designs/general/sportysleek/sportysleek8.webp", "/inputs/designs/general/sportysleek/sportysleek4.webp"],
-    "funcoolquriky": ["/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"],
-    "essentail": ["/inputs/designs/general/essential/essential1.webp"],
-    "vintagefeel": ["/inputs/designs/general/vintagefeel/vintagefeel1.webp", "/inputs/designs/general/vintagefeel/vintagefeel2.webp"],
-    "abstractpattern": ["/inputs/designs/general/abstractpatterns/abstractpatterns1.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns2.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns3.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns4.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns5.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns6.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns7.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns8.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns9.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns10.webp","/inputs/designs/general/abstractpatterns/abstractpatterns11.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns12.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns13.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns14.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns15.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns16.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns17.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns18.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns19.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns20.webp","/inputs/designs/general/abstractpatterns/abstractpatterns21.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns22.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns23.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns24.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns25.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns26.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns27.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns28.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns29.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns30.webp","/inputs/designs/general/abstractpatterns/abstractpatterns31.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns32.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns33.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns34.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns35.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns36.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns37.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns38.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns39.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns40.webp","/inputs/designs/general/abstractpatterns/abstractpatterns41.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns42.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns43.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns44.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns45.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns46.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns47.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns48.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns49.webp", "/inputs/designs/general/abstractpatterns/abstractpatterns50.webp"],
-    "colorpop": ["/inputs/designs/general/colorpop/colorpop1.webp", "/inputs/designs/general/colorpop/colorpop2.webp"],
-    "animalprint": ["/inputs/designs/general/animalprint/animalprint1.webp", "/inputs/designs/general/animalprint/animalprint2.webp","/inputs/designs/general/animalprint/animalprint3.webp","/inputs/designs/general/animalprint/animalprint4.webp","/inputs/designs/general/animalprint/animalprint5.webp"],
-    "tropicaltimes": ["/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"],
-    "timeless": ["/inputs/designs/general/timeless/timeless1.webp", "/inputs/designs/general/timeless/timeless2.webp", "/inputs/designs/general/timeless/timeless3.webp","/inputs/designs/general/timeless/timeless4.webp","/inputs/designs/general/timeless/timeless5.webp"],
-    "seventy": ["/inputs/designs/general/seventys/seventys1.webp", "/inputs/designs/general/seventys/seventys2.webp","/inputs/designs/general/seventys/seventys3.webp","/inputs/designs/general/seventys/seventys4.webp"]
-  },
-  "placeholders": {
-    "minimalsleek": "/inputs/placeholders/bags/minimalsleeksophisticated.webp",
-    "animeinspired": "/inputs/placeholders/general/animeinspired.webp",
-    "undersun": "/inputs/placeholders/general/underthesun.webp",
-    "quiteluxury": "/inputs/placeholders/bags/quietluxury.webp",
-    "artistic": "/inputs/placeholders/general/artistic.webp",
-    "bold": "/inputs/placeholders/general/bold.webp",
-    "eclectictraveler": "/inputs/placeholders/officesupplies/eclectic traveller.webp",
-    "futuristic": "/inputs/placeholders/general/futuristic.webp",
-    "traditonaljapanese": "/inputs/placeholders/general/traditionaljapanese.webp",
-    "romantic": "/inputs/placeholders/general/printseclectictraveler.webp",
-    "mystical": "/inputs/placeholders/general/mystical.webp",
-    "sportysleek": "/inputs/placeholders/general/sportysleek.webp",
-    "funcoolquriky": "/inputs/placeholders/general/funcoolquriky.webp",
-    "essentail": "/inputs/placeholders/general/essential.webp",
-    "vintagefeel": "/inputs/placeholders/fashion/vintage feel.webp",
-    "abstractpattern": "/inputs/placeholders/general/abstractpattern.webp",
-    "colorpop": "/inputs/placeholders/bags/colorpop.webp",
-    "animalprint": "/inputs/placeholders/general/animalprint.webp",
-    "tropicaltimes": "/inputs/placeholders/general/tropicaltimes.webp",
-    "timeless": "/inputs/placeholders/general/timeless.webp",
-    "seventy": "/inputs/placeholders/general/seventy.webp",
-  }
-} 
+	"defaultImages": {
+		"minimalsleek": [
+			"/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp",
+			"/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"
+		],
+		"animeinspired": [
+			"/inputs/designs/general/animeinspired/animeinspired1.webp",
+			"/inputs/designs/general/animeinspired/animeinspired2.webp",
+			"/inputs/designs/general/animeinspired/animeinspired3.webp",
+			"/inputs/designs/general/animeinspired/animeinspired4.webp",
+			"/inputs/designs/general/animeinspired/animeinspired5.webp",
+			"/inputs/designs/general/animeinspired/animeinspired6.webp",
+			"/inputs/designs/general/animeinspired/animeinspired7.webp",
+			"/inputs/designs/general/animeinspired/animeinspired8.webp",
+			"/inputs/designs/general/animeinspired/animeinspired9.webp"
+		],
+		"undersun": [
+			"/inputs/designs/general/fununderthesun/fununderthesun1.webp",
+			"/inputs/designs/general/fununderthesun/fununderthesun2.webp",
+			"/inputs/designs/general/fununderthesun/fununderthesun3.webp",
+			"/inputs/designs/general/fununderthesun/fununderthesun4.webp",
+			"/inputs/designs/general/fununderthesun/fununderthesun5.webp",
+			"/inputs/designs/general/fununderthesun/fununderthesun6.webp",
+			"/inputs/designs/general/fununderthesun/fununderthesun7.webp"
+		],
+		"quiteluxury": [
+			"/inputs/designs/general/quietluxury/quietluxury1.webp",
+			"/inputs/designs/general/quietluxury/quietluxury2.webp",
+			"/inputs/designs/general/quietluxury/quietluxury3.webp",
+			"/inputs/designs/general/quietluxury/quietluxury4.webp"
+		],
+		"artistic": [
+			"/inputs/designs/general/artistic/artistic1.webp",
+			"/inputs/designs/general/artistic/artistic2.webp",
+			"/inputs/designs/general/artistic/artistic3.webp",
+			"/inputs/designs/general/artistic/artistic4.webp",
+			"/inputs/designs/general/artistic/artistic5.webp",
+			"/inputs/designs/general/artistic/artistic6.webp",
+			"/inputs/designs/general/artistic/artistic7.webp",
+			"/inputs/designs/general/artistic/artistic8.webp",
+			"/inputs/designs/general/artistic/artistic9.webp",
+			"/inputs/designs/general/artistic/artistic10.webp",
+			"/inputs/designs/general/artistic/artistic11.webp",
+			"/inputs/designs/general/artistic/artistic12.webp",
+			"/inputs/designs/general/artistic/artistic13.webp"
+		],
+		"bold": [
+			"/inputs/designs/general/bold/bold1.webp",
+			"/inputs/designs/general/bold/bold2.webp",
+			"/inputs/designs/general/bold/bold3.webp",
+			"/inputs/designs/general/bold/bold4.webp",
+			"/inputs/designs/general/bold/bold5.webp"
+		],
+		"eclectictraveler": [
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves1.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves2.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves3.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves4.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves5.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves6.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves7.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves8.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves9.webp",
+			"/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves10.webp"
+		],
+		"futuristic": [
+			"/inputs/designs/general/futuristic/futuristic1.webp",
+			"/inputs/designs/general/futuristic/futuristic2.webp",
+			"/inputs/designs/general/futuristic/futuristic3.webp",
+			"/inputs/designs/general/futuristic/futuristic4.webp",
+			"/inputs/designs/general/futuristic/futuristic5.webp",
+			"/inputs/designs/general/futuristic/futuristic6.webp",
+			"/inputs/designs/general/futuristic/futuristic7.webp",
+			"/inputs/designs/general/futuristic/futuristic8.webp",
+			"/inputs/designs/general/futuristic/futuristic9.webp"
+		],
+		"traditonaljapanese": [
+			"/inputs/designs/general/traditionaljapanese/traditionaljapanese1.webp"
+		],
+		"romantic": [
+			"/inputs/designs/general/romantic/romantic1.webp",
+			"/inputs/designs/general/romantic/romantic2.webp",
+			"/inputs/designs/general/romantic/romantic3.webp",
+			"/inputs/designs/general/romantic/romantic4.webp",
+			"/inputs/designs/general/romantic/romantic5.webp"
+		],
+		"mystical": ["/inputs/designs/general/mystical/mystical1.webp"],
+		"sportysleek": [
+			"/inputs/designs/general/sportysleek/sportysleek1.webp",
+			"/inputs/designs/general/sportysleek/sportysleek2.webp",
+			"/inputs/designs/general/sportysleek/sportysleek3.webp",
+			"/inputs/designs/general/sportysleek/sportysleek5.webp",
+			"/inputs/designs/general/sportysleek/sportysleek6.webp",
+			"/inputs/designs/general/sportysleek/sportysleek7.webp",
+			"/inputs/designs/general/sportysleek/sportysleek8.webp",
+			"/inputs/designs/general/sportysleek/sportysleek4.webp"
+		],
+		"funcoolquriky": [
+			"/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
+		],
+		"essentail": ["/inputs/designs/general/essential/essential1.webp"],
+		"vintagefeel": [
+			"/inputs/designs/general/vintagefeel/vintagefeel1.webp",
+			"/inputs/designs/general/vintagefeel/vintagefeel2.webp"
+		],
+		"abstractpattern": [
+			"/inputs/designs/general/abstractpatterns/abstractpatterns1.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns2.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns3.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns4.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns5.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns6.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns7.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns8.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns9.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns10.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns11.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns12.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns13.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns14.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns15.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns16.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns17.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns18.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns19.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns20.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns21.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns22.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns23.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns24.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns25.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns26.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns27.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns28.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns29.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns30.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns31.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns32.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns33.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns34.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns35.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns36.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns37.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns38.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns39.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns40.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns41.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns42.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns43.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns44.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns45.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns46.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns47.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns48.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns49.webp",
+			"/inputs/designs/general/abstractpatterns/abstractpatterns50.webp"
+		],
+		"colorpop": [
+			"/inputs/designs/general/colorpop/colorpop1.webp",
+			"/inputs/designs/general/colorpop/colorpop2.webp"
+		],
+		"animalprint": [
+			"/inputs/designs/general/animalprint/animalprint1.webp",
+			"/inputs/designs/general/animalprint/animalprint2.webp",
+			"/inputs/designs/general/animalprint/animalprint3.webp",
+			"/inputs/designs/general/animalprint/animalprint4.webp",
+			"/inputs/designs/general/animalprint/animalprint5.webp"
+		],
+		"tropicaltimes": [
+			"/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
+		],
+		"timeless": [
+			"/inputs/designs/general/timeless/timeless1.webp",
+			"/inputs/designs/general/timeless/timeless2.webp",
+			"/inputs/designs/general/timeless/timeless3.webp",
+			"/inputs/designs/general/timeless/timeless4.webp",
+			"/inputs/designs/general/timeless/timeless5.webp"
+		],
+		"seventy": [
+			"/inputs/designs/general/seventys/seventys1.webp",
+			"/inputs/designs/general/seventys/seventys2.webp",
+			"/inputs/designs/general/seventys/seventys3.webp",
+			"/inputs/designs/general/seventys/seventys4.webp"
+		],
+
+		"streetwear": [
+			"/inputs/designs/fashions/streetwear/streetwear1.webp",
+			"/inputs/designs/fashions/streetwear/streetwear2.webp",
+			"/inputs/designs/fashions/streetwear/streetwear3.webp"
+		],
+		"comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
+		"youthful": [
+			"/inputs/designs/fashions/youthful/youthful1.webp",
+			"/inputs/designs/fashions/youthful/youthful2.webp"
+		],
+		"edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
+		"minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
+		"prints": [""],
+		"fashionforward": [
+			"/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
+		],
+		"boldstructured": [
+			"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
+			"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
+		],
+		"luxury": [
+			"/inputs/designs/fashions/luxury/luxury1.webp",
+			"/inputs/designs/fashions/luxury/luxury2.webp",
+			"/inputs/designs/fashions/luxury/luxury3.webp"
+		],
+		"powerfullfeminity": [
+			"/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
+		],
+		"romanticflower": [
+			"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
+			"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
+		],
+		"consciousfloral": [
+			"/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
+		],
+		"artisticencounters": [
+			"/inputs/designs/fashions/artistic/artistic1.webp",
+			"/inputs/designs/fashions/artistic/artistic2.webp",
+			"/inputs/designs/fashions/artistic/artistic3.webp",
+			"/inputs/designs/fashions/artistic/artistic4.webp",
+			"/inputs/designs/fashions/artistic/artistic5.webp",
+			"/inputs/designs/fashions/artistic/artistic6.webp",
+			"/inputs/designs/fashions/artistic/artistic7.webp",
+			"/inputs/designs/fashions/artistic/artistic8.webp",
+			"/inputs/designs/fashions/artistic/artistic9.webp",
+			"/inputs/designs/fashions/artistic/artistic10.webp",
+			"/inputs/designs/fashions/artistic/artistic11.webp",
+			"/inputs/designs/fashions/artistic/artistic12.webp"
+		],
+		"wellnesssporty": [
+			"/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
+		],
+		"businessclean": [
+			"/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
+		],
+		"effortlesschicinnovative": [
+			"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
+		]
+	},
+	"placeholders": {
+		"minimalsleek": "/inputs/placeholders/bags/minimalsleeksophisticated.webp",
+		"animeinspired": "/inputs/placeholders/general/animeinspired.webp",
+		"undersun": "/inputs/placeholders/general/underthesun.webp",
+		"quiteluxury": "/inputs/placeholders/bags/quietluxury.webp",
+		"artistic": "/inputs/placeholders/general/artistic.webp",
+		"bold": "/inputs/placeholders/general/bold.webp",
+		"eclectictraveler": "/inputs/placeholders/officesupplies/eclectic traveller.webp",
+		"futuristic": "/inputs/placeholders/general/futuristic.webp",
+		"traditonaljapanese": "/inputs/placeholders/general/traditionaljapanese.webp",
+		"romantic": "/inputs/placeholders/general/printseclectictraveler.webp",
+		"mystical": "/inputs/placeholders/general/mystical.webp",
+		"sportysleek": "/inputs/placeholders/general/sportysleek.webp",
+		"funcoolquriky": "/inputs/placeholders/general/funcoolquriky.webp",
+		"essentail": "/inputs/placeholders/general/essential.webp",
+		"vintagefeel": "/inputs/placeholders/fashion/vintage feel.webp",
+		"abstractpattern": "/inputs/placeholders/general/abstractpattern.webp",
+		"colorpop": "/inputs/placeholders/bags/colorpop.webp",
+		"animalprint": "/inputs/placeholders/general/animalprint.webp",
+		"tropicaltimes": "/inputs/placeholders/general/tropicaltimes.webp",
+		"timeless": "/inputs/placeholders/general/timeless.webp",
+		"seventy": "/inputs/placeholders/general/seventy.webp",
+		"streetwear": "/inputs/placeholders/fashion/comfy.webp",
+		"comfy": "/inputs/placeholders/fashion/comfy.webp",
+		"youthful": "/inputs/placeholders/fashion/youthful.webp",
+		"edgy": "/inputs/placeholders/fashion/edgy.webp",
+		"minimalist": "/inputs/placeholders/fashion/minimalist.webp",
+		"prints": "/inputs/placeholders/fashion/prints.webp",
+		"fashionforward": "/inputs/placeholders/fashion/fashionforwarddenim&floralprint.webp",
+		"boldstructured": "/inputs/placeholders/fashion/boldstructuredgraphic.webp",
+		"luxury": "/inputs/placeholders/fashion/luxury.webp",
+		"powerfullfeminity": "/inputs/placeholders/fashion/powerfulfeminity.webp",
+		"romanticflower": "/inputs/placeholders/fashion/romanticflowerdetailing.webp",
+		"consciousfloral": "/inputs/placeholders/fashion/consciousfloralembroidery.webp",
+		"artisticencounters": "/inputs/placeholders/fashion/artistic.webp",
+		"wellnesssporty": "/inputs/placeholders/fashion/wellnesssportyandserene.webp",
+		"businessclean": "/inputs/placeholders/fashion/businesscleansilhouette.webp",
+		"effortlesschicinnovative": "/inputs/placeholders/fashion/effortlesschicinnovativesiliconesprayedlacetrimings.webp"
+	}
+}
