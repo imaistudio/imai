@@ -280,6 +280,25 @@
 		"artisticencounters": "/inputs/placeholders/fashion/artistic.webp",
 		"wellnesssporty": "/inputs/placeholders/fashion/wellnesssportyandserene.webp",
 		"businessclean": "/inputs/placeholders/fashion/businesscleansilhouette.webp",
-		"effortlesschicinnovative": "/inputs/placeholders/fashion/effortlesschicinnovativesiliconesprayedlacetrimings.webp"
+		"effortlesschicinnovative": "/inputs/placeholders/fashion/effortlesschicinnovativesiliconesprayedlacetrimings.webp",
+
+		"midcenturymodern":"/inputs/placeholders/homedecor/midcenturymodern.webp",
+		"organicshapes":"/inputs/placeholders/homedecor/organicshapes.webp",
+		"rawexposedmaterials":"/inputs/placeholders/homedecor/rawexposedmaterials.webp",
+		"traditionaljapanese":"/inputs/placeholders/homedecor/traditionaljapanese.webp",
+		"artdeco":"/inputs/placeholders/homedecor/artdeco.webp",
+		"turnofthecenturyluxe":"/inputs/placeholders/homedecor/turnofthecenturyluxe.webp",
+		"nomadic":"/inputs/placeholders/homedecor/nomadic.webp",
+		"popcraft":"/inputs/placeholders/homedecor/popcraft.webp",
+		"arabesque":"/inputs/placeholders/homedecor/arabesque.webp",
+		"chromelook":"/inputs/placeholders/homedecor/chromelook.webp",
+		"spaceage":"/inputs/placeholders/homedecor/spaceage.webp",
+		"animalia":"/inputs/placeholders/homedecor/animalia.webp",
+		"funkytimes":"/inputs/placeholders/homedecor/funkytimes.webp",
+		"daliesquemodern":"/inputs/placeholders/homedecor/daliesquemodern.webp",
+		"melting":"/inputs/placeholders/homedecor/melting.webp",
+		"primordialart":"/inputs/placeholders/homedecor/primordialart.webp",
+		"toteminspired":"/inputs/placeholders/homedecor/toteminspired.webp"
+
 	}
 }
