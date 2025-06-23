@@ -1,0 +1,624 @@
+{
+  "timestamp": "2025-06-23T13:33:28.712Z",
+  "summary": {
+    "totalFiles": 319,
+    "totalExisting": 221,
+    "totalMissing": 98,
+    "successRate": "69.3"
+  },
+  "details": {
+    "colors.json": {
+      "filename": "colors.json",
+      "totalPaths": 38,
+      "existing": [
+        "inputs/placeholders/colors/neutral.webp",
+        "inputs/placeholders/colors/pastel.webp",
+        "inputs/placeholders/colors/fall.webp",
+        "inputs/placeholders/colors/earth.webp",
+        "inputs/placeholders/colors/romantic.webp",
+        "inputs/placeholders/colors/warm.webp",
+        "inputs/placeholders/colors/moody.webp",
+        "inputs/placeholders/colors/cool.webp",
+        "inputs/placeholders/colors/contemprory.webp",
+        "inputs/placeholders/colors/vintage.webp",
+        "inputs/placeholders/colors/spring.webp",
+        "inputs/placeholders/colors/vibrant.webp",
+        "inputs/placeholders/colors/winter.webp",
+        "inputs/placeholders/colors/jewel.webp",
+        "inputs/placeholders/colors/summer.webp",
+        "inputs/placeholders/colors/cyberpunk.webp",
+        "inputs/placeholders/colors/tropical.webp",
+        "inputs/placeholders/colors/analogous.webp",
+        "inputs/placeholders/colors/neon.webp",
+        "inputs/placeholders/colors/neutral.webp",
+        "inputs/placeholders/colors/pastel.webp",
+        "inputs/placeholders/colors/fall.webp",
+        "inputs/placeholders/colors/earth.webp",
+        "inputs/placeholders/colors/romantic.webp",
+        "inputs/placeholders/colors/warm.webp",
+        "inputs/placeholders/colors/moody.webp",
+        "inputs/placeholders/colors/cool.webp",
+        "inputs/placeholders/colors/contemprory.webp",
+        "inputs/placeholders/colors/vintage.webp",
+        "inputs/placeholders/colors/spring.webp",
+        "inputs/placeholders/colors/vibrant.webp",
+        "inputs/placeholders/colors/winter.webp",
+        "inputs/placeholders/colors/jewel.webp",
+        "inputs/placeholders/colors/summer.webp",
+        "inputs/placeholders/colors/cyberpunk.webp",
+        "inputs/placeholders/colors/tropical.webp",
+        "inputs/placeholders/colors/analogous.webp",
+        "inputs/placeholders/colors/neon.webp"
+      ],
+      "missing": [],
+      "pathAnalysis": {
+        "inputs/placeholders/colors": {
+          "total": 38,
+          "existing": 38,
+          "missing": 0
+        }
+      }
+    },
+    "designs.json": {
+      "filename": "designs.json",
+      "totalPaths": 161,
+      "existing": [
+        "inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp",
+        "inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp",
+        "inputs/designs/general/animeinspired/animeinspired1.webp",
+        "inputs/designs/general/animeinspired/animeinspired2.webp",
+        "inputs/designs/general/animeinspired/animeinspired3.webp",
+        "inputs/designs/general/animeinspired/animeinspired4.webp",
+        "inputs/designs/general/animeinspired/animeinspired5.webp",
+        "inputs/designs/general/animeinspired/animeinspired6.webp",
+        "inputs/designs/general/animeinspired/animeinspired7.webp",
+        "inputs/designs/general/animeinspired/animeinspired8.webp",
+        "inputs/designs/general/animeinspired/animeinspired9.webp",
+        "inputs/designs/general/quietluxury/quietluxury1.webp",
+        "inputs/designs/general/quietluxury/quietluxury2.webp",
+        "inputs/designs/general/quietluxury/quietluxury3.webp",
+        "inputs/designs/general/quietluxury/quietluxury4.webp",
+        "inputs/designs/general/artistic/artistic1.webp",
+        "inputs/designs/general/artistic/artistic2.webp",
+        "inputs/designs/general/artistic/artistic3.webp",
+        "inputs/designs/general/artistic/artistic4.webp",
+        "inputs/designs/general/artistic/artistic5.webp",
+        "inputs/designs/general/artistic/artistic6.webp",
+        "inputs/designs/general/artistic/artistic7.webp",
+        "inputs/designs/general/artistic/artistic8.webp",
+        "inputs/designs/general/artistic/artistic9.webp",
+        "inputs/designs/general/artistic/artistic10.webp",
+        "inputs/designs/general/artistic/artistic11.webp",
+        "inputs/designs/general/artistic/artistic12.webp",
+        "inputs/designs/general/artistic/artistic13.webp",
+        "inputs/designs/general/bold/bold1.webp",
+        "inputs/designs/general/bold/bold2.webp",
+        "inputs/designs/general/bold/bold3.webp",
+        "inputs/designs/general/bold/bold4.webp",
+        "inputs/designs/general/bold/bold5.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves1.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves2.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves3.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves4.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves5.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves6.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves7.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves8.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves9.webp",
+        "inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves10.webp",
+        "inputs/designs/general/futuristic/futuristic1.webp",
+        "inputs/designs/general/futuristic/futuristic2.webp",
+        "inputs/designs/general/futuristic/futuristic3.webp",
+        "inputs/designs/general/futuristic/futuristic4.webp",
+        "inputs/designs/general/futuristic/futuristic5.webp",
+        "inputs/designs/general/futuristic/futuristic6.webp",
+        "inputs/designs/general/futuristic/futuristic7.webp",
+        "inputs/designs/general/futuristic/futuristic8.webp",
+        "inputs/designs/general/futuristic/futuristic9.webp",
+        "inputs/designs/general/traditionaljapanese/traditionaljapanese1.webp",
+        "inputs/designs/general/romantic/romantic1.webp",
+        "inputs/designs/general/romantic/romantic2.webp",
+        "inputs/designs/general/romantic/romantic3.webp",
+        "inputs/designs/general/romantic/romantic4.webp",
+        "inputs/designs/general/romantic/romantic5.webp",
+        "inputs/designs/general/mystical/mystical1.webp",
+        "inputs/designs/general/sportysleek/sportysleek1.webp",
+        "inputs/designs/general/sportysleek/sportysleek2.webp",
+        "inputs/designs/general/sportysleek/sportysleek3.webp",
+        "inputs/designs/general/sportysleek/sportysleek5.webp",
+        "inputs/designs/general/sportysleek/sportysleek6.webp",
+        "inputs/designs/general/sportysleek/sportysleek7.webp",
+        "inputs/designs/general/sportysleek/sportysleek8.webp",
+        "inputs/designs/general/sportysleek/sportysleek4.webp",
+        "inputs/designs/general/funcool&quirky/funcool&quirky1.webp",
+        "inputs/designs/general/essential/essential1.webp",
+        "inputs/designs/general/vintagefeel/vintagefeel1.webp",
+        "inputs/designs/general/vintagefeel/vintagefeel2.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns1.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns2.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns3.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns4.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns5.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns6.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns7.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns8.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns9.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns10.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns11.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns12.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns13.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns14.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns15.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns16.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns17.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns18.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns19.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns20.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns21.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns22.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns23.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns24.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns25.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns26.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns27.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns28.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns29.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns30.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns31.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns32.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns33.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns34.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns35.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns36.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns37.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns38.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns39.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns40.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns41.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns42.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns43.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns44.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns45.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns46.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns47.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns48.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns49.webp",
+        "inputs/designs/general/abstractpatterns/abstractpatterns50.webp",
+        "inputs/designs/general/colorpop/colorpop1.webp",
+        "inputs/designs/general/colorpop/colorpop2.webp",
+        "inputs/designs/general/animalprint/animalprint1.webp",
+        "inputs/designs/general/animalprint/animalprint2.webp",
+        "inputs/designs/general/animalprint/animalprint3.webp",
+        "inputs/designs/general/animalprint/animalprint4.webp",
+        "inputs/designs/general/animalprint/animalprint5.webp",
+        "inputs/designs/general/tropicaltimes/tropicaltimes1.webp",
+        "inputs/designs/general/timeless/timeless1.webp",
+        "inputs/designs/general/timeless/timeless2.webp",
+        "inputs/designs/general/timeless/timeless3.webp",
+        "inputs/designs/general/timeless/timeless4.webp",
+        "inputs/designs/general/timeless/timeless5.webp",
+        "inputs/designs/general/seventys/seventys1.webp",
+        "inputs/designs/general/seventys/seventys2.webp",
+        "inputs/designs/general/seventys/seventys3.webp",
+        "inputs/designs/general/seventys/seventys4.webp",
+        "inputs/placeholders/bags/minimalsleeksophisticated.webp",
+        "inputs/placeholders/general/animeinspired.webp",
+        "inputs/placeholders/general/underthesun.webp",
+        "inputs/placeholders/bags/quietluxury.webp",
+        "inputs/placeholders/general/artistic.webp",
+        "inputs/placeholders/general/bold.webp",
+        "inputs/placeholders/officesupplies/eclectic traveller.webp",
+        "inputs/placeholders/general/futuristic.webp",
+        "inputs/placeholders/general/traditionaljapanese.webp",
+        "inputs/placeholders/general/printseclectictraveler.webp",
+        "inputs/placeholders/general/mystical.webp",
+        "inputs/placeholders/general/sportysleek.webp",
+        "inputs/placeholders/general/funcoolquriky.webp",
+        "inputs/placeholders/general/essential.webp",
+        "inputs/placeholders/fashion/vintage feel.webp",
+        "inputs/placeholders/general/abstractpattern.webp",
+        "inputs/placeholders/bags/colorpop.webp",
+        "inputs/placeholders/general/animalprint.webp",
+        "inputs/placeholders/general/tropicaltimes.webp",
+        "inputs/placeholders/general/timeless.webp",
+        "inputs/placeholders/general/seventy.webp"
+      ],
+      "missing": [
+        "defaults/geometric1.jpg",
+        "defaults/geometric2.jpg"
+      ],
+      "pathAnalysis": {
+        "inputs/designs/general/minimalsleek&sophisticated": {
+          "total": 2,
+          "existing": 2,
+          "missing": 0
+        },
+        "inputs/designs/general/animeinspired": {
+          "total": 9,
+          "existing": 9,
+          "missing": 0
+        },
+        "defaults": {
+          "total": 2,
+          "existing": 0,
+          "missing": 2
+        },
+        "inputs/designs/general/quietluxury": {
+          "total": 4,
+          "existing": 4,
+          "missing": 0
+        },
+        "inputs/designs/general/artistic": {
+          "total": 13,
+          "existing": 13,
+          "missing": 0
+        },
+        "inputs/designs/general/bold": {
+          "total": 5,
+          "existing": 5,
+          "missing": 0
+        },
+        "inputs/designs/general/eclectictravellerscarves": {
+          "total": 10,
+          "existing": 10,
+          "missing": 0
+        },
+        "inputs/designs/general/futuristic": {
+          "total": 9,
+          "existing": 9,
+          "missing": 0
+        },
+        "inputs/designs/general/traditionaljapanese": {
+          "total": 1,
+          "existing": 1,
+          "missing": 0
+        },
+        "inputs/designs/general/romantic": {
+          "total": 5,
+          "existing": 5,
+          "missing": 0
+        },
+        "inputs/designs/general/mystical": {
+          "total": 1,
+          "existing": 1,
+          "missing": 0
+        },
+        "inputs/designs/general/sportysleek": {
+          "total": 8,
+          "existing": 8,
+          "missing": 0
+        },
+        "inputs/designs/general/funcool&quirky": {
+          "total": 1,
+          "existing": 1,
+          "missing": 0
+        },
+        "inputs/designs/general/essential": {
+          "total": 1,
+          "existing": 1,
+          "missing": 0
+        },
+        "inputs/designs/general/vintagefeel": {
+          "total": 2,
+          "existing": 2,
+          "missing": 0
+        },
+        "inputs/designs/general/abstractpatterns": {
+          "total": 50,
+          "existing": 50,
+          "missing": 0
+        },
+        "inputs/designs/general/colorpop": {
+          "total": 2,
+          "existing": 2,
+          "missing": 0
+        },
+        "inputs/designs/general/animalprint": {
+          "total": 5,
+          "existing": 5,
+          "missing": 0
+        },
+        "inputs/designs/general/tropicaltimes": {
+          "total": 1,
+          "existing": 1,
+          "missing": 0
+        },
+        "inputs/designs/general/timeless": {
+          "total": 5,
+          "existing": 5,
+          "missing": 0
+        },
+        "inputs/designs/general/seventys": {
+          "total": 4,
+          "existing": 4,
+          "missing": 0
+        },
+        "inputs/placeholders/bags": {
+          "total": 3,
+          "existing": 3,
+          "missing": 0
+        },
+        "inputs/placeholders/general": {
+          "total": 16,
+          "existing": 16,
+          "missing": 0
+        },
+        "inputs/placeholders/officesupplies": {
+          "total": 1,
+          "existing": 1,
+          "missing": 0
+        },
+        "inputs/placeholders/fashion": {
+          "total": 1,
+          "existing": 1,
+          "missing": 0
+        }
+      }
+    },
+    "products.json": {
+      "filename": "products.json",
+      "totalPaths": 120,
+      "existing": [
+        "inputs/placeholders/t-shirt.svg",
+        "inputs/placeholders/pillow.svg",
+        "inputs/placeholders/shoes.svg",
+        "inputs/placeholders/phonecase.svg",
+        "inputs/placeholders/wallart.svg",
+        "inputs/placeholders/hoodie.svg",
+        "inputs/placeholders/coffeecup.svg",
+        "inputs/placeholders/totebag.svg",
+        "inputs/placeholders/blanket.svg",
+        "inputs/placeholders/earrings.svg",
+        "inputs/placeholders/sofa.svg",
+        "inputs/placeholders/scarf.svg",
+        "inputs/placeholders/backpack.svg",
+        "inputs/placeholders/lamp.svg",
+        "inputs/placeholders/dress.svg",
+        "inputs/placeholders/jean.svg",
+        "inputs/placeholders/plate.svg",
+        "inputs/placeholders/notebook.svg",
+        "inputs/placeholders/shoulderbag.svg",
+        "inputs/placeholders/vase.svg",
+        "inputs/placeholders/toys.svg",
+        "inputs/placeholders/vehicles.svg",
+        "inputs/placeholders/glasses.svg",
+        "inputs/placeholders/watches.svg"
+      ],
+      "missing": [
+        "tshirt",
+        "pillow",
+        "shoes",
+        "phonecase",
+        "wallart",
+        "hoodie",
+        "coffecup",
+        "totebag",
+        "blanket",
+        "earrings",
+        "sofa",
+        "scarf",
+        "backpack",
+        "lamp",
+        "dress",
+        "jean",
+        "plate",
+        "notebook",
+        "shoulderbag",
+        "vase",
+        "toys",
+        "vehicles",
+        "glasses",
+        "watches",
+        "designs/tshirt/tshirt1.jpg",
+        "designs/tshirt/tshirt2.jpg",
+        "designs/tshirt/tshirt3.jpg",
+        "designs/pillow/pillow1.jpg",
+        "designs/pillow/pillow2.jpg",
+        "designs/pillow/pillow3.jpg",
+        "designs/shoes/shoes1.jpg",
+        "designs/shoes/shoes2.jpg",
+        "designs/shoes/shoes3.jpg",
+        "designs/phonecase/phonecase1.jpg",
+        "designs/phonecase/phonecase2.jpg",
+        "designs/phonecase/phonecase3.jpg",
+        "designs/wallart/wallart1.jpg",
+        "designs/wallart/wallart2.jpg",
+        "designs/wallart/wallart3.jpg",
+        "designs/hoodie/hoodie1.jpg",
+        "designs/hoodie/hoodie2.jpg",
+        "designs/hoodie/hoodie3.jpg",
+        "designs/coffecup/coffecup1.jpg",
+        "designs/coffecup/coffecup2.jpg",
+        "designs/coffecup/coffecup3.jpg",
+        "designs/totebag/totebag1.jpg",
+        "designs/totebag/totebag2.jpg",
+        "designs/totebag/totebag3.jpg",
+        "designs/blanket/blanket1.jpg",
+        "designs/blanket/blanket2.jpg",
+        "designs/blanket/blanket3.jpg",
+        "designs/earrings/earrings1.jpg",
+        "designs/earrings/earrings2.jpg",
+        "designs/earrings/earrings3.jpg",
+        "designs/sofa/sofa1.jpg",
+        "designs/sofa/sofa2.jpg",
+        "designs/sofa/sofa3.jpg",
+        "designs/scarf/scarf1.jpg",
+        "designs/scarf/scarf2.jpg",
+        "designs/scarf/scarf3.jpg",
+        "designs/backpack/backpack1.jpg",
+        "designs/backpack/backpack2.jpg",
+        "designs/backpack/backpack3.jpg",
+        "designs/lamp/lamp1.jpg",
+        "designs/lamp/lamp2.jpg",
+        "designs/lamp/lamp3.jpg",
+        "designs/dress/dress1.jpg",
+        "designs/dress/dress2.jpg",
+        "designs/dress/dress3.jpg",
+        "designs/jean/jean1.jpg",
+        "designs/jean/jean2.jpg",
+        "designs/jean/jean3.jpg",
+        "designs/plate/plate1.jpg",
+        "designs/plate/plate2.jpg",
+        "designs/plate/plate3.jpg",
+        "designs/notebook/notebook1.jpg",
+        "designs/notebook/notebook2.jpg",
+        "designs/notebook/notebook3.jpg",
+        "designs/shoulderbag/shoulderbag1.jpg",
+        "designs/shoulderbag/shoulderbag2.jpg",
+        "designs/shoulderbag/shoulderbag3.jpg",
+        "designs/vase/vase1.jpg",
+        "designs/vase/vase2.jpg",
+        "designs/vase/vase3.jpg",
+        "designs/toys/toys1.jpg",
+        "designs/toys/toys2.jpg",
+        "designs/toys/toys3.jpg",
+        "designs/vechile/vechile1.jpg",
+        "designs/vechile/vechile2.jpg",
+        "designs/vechile/vechile3.jpg",
+        "designs/glasses/glasses1.jpg",
+        "designs/glasses/glasses2.jpg",
+        "designs/glasses/glasses3.jpg",
+        "designs/watches/watches1.jpg",
+        "designs/watches/watches2.jpg",
+        "designs/watches/watches3.jpg"
+      ],
+      "pathAnalysis": {
+        "": {
+          "total": 24,
+          "existing": 0,
+          "missing": 24
+        },
+        "designs/tshirt": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/pillow": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/shoes": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/phonecase": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/wallart": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/hoodie": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/coffecup": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/totebag": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/blanket": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/earrings": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/sofa": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/scarf": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/backpack": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/lamp": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/dress": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/jean": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/plate": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/notebook": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/shoulderbag": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/vase": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/toys": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/vechile": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/glasses": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "designs/watches": {
+          "total": 3,
+          "existing": 0,
+          "missing": 3
+        },
+        "inputs/placeholders": {
+          "total": 24,
+          "existing": 24,
+          "missing": 0
+        }
+      }
+    }
+  },
+  "recommendations": [
+    "Create missing defaults directory with geometric1.jpg and geometric2.jpg",
+    "Create missing designs directory structure with product images",
+    "Fix placeholder paths in products.json to include leading slash"
+  ]
+}

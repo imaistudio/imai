@@ -48,6 +48,37 @@ public-hoist-pattern[]=*@heroui/*
 
 After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
 
+## File Path Testing
+
+This project includes a utility to validate all asset file paths referenced in the JSON configuration files.
+
+### Test Asset Paths
+
+To check if all referenced files exist:
+
+```bash
+npm run test:paths
+```
+
+This will:
+- ✅ Validate paths in `colors.json`, `designs.json`, and `products.json`
+- 📊 Show success rates for each file
+- 🔍 List any missing files with their paths
+- 🎯 Exit with error code if files are missing
+
+### Example Output
+```bash
+Testing colors.json...
+✓ Existing files: 38
+✗ Missing files: 0
+
+Testing designs.json...  
+✓ Existing files: 159
+✗ Missing files: 2
+```
+
+Use this before deployment to ensure all assets are properly referenced.
+
 ## License
 
 Licensed under the [MIT license](https://github.com/heroui-inc/next-app-template/blob/main/LICENSE).
