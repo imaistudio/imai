@@ -92,7 +92,25 @@
 		"artisticencounters": "/inputs/placeholders/fashion/artistic.webp",
 		"wellnesssporty": "/inputs/placeholders/fashion/wellnesssportyandserene.webp",
 		"businessclean": "/inputs/placeholders/fashion/businesscleansilhouette.webp",
-		"effortlesschicinnovative": "/inputs/placeholders/fashion/effortlesschicinnovativesiliconesprayedlacetrimings.webp"
+		"effortlesschicinnovative": "/inputs/placeholders/fashion/effortlesschicinnovativesiliconesprayedlacetrimings.webp",
+
+		"midcenturymodern": "/inputs/placeholders/homedecor/midcenturymodern.webp",
+		"organicshapes": "/inputs/placeholders/homedecor/organicshapes.webp",
+		"rawexposedmaterials": "/inputs/placeholders/homedecor/rawexposedmaterials.webp",
+		"traditionaljapanese": "/inputs/placeholders/homedecor/traditionaljapanese.webp",
+		"artdeco": "/inputs/placeholders/homedecor/artdeco.webp",
+		"turnofthecenturyluxe": "/inputs/placeholders/homedecor/turnofthecenturyluxe.webp",
+		"nomadic": "/inputs/placeholders/homedecor/nomadic.webp",
+		"popcraft": "/inputs/placeholders/homedecor/popcraft.webp",
+		"arabesque": "/inputs/placeholders/homedecor/arabesque.webp",
+		"chromelook": "/inputs/placeholders/homedecor/chromelook.webp",
+		"spaceage": "/inputs/placeholders/homedecor/spaceage.webp",
+		"animalia": "/inputs/placeholders/homedecor/animalia.webp",
+		"funkytimes": "/inputs/placeholders/homedecor/funkytimes.webp",
+		"daliesquemodern": "/inputs/placeholders/homedecor/daliesquemodern.webp",
+		"melting": "/inputs/placeholders/homedecor/melting.webp",
+		"primordialart": "/inputs/placeholders/homedecor/primordialart.webp",
+		"toteminspired": "/inputs/placeholders/homedecor/toteminspired.webp"
 	},
 	"specificDesigns": {
 		"tshirt": {
@@ -155,10 +173,128 @@
 				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
 			]
 		},
-		"pillow": {},
+		"pillow": {
+			"midcenturymodern": [
+				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+			],
+			"organicshapes": [
+				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+			],
+			"rawexposedmaterials": [
+				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+			],
+			"traditionaljapanese": [
+				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+			],
+			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+			"turnofthecenturyluxe": [
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+			],
+			"nomadic": [
+				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
+				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
+			],
+			"popcraft": [
+				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
+				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
+			],
+			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+			"chromelook": [
+				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
+			],
+			"spaceage": [
+				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
+			],
+			"animalia": [
+				"/inputs/designs/homedecor/animalia/animalia1.webp",
+				"/inputs/designs/homedecor/animalia/animalia2.webp"
+			],
+			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+			"daliesquemodern": [
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+			],
+			"melting": [
+				"/inputs/designs/homedecor/melting/melting1.webp",
+				"/inputs/designs/homedecor/melting/melting2.webp",
+				"/inputs/designs/homedecor/melting/melting3.webp",
+				"public/inputs/designs/homedecor/melting/melting4.webp"
+			],
+			"primordialart": [
+				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
+			],
+			"toteminspired": [
+				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+			]
+		},
 		"shoes": {},
 		"phonecase": {},
-		"wallart": {},
+		"wallart": {
+			"midcenturymodern": [
+				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+			],
+			"organicshapes": [
+				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+			],
+			"rawexposedmaterials": [
+				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+			],
+			"traditionaljapanese": [
+				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+			],
+			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+			"turnofthecenturyluxe": [
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+			],
+			"nomadic": [
+				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
+				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
+			],
+			"popcraft": [
+				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
+				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
+			],
+			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+			"chromelook": [
+				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
+			],
+			"spaceage": [
+				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
+			],
+			"animalia": [
+				"/inputs/designs/homedecor/animalia/animalia1.webp",
+				"/inputs/designs/homedecor/animalia/animalia2.webp"
+			],
+			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+			"daliesquemodern": [
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+			],
+			"melting": [
+				"/inputs/designs/homedecor/melting/melting1.webp",
+				"/inputs/designs/homedecor/melting/melting2.webp",
+				"/inputs/designs/homedecor/melting/melting3.webp",
+				"public/inputs/designs/homedecor/melting/melting4.webp"
+			],
+			"primordialart": [
+				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
+			],
+			"toteminspired": [
+				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+			]
+		},
 		"hoodie": {
 			"streetwear": [
 				"/inputs/designs/fashions/streetwear/streetwear1.webp",
@@ -344,7 +480,66 @@
 			]
 		},
 		"backpack": {},
-		"lamp": {},
+		"lamp": {
+			"midcenturymodern": [
+				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+			],
+			"organicshapes": [
+				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+			],
+			"rawexposedmaterials": [
+				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+			],
+			"traditionaljapanese": [
+				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+			],
+			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+			"turnofthecenturyluxe": [
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+			],
+			"nomadic": [
+				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
+				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
+			],
+			"popcraft": [
+				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
+				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
+			],
+			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+			"chromelook": [
+				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
+			],
+			"spaceage": [
+				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
+			],
+			"animalia": [
+				"/inputs/designs/homedecor/animalia/animalia1.webp",
+				"/inputs/designs/homedecor/animalia/animalia2.webp"
+			],
+			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+			"daliesquemodern": [
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+			],
+			"melting": [
+				"/inputs/designs/homedecor/melting/melting1.webp",
+				"/inputs/designs/homedecor/melting/melting2.webp",
+				"/inputs/designs/homedecor/melting/melting3.webp",
+				"public/inputs/designs/homedecor/melting/melting4.webp"
+			],
+			"primordialart": [
+				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
+			],
+			"toteminspired": [
+				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+			]
+		},
 		"dress": {
 			"streetwear": [
 				"/inputs/designs/fashions/streetwear/streetwear1.webp",
@@ -468,7 +663,66 @@
 		"plate": {},
 		"notebook": {},
 		"shoulderbag": {},
-		"vase": {},
+		"vase": {
+			"midcenturymodern": [
+				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+			],
+			"organicshapes": [
+				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+			],
+			"rawexposedmaterials": [
+				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+			],
+			"traditionaljapanese": [
+				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+			],
+			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+			"turnofthecenturyluxe": [
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+			],
+			"nomadic": [
+				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
+				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
+			],
+			"popcraft": [
+				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
+				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
+			],
+			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+			"chromelook": [
+				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
+				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
+			],
+			"spaceage": [
+				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
+				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
+			],
+			"animalia": [
+				"/inputs/designs/homedecor/animalia/animalia1.webp",
+				"/inputs/designs/homedecor/animalia/animalia2.webp"
+			],
+			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+			"daliesquemodern": [
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+			],
+			"melting": [
+				"/inputs/designs/homedecor/melting/melting1.webp",
+				"/inputs/designs/homedecor/melting/melting2.webp",
+				"/inputs/designs/homedecor/melting/melting3.webp",
+				"public/inputs/designs/homedecor/melting/melting4.webp"
+			],
+			"primordialart": [
+				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
+			],
+			"toteminspired": [
+				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+			]
+		},
 		"toys": {},
 		"vehicles": {},
 		"glasses": {},
