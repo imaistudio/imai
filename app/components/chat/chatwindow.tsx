@@ -259,7 +259,7 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
                        </div>
                      )}
                      {msg.text && (
-                       <div className="text-sm bg-primary text-primary-foreground rounded-large p-3 leading-relaxed text-left">
+                       <div className="text-sm bg-primary text-primary-foreground rounded-full py-2 px-4 leading-relaxed text-left">
                          <p>{msg.text}</p>
                        </div>
                      )}
