@@ -110,7 +110,21 @@
 		"daliesquemodern": "/inputs/placeholders/homedecor/daliesquemodern.webp",
 		"melting": "/inputs/placeholders/homedecor/melting.webp",
 		"primordialart": "/inputs/placeholders/homedecor/primordialart.webp",
-		"toteminspired": "/inputs/placeholders/homedecor/toteminspired.webp"
+		"toteminspired": "/inputs/placeholders/homedecor/toteminspired.webp",
+		"quietluxury": "/inputs/placeholders/bags/quietluxury.webp",
+		"understatedelegance": "/inputs/placeholders/bags/understatedelegance.webp",
+		"elegantandsophisticated": "/inputs/placeholders/bags/elegantandsophisticated.webp",
+		"businesschic": "/inputs/placeholders/bags/businesschic.webp",
+		"luxuryfeelapplied": "/inputs/placeholders/bags/luxuryfeelappliedjewelry.webp",
+		"jewelrybag": "/inputs/placeholders/bags/jewelrybag.webp",
+		"retroeleganc": "/inputs/placeholders/bags/Retroelegance.webp",
+		"romanticandsoft": "/inputs/placeholders/bags/romantic&soft.webp",
+		"funchicpieces": "/inputs/placeholders/bags/funchicpieces.webp",
+		"girlyandfun": "/inputs/placeholders/bags/girlyandfun.webp",
+		"opposingelements": "/inputs/placeholders/bags/opposingelementsrockchic.webp",
+		"artisanal": "/inputs/placeholders/bags/artisanal.webp",
+		"whimsical": "/inputs/placeholders/bags/whimsical.webp",
+		"sporty": "/inputs/placeholders/bags/sporty.webp"
 	},
 	"specificDesigns": {
 		"tshirt": {
@@ -356,7 +370,22 @@
 			]
 		},
 		"coffecup": {},
-		"totebag": {},
+		"totebag": {
+		"quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+		"understatedelegance": ["/inputs/designs/bags/understatedelegance/understatedelegance1.webp"],
+		"elegantandsophisticated":["/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"],
+		"businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
+		"luxuryfeelapplied": ["/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"],
+		"jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
+		"retroeleganc": ["/inputs/designs/bags/Retroelegance/Retroelegance1.webp"],
+		"romanticandsoft":["/inputs/designs/bags/romantic&soft/romantic&soft1.webp"],
+		"funchicpieces": ["/inputs/designs/bags/funchicpieces/funchicpieces1.webp","/inputs/designs/bags/funchicpieces/funchicpieces2.webp","/inputs/designs/bags/funchicpieces/funchicpieces3.webp"],
+		"girlyandfun": ["/inputs/designs/bags/girlyandfun/girlyandfun1.webp","/inputs/designs/bags/girlyandfun/girlyandfun2.webp","/inputs/designs/bags/girlyandfun/girlyandfun3.webp"],
+		"opposingelements": ["/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"],
+		"artisanal": ["/inputs/designs/bags/artisan/artisan1.webp","/inputs/designs/bags/artisan/artisan2.webp","/inputs/designs/bags/artisan/artisan3.webp"],
+		"whimsical": ["/inputs/designs/bags/whimsical/whimsical1.webp","/inputs/designs/bags/whimsical/whimsical2.webp","/inputs/designs/bags/whimsical/whimsical3.webp"],
+		"sporty":["/inputs/designs/bags/sporty/sporty1.webp"]
+		},
 		"blanket": {
 			"streetwear": [
 				"/inputs/designs/fashions/streetwear/streetwear1.webp",
@@ -479,7 +508,22 @@
 				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
 			]
 		},
-		"backpack": {},
+		"backpack": {
+		"quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+		"understatedelegance": ["/inputs/designs/bags/understatedelegance/understatedelegance1.webp"],
+		"elegantandsophisticated":["/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"],
+		"businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
+		"luxuryfeelapplied": ["/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"],
+		"jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
+		"retroeleganc": ["/inputs/designs/bags/Retroelegance/Retroelegance1.webp"],
+		"romanticandsoft":["/inputs/designs/bags/romantic&soft/romantic&soft1.webp"],
+		"funchicpieces": ["/inputs/designs/bags/funchicpieces/funchicpieces1.webp","/inputs/designs/bags/funchicpieces/funchicpieces2.webp","/inputs/designs/bags/funchicpieces/funchicpieces3.webp"],
+		"girlyandfun": ["/inputs/designs/bags/girlyandfun/girlyandfun1.webp","/inputs/designs/bags/girlyandfun/girlyandfun2.webp","/inputs/designs/bags/girlyandfun/girlyandfun3.webp"],
+		"opposingelements": ["/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"],
+		"artisanal": ["/inputs/designs/bags/artisan/artisan1.webp","/inputs/designs/bags/artisan/artisan2.webp","/inputs/designs/bags/artisan/artisan3.webp"],
+		"whimsical": ["/inputs/designs/bags/whimsical/whimsical1.webp","/inputs/designs/bags/whimsical/whimsical2.webp","/inputs/designs/bags/whimsical/whimsical3.webp"],
+		"sporty":["/inputs/designs/bags/sporty/sporty1.webp"]
+		},
 		"lamp": {
 			"midcenturymodern": [
 				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
@@ -662,7 +706,22 @@
 		},
 		"plate": {},
 		"notebook": {},
-		"shoulderbag": {},
+		"shoulderbag": {
+			"quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+		"understatedelegance": ["/inputs/designs/bags/understatedelegance/understatedelegance1.webp"],
+		"elegantandsophisticated":["/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"],
+		"businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
+		"luxuryfeelapplied": ["/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"],
+		"jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
+		"retroeleganc": ["/inputs/designs/bags/Retroelegance/Retroelegance1.webp"],
+		"romanticandsoft":["/inputs/designs/bags/romantic&soft/romantic&soft1.webp"],
+		"funchicpieces": ["/inputs/designs/bags/funchicpieces/funchicpieces1.webp","/inputs/designs/bags/funchicpieces/funchicpieces2.webp","/inputs/designs/bags/funchicpieces/funchicpieces3.webp"],
+		"girlyandfun": ["/inputs/designs/bags/girlyandfun/girlyandfun1.webp","/inputs/designs/bags/girlyandfun/girlyandfun2.webp","/inputs/designs/bags/girlyandfun/girlyandfun3.webp"],
+		"opposingelements": ["/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"],
+		"artisanal": ["/inputs/designs/bags/artisan/artisan1.webp","/inputs/designs/bags/artisan/artisan2.webp","/inputs/designs/bags/artisan/artisan3.webp"],
+		"whimsical": ["/inputs/designs/bags/whimsical/whimsical1.webp","/inputs/designs/bags/whimsical/whimsical2.webp","/inputs/designs/bags/whimsical/whimsical3.webp"],
+		"sporty":["/inputs/designs/bags/sporty/sporty1.webp"]
+		},
 		"vase": {
 			"midcenturymodern": [
 				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
