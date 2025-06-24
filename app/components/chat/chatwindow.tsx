@@ -243,44 +243,43 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
               <div key={`${msg.id || msg.chatId}-${index}`}>
                 {/* User messages */}
                 {msg.sender === "user" ? (
-                  <div className="flex justify-end group">
-                    <div className="flex items-end gap-2">
-                      <button
-                        onClick={() => handleReply(msg, index)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                        title="Reply to this message"
-                      >
-                        <Reply size={16} className="text-gray-500" />
-                      </button>
-                      
-                      <div className="max-w-[75%]">
-                        {msg.text && (
-                          <div className={`text-sm bg-primary text-primary-foreground rounded-2xl px-4 py-3 leading-relaxed ${msg.images && msg.images.length > 0 ? 'mb-3' : ''}`}>
-                            <p>{msg.text}</p>
-                          </div>
-                        )}
-                        {msg.images && msg.images.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {msg.images.map((img, i) => (
-                              <ImageZoomModal
-                                key={`${index}-${i}`}
-                                src={img}
-                                alt={`image-${i}`}
-                                className="w-32 h-32 object-cover rounded-lg"
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                 <div className="flex justify-end group">
+                 <div className="flex items-end gap-2">
+                   <div className="max-w-fit">
+                     {msg.images && msg.images.length > 0 && (
+                       <div className="flex flex-wrap gap-2 mb-2 justify-end">
+                         {msg.images.map((img, i) => (
+                           <ImageZoomModal
+                             key={`${index}-${i}`}
+                             src={img}
+                             alt={`image-${i}`}
+                             className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                           />
+                         ))}
+                       </div>
+                     )}
+                     {msg.text && (
+                       <div className="text-sm bg-primary text-primary-foreground rounded-large p-3 leading-relaxed text-left">
+                         <p>{msg.text}</p>
+                       </div>
+                     )}
+                   </div>
+                   <button
+                     onClick={() => handleReply(msg, index)}
+                     className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                     title="Reply to this message"
+                   >
+                     <Reply size={16} className="text-gray-500" />
+                   </button>
+                 </div>
+               </div>
                 ) : (
                   /* Agent messages */
                   <div className="group">
                     {msg.text && (
                       <div className="flex justify-start mb-2">
                         <div className="flex items-end gap-2">
-                          <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
+                          <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl">
                             <div className="text-sm leading-relaxed">
                               <p>{msg.text}</p>
                             </div>
