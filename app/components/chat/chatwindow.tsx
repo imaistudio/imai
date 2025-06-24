@@ -256,7 +256,7 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
                     {msg.text && (
                       <div className="flex justify-start mb-2">
                         <div className="flex items-end gap-2">
-                          <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl">
+                          <div className="max-w-[75%] bg-transparent text-black dark:text-white">
                             <div className="text-sm leading-relaxed">
                               <p>{msg.text}</p>
                             </div>
