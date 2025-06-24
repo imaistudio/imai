@@ -126,7 +126,7 @@ export default function SidebarData() {
               }}
             >
               <div className="flex items-center justify-between">
-                <small className="text-sm text-foreground truncate whitespace-nowrap overflow-hidden flex-1">
+                <small className="capitalize text-sm text-foreground truncate whitespace-nowrap overflow-hidden flex-1">
                   {(item.chatSummary?.length > 30
                     ? item.chatSummary.slice(0, 30) + "..."
                     : item.chatSummary) || "Untitled Chat"}
