@@ -32,11 +32,18 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
 
   useEffect(() => {
   const fetchLibraryImage = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log("No user found");
+      return;
+    }
+
+    console.log("User UID:", user.uid);
+    console.log("Fetching from path:", `${user.uid}/output`);
 
     const cached = sessionStorage.getItem("libraryCache");
     if (cached) {
       const parsed = JSON.parse(cached);
+      console.log("Using cached data:", parsed);
       setLibraryCount(parsed.count);
       setLatestImageUrl(parsed.url);
       return;
@@ -44,7 +51,12 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
 
     try {
       const outputRef = ref(storage, `${user.uid}/output`);
+      console.log("Created storage reference");
+      
       const items = await listAll(outputRef);
+      console.log("Found items:", items.items.length);
+      console.log("Item names:", items.items.map(item => item.name));
+      
       const sortedItems = items.items.sort((a, b) =>
         b.name.localeCompare(a.name)
       );
@@ -53,16 +65,20 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
         ? await getDownloadURL(sortedItems[0])
         : null;
 
+      console.log("Download URL:", url);
+
       const result = {
         count: items.items.length,
         url,
       };
 
+      console.log("Final result:", result);
       sessionStorage.setItem("libraryCache", JSON.stringify(result));
       setLibraryCount(result.count);
       setLatestImageUrl(result.url);
     } catch (error) {
       console.error("Error fetching latest library image:", error);
+      console.error("Error details:", error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -97,7 +113,6 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
           </div>
         </SidebarGroup>
       </form>
-
       {/* Below Form Buttons */}
       <div className="flex flex-col gap-1 px-2">
         {/* Explore */}
@@ -112,8 +127,8 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
           Explore
         </button>
 
-        {/* Library - only render if user ID exists */}
-        {user?.uid && (
+        {/* Library - only render if user ID exists and has images */}
+        {user?.uid && libraryCount > 0 && latestImageUrl && (
           <button
             type="button"
             onClick={() => router.push("/library")}
@@ -121,7 +136,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
           >
             <span>
               <img
-                src={latestImageUrl ?? "/logo.svg"}
+                src={latestImageUrl}
                 alt="Library"
                 className="p-0.5 h-8 w-8 object-cover rounded-md"
               />

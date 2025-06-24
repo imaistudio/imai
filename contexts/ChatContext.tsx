@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
-import { collection, addDoc, Timestamp, doc, setDoc, getDoc, query, orderBy, limit, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, Timestamp, doc, setDoc, getDoc, query, orderBy, limit, getDocs, deleteDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -116,7 +116,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       });
       
       await Promise.all(deletePromises);
-      console.log(`✅ Cleaned up ${chatsToDelete.length} duplicate empty chats, kept: ${mostRecentEmptyChat.chatId}`);
       
       return mostRecentEmptyChat.chatId;
     } catch (error) {
@@ -165,7 +164,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         
         // Proactively clean up any duplicate empty chats when user logs in
-        console.log('🧹 Proactively cleaning up duplicate empty chats for user:', currentUser.uid);
         await cleanupDuplicateEmptyChats();
         
         // Check if there's an existing chat ID in sessionStorage for this user
@@ -175,7 +173,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         if (existingChatId) {
           // Use existing chat from session
           setCurrentChatId(existingChatId);
-          console.log("✅ Restored existing chat from session:", existingChatId);
         }
         // Note: New chat creation is now handled in page.tsx for new sessions
       } catch (error) {
@@ -228,7 +225,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     });
 
     setCurrentChatId(newChatId);
-    console.log("✅ Created new chat:", newChatId);
     
     return newChatId;
   };
@@ -253,7 +249,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       if (currentChatId) {
         const hasMessages = await checkChatHasMessages(currentChatId);
         if (!hasMessages) {
-          console.log('Current chat is empty, no need to create new one:', currentChatId);
           return;
         }
       }
@@ -265,7 +260,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         const sessionKey = `currentChatId_${currentUser?.uid}`;
         sessionStorage.setItem(sessionKey, cleanedEmptyChat);
         setCurrentChatId(cleanedEmptyChat);
-        console.log('✅ Switched to cleaned empty chat:', cleanedEmptyChat);
         return;
       }
       
@@ -310,7 +304,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       try {
         const sessionKey = `currentChatId_${currentUser.uid}`;
         sessionStorage.setItem(sessionKey, chatId);
-        console.log("📝 ChatContext: Updated session storage with key:", sessionKey, "value:", chatId);
       } catch (error) {
         console.error("❌ Error updating session storage:", error);
       } finally {
@@ -318,8 +311,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         lastSwitchRef.current = "";
       }
     }, 50); // Small delay to batch operations
-    
-    console.log("✅ ChatContext: Optimistically set current chat ID to:", chatId);
   }, [currentUser, currentChatId]);
 
   // Cleanup on unmount

@@ -1,17 +1,11 @@
 Todo 
-
-if chat empty remove it imdeitaly 
-prevent submit spam 
-
-
-1. Sidebar Link to Load Chat 
-2. Link New ChatButton To Start a New Chat 
-3. in Sidebar Compoent add in pin | create folder and add chats into it 
-4. search bar search the entier chat and updates the list  
-5. load all the presets and add in test code to veryify the path 
-6. New Chat Show Default Promot With horizontal Scrooling 
-7. Pagination to Explore Page and firestore database 
-8. Stripe Payment Gateway 
+ 
+1. in Sidebar Compoent add in pin | create folder and add chats into it 
+2. search bar search the entier chat and updates the list  
+3. load all the presets and add in test code to veryify the path 
+4. New Chat Show Default Promot With horizontal Scrooling 
+5. Pagination to Explore Page and firestore database 
+6. Stripe Payment Gateway 
 
 Extras 
 
