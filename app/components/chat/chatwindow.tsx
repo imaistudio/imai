@@ -264,10 +264,12 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
                           
                           <button
                             onClick={() => handleReply(msg, index)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200  flex items-center space-x-1"
                             title="Reply to this message"
                           >
+                            
                             <Reply size={16} className="text-gray-500" />
+                            <span className="text-sm text-gray-500">Reply</span>
                           </button>
                         </div>
                       </div>
@@ -291,10 +293,11 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
                           
                           <button
                             onClick={() => handleReply(msg, index)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-1"
                             title="Reply to this image"
                           >
                             <Reply size={16} className="text-gray-500" />
+                            <span className="text-sm text-gray-500">Reply</span>
                           </button>
                         </div>
                       </div>
