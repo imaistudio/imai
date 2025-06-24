@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
-import { collection, addDoc, Timestamp, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, doc, setDoc, getDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,6 +9,7 @@ interface ChatContextType {
   currentChatId: string;
   setCurrentChatId: (chatId: string) => void;
   createNewChat: () => Promise<void>;
+  createNewChatIfNeeded: () => Promise<void>;
   switchToChat: (chatId: string) => void;
   isLoading: boolean;
   isSwitching: boolean;
@@ -25,6 +26,58 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   // Ref to track the last switch operation to prevent race conditions
   const lastSwitchRef = useRef<string>("");
   const switchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Function to check if a chat has any messages
+  const checkChatHasMessages = useCallback(async (chatId: string): Promise<boolean> => {
+    if (!currentUser || !chatId) return false;
+    
+    try {
+      const chatRef = doc(firestore, `chats/${currentUser.uid}/prompts/${chatId}`);
+      const chatDoc = await getDoc(chatRef);
+      
+      if (chatDoc.exists()) {
+        const chatData = chatDoc.data();
+        const messages = chatData.messages || [];
+        return messages.length > 0;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error checking chat messages:', error);
+      return false;
+    }
+  }, [currentUser]);
+
+  // Function to find the most recent empty chat
+  const findMostRecentEmptyChat = useCallback(async (): Promise<string | null> => {
+    if (!currentUser) return null;
+    
+    try {
+      // Get all chats ordered by most recent
+      const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
+      const q = query(sidebarRef, orderBy("createdAt", "desc"), limit(10));
+      const snapshot = await getDocs(q);
+      
+      // Check each chat to see if it's empty
+      for (const doc of snapshot.docs) {
+        const chatData = doc.data();
+        const chatId = chatData.chatId;
+        
+        if (chatId) {
+          const hasMessages = await checkChatHasMessages(chatId);
+          if (!hasMessages) {
+            console.log('Found existing empty chat:', chatId);
+            return chatId;
+          }
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error finding empty chat:', error);
+      return null;
+    }
+  }, [currentUser, checkChatHasMessages]);
 
   // Initialize chat when user is loaded
   useEffect(() => {
@@ -110,6 +163,40 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Function to create a new chat only if needed (no existing empty chat)
+  const createNewChatIfNeeded = async () => {
+    try {
+      setIsLoading(true);
+      
+      // First, check if current chat is empty
+      if (currentChatId) {
+        const hasMessages = await checkChatHasMessages(currentChatId);
+        if (!hasMessages) {
+          console.log('Current chat is empty, no need to create new one:', currentChatId);
+          return;
+        }
+      }
+      
+      // Look for any existing empty chat
+      const emptyChat = await findMostRecentEmptyChat();
+      if (emptyChat) {
+        // Switch to the existing empty chat instead of creating new one
+        const sessionKey = `currentChatId_${currentUser?.uid}`;
+        sessionStorage.setItem(sessionKey, emptyChat);
+        setCurrentChatId(emptyChat);
+        console.log('✅ Switched to existing empty chat:', emptyChat);
+        return;
+      }
+      
+      // No empty chat found, create a new one
+      await createNewChatInternal();
+    } catch (error) {
+      console.error("❌ Error creating new chat if needed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Debounced chat switching with optimistic updates
   const switchToChat = useCallback((chatId: string) => {
     if (!chatId || !currentUser) {
@@ -167,6 +254,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     currentChatId,
     setCurrentChatId,
     createNewChat,
+    createNewChatIfNeeded,
     switchToChat,
     isLoading,
     isSwitching

@@ -21,7 +21,7 @@ interface ReferencedMessage {
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
-  const { currentChatId, createNewChat, isLoading: chatLoading } = useChat();
+  const { currentChatId, createNewChatIfNeeded, isLoading: chatLoading } = useChat();
 
   // Debug: Track currentChatId changes
   useEffect(() => {
@@ -41,36 +41,72 @@ export default function Home() {
     return false;
   });
 
-  // 🔧 OPTIMIZED: Create new chat for new sessions (simplified logic)
+  // 🔧 OPTIMIZED: Load sessionChatAttempted from sessionStorage when user is available
+  useEffect(() => {
+    if (currentUser && typeof window !== "undefined") {
+      const key = `sessionChatAttempted_${currentUser.uid}`;
+      const attempted = sessionStorage.getItem(key) === "true";
+      setSessionChatAttempted(attempted);
+    }
+  }, [currentUser]);
+
+  // 🔧 OPTIMIZED: Create new chat for new sessions (fixed logic)
   useEffect(() => {
     const initializeSessionChat = async () => {
       // Don't create new chat if:
       // - User not loaded or loading
-      // - Already have a current chat
+      // - Chat context is still loading (this prevents premature execution)
       // - Already attempted to create session chat
-      // - Chat context is still loading
-      if (!currentUser || loading || currentChatId || sessionChatAttempted || chatLoading) {
+      if (!currentUser || loading || chatLoading || sessionChatAttempted) {
         return;
       }
 
-      try {
-        console.log("🏠 No current chat found, creating new session chat");
-        setSessionChatAttempted(true);
-        await createNewChat();
-      } catch (error) {
-        console.error("❌ Error creating session chat:", error);
-        // Reset attempt flag on error so we can try again
-        setSessionChatAttempted(false);
-      }
+      // Wait a bit more to ensure ChatContext has finished initializing from sessionStorage
+      setTimeout(async () => {
+        // Double-check after timeout - don't create if we now have a currentChatId
+        if (currentChatId) {
+          console.log("🏠 Found existing chat after initialization:", currentChatId);
+          return;
+        }
+
+        try {
+          console.log("🏠 No current chat found after initialization, creating new session chat");
+          
+          // Mark as attempted and persist to sessionStorage
+          setSessionChatAttempted(true);
+          if (typeof window !== "undefined") {
+            const key = `sessionChatAttempted_${currentUser.uid}`;
+            sessionStorage.setItem(key, "true");
+          }
+          
+          await createNewChatIfNeeded();
+        } catch (error) {
+          console.error("❌ Error creating session chat:", error);
+          // Reset attempt flag on error so we can try again
+          setSessionChatAttempted(false);
+          if (typeof window !== "undefined") {
+            const key = `sessionChatAttempted_${currentUser.uid}`;
+            sessionStorage.removeItem(key);
+          }
+        }
+      }, 100); // Small delay to let ChatContext finish initializing
     };
 
     initializeSessionChat();
-  }, [currentUser, loading, currentChatId, sessionChatAttempted, chatLoading, createNewChat]);
+  }, [currentUser, loading, currentChatId, chatLoading, sessionChatAttempted, createNewChatIfNeeded]);
 
   // Reset session chat attempt flag when user changes or logs out
   useEffect(() => {
     if (!currentUser) {
       setSessionChatAttempted(false);
+      // Also clear from sessionStorage
+      if (typeof window !== "undefined") {
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith('sessionChatAttempted_')) {
+            sessionStorage.removeItem(key);
+          }
+        });
+      }
     }
   }, [currentUser]);
 

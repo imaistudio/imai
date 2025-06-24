@@ -17,14 +17,14 @@ import {
 export function SearchForm({ ...props }: React.ComponentProps<"form">) {
   const router = useRouter();
   const { user } = useAuth();
-  const { createNewChat } = useChat();
+  const { createNewChatIfNeeded } = useChat();
   const [libraryCount, setLibraryCount] = useState<number>(0);
   const [latestImageUrl, setLatestImageUrl] = useState<string | null>(null);
 
   const handleNewChatClick = async () => {
     try {
-      await createNewChat();
-      console.log("New chat created successfully");
+      await createNewChatIfNeeded();
+      console.log("New chat created or switched to existing empty chat successfully");
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
