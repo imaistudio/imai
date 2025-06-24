@@ -76,38 +76,37 @@ export default function SidebarData() {
     }
   };
 
-  if (!currentUser) {
-    return (
-      <div className="flex items-center justify-center p-4 text-muted-foreground">
-        Please log in to view chats
-      </div>
-    );
-  }
+  // if (!currentUser) {
+  //   return (
+  //     <div className="flex items-center justify-center p-4 text-muted-foreground">
+  //       Please log in to view chats
+  //     </div>
+  //   );
+  // }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-4 text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-          Loading chats...
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center p-4 text-muted-foreground">
+  //       <div className="flex items-center gap-2">
+  //         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+  //         Loading chats...
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  if (sidebarItems.length === 0) {
-    return (
-      <div className="flex items-center justify-center p-4 text-muted-foreground">
-        No chats yet
-      </div>
-    );
-  }
+  // if (sidebarItems.length === 0) {
+  //   return (
+  //     <div className="flex items-center justify-center p-4 text-muted-foreground">
+  //       No chats yet
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="h-full overflow-y-auto hide-scrollbar">
       <div className="space-y-1 p-2">
         {sidebarItems.map((item) => {
-          const isActive = currentChatId === item.chatId;
           const isClicking = clickingItem === item.chatId;
           const isDisabled = isSwitching || clickingItem !== null;
           
@@ -116,9 +115,7 @@ export default function SidebarData() {
               key={item.id}
               onClick={() => handleItemClick(item)}
               className={`p-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                isActive 
-                  ? "bg-primary/10 border border-primary/20" 
-                  : isDisabled
+                isDisabled
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-muted/50"
               } ${
@@ -134,7 +131,7 @@ export default function SidebarData() {
                     ? item.chatSummary.slice(0, 30) + "..."
                     : item.chatSummary) || "Untitled Chat"}
                 </small>
-                {(isClicking || (isSwitching && isActive)) && (
+                {isClicking && (
                   <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin ml-2 flex-shrink-0"></div>
                 )}
               </div>
