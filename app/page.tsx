@@ -25,7 +25,7 @@ export default function Home() {
 
   // Debug: Track currentChatId changes
   useEffect(() => {
-    console.log("🏠 Page: currentChatId changed to:", currentChatId);
+    // Removed debug log
   }, [currentChatId]);
   
   // 🔧 NEW: State for reply/reference functionality
@@ -65,12 +65,10 @@ export default function Home() {
       setTimeout(async () => {
         // Double-check after timeout - don't create if we now have a currentChatId
         if (currentChatId) {
-          console.log("🏠 Found existing chat after initialization:", currentChatId);
           return;
         }
 
         try {
-          console.log("🏠 No current chat found after initialization, creating new session chat");
           
           // Mark as attempted and persist to sessionStorage
           setSessionChatAttempted(true);
@@ -125,7 +123,6 @@ export default function Home() {
   // 🔧 NEW: Function to handle reply to message
   const handleReplyToMessage = (message: ReferencedMessage) => {
     setReferencedMessage(message);
-    console.log('Setting referenced message:', message);
   };
 
   // 🔧 NEW: Function to clear reference
@@ -134,16 +131,12 @@ export default function Home() {
   };
 
   const handleFormSubmission = async (data: any) => {
-    console.log('Form submission started with data:', data);
-    
     if (!currentUser) {
-      console.log('No current user found, opening modal');
       openModal();
       return;
     }
 
     if (!currentChatId) {
-      console.log('No chat ID available');
       return;
     }
 
@@ -192,8 +185,6 @@ export default function Home() {
         chatId: currentChatId
       };
 
-      console.log('Storing user message in Firestore:', userMessage);
-
       // Get existing messages first
       const chatDoc = await getDoc(chatRef);
       const existingMessages = chatDoc.exists() ? chatDoc.data().messages || [] : [];
@@ -212,12 +203,9 @@ export default function Home() {
           chatId: String(currentChatId)
         };
         
-        console.log('Safe user message for Firestore:', safeUserMessage);
-        
         await setDoc(chatRef, {
           messages: [...existingMessages, safeUserMessage]
         }, { merge: true });
-        console.log('Successfully stored user message in Firestore');
 
         // Update chat summary in sidebar if this is the first message
         if (existingMessages.length === 0 && data.prompt) {
@@ -244,7 +232,6 @@ export default function Home() {
           await setDoc(chatRef, {
             messages: [...existingMessages, minimalMessage]
           }, { merge: true });
-          console.log('✅ Stored minimal user message in Firestore');
         } catch (finalError) {
           console.error('❌ Even minimal storage failed:', finalError);
         }
@@ -268,7 +255,6 @@ export default function Home() {
             images: msg.images || [], // 🔧 FIX: Include images field for context extraction
           }));
           formData.append("conversation_history", JSON.stringify(conversationHistory));
-          console.log('Added conversation history to API call:', conversationHistory.length, 'messages');
         }
       } catch (error) {
         console.warn('Failed to load conversation history:', error);
@@ -284,7 +270,6 @@ export default function Home() {
           timestamp: referencedMessage.timestamp
         };
         formData.append("explicit_reference", JSON.stringify(reference));
-        console.log('Added explicit reference to API call:', reference);
         
         // Clear the reference after sending
         clearReference();
@@ -310,7 +295,6 @@ export default function Home() {
           // It's a preset product type
           formData.append("preset_product_type", data.product);
         }
-        console.log('Added product data:', data.product);
       }
 
       // Process design images
@@ -327,7 +311,6 @@ export default function Home() {
             formData.set("preset_design_style", newPreset);
           }
         });
-        console.log('Added design data:', data.design);
       }
 
       // Process color images
@@ -344,18 +327,9 @@ export default function Home() {
             formData.set("preset_color_palette", newPreset);
           }
         });
-        console.log('Added color data:', data.color);
       }
 
-      console.log('Calling intent route API with formData:', {
-        userid: currentUser.uid,
-        message: data.prompt,
-        hasImages: allImages.length > 0,
-        imageCount: allImages.length,
-        hasProduct: !!data.product,
-        hasDesign: data.design?.length > 0,
-        hasColor: data.color?.length > 0
-      });
+
 
       const response = await fetch("/api/intentroute", {
         method: "POST",
@@ -363,7 +337,6 @@ export default function Home() {
       });
 
       const result = await response.json();
-      console.log('Received intent route API response:', result);
 
       if (result.status === "success") {
         // Extract the actual API result from the intent route response
@@ -590,15 +563,7 @@ export default function Home() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden hide-scrollbar">
-      {/* Loading overlay for chat switching */}
-      {chatLoading && (
-        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="flex items-center gap-3 bg-card p-4 rounded-lg shadow-lg border">
-            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm text-muted-foreground">Loading chat...</span>
-          </div>
-        </div>
-      )}
+
       
       {/* ChatWindow fills the screen */}
       <div className="absolute inset-0 overflow-y-auto hide-scrollbar">

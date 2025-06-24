@@ -207,17 +207,7 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
     };
   }, []);
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="w-full flex flex-col min-h-screen items-center justify-center">
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-muted-foreground">Loading chat...</span>
-        </div>
-      </div>
-    );
-  }
+  
 
   return (
     <div className="w-full flex flex-col min-h-screen hide-scrollbar pb-12 md:pb-32 lg:pb-44">
@@ -226,20 +216,7 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
         className="flex-1 w-full pl-6 pr-6 p-4 overflow-y-auto hide-scrollbar"
       >
         <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto">
-          {/* Show loading for initial load only if no cached messages */}
-          {initialLoad && messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                Loading messages...
-              </div>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              No messages yet. Start a conversation!
-            </div>
-          ) : (
-            messages.map((msg, index) => (
+          {messages.map((msg, index) => (
               <div key={`${msg.id || msg.chatId}-${index}`}>
                 {/* User messages */}
                 {msg.sender === "user" ? (
@@ -326,7 +303,7 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
                 )}
               </div>
             ))
-          )}
+          }
           <div ref={messagesEndRef} />
         </div>
       </div>
