@@ -240,10 +240,10 @@ export default function ChatWindow({
   }, []);
 
   return (
-    <div className="w-full flex flex-col min-h-screen hide-scrollbar pb-12 md:pb-32 lg:pb-44">
+    <div className="w-full flex flex-col min-h-screen hide-scrollbar pb-6 md:pb-32 lg:pb-44">
       <div
         ref={chatContainerRef}
-        className="flex-1 w-full pl-6 pr-6 p-4 overflow-y-auto hide-scrollbar"
+        className="flex-1 w-full md:pl-6 md:pr-6 p-4 overflow-y-auto hide-scrollbar"
       >
         <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto">
           {messages.map((msg, index) => (
@@ -277,7 +277,7 @@ export default function ChatWindow({
                     </div>
                     <button
                       onClick={() => handleReply(msg, index)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className="hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
                       title="Reply to this message"
                     >
                       <Reply size={16} className="text-gray-500" />
