@@ -13,13 +13,15 @@ import { SearchForm } from "./search-form";
 import SidebarData from "./SidebarData";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [searchTerm, setSearchTerm] = React.useState("");
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <SearchForm></SearchForm>
+        <SearchForm onSearchChange={setSearchTerm} />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarData />
+        <SidebarData searchTerm={searchTerm} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

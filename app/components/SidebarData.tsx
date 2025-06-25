@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,12 +16,27 @@ interface SidebarItem {
   pinnedAt: any;
 }
 
-export default function SidebarData() {
+interface SidebarDataProps {
+  searchTerm: string;
+}
+
+export default function SidebarData({ searchTerm }: SidebarDataProps) {
   const { user: currentUser } = useAuth();
   const { currentChatId, switchToChat, isSwitching } = useChat();
   const [sidebarItems, setSidebarItems] = useState<SidebarItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [clickingItem, setClickingItem] = useState<string | null>(null);
+
+  // Filter items based on search term
+  const filteredItems = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return sidebarItems;
+    }
+    
+    return sidebarItems.filter((item) =>
+      item.chatSummary?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [sidebarItems, searchTerm]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -113,7 +128,7 @@ export default function SidebarData() {
   return (
     <div className="h-full overflow-y-auto hide-scrollbar">
       <div className="space-y-1 p-2">
-        {sidebarItems.map((item) => {
+        {filteredItems.map((item) => {
           const isClicking = clickingItem === item.chatId;
           const isDisabled = isSwitching || clickingItem !== null;
 

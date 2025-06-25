@@ -14,7 +14,11 @@ import {
   SidebarInput,
 } from "@/components/ui/sidebar";
 
-export function SearchForm({ ...props }: React.ComponentProps<"form">) {
+interface SearchFormProps extends React.ComponentProps<"form"> {
+  onSearchChange: (searchTerm: string) => void;
+}
+
+export function SearchForm({ onSearchChange, ...props }: SearchFormProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { createNewChatIfNeeded } = useChat();
@@ -30,6 +34,10 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchChange(e.target.value);
   };
 
   useEffect(() => {
@@ -105,6 +113,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
                 id="search"
                 placeholder="Search"
                 className="pl-8 w-full"
+                onChange={handleSearchChange}
               />
               <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
             </SidebarGroupContent>
