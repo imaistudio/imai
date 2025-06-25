@@ -60,6 +60,7 @@
     "formidable": "^3.5.4",
     "framer-motion": "11.13.1",
     "intl-messageformat": "10.7.16",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.511.0",
     "motion": "^12.12.1",
     "next": "^15.3.1",

@@ -6,6 +6,8 @@ import { doc, Timestamp, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 import { Reply } from "lucide-react";
+import Lottie from "lottie-react";
+import catLoadingAnimation from "@/public/lottie/catloading.json";
 
 interface ChatMessage {
   id?: string;
@@ -289,14 +291,15 @@ export default function ChatWindow({
                   {msg.isLoading && (
                     <div className="flex justify-start mb-2">
                       <div className="flex items-end gap-2">
-                        <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
-                          <div className="flex items-center space-x-2">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              Generating response...
-                            </span>
+                                                  <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
+                            <div className="flex items-center justify-center">
+                              <Lottie
+                                animationData={catLoadingAnimation}
+                                loop={true}
+                                className="w-60 h-60"
+                              />
+                            </div>
                           </div>
-                        </div>
                       </div>
                     </div>
                   )}
