@@ -1,11 +1,14 @@
 Todo 
  
-1. in Sidebar Compoent add in pin | create folder and add chats into it 
-2. search bar search the entier chat and updates the list  
-3. load all the presets and add in test code to veryify the path 
-4. New Chat Show Default Promot With horizontal Scrooling 
-5. Pagination to Explore Page and firestore database 
-6. Stripe Payment Gateway 
+1. in Sidebar Compoent add in pin | create folder and add chats into it  
+2. load all the presets and add in test code to veryify the path 
+3. New Chat Show Default Promot With horizontal Scrooling 
+4. Pagination to Explore Page and firestore database 
+5. Stripe Payment Gateway 
+6. add icons in the chatimages call api routes 
+7. add sharing system model | public link | shareable chat window 
+8. fix all the mobile views pixel Perfect
+9. copy paste drag and drop system in chat window 
 
 Extras 
 

@@ -16,6 +16,7 @@ interface ChatMessage {
   createdAt: Timestamp | { seconds: number; nanoseconds: number };
   chatId: string;
   isStreaming?: boolean;
+  isLoading?: boolean;
   updatedAt?: Timestamp | { seconds: number; nanoseconds: number };
 }
 
@@ -284,7 +285,23 @@ export default function ChatWindow({
               ) : (
                 /* Agent messages */
                 <div className="group">
-                  {msg.text && (
+                  {/* 🔧 NEW: Loading spinner for agent messages */}
+                  {msg.isLoading && (
+                    <div className="flex justify-start mb-2">
+                      <div className="flex items-end gap-2">
+                        <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              Generating response...
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {msg.text && !msg.isLoading && (
                     <div className="flex justify-start mb-2">
                       <div className="flex items-end gap-2">
                         <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
@@ -310,7 +327,7 @@ export default function ChatWindow({
                     </div>
                   )}
 
-                  {msg.images && msg.images.length > 0 && (
+                  {msg.images && msg.images.length > 0 && !msg.isLoading && (
                     <div className="flex justify-start">
                       <div className="flex items-end gap-2">
                         <div className="max-w-[75%]">

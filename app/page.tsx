@@ -23,6 +23,7 @@ interface ReferencedMessage {
   text?: string;
   images?: string[];
   timestamp: string;
+  isLoading?: boolean; // 🔧 NEW: Loading state for API calls
 }
 
 export default function Home() {
@@ -277,6 +278,34 @@ export default function Home() {
         }
       }
 
+      // 🔧 NEW: Add loading message to show spinner
+      const loadingMessage = {
+        sender: "agent",
+        type: "prompt",
+        text: "",
+        images: [],
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        userId: currentUser.uid,
+        chatId: currentChatId,
+        isLoading: true, // 🔧 NEW: This will trigger the spinner
+      };
+
+      // Get existing messages and add the loading message
+      const chatDocForLoading = await getDoc(chatRef);
+      const existingMessagesForLoading = chatDocForLoading.exists()
+        ? chatDocForLoading.data().messages || []
+        : [];
+
+      // Add loading message to Firestore to show spinner immediately
+      await setDoc(
+        chatRef,
+        {
+          messages: [...existingMessagesForLoading, loadingMessage],
+        },
+        { merge: true },
+      );
+
       // Call the intent route API
       const formData = new FormData();
       formData.append("userid", currentUser.uid);
@@ -385,12 +414,50 @@ export default function Home() {
         });
       }
 
-      const response = await fetch("/api/intentroute", {
-        method: "POST",
-        body: formData,
-      });
+      let response, result;
+      
+      try {
+        response = await fetch("/api/intentroute", {
+          method: "POST",
+          body: formData,
+        });
 
-      const result = await response.json();
+        result = await response.json();
+      } catch (apiError) {
+        console.error("❌ API call failed:", apiError);
+        
+        // 🔧 NEW: Remove loading message on API error
+        const chatDocForError = await getDoc(chatRef);
+        const messagesForError = chatDocForError.exists()
+          ? chatDocForError.data().messages || []
+          : [];
+        const messagesWithoutLoadingError = messagesForError.filter(
+          (msg: any) => !msg.isLoading
+        );
+        
+        // Add error message
+        const errorMessage = {
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I encountered an error while processing your request. Please try again.",
+          images: [],
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          userId: currentUser.uid,
+          chatId: currentChatId,
+          isLoading: false,
+        };
+        
+        await setDoc(
+          chatRef,
+          {
+            messages: [...messagesWithoutLoadingError, errorMessage],
+          },
+          { merge: true },
+        );
+        
+        return; // Exit early on API error
+      }
 
       if (result.status === "success") {
         // Extract the actual API result from the intent route response
@@ -449,11 +516,16 @@ export default function Home() {
 
         console.log("Storing agent message in Firestore:", agentMessage);
 
-        // Get the latest messages including the user message we just added
+        // Get the latest messages including the user message and loading message
         const updatedChatDoc = await getDoc(chatRef);
         const updatedMessages = updatedChatDoc.exists()
           ? updatedChatDoc.data().messages || []
           : [];
+
+        // 🔧 NEW: Remove the loading message and replace with actual response
+        const messagesWithoutLoading = updatedMessages.filter(
+          (msg: any) => !msg.isLoading
+        );
 
         // Update Firestore with the agent response
         try {
@@ -469,6 +541,7 @@ export default function Home() {
             updatedAt: Timestamp.now(),
             userId: String(currentUser.uid),
             chatId: String(currentChatId),
+            isLoading: false, // 🔧 NEW: Explicitly set loading to false
           };
 
           console.log("Safe agent message for Firestore:", safeAgentMessage);
@@ -481,7 +554,7 @@ export default function Home() {
           await setDoc(
             chatRef,
             {
-              messages: [...updatedMessages, safeAgentMessage],
+              messages: [...messagesWithoutLoading, safeAgentMessage],
             },
             { merge: true },
           );
@@ -505,12 +578,13 @@ export default function Home() {
               text: String(result.message || ""),
               timestamp: Timestamp.now(),
               userId: String(currentUser.uid),
+              isLoading: false, // 🔧 NEW: Ensure loading is false in fallback too
             };
 
             await setDoc(
               chatRef,
               {
-                messages: [...updatedMessages, minimalAgentMessage],
+                messages: [...messagesWithoutLoading, minimalAgentMessage],
               },
               { merge: true },
             );
