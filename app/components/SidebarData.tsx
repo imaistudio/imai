@@ -33,7 +33,7 @@ export default function SidebarData() {
     // Create a real-time listener for sidebar data
     const sidebarRef = collection(
       firestore,
-      `users/${currentUser.uid}/sidebar`,
+      `users/${currentUser.uid}/sidebar`
     );
     const q = query(sidebarRef, orderBy("updatedAt", "desc"));
 
@@ -53,7 +53,7 @@ export default function SidebarData() {
       (error) => {
         console.error("❌ Error fetching sidebar data:", error);
         setLoading(false);
-      },
+      }
     );
 
     return () => unsubscribe();

@@ -15,6 +15,8 @@ interface ChatMessage {
   images?: string[];
   createdAt: Timestamp | { seconds: number; nanoseconds: number };
   chatId: string;
+  isStreaming?: boolean;
+  updatedAt?: Timestamp | { seconds: number; nanoseconds: number };
 }
 
 // 🔧 NEW: Interface for referenced message
@@ -41,7 +43,6 @@ export default function ChatWindow({
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -106,14 +107,6 @@ export default function ChatWindow({
     },
     [onReplyToMessage],
   );
-
-  // Clean up previous listener when chatId changes
-  useEffect(() => {
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
-  }, [chatId]);
 
   // Initialize auth state
   useEffect(() => {
@@ -260,12 +253,16 @@ export default function ChatWindow({
                       {msg.images && msg.images.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-2 justify-end">
                           {msg.images.map((img, i) => (
-                            <ImageZoomModal
+                            <div
                               key={`${index}-${i}`}
-                              src={img}
-                              alt={`image-${i}`}
-                              className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
-                            />
+                              className="relative group/image"
+                            >
+                              <ImageZoomModal
+                                src={img}
+                                alt={`image-${i}`}
+                                className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                              />
+                            </div>
                           ))}
                         </div>
                       )}
@@ -290,9 +287,14 @@ export default function ChatWindow({
                   {msg.text && (
                     <div className="flex justify-start mb-2">
                       <div className="flex items-end gap-2">
-                        <div className="max-w-[75%] bg-transparent text-black dark:text-white">
+                        <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
                           <div className="text-sm leading-relaxed">
-                            <p>{msg.text}</p>
+                            <p>
+                              {msg.text}
+                              {(msg as any).isStreaming && (
+                                <span className="animate-pulse ml-1">▊</span>
+                              )}
+                            </p>
                           </div>
                         </div>
 
@@ -314,12 +316,16 @@ export default function ChatWindow({
                         <div className="max-w-[75%]">
                           <div className="flex flex-wrap gap-2">
                             {msg.images.map((img, i) => (
-                              <ImageZoomModal
+                              <div
                                 key={`${index}-${i}`}
-                                src={img}
-                                alt={`image-${i}`}
-                                className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
-                              />
+                                className="relative group/image"
+                              >
+                                <ImageZoomModal
+                                  src={img}
+                                  alt={`image-${i}`}
+                                  className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                                />
+                              </div>
                             ))}
                           </div>
                         </div>

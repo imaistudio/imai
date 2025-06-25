@@ -37,7 +37,7 @@ async function upscaleImage(
   options: UpscaleOptions,
 ): Promise<string> {
   try {
-    const { scale = 2, enhance_face = true, enhance_details = true } = options;
+    const { scale = 4, enhance_face = true, enhance_details = true } = options;
 
     console.log("Submitting request to FAL AI...");
     console.log(

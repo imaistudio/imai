@@ -48,7 +48,7 @@ async function analyzeImageWithGPT4Vision(imageUrl: string): Promise<string> {
     console.log("[DEBUG] Analyzing image with GPT-4 Vision...");
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1",
       messages: [
         {
           role: "user",
@@ -258,7 +258,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const prompt = (formData.get("prompt") as string) || undefined;
     const workflow = (formData.get("workflow") as string) || "standard";
-    const size = (formData.get("size") as string) || "1024x1024";
+    // Support aspect ratios: square, portrait, landscape
+    const sizeParam = (formData.get("size") as string) || "1024x1024";
+    const aspectRatio = (formData.get("aspect_ratio") as string) || "";
+
+    // Map aspect ratio to size if specified (using OpenAI supported sizes)
+    let size = sizeParam;
+    if (aspectRatio) {
+      switch (aspectRatio.toLowerCase()) {
+        case "portrait":
+          size = "1024x1536"; // OpenAI supported portrait
+          break;
+        case "landscape":
+          size = "1536x1024"; // OpenAI supported landscape
+          break;
+        case "square":
+        default:
+          size = "1024x1024"; // 1:1 aspect ratio
+          break;
+      }
+    }
+
+    console.log(
+      `🎯 Using size: ${size} (aspect_ratio: ${aspectRatio || "square"})`,
+    );
     const quality = (formData.get("quality") as string) || "high";
     const n = parseInt(formData.get("n") as string) || 1;
 

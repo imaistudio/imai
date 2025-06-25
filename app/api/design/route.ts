@@ -26,6 +26,7 @@ interface ComposeProductResponse {
     product?: string;
     design?: string;
     color?: string;
+    color2?: string;
   };
   firebaseOutputUrl?: string;
   workflow_type?: string;
@@ -565,7 +566,12 @@ async function generateWithResponsesAPI(
     stream?: boolean;
     partial_images?: number;
   },
-  imageUrls?: { product?: string; design?: string; color?: string },
+  imageUrls?: {
+    product?: string;
+    design?: string;
+    color?: string;
+    color2?: string;
+  },
   mainlineModel: string = "gpt-4.1",
 ): Promise<{
   images: Array<{ type: "url" | "base64"; data: string }>;
@@ -629,6 +635,23 @@ async function generateWithResponsesAPI(
         } catch (err) {
           console.warn(
             "Failed to upload color image to Files API, skipping:",
+            err,
+          );
+        }
+      }
+      if (imageUrls.color2) {
+        try {
+          const fileId = await uploadImageToFiles(
+            imageUrls.color2,
+            "color2.jpg",
+          );
+          inputContent.push({
+            type: "input_image",
+            file_id: fileId,
+          });
+        } catch (err) {
+          console.warn(
+            "Failed to upload color2 image to Files API, skipping:",
             err,
           );
         }
@@ -731,7 +754,12 @@ async function composeProductWithGPTImage(
     stream?: boolean;
     partial_images?: number;
   },
-  imageUrls?: { product?: string; design?: string; color?: string },
+  imageUrls?: {
+    product?: string;
+    design?: string;
+    color?: string;
+    color2?: string;
+  },
 ): Promise<{
   results: Array<{ type: "url" | "base64"; data: string }>;
   response_id?: string;
@@ -742,7 +770,10 @@ async function composeProductWithGPTImage(
     // Try Responses API first if we have image inputs or streaming is requested
     if (
       (imageUrls &&
-        (imageUrls.product || imageUrls.design || imageUrls.color)) ||
+        (imageUrls.product ||
+          imageUrls.design ||
+          imageUrls.color ||
+          imageUrls.color2)) ||
       options.stream
     ) {
       try {
@@ -979,7 +1010,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 4) Retrieve enhanced generation parameters
-    const size = (formData.get("size") as string) || "1024x1024";
+    // Support aspect ratios: square, portrait, landscape
+    const sizeParam = (formData.get("size") as string) || "1024x1024";
+    const aspectRatio = (formData.get("aspect_ratio") as string) || "";
+
+    // Map aspect ratio to size if specified (using OpenAI supported sizes)
+    let size = sizeParam;
+    if (aspectRatio) {
+      switch (aspectRatio.toLowerCase()) {
+        case "portrait":
+          size = "1024x1536"; // OpenAI supported portrait
+          break;
+        case "landscape":
+          size = "1536x1024"; // OpenAI supported landscape
+          break;
+        case "square":
+        default:
+          size = "1024x1024"; // 1:1 aspect ratio
+          break;
+      }
+    }
+
+    console.log(
+      `🎯 Using size: ${size} (aspect_ratio: ${aspectRatio || "square"})`,
+    );
     const quality = (formData.get("quality") as string) || "auto";
     const n = parseInt((formData.get("n") as string) || "1", 10);
     const background = (formData.get("background") as string) || "opaque";
@@ -1012,7 +1066,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 6) Process input images (files or URLs) and run analyses
-    const inputUrls: { product?: string; design?: string; color?: string } = {};
+    const inputUrls: {
+      product?: string;
+      design?: string;
+      color?: string;
+      color2?: string;
+    } = {};
     const analyses: { product?: string; design?: string; color?: string } = {};
 
     try {
@@ -1070,43 +1129,119 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log("Design image URL processed successfully");
       } else if (presetDesignStyle) {
         console.log("Using preset design style:", presetDesignStyle);
-        analyses.design = `Apply a ${presetDesignStyle} design style. This design should embody the characteristics and aesthetic of ${presetDesignStyle} style, incorporating its typical patterns, motifs, and visual elements.`;
+        // Convert preset name to actual image URL using proper category detection
+
+        // Import designs data for category lookup
+        const designsData = await import(
+          "../../../constants/data/designs.json"
+        );
+
+        // Find the preset in the designs data to determine correct category and path
+        let presetImageUrl = null;
+
+        // Search through all categories in defaultImages
+        for (const [presetKey, imagePaths] of Object.entries(
+          designsData.defaultImages,
+        )) {
+          if (Array.isArray(imagePaths)) {
+            // Find matching image path for this preset
+            const matchingPath = imagePaths.find((path) =>
+              path.includes(`/${presetDesignStyle}.webp`),
+            );
+            if (matchingPath) {
+              presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${matchingPath}`;
+              console.log(
+                `✅ Found preset ${presetDesignStyle} in category: ${matchingPath}`,
+              );
+              break;
+            }
+          }
+        }
+
+        // Fallback to old logic if not found in designs.json
+        if (!presetImageUrl) {
+          console.log(
+            `⚠️ Preset ${presetDesignStyle} not found in designs.json, using fallback logic`,
+          );
+          const baseStyle = presetDesignStyle.replace(/\d+$/, "");
+          const presetImagePath = `/inputs/designs/general/${baseStyle}/${presetDesignStyle}.webp`;
+          presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${presetImagePath}`;
+        }
+
+        inputUrls.design = presetImageUrl;
+        analyses.design = await analyzeImageWithGPT4Vision(
+          presetImageUrl,
+          "design reference",
+        );
         console.log("Preset design style processed successfully");
       }
 
-      // Handle color image (file, URL, or preset)
+      // Handle color image (file, URL, and/or preset) - support multiple color inputs
+      let colorAnalysisParts = [];
+
+      // First, handle uploaded color image/URL
       if (colorImage && firebaseInitialized) {
         console.log("Processing color image file...");
         const colorBuffer = await fileToJpegBuffer(colorImage);
         const colorPath = `${userid}/input/${uuidv4()}.jpg`;
         const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
         inputUrls.color = colorUrl;
-        analyses.color = await analyzeImageWithGPT4Vision(
+        const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
           colorUrl,
           "color reference",
         );
+        colorAnalysisParts.push(uploadedColorAnalysis);
         console.log("Color image file processed successfully");
       } else if (colorImageUrl) {
         console.log("Using color image URL:", colorImageUrl);
         inputUrls.color = colorImageUrl;
-        analyses.color = await analyzeImageWithGPT4Vision(
+        const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
           colorImageUrl,
           "color reference",
         );
+        colorAnalysisParts.push(uploadedColorAnalysis);
         console.log("Color image URL processed successfully");
-      } else if (presetColorPalette) {
+      }
+
+      // Then, handle preset color palette (can be in addition to uploaded)
+      if (presetColorPalette) {
         console.log("Using preset color palette:", presetColorPalette);
         // Handle multiple color palettes (comma-separated)
         const colorPalettes = presetColorPalette.includes(",")
           ? presetColorPalette.split(",").map((p) => p.trim())
           : [presetColorPalette];
 
+        // Convert color preset names to text descriptions instead of images
+        const colorDescriptions = colorPalettes.map((palette) => {
+          // Create descriptive text for the color palette
+          const formattedName = palette
+            .replace(/([a-z])([A-Z])/g, "$1 $2")
+            .toLowerCase();
+          return `${formattedName} color palette with its characteristic tones and harmonies`;
+        });
+
+        // Add color preset as text analysis
+        const presetColorAnalysis = `Apply ${colorDescriptions.join(" combined with ")} to create a cohesive color scheme in the design.`;
+        colorAnalysisParts.push(presetColorAnalysis);
+
+        // Add additional palette instructions if multiple palettes
         if (colorPalettes.length > 1) {
-          analyses.color = `Combine and blend ${colorPalettes.join(" and ")} color palettes. Create a harmonious fusion that incorporates the characteristic colors from each palette: ${colorPalettes.map((p) => `${p} tones`).join(", ")}. Ensure the colors work together cohesively in the overall composition.`;
-        } else {
-          analyses.color = `Use a ${presetColorPalette} color palette. Apply colors that are characteristic of the ${presetColorPalette} color scheme, ensuring harmony and visual appeal in the overall composition.`;
+          const additionalInstruction = `Blend and harmonize ${colorPalettes.join(", ")} color characteristics to create a unified and balanced color composition.`;
+          colorAnalysisParts.push(additionalInstruction);
         }
-        console.log("Preset color palette processed successfully");
+
+        console.log(
+          "Preset color palette processed successfully as text description",
+        );
+      }
+
+      // Combine all color analyses
+      if (colorAnalysisParts.length > 0) {
+        if (colorAnalysisParts.length === 1) {
+          analyses.color = colorAnalysisParts[0];
+        } else {
+          analyses.color = `Combine and harmonize the following color references: ${colorAnalysisParts.join(" AND ")} Ensure all color elements work together cohesively in the overall composition.`;
+        }
       }
     } catch (error: any) {
       console.error("Error processing images:", error);

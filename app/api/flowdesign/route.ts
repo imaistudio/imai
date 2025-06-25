@@ -3,6 +3,9 @@ import OpenAI from "openai";
 import sharp, { Sharp } from "sharp";
 import fs from "fs";
 import path from "path";
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getStorage } from "firebase-admin/storage";
+import { v4 as uuidv4 } from "uuid";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -48,6 +51,62 @@ interface FlowDesignResponse {
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// Firebase initialization
+function formatFirebasePrivateKey(privateKey: string): string {
+  return privateKey.replace(/\\n/g, "\n");
+}
+
+if (getApps().length === 0) {
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error("FIREBASE_PRIVATE_KEY environment variable is not set");
+  }
+
+  initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: formatFirebasePrivateKey(privateKey),
+    }),
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  });
+}
+
+async function uploadImageToFirebaseStorage(
+  imageBuffer: Buffer,
+  userid: string,
+  filename: string,
+  isOutput: boolean = false,
+): Promise<string> {
+  try {
+    const storage = getStorage();
+    const bucket = storage.bucket();
+
+    const folder = isOutput ? "output" : "input";
+    const filePath = `${userid}/${folder}/${filename}`;
+    const file = bucket.file(filePath);
+
+    await file.save(imageBuffer, {
+      metadata: {
+        contentType: "image/png",
+        metadata: {
+          firebaseStorageDownloadTokens: uuidv4(),
+        },
+      },
+    });
+
+    await file.makePublic();
+
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+    console.log(`✅ Firebase Storage upload successful: ${publicUrl}`);
+
+    return publicUrl;
+  } catch (error) {
+    console.error("❌ Firebase Storage upload failed:", error);
+    throw error;
+  }
+}
 
 function ensureDirectoryExists(dirPath: string): void {
   if (!fs.existsSync(dirPath)) {
@@ -280,6 +339,15 @@ export async function POST(
     const imageBuffers: Buffer[] = [];
     const uploadedImageUrls: string[] = [];
 
+    // Extract userid (required for Firebase upload)
+    const userid = (formData.get("userid") as string | null)?.trim();
+    if (!userid) {
+      return NextResponse.json(
+        { error: 'Missing "userid" parameter' },
+        { status: 400 },
+      );
+    }
+
     const productImageUrl = formData.get("product_image_url") as string | null;
     const designImageUrl = formData.get("design_image_url") as string | null;
     const colorImageUrl = formData.get("color_image_url") as string | null;
@@ -374,7 +442,7 @@ export async function POST(
 
     console.log("Flow Design: Getting design analysis from OpenAI");
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4.1",
       messages: [
         {
           role: "user",
@@ -422,12 +490,16 @@ export async function POST(
       }
     }
 
-    console.log("Flow Design: Processing and saving generated image locally");
+    console.log(
+      "Flow Design: Processing and uploading generated image to Firebase",
+    );
     const processedImage = await sharp(generatedImageBuffer).png().toBuffer();
 
-    const finalImageUrl = await saveImageLocally(
+    const finalImageUrl = await uploadImageToFirebaseStorage(
       processedImage,
-      `final_${Date.now()}.png`,
+      userid,
+      `${Date.now()}_flow_design_output.png`,
+      true, // isOutput = true
     );
 
     console.log("Flow Design: Process completed successfully");
