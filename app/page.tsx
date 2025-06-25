@@ -5,7 +5,14 @@ import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import { useChat } from "@/contexts/ChatContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
 import ChatWindow from "./components/chat/chatwindow";
-import { doc, setDoc, Timestamp, getDoc, collection, addDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  Timestamp,
+  getDoc,
+  collection,
+  addDoc,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
 
@@ -21,16 +28,21 @@ interface ReferencedMessage {
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
   const { openModal, closeModal } = useGlobalModal();
-  const { currentChatId, createNewChatIfNeeded, isLoading: chatLoading } = useChat();
+  const {
+    currentChatId,
+    createNewChatIfNeeded,
+    isLoading: chatLoading,
+  } = useChat();
 
   // Debug: Track currentChatId changes
   useEffect(() => {
     // Removed debug log
   }, [currentChatId]);
-  
+
   // 🔧 NEW: State for reply/reference functionality
-  const [referencedMessage, setReferencedMessage] = useState<ReferencedMessage | null>(null);
-  
+  const [referencedMessage, setReferencedMessage] =
+    useState<ReferencedMessage | null>(null);
+
   // 🔧 OPTIMIZED: Track if we've already attempted to create a session chat
   const [sessionChatAttempted, setSessionChatAttempted] = useState(false);
 
@@ -69,14 +81,13 @@ export default function Home() {
         }
 
         try {
-          
           // Mark as attempted and persist to sessionStorage
           setSessionChatAttempted(true);
           if (typeof window !== "undefined") {
             const key = `sessionChatAttempted_${currentUser.uid}`;
             sessionStorage.setItem(key, "true");
           }
-          
+
           await createNewChatIfNeeded();
         } catch (error) {
           console.error("❌ Error creating session chat:", error);
@@ -91,7 +102,14 @@ export default function Home() {
     };
 
     initializeSessionChat();
-  }, [currentUser, loading, currentChatId, chatLoading, sessionChatAttempted, createNewChatIfNeeded]);
+  }, [
+    currentUser,
+    loading,
+    currentChatId,
+    chatLoading,
+    sessionChatAttempted,
+    createNewChatIfNeeded,
+  ]);
 
   // Reset session chat attempt flag when user changes or logs out
   useEffect(() => {
@@ -99,8 +117,8 @@ export default function Home() {
       setSessionChatAttempted(false);
       // Also clear from sessionStorage
       if (typeof window !== "undefined") {
-        Object.keys(sessionStorage).forEach(key => {
-          if (key.startsWith('sessionChatAttempted_')) {
+        Object.keys(sessionStorage).forEach((key) => {
+          if (key.startsWith("sessionChatAttempted_")) {
             sessionStorage.removeItem(key);
           }
         });
@@ -142,37 +160,44 @@ export default function Home() {
 
     try {
       // Store user's message in Firestore
-      const chatRef = doc(firestore, `chats/${currentUser.uid}/prompts/${currentChatId}`);
-      
+      const chatRef = doc(
+        firestore,
+        `chats/${currentUser.uid}/prompts/${currentChatId}`,
+      );
+
       // Collect all images from the unified container data
       const allImages: string[] = [];
-      
+
       // Helper function to safely add only string URLs to the array
       const addImageIfValid = (item: any) => {
-        if (typeof item === 'string' && item.trim().length > 0) {
+        if (typeof item === "string" && item.trim().length > 0) {
           // Only add if it's a valid URL, base64, or preset name
-          if (item.startsWith('http') || item.startsWith('data:image/') || item.startsWith('/') || 
-              (!item.includes('/') && !item.includes('\\') && item.length < 100)) {
+          if (
+            item.startsWith("http") ||
+            item.startsWith("data:image/") ||
+            item.startsWith("/") ||
+            (!item.includes("/") && !item.includes("\\") && item.length < 100)
+          ) {
             allImages.push(item);
           }
         }
       };
-      
+
       // Add product image if exists (only valid strings)
       if (data.product) {
         addImageIfValid(data.product);
       }
-      
+
       // Add design images if they exist (only valid strings)
       if (data.design && Array.isArray(data.design)) {
         data.design.forEach(addImageIfValid);
       }
-      
-      // Add color images if they exist (only valid strings)  
+
+      // Add color images if they exist (only valid strings)
       if (data.color && Array.isArray(data.color)) {
         data.color.forEach(addImageIfValid);
       }
-      
+
       // Create the user message object
       const userMessage = {
         sender: "user",
@@ -182,12 +207,14 @@ export default function Home() {
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         userId: currentUser.uid,
-        chatId: currentChatId
+        chatId: currentChatId,
       };
 
       // Get existing messages first
       const chatDoc = await getDoc(chatRef);
-      const existingMessages = chatDoc.exists() ? chatDoc.data().messages || [] : [];
+      const existingMessages = chatDoc.exists()
+        ? chatDoc.data().messages || []
+        : [];
 
       // Store the user message by appending to existing messages
       try {
@@ -196,44 +223,57 @@ export default function Home() {
           sender: "user",
           type: allImages.length > 0 ? "images" : "prompt",
           text: String(data.prompt || ""),
-          images: allImages.filter(img => typeof img === 'string' && img.length > 0),
+          images: allImages.filter(
+            (img) => typeof img === "string" && img.length > 0,
+          ),
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           userId: String(currentUser.uid),
-          chatId: String(currentChatId)
+          chatId: String(currentChatId),
         };
-        
-        await setDoc(chatRef, {
-          messages: [...existingMessages, safeUserMessage]
-        }, { merge: true });
+
+        await setDoc(
+          chatRef,
+          {
+            messages: [...existingMessages, safeUserMessage],
+          },
+          { merge: true },
+        );
 
         // Update chat summary in sidebar if this is the first message
         if (existingMessages.length === 0 && data.prompt) {
           await updateChatSummary(currentUser.uid, currentChatId, data.prompt);
         }
       } catch (firestoreError: any) {
-        console.error('❌ Firestore error storing user message:', firestoreError);
-        console.error('Full error details:', {
+        console.error(
+          "❌ Firestore error storing user message:",
+          firestoreError,
+        );
+        console.error("Full error details:", {
           name: firestoreError.name,
           message: firestoreError.message,
           code: firestoreError.code,
-          stack: firestoreError.stack
+          stack: firestoreError.stack,
         });
-        
+
         // Final fallback - store only essential data
         try {
           const minimalMessage = {
             sender: "user",
             text: String(data.prompt || ""),
             timestamp: Timestamp.now(),
-            userId: String(currentUser.uid)
+            userId: String(currentUser.uid),
           };
-          
-          await setDoc(chatRef, {
-            messages: [...existingMessages, minimalMessage]
-          }, { merge: true });
+
+          await setDoc(
+            chatRef,
+            {
+              messages: [...existingMessages, minimalMessage],
+            },
+            { merge: true },
+          );
         } catch (finalError) {
-          console.error('❌ Even minimal storage failed:', finalError);
+          console.error("❌ Even minimal storage failed:", finalError);
         }
       }
 
@@ -251,13 +291,18 @@ export default function Home() {
           const conversationHistory = existingMessages.map((msg: any) => ({
             role: msg.sender === "user" ? "user" : "assistant",
             content: msg.text || "",
-            timestamp: msg.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            timestamp:
+              msg.createdAt?.toDate?.()?.toISOString() ||
+              new Date().toISOString(),
             images: msg.images || [], // 🔧 FIX: Include images field for context extraction
           }));
-          formData.append("conversation_history", JSON.stringify(conversationHistory));
+          formData.append(
+            "conversation_history",
+            JSON.stringify(conversationHistory),
+          );
         }
       } catch (error) {
-        console.warn('Failed to load conversation history:', error);
+        console.warn("Failed to load conversation history:", error);
       }
 
       // 🔧 NEW: Add explicit reference if user selected one
@@ -267,22 +312,25 @@ export default function Home() {
           sender: referencedMessage.sender,
           text: referencedMessage.text || "",
           images: referencedMessage.images || [],
-          timestamp: referencedMessage.timestamp
+          timestamp: referencedMessage.timestamp,
         };
         formData.append("explicit_reference", JSON.stringify(reference));
-        
+
         // Clear the reference after sending
         clearReference();
       }
 
       // Helper function to determine if a string is a Firebase URL or local path
       const isFirebaseUrl = (path: string): boolean => {
-        return path.includes('firebasestorage.googleapis.com') || path.startsWith('http');
+        return (
+          path.includes("firebasestorage.googleapis.com") ||
+          path.startsWith("http")
+        );
       };
 
       // Helper function to determine if a string is a base64 data URL
       const isBase64 = (path: string): boolean => {
-        return path.startsWith('data:image/');
+        return path.startsWith("data:image/");
       };
 
       // Process product image
@@ -306,8 +354,12 @@ export default function Home() {
             formData.append(`design_image_${index}_url`, designItem);
           } else {
             // It's a preset design style - combine all preset designs
-            const existingPresets = formData.get("preset_design_style") as string;
-            const newPreset = existingPresets ? `${existingPresets}, ${designItem}` : designItem;
+            const existingPresets = formData.get(
+              "preset_design_style",
+            ) as string;
+            const newPreset = existingPresets
+              ? `${existingPresets}, ${designItem}`
+              : designItem;
             formData.set("preset_design_style", newPreset);
           }
         });
@@ -322,18 +374,20 @@ export default function Home() {
             formData.append(`color_image_${index}_url`, colorItem);
           } else {
             // It's a preset color palette - combine all preset colors
-            const existingPresets = formData.get("preset_color_palette") as string;
-            const newPreset = existingPresets ? `${existingPresets}, ${colorItem}` : colorItem;
+            const existingPresets = formData.get(
+              "preset_color_palette",
+            ) as string;
+            const newPreset = existingPresets
+              ? `${existingPresets}, ${colorItem}`
+              : colorItem;
             formData.set("preset_color_palette", newPreset);
           }
         });
       }
 
-
-
       const response = await fetch("/api/intentroute", {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
       const result = await response.json();
@@ -341,7 +395,7 @@ export default function Home() {
       if (result.status === "success") {
         // Extract the actual API result from the intent route response
         const apiResult = result.result;
-        
+
         // Create agent message based on the API result
         let agentMessage = {
           sender: "agent",
@@ -351,49 +405,55 @@ export default function Home() {
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           userId: currentUser.uid,
-          chatId: currentChatId
+          chatId: currentChatId,
         };
 
         // Check for image outputs in the API result
         if (apiResult) {
-          console.log('API Result structure:', JSON.stringify(apiResult, null, 2));
-          
-          const imageUrl = apiResult.firebaseOutputUrl || 
-                          apiResult.data_url || 
-                          apiResult.outputUrl || 
-                          apiResult.output_image || 
-                          apiResult.imageUrl ||
-                          apiResult.url ||
-                          apiResult.image_url ||
-                          // Handle nested result structure (for reframe/upscale)
-                          (apiResult.result && apiResult.result.imageUrl) ||
-                          (apiResult.result && apiResult.result.upscaled_image_url) ||
-                          // Handle other possible nested structures
-                          (apiResult.result && apiResult.result.firebaseOutputUrl);
-          
-          console.log('Extracted image URL:', imageUrl);
-          
+          console.log(
+            "API Result structure:",
+            JSON.stringify(apiResult, null, 2),
+          );
+
+          const imageUrl =
+            apiResult.firebaseOutputUrl ||
+            apiResult.data_url ||
+            apiResult.outputUrl ||
+            apiResult.output_image ||
+            apiResult.imageUrl ||
+            apiResult.url ||
+            apiResult.image_url ||
+            // Handle nested result structure (for reframe/upscale)
+            (apiResult.result && apiResult.result.imageUrl) ||
+            (apiResult.result && apiResult.result.upscaled_image_url) ||
+            // Handle other possible nested structures
+            (apiResult.result && apiResult.result.firebaseOutputUrl);
+
+          console.log("Extracted image URL:", imageUrl);
+
           if (imageUrl) {
             agentMessage.type = "images";
             agentMessage.images = [imageUrl];
-            console.log('✅ Agent message will include image:', imageUrl);
+            console.log("✅ Agent message will include image:", imageUrl);
           } else {
-            console.log('❌ No image URL found in API result');
+            console.log("❌ No image URL found in API result");
           }
-          
+
           // If there's a generated prompt or description, include it
           if (apiResult.generated_prompt && !agentMessage.text) {
             agentMessage.text = apiResult.generated_prompt;
           }
         } else {
-          console.log('❌ No API result found');
+          console.log("❌ No API result found");
         }
 
-        console.log('Storing agent message in Firestore:', agentMessage);
+        console.log("Storing agent message in Firestore:", agentMessage);
 
         // Get the latest messages including the user message we just added
         const updatedChatDoc = await getDoc(chatRef);
-        const updatedMessages = updatedChatDoc.exists() ? updatedChatDoc.data().messages || [] : [];
+        const updatedMessages = updatedChatDoc.exists()
+          ? updatedChatDoc.data().messages || []
+          : [];
 
         // Update Firestore with the agent response
         try {
@@ -402,48 +462,61 @@ export default function Home() {
             sender: "agent",
             type: agentMessage.images.length > 0 ? "images" : "prompt",
             text: String(result.message || ""),
-            images: agentMessage.images.filter(img => typeof img === 'string' && img.length > 0),
+            images: agentMessage.images.filter(
+              (img) => typeof img === "string" && img.length > 0,
+            ),
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
             userId: String(currentUser.uid),
-            chatId: String(currentChatId)
+            chatId: String(currentChatId),
           };
-          
-          console.log('Safe agent message for Firestore:', safeAgentMessage);
-          console.log('🔍 DEBUGGING - Agent message details:');
-          console.log('  - Type:', safeAgentMessage.type);
-          console.log('  - Text:', safeAgentMessage.text);
-          console.log('  - Images array:', safeAgentMessage.images);
-          console.log('  - Images count:', safeAgentMessage.images.length);
-          
-          await setDoc(chatRef, {
-            messages: [...updatedMessages, safeAgentMessage]
-          }, { merge: true });
-          console.log('Successfully stored agent message in Firestore');
+
+          console.log("Safe agent message for Firestore:", safeAgentMessage);
+          console.log("🔍 DEBUGGING - Agent message details:");
+          console.log("  - Type:", safeAgentMessage.type);
+          console.log("  - Text:", safeAgentMessage.text);
+          console.log("  - Images array:", safeAgentMessage.images);
+          console.log("  - Images count:", safeAgentMessage.images.length);
+
+          await setDoc(
+            chatRef,
+            {
+              messages: [...updatedMessages, safeAgentMessage],
+            },
+            { merge: true },
+          );
+          console.log("Successfully stored agent message in Firestore");
         } catch (firestoreError: any) {
-          console.error('❌ Firestore error storing agent message:', firestoreError);
-          console.error('Full error details:', {
+          console.error(
+            "❌ Firestore error storing agent message:",
+            firestoreError,
+          );
+          console.error("Full error details:", {
             name: firestoreError.name,
             message: firestoreError.message,
             code: firestoreError.code,
-            stack: firestoreError.stack
+            stack: firestoreError.stack,
           });
-          
+
           // Final fallback - store only essential data
           try {
             const minimalAgentMessage = {
               sender: "agent",
               text: String(result.message || ""),
               timestamp: Timestamp.now(),
-              userId: String(currentUser.uid)
+              userId: String(currentUser.uid),
             };
-            
-            await setDoc(chatRef, {
-              messages: [...updatedMessages, minimalAgentMessage]
-            }, { merge: true });
-            console.log('✅ Stored minimal agent message in Firestore');
+
+            await setDoc(
+              chatRef,
+              {
+                messages: [...updatedMessages, minimalAgentMessage],
+              },
+              { merge: true },
+            );
+            console.log("✅ Stored minimal agent message in Firestore");
           } catch (finalError) {
-            console.error('❌ Even minimal agent storage failed:', finalError);
+            console.error("❌ Even minimal agent storage failed:", finalError);
           }
         }
       }
@@ -453,25 +526,34 @@ export default function Home() {
   };
 
   // Helper function to update chat summary in sidebar
-  const updateChatSummary = async (userId: string, chatId: string, firstMessage: string) => {
+  const updateChatSummary = async (
+    userId: string,
+    chatId: string,
+    firstMessage: string,
+  ) => {
     try {
       // Generate a summary from the first message (first 50 characters)
-      const summary = firstMessage.length > 50 
-        ? firstMessage.substring(0, 50) + "..." 
-        : firstMessage;
+      const summary =
+        firstMessage.length > 50
+          ? firstMessage.substring(0, 50) + "..."
+          : firstMessage;
 
       // Update the sidebar document (now using chatId as document ID)
       const sidebarDocRef = doc(firestore, `users/${userId}/sidebar/${chatId}`);
-      
-      // Only update the summary and updatedAt, preserve other fields
-      await setDoc(sidebarDocRef, {
-        chatSummary: summary,
-        updatedAt: Timestamp.now(),
-      }, { merge: true });
 
-      console.log('Updated chat summary to:', summary);
+      // Only update the summary and updatedAt, preserve other fields
+      await setDoc(
+        sidebarDocRef,
+        {
+          chatSummary: summary,
+          updatedAt: Timestamp.now(),
+        },
+        { merge: true },
+      );
+
+      console.log("Updated chat summary to:", summary);
     } catch (error) {
-      console.error('Error updating chat summary:', error);
+      console.error("Error updating chat summary:", error);
     }
   };
 
@@ -479,96 +561,108 @@ export default function Home() {
   const sanitizeForFirestore = (obj: any, depth: number = 0): any => {
     // Prevent infinite recursion
     if (depth > 10) {
-      console.warn('Max depth reached in sanitization, returning null');
+      console.warn("Max depth reached in sanitization, returning null");
       return null;
     }
-    
+
     // Handle null/undefined
     if (obj === null || obj === undefined) {
       return obj;
     }
-    
+
     // Handle primitive types
-    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+    if (
+      typeof obj === "string" ||
+      typeof obj === "number" ||
+      typeof obj === "boolean"
+    ) {
       return obj;
     }
-    
+
     // Handle Firestore Timestamps
     if (obj instanceof Timestamp) {
       return obj;
     }
-    
+
     // Handle Date objects - convert to Timestamp
     if (obj instanceof Date) {
       return Timestamp.fromDate(obj);
     }
-    
+
     // Handle File objects, Blob objects, and other browser objects
     if (obj instanceof File || obj instanceof Blob || obj instanceof FileList) {
-      console.warn('Removing File/Blob object from Firestore data:', obj.constructor.name);
+      console.warn(
+        "Removing File/Blob object from Firestore data:",
+        obj.constructor.name,
+      );
       return null;
     }
-    
+
     // Handle DOM elements
     if (obj instanceof Element || obj instanceof Node) {
-      console.warn('Removing DOM element from Firestore data:', obj.constructor.name);
+      console.warn(
+        "Removing DOM element from Firestore data:",
+        obj.constructor.name,
+      );
       return null;
     }
-    
+
     // Handle Functions
-    if (typeof obj === 'function') {
-      console.warn('Removing function from Firestore data');
+    if (typeof obj === "function") {
+      console.warn("Removing function from Firestore data");
       return null;
     }
-    
+
     // Handle Arrays
     if (Array.isArray(obj)) {
       const sanitizedArray = obj
-        .map(item => sanitizeForFirestore(item, depth + 1))
-        .filter(item => item !== null && item !== undefined);
-      
+        .map((item) => sanitizeForFirestore(item, depth + 1))
+        .filter((item) => item !== null && item !== undefined);
+
       // Only return strings in arrays for maximum safety
-      return sanitizedArray.filter(item => 
-        typeof item === 'string' || 
-        typeof item === 'number' || 
-        typeof item === 'boolean' ||
-        item instanceof Timestamp
+      return sanitizedArray.filter(
+        (item) =>
+          typeof item === "string" ||
+          typeof item === "number" ||
+          typeof item === "boolean" ||
+          item instanceof Timestamp,
       );
     }
-    
+
     // Handle Objects
-    if (typeof obj === 'object' && obj.constructor === Object) {
+    if (typeof obj === "object" && obj.constructor === Object) {
       const sanitized: any = {};
-      
+
       for (const [key, value] of Object.entries(obj)) {
         // Skip keys that might cause issues
-        if (key.startsWith('_') || key.includes('$') || key.includes('.')) {
+        if (key.startsWith("_") || key.includes("$") || key.includes(".")) {
           console.warn(`Skipping problematic key: ${key}`);
           continue;
         }
-        
+
         const sanitizedValue = sanitizeForFirestore(value, depth + 1);
         if (sanitizedValue !== null && sanitizedValue !== undefined) {
           sanitized[key] = sanitizedValue;
         }
       }
-      
+
       return sanitized;
     }
-    
+
     // Handle any other object types (class instances, etc.)
-    console.warn('Removing complex object from Firestore data:', obj.constructor?.name || typeof obj);
+    console.warn(
+      "Removing complex object from Firestore data:",
+      obj.constructor?.name || typeof obj,
+    );
     return null;
   };
 
   return (
     <div className="relative h-screen w-full overflow-hidden hide-scrollbar">
-
-      
       {/* ChatWindow fills the screen */}
       <div className="absolute inset-0 overflow-y-auto hide-scrollbar">
-        <ChatWindow 
-          chatId={currentChatId} 
+        <ChatWindow
+          chatId={currentChatId}
           onReplyToMessage={handleReplyToMessage}
         />
       </div>
@@ -582,10 +676,14 @@ export default function Home() {
           referencedMessage={referencedMessage}
           onClearReference={clearReference}
         />
-        <small className="text-xs">AI-generated content may not be perfect. Review <a href="/terms" className="text-primary hover:underline">Terms & Conditions</a>.</small>
+        <small className="text-xs">
+          AI-generated content may not be perfect. Review{" "}
+          <a href="/terms" className="text-primary hover:underline">
+            Terms & Conditions
+          </a>
+          .
+        </small>
       </div>
     </div>
   );
 }
-
-

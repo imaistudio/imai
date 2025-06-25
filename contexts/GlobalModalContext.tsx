@@ -7,7 +7,9 @@ type GlobalModalContextType = {
   closeModal: () => void;
 };
 
-const GlobalModalContext = createContext<GlobalModalContextType | undefined>(undefined);
+const GlobalModalContext = createContext<GlobalModalContextType | undefined>(
+  undefined,
+);
 
 export const GlobalModalProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);

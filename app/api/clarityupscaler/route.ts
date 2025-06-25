@@ -47,14 +47,14 @@ export async function POST(request: Request) {
           enable_safety_checker:
             enableSafetyChecker !== undefined ? enableSafetyChecker : true,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       console.error("FAL AI API error response:", errorData);
       throw new Error(
-        errorData?.error || `FAL AI API error: ${response.statusText}`
+        errorData?.error || `FAL AI API error: ${response.statusText}`,
       );
     }
 
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         success: false,
         error: error.message || "Failed to upscale image",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

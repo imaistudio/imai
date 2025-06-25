@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import {Accordion, AccordionItem} from "@heroui/react";
-import {Icon} from "@iconify/react";
+import { Accordion, AccordionItem } from "@heroui/react";
+import { Icon } from "@iconify/react";
 import faqs from "@/types/faq";
 
 export default function FAQ() {
@@ -10,14 +10,14 @@ export default function FAQ() {
     <section className="mx-auto w-full max-w-6xl py-20 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 lg:flex-row lg:items-start lg:gap-12">
         <>
-        <h2 className="inline-block lg:hidden">FAQs</h2>
-        <h2 className="hidden text-black dark:text-white pt-4 text-5xl font-semibold tracking-tight lg:inline-block">
+          <h2 className="inline-block lg:hidden">FAQs</h2>
+          <h2 className="hidden text-black dark:text-white pt-4 text-5xl font-semibold tracking-tight lg:inline-block">
             Frequently
             <br />
             asked
             <br />
             questions
-        </h2>
+          </h2>
         </>
         <Accordion
           fullWidth
@@ -35,7 +35,9 @@ export default function FAQ() {
           {faqs.map((item, i) => (
             <AccordionItem
               key={i}
-              indicator={<Icon icon="lucide:plus" className="text-blue-500" width={24} />}
+              indicator={
+                <Icon icon="lucide:plus" className="text-blue-500" width={24} />
+              }
               title={item.title}
             >
               {item.content}

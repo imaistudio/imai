@@ -33,30 +33,36 @@ interface ChatWindowProps {
 
 const MESSAGES_PER_PAGE = 20;
 
-export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps) {
+export default function ChatWindow({
+  chatId,
+  onReplyToMessage,
+}: ChatWindowProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Memoized cache functions
-  const cacheKey = useMemo(() => 
-    userId && chatId ? `chat_messages_${userId}_${chatId}` : null, 
-    [userId, chatId]
+  const cacheKey = useMemo(
+    () => (userId && chatId ? `chat_messages_${userId}_${chatId}` : null),
+    [userId, chatId],
   );
 
-  const saveToCache = useCallback((messages: ChatMessage[]) => {
-    if (!cacheKey) return;
-    try {
-      sessionStorage.setItem(cacheKey, JSON.stringify(messages));
-    } catch (error) {
-      console.warn("Failed to save to cache:", error);
-    }
-  }, [cacheKey]);
+  const saveToCache = useCallback(
+    (messages: ChatMessage[]) => {
+      if (!cacheKey) return;
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(messages));
+      } catch (error) {
+        console.warn("Failed to save to cache:", error);
+      }
+    },
+    [cacheKey],
+  );
 
   const loadFromCache = useCallback((): ChatMessage[] | null => {
     if (!cacheKey) return null;
@@ -72,28 +78,34 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
   // Optimized scroll to bottom
   const scrollToBottom = useCallback(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: initialLoad ? "auto" : "smooth" 
+      messagesEndRef.current.scrollIntoView({
+        behavior: initialLoad ? "auto" : "smooth",
       });
     }
   }, [initialLoad]);
 
   // Handle reply to message
-  const handleReply = useCallback((msg: ChatMessage, index: number) => {
-    if (!onReplyToMessage) return;
-    
-    const referencedMessage: ReferencedMessage = {
-      id: msg.id || `${msg.chatId}-${index}`,
-      sender: msg.sender,
-      text: msg.text,
-      images: msg.images || [],
-      timestamp: msg.createdAt && typeof msg.createdAt === 'object' 
-        ? new Date((msg.createdAt as Timestamp).seconds * 1000).toISOString()
-        : new Date().toISOString()
-    };
-    
-    onReplyToMessage(referencedMessage);
-  }, [onReplyToMessage]);
+  const handleReply = useCallback(
+    (msg: ChatMessage, index: number) => {
+      if (!onReplyToMessage) return;
+
+      const referencedMessage: ReferencedMessage = {
+        id: msg.id || `${msg.chatId}-${index}`,
+        sender: msg.sender,
+        text: msg.text,
+        images: msg.images || [],
+        timestamp:
+          msg.createdAt && typeof msg.createdAt === "object"
+            ? new Date(
+                (msg.createdAt as Timestamp).seconds * 1000,
+              ).toISOString()
+            : new Date().toISOString(),
+      };
+
+      onReplyToMessage(referencedMessage);
+    },
+    [onReplyToMessage],
+  );
 
   // Clean up previous listener when chatId changes
   useEffect(() => {
@@ -116,8 +128,8 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
   useEffect(() => {
     if (!chatId || !userId || loading) return;
 
-    console.log('🔄 ChatWindow: Loading chat:', chatId);
-    
+    console.log("🔄 ChatWindow: Loading chat:", chatId);
+
     // Clean up previous listener
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
@@ -126,11 +138,15 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
 
     // Reset state for new chat
     setInitialLoad(true);
-    
+
     // Try to load from cache first for instant display
     const cachedMessages = loadFromCache();
     if (cachedMessages && cachedMessages.length > 0) {
-      console.log('📦 ChatWindow: Loaded', cachedMessages.length, 'messages from cache');
+      console.log(
+        "📦 ChatWindow: Loaded",
+        cachedMessages.length,
+        "messages from cache",
+      );
       setMessages(cachedMessages);
       setInitialLoad(false);
       // Scroll to bottom after a brief delay to ensure rendering
@@ -142,52 +158,64 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
 
     // Set up Firestore listener
     const docRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-    
-    unsubscribeRef.current = onSnapshot(docRef, (doc) => {
-      if (doc.exists()) {
-        const chatData = doc.data();
-        const firebaseMessages = chatData.messages as ChatMessage[];
-        
-        if (firebaseMessages && firebaseMessages.length > 0) {
-          // Sort messages by timestamp
-          const sortedMessages = [...firebaseMessages].sort((a, b) => {
-            const aSeconds = a.createdAt && typeof a.createdAt === 'object' 
-              ? (a.createdAt as Timestamp).seconds || (a.createdAt as any).seconds
-              : 0;
-            const bSeconds = b.createdAt && typeof b.createdAt === 'object'
-              ? (b.createdAt as Timestamp).seconds || (b.createdAt as any).seconds
-              : 0;
-            return aSeconds - bSeconds;
-          });
-          
-          // Update messages and cache
-          setMessages(sortedMessages);
-          saveToCache(sortedMessages);
-          
-          // Only scroll to bottom if this is initial load or if we have new messages
-          if (initialLoad || sortedMessages.length !== messages.length) {
-            setTimeout(scrollToBottom, 50);
+
+    unsubscribeRef.current = onSnapshot(
+      docRef,
+      (doc) => {
+        if (doc.exists()) {
+          const chatData = doc.data();
+          const firebaseMessages = chatData.messages as ChatMessage[];
+
+          if (firebaseMessages && firebaseMessages.length > 0) {
+            // Sort messages by timestamp
+            const sortedMessages = [...firebaseMessages].sort((a, b) => {
+              const aSeconds =
+                a.createdAt && typeof a.createdAt === "object"
+                  ? (a.createdAt as Timestamp).seconds ||
+                    (a.createdAt as any).seconds
+                  : 0;
+              const bSeconds =
+                b.createdAt && typeof b.createdAt === "object"
+                  ? (b.createdAt as Timestamp).seconds ||
+                    (b.createdAt as any).seconds
+                  : 0;
+              return aSeconds - bSeconds;
+            });
+
+            // Update messages and cache
+            setMessages(sortedMessages);
+            saveToCache(sortedMessages);
+
+            // Only scroll to bottom if this is initial load or if we have new messages
+            if (initialLoad || sortedMessages.length !== messages.length) {
+              setTimeout(scrollToBottom, 50);
+            }
+
+            console.log(
+              "🔄 ChatWindow: Loaded",
+              sortedMessages.length,
+              "messages from Firestore",
+            );
+          } else {
+            // No messages
+            setMessages([]);
+            saveToCache([]);
           }
-          
-          console.log('🔄 ChatWindow: Loaded', sortedMessages.length, 'messages from Firestore');
         } else {
-          // No messages
+          // Document doesn't exist
           setMessages([]);
-          saveToCache([]);
+          if (cacheKey) {
+            sessionStorage.removeItem(cacheKey);
+          }
         }
-      } else {
-        // Document doesn't exist
-        setMessages([]);
-        if (cacheKey) {
-          sessionStorage.removeItem(cacheKey);
-        }
-      }
-      
-      setInitialLoad(false);
-    }, (error) => {
-      console.error('❌ ChatWindow: Error loading messages:', error);
-      setInitialLoad(false);
-    });
+
+        setInitialLoad(false);
+      },
+      (error) => {
+        console.error("❌ ChatWindow: Error loading messages:", error);
+        setInitialLoad(false);
+      },
+    );
 
     // Cleanup function
     return () => {
@@ -196,7 +224,15 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
         unsubscribeRef.current = null;
       }
     };
-  }, [chatId, userId, loading, loadFromCache, saveToCache, scrollToBottom, cacheKey]);
+  }, [
+    chatId,
+    userId,
+    loading,
+    loadFromCache,
+    saveToCache,
+    scrollToBottom,
+    cacheKey,
+  ]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -207,106 +243,102 @@ export default function ChatWindow({ chatId, onReplyToMessage }: ChatWindowProps
     };
   }, []);
 
-  
-
   return (
     <div className="w-full flex flex-col min-h-screen hide-scrollbar pb-12 md:pb-32 lg:pb-44">
-      <div 
+      <div
         ref={chatContainerRef}
         className="flex-1 w-full pl-6 pr-6 p-4 overflow-y-auto hide-scrollbar"
       >
         <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto">
           {messages.map((msg, index) => (
-              <div key={`${msg.id || msg.chatId}-${index}`}>
-                {/* User messages */}
-                {msg.sender === "user" ? (
-                 <div className="flex justify-end group">
-                 <div className="flex items-end gap-2">
-                   <div className="max-w-fit">
-                     {msg.images && msg.images.length > 0 && (
-                       <div className="flex flex-wrap gap-2 mb-2 justify-end">
-                         {msg.images.map((img, i) => (
-                           <ImageZoomModal
-                             key={`${index}-${i}`}
-                             src={img}
-                             alt={`image-${i}`}
-                             className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
-                           />
-                         ))}
-                       </div>
-                     )}
-                     {msg.text && (
-                       <div className="text-sm bg-primary text-primary-foreground rounded-full py-2 px-4 leading-relaxed text-left">
-                         <p>{msg.text}</p>
-                       </div>
-                     )}
-                   </div>
-                   <button
-                     onClick={() => handleReply(msg, index)}
-                     className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                     title="Reply to this message"
-                   >
-                     <Reply size={16} className="text-gray-500" />
-                   </button>
-                 </div>
-               </div>
-                ) : (
-                  /* Agent messages */
-                  <div className="group">
-                    {msg.text && (
-                      <div className="flex justify-start mb-2">
-                        <div className="flex items-end gap-2">
-                          <div className="max-w-[75%] bg-transparent text-black dark:text-white">
-                            <div className="text-sm leading-relaxed">
-                              <p>{msg.text}</p>
-                            </div>
-                          </div>
-                          
-                          <button
-                            onClick={() => handleReply(msg, index)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200  flex items-center space-x-1"
-                            title="Reply to this message"
-                          >
-                            
-                            <Reply size={16} className="text-gray-500" />
-                            <span className="text-sm text-gray-500">Reply</span>
-                          </button>
+            <div key={`${msg.id || msg.chatId}-${index}`}>
+              {/* User messages */}
+              {msg.sender === "user" ? (
+                <div className="flex justify-end group">
+                  <div className="flex items-end gap-2">
+                    <div className="max-w-fit">
+                      {msg.images && msg.images.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-2 justify-end">
+                          {msg.images.map((img, i) => (
+                            <ImageZoomModal
+                              key={`${index}-${i}`}
+                              src={img}
+                              alt={`image-${i}`}
+                              className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                            />
+                          ))}
                         </div>
-                      </div>
-                    )}
-                    
-                    {msg.images && msg.images.length > 0 && (
-                      <div className="flex justify-start">
-                        <div className="flex items-end gap-2">
-                          <div className="max-w-[75%]">
-                            <div className="flex flex-wrap gap-2">
-                              {msg.images.map((img, i) => (
-                                <ImageZoomModal
-                                  key={`${index}-${i}`}
-                                  src={img}
-                                  alt={`image-${i}`}
-                                  className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
-                                />
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <button
-                            onClick={() => handleReply(msg, index)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-1"
-                            title="Reply to this image"
-                          >
-                            <Reply size={16} className="text-gray-500" />
-                            <span className="text-sm text-gray-500">Reply</span>
-                          </button>
+                      )}
+                      {msg.text && (
+                        <div className="text-sm bg-primary text-primary-foreground rounded-full py-2 px-4 leading-relaxed text-left">
+                          <p>{msg.text}</p>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleReply(msg, index)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                      title="Reply to this message"
+                    >
+                      <Reply size={16} className="text-gray-500" />
+                    </button>
                   </div>
-                )}
-              </div>
-            ))
-          }
+                </div>
+              ) : (
+                /* Agent messages */
+                <div className="group">
+                  {msg.text && (
+                    <div className="flex justify-start mb-2">
+                      <div className="flex items-end gap-2">
+                        <div className="max-w-[75%] bg-transparent text-black dark:text-white">
+                          <div className="text-sm leading-relaxed">
+                            <p>{msg.text}</p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleReply(msg, index)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200  flex items-center space-x-1"
+                          title="Reply to this message"
+                        >
+                          <Reply size={16} className="text-gray-500" />
+                          <span className="text-sm text-gray-500">Reply</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {msg.images && msg.images.length > 0 && (
+                    <div className="flex justify-start">
+                      <div className="flex items-end gap-2">
+                        <div className="max-w-[75%]">
+                          <div className="flex flex-wrap gap-2">
+                            {msg.images.map((img, i) => (
+                              <ImageZoomModal
+                                key={`${index}-${i}`}
+                                src={img}
+                                alt={`image-${i}`}
+                                className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleReply(msg, index)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-1"
+                          title="Reply to this image"
+                        >
+                          <Reply size={16} className="text-gray-500" />
+                          <span className="text-sm text-gray-500">Reply</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
           <div ref={messagesEndRef} />
         </div>
       </div>

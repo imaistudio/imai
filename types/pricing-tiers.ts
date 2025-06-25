@@ -1,10 +1,14 @@
-import type {Frequency, Tier} from "./pricing-types";
+import type { Frequency, Tier } from "./pricing-types";
 
-import {FrequencyEnum, TiersEnum} from "./pricing-types";
+import { FrequencyEnum, TiersEnum } from "./pricing-types";
 
 export const frequencies: Array<Frequency> = [
-  {key: FrequencyEnum.Yearly, label: "Pay Yearly", priceSuffix: "per year"},
-  {key: FrequencyEnum.Quarterly, label: "Pay Quarterly", priceSuffix: "per quarter"},
+  { key: FrequencyEnum.Yearly, label: "Pay Yearly", priceSuffix: "per year" },
+  {
+    key: FrequencyEnum.Quarterly,
+    label: "Pay Quarterly",
+    priceSuffix: "per quarter",
+  },
 ];
 
 export const tiers: Array<Tier> = [

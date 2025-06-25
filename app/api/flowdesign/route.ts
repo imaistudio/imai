@@ -57,7 +57,7 @@ function ensureDirectoryExists(dirPath: string): void {
 
 async function saveImageLocally(
   imageBuffer: Buffer,
-  filename: string
+  filename: string,
 ): Promise<string> {
   const publicDir = path.join(process.cwd(), "public", "generated");
   ensureDirectoryExists(publicDir);
@@ -69,7 +69,7 @@ async function saveImageLocally(
 
 async function createBlankImage(
   width: number = 500,
-  height: number = 500
+  height: number = 500,
 ): Promise<Buffer> {
   const blankImage = await sharp({
     create: {
@@ -87,7 +87,7 @@ async function createBlankImage(
 
 async function concatenateImages(
   imageBuffers: Buffer[],
-  direction: "horizontal" | "vertical" = "horizontal"
+  direction: "horizontal" | "vertical" = "horizontal",
 ): Promise<Buffer> {
   if (!imageBuffers || imageBuffers.length === 0) {
     throw new Error("No images provided");
@@ -101,7 +101,7 @@ async function concatenateImages(
         height: metadata.height || 0,
         channels: metadata.channels || 4,
       };
-    })
+    }),
   );
 
   if (direction === "horizontal") {
@@ -193,14 +193,14 @@ async function generateImageWithFluxAPI(prompt: string): Promise<ArrayBuffer> {
           prompt: prompt,
           model: "flux-pro/v1.1-ultra",
         }),
-      }
+      },
     );
 
     const data: FluxAPIResponse = await response.json();
 
     if (!response.ok) {
       throw new Error(
-        `Flux API error: ${data.error?.message || response.statusText}`
+        `Flux API error: ${data.error?.message || response.statusText}`,
       );
     }
 
@@ -214,7 +214,7 @@ async function generateImageWithFluxAPI(prompt: string): Promise<ArrayBuffer> {
     const imageResponse = await fetch(imageUrl);
     if (!imageResponse.ok) {
       throw new Error(
-        `Failed to download generated image: ${imageResponse.statusText}`
+        `Failed to download generated image: ${imageResponse.statusText}`,
       );
     }
 
@@ -246,7 +246,7 @@ async function generateImageWithFAL(prompt: string): Promise<ArrayBuffer> {
             update.logs.map((log: any) => log.message).forEach(console.log);
           }
         },
-      }
+      },
     );
 
     console.log("fal.ai result:", result);
@@ -260,7 +260,7 @@ async function generateImageWithFAL(prompt: string): Promise<ArrayBuffer> {
 
     if (!imageResponse.ok) {
       throw new Error(
-        `Failed to download image from FAL: ${imageResponse.statusText}`
+        `Failed to download image from FAL: ${imageResponse.statusText}`,
       );
     }
 
@@ -272,7 +272,7 @@ async function generateImageWithFAL(prompt: string): Promise<ArrayBuffer> {
 }
 
 export async function POST(
-  request: NextRequest
+  request: NextRequest,
 ): Promise<NextResponse<FlowDesignResponse | { error: string }>> {
   try {
     console.log("Flow Design: Starting design generation process");
@@ -306,24 +306,24 @@ export async function POST(
       if (imageUrls[i]) {
         try {
           console.log(
-            `Flow Design: Downloading image ${i + 1} from URL: ${imageUrls[i]}`
+            `Flow Design: Downloading image ${i + 1} from URL: ${imageUrls[i]}`,
           );
           const imageResponse = await fetch(imageUrls[i]!);
           if (imageResponse.ok) {
             const arrayBuffer = await imageResponse.arrayBuffer();
             buffer = Buffer.from(arrayBuffer);
             console.log(
-              `Flow Design: Successfully downloaded image ${i + 1} from URL`
+              `Flow Design: Successfully downloaded image ${i + 1} from URL`,
             );
           } else {
             console.log(
-              `Flow Design: Failed to download image ${i + 1} from URL, using blank`
+              `Flow Design: Failed to download image ${i + 1} from URL, using blank`,
             );
           }
         } catch (error) {
           console.error(
             `Flow Design: Error downloading image ${i + 1} from URL:`,
-            error
+            error,
           );
         }
       } else if (fileImages[i]) {
@@ -334,14 +334,14 @@ export async function POST(
 
       if (buffer) {
         console.log(
-          `Flow Design: Converting input image ${i + 1} to PNG format`
+          `Flow Design: Converting input image ${i + 1} to PNG format`,
         );
         const pngBuffer = await sharp(buffer).png().toBuffer();
 
         console.log(`Flow Design: Saving input image ${i + 1} locally`);
         const imageUrl = await saveImageLocally(
           pngBuffer,
-          `input_${i + 1}_${Date.now()}.png`
+          `input_${i + 1}_${Date.now()}.png`,
         );
         uploadedImageUrls.push(imageUrl);
 
@@ -352,7 +352,7 @@ export async function POST(
 
         const imageUrl = await saveImageLocally(
           blankImage,
-          `blank_${i + 1}_${Date.now()}.png`
+          `blank_${i + 1}_${Date.now()}.png`,
         );
         uploadedImageUrls.push(imageUrl);
 
@@ -363,13 +363,13 @@ export async function POST(
     console.log("Flow Design: Concatenating images");
     const concatenatedImage = await concatenateImages(
       imageBuffers,
-      "horizontal"
+      "horizontal",
     );
 
     console.log("Flow Design: Saving concatenated image locally");
     const concatenatedImageUrl = await saveImageLocally(
       concatenatedImage,
-      `concatenated_${Date.now()}.png`
+      `concatenated_${Date.now()}.png`,
     );
 
     console.log("Flow Design: Getting design analysis from OpenAI");
@@ -427,7 +427,7 @@ export async function POST(
 
     const finalImageUrl = await saveImageLocally(
       processedImage,
-      `final_${Date.now()}.png`
+      `final_${Date.now()}.png`,
     );
 
     console.log("Flow Design: Process completed successfully");

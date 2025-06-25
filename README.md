@@ -61,18 +61,20 @@ npm run test:paths
 ```
 
 This will:
+
 - ✅ Validate paths in `colors.json`, `designs.json`, and `products.json`
 - 📊 Show success rates for each file
 - 🔍 List any missing files with their paths
 - 🎯 Exit with error code if files are missing
 
 ### Example Output
+
 ```bash
 Testing colors.json...
 ✓ Existing files: 38
 ✗ Missing files: 0
 
-Testing designs.json...  
+Testing designs.json...
 ✓ Existing files: 159
 ✗ Missing files: 2
 ```

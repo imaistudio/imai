@@ -7,7 +7,9 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export function GoogleTagManager() {
   if (!GTM_ID) {
-    console.warn("Google Tag Manager ID not found. Please set NEXT_PUBLIC_GTM_ID environment variable.");
+    console.warn(
+      "Google Tag Manager ID not found. Please set NEXT_PUBLIC_GTM_ID environment variable.",
+    );
     return null;
   }
 
@@ -54,21 +56,21 @@ export const trackEvent = {
       page_location: window.location.href,
     });
   },
-  
+
   userSignUp: (method: string) => {
     pushToDataLayer({
       event: "sign_up",
       method: method,
     });
   },
-  
+
   userLogin: (method: string) => {
     pushToDataLayer({
       event: "login",
       method: method,
     });
   },
-  
+
   imageGeneration: (workflowType: string, promptLength: number) => {
     pushToDataLayer({
       event: "image_generation",
@@ -76,14 +78,14 @@ export const trackEvent = {
       prompt_length: promptLength,
     });
   },
-  
+
   featureUsage: (feature: string) => {
     pushToDataLayer({
       event: "feature_usage",
       feature_name: feature,
     });
   },
-  
+
   conversion: (value: number, currency: string = "USD") => {
     pushToDataLayer({
       event: "conversion",
@@ -91,4 +93,4 @@ export const trackEvent = {
       currency: currency,
     });
   },
-}; 
+};

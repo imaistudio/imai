@@ -12,12 +12,10 @@ import {
   Headset,
   Compass,
   LogIn,
-  UserPlus
+  UserPlus,
 } from "lucide-react";
 
-import {
-  Avatar,
-} from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +33,11 @@ import {
 
 import { IMAIIcon } from "@/app/components/imai";
 
-import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut,
+  User as FirebaseUser,
+} from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, firestore } from "@/lib/firebase";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
@@ -107,7 +109,7 @@ export function NavUser() {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <IMAIIcon size={28}/>
+                  <IMAIIcon size={28} />
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Welcome</span>

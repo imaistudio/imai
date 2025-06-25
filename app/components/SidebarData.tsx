@@ -31,23 +31,30 @@ export default function SidebarData() {
     }
 
     // Create a real-time listener for sidebar data
-    const sidebarRef = collection(firestore, `users/${currentUser.uid}/sidebar`);
+    const sidebarRef = collection(
+      firestore,
+      `users/${currentUser.uid}/sidebar`,
+    );
     const q = query(sidebarRef, orderBy("updatedAt", "desc"));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const items: SidebarItem[] = [];
-      snapshot.forEach((doc) => {
-        items.push({
-          id: doc.id,
-          ...doc.data()
-        } as SidebarItem);
-      });
-      setSidebarItems(items);
-      setLoading(false);
-    }, (error) => {
-      console.error("❌ Error fetching sidebar data:", error);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const items: SidebarItem[] = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            id: doc.id,
+            ...doc.data(),
+          } as SidebarItem);
+        });
+        setSidebarItems(items);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("❌ Error fetching sidebar data:", error);
+        setLoading(false);
+      },
+    );
 
     return () => unsubscribe();
   }, [currentUser]);
@@ -62,10 +69,10 @@ export default function SidebarData() {
       setClickingItem(item.chatId);
       console.log("🔄 Sidebar: Switching to chat:", item.chatId);
       console.log("🔄 Current chat ID before switch:", currentChatId);
-      
+
       switchToChat(item.chatId);
       console.log("🔄 Switch command sent for chat:", item.chatId);
-      
+
       // Brief delay to show visual feedback
       setTimeout(() => {
         setClickingItem(null);
@@ -109,7 +116,7 @@ export default function SidebarData() {
         {sidebarItems.map((item) => {
           const isClicking = clickingItem === item.chatId;
           const isDisabled = isSwitching || clickingItem !== null;
-          
+
           return (
             <div
               key={item.id}
@@ -118,11 +125,9 @@ export default function SidebarData() {
                 isDisabled
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-muted/50"
-              } ${
-                isClicking ? "scale-95 bg-primary/5" : ""
-              }`}
+              } ${isClicking ? "scale-95 bg-primary/5" : ""}`}
               style={{
-                pointerEvents: isDisabled ? 'none' : 'auto'
+                pointerEvents: isDisabled ? "none" : "auto",
               }}
             >
               <div className="flex items-center justify-between">
@@ -141,4 +146,4 @@ export default function SidebarData() {
       </div>
     </div>
   );
-} 
+}

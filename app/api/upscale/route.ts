@@ -24,21 +24,24 @@ interface UpscaleResponse {
 /**
  * Convert Buffer to base64 data URL
  */
-function bufferToBase64DataUrl(buffer: Buffer, mimeType: string = 'image/jpeg'): string {
-  const base64 = buffer.toString('base64');
+function bufferToBase64DataUrl(
+  buffer: Buffer,
+  mimeType: string = "image/jpeg",
+): string {
+  const base64 = buffer.toString("base64");
   return `data:${mimeType};base64,${base64}`;
 }
 
 async function upscaleImage(
   imageUrl: string,
-  options: UpscaleOptions
+  options: UpscaleOptions,
 ): Promise<string> {
   try {
     const { scale = 2, enhance_face = true, enhance_details = true } = options;
 
     console.log("Submitting request to FAL AI...");
     console.log(
-      `Arguments: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`
+      `Arguments: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`,
     );
 
     const result = await fal.subscribe("fal-ai/aura-sr", {
@@ -83,7 +86,7 @@ async function upscaleImage(
 
     if (!outputImageUrl) {
       throw new Error(
-        `No image URL found in result. Result structure: ${JSON.stringify(result)}`
+        `No image URL found in result. Result structure: ${JSON.stringify(result)}`,
       );
     }
 
@@ -103,7 +106,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -113,9 +116,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(
         {
           status: "error",
-          error: 'Missing "image_url" parameter. This endpoint expects to be called through intentroute.',
+          error:
+            'Missing "image_url" parameter. This endpoint expects to be called through intentroute.',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -129,7 +133,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     console.log("Starting image upscaling...");
     console.log(
-      `Parameters: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`
+      `Parameters: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`,
     );
     console.log(`Image to process: ${imageUrl}`);
 
@@ -145,14 +149,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Convert the output image to base64 for intentroute to handle
     let outputBase64: string;
 
-    if (upscaledImageUrl.startsWith('data:image')) {
+    if (upscaledImageUrl.startsWith("data:image")) {
       // Already base64
       outputBase64 = upscaledImageUrl;
     } else {
       // Download and convert URL to base64
       const response = await fetch(upscaledImageUrl);
       if (!response.ok) {
-        throw new Error(`Failed to fetch upscaled image: ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch upscaled image: ${response.statusText}`,
+        );
       }
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -190,7 +196,8 @@ export async function GET(): Promise<NextResponse> {
         description: "Upscale an image using FAL AI AuraSR",
         parameters: {
           userid: "string (required) - User ID from intentroute",
-          image_url: "string (required) - Image URL from intentroute (Cloudinary)",
+          image_url:
+            "string (required) - Image URL from intentroute (Cloudinary)",
           scale: "number (optional) - Upscale factor (default: 2)",
           enhance_face: "boolean (optional) - Enhance faces (default: true)",
           enhance_details:

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import {Spinner} from "@heroui/react";
+import { Spinner } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import {Button, Input, Link, Divider, User, Checkbox} from "@heroui/react";
-import {Icon} from "@iconify/react";
-import {IMAIIcon} from "@/app/components/imai";
+import { Button, Input, Link, Divider, User, Checkbox } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { IMAIIcon } from "@/app/components/imai";
 import { auth } from "@/lib/firebase";
 import {
   createUserWithEmailAndPassword,
@@ -36,7 +36,7 @@ export default function Signup() {
     }
   };
 
-   const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
@@ -70,19 +70,19 @@ export default function Signup() {
       <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
           <div className="w-full text-center flex flex-col items-center justify-center">
-              <div className="flex items-center">
-                <IMAIIcon size={32} />
-              </div>
+            <div className="flex items-center">
+              <IMAIIcon size={32} />
+            </div>
             <p className="pb-2 text-xl font-medium">Create Account</p>
           </div>
-         
+
           {error && (
             <div className="w-full p-2 text-sm text-red-600 bg-red-50 rounded">
               {error}
             </div>
           )}
-        
-        <form className="flex w-full flex-col gap-3" onSubmit={handleSignup}>
+
+          <form className="flex w-full flex-col gap-3" onSubmit={handleSignup}>
             <Input
               isRequired
               label="Email Address"
@@ -118,17 +118,25 @@ export default function Signup() {
             />
             <Checkbox isRequired className="py-4" size="sm">
               I agree with the&nbsp;
-              <Link className="relative z-[1] text-blue-500" href="/terms" size="sm">
+              <Link
+                className="relative z-[1] text-blue-500"
+                href="/terms"
+                size="sm"
+              >
                 Terms
               </Link>
               &nbsp; and&nbsp;
-              <Link className="relative z-[1]  text-blue-500" href="/privacy" size="sm">
+              <Link
+                className="relative z-[1]  text-blue-500"
+                href="/privacy"
+                size="sm"
+              >
                 Privacy Policy
               </Link>
             </Checkbox>
-              <Button color="primary" type="submit" isDisabled={isLoading}>
-                {isLoading ? <Spinner size="sm" color="white" /> : "Sign Up"}
-              </Button>
+            <Button color="primary" type="submit" isDisabled={isLoading}>
+              {isLoading ? <Spinner size="sm" color="white" /> : "Sign Up"}
+            </Button>
           </form>
 
           <div className="flex w-full items-center gap-4 py-2">
@@ -137,7 +145,7 @@ export default function Signup() {
             <Divider className="flex-1" />
           </div>
 
-            <div className="flex w-full flex-col gap-2">
+          <div className="flex w-full flex-col gap-2">
             {/* <Button
               onPress={handlePhoneSignIn}
               startContent={<Icon className="text-default-500" icon="solar:phone-bold" width={22}  />}
@@ -145,7 +153,7 @@ export default function Signup() {
             >
               Sign Up with Phone
             </Button> */}
-    
+
             <Button
               startContent={<Icon icon="logos:google-icon" width={18} />}
               variant="bordered"
@@ -155,7 +163,13 @@ export default function Signup() {
               Sign Up with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500 dark:invert" icon="logos:apple" width={18} />}
+              startContent={
+                <Icon
+                  className="text-default-500 dark:invert"
+                  icon="logos:apple"
+                  width={18}
+                />
+              }
               variant="bordered"
               onPress={handleAppleSignIn}
               isDisabled={isLoading}

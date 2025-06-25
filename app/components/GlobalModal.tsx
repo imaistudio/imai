@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  Modal,
-  ModalContent,
-} from "@heroui/react";
+import { Modal, ModalContent } from "@heroui/react";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import { X } from "lucide-react";
 
@@ -46,7 +43,8 @@ export default function GlobalModal() {
               Imagination and the new Reality
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mt-2">
-              Create an account to design products, edit visuals, and bring your illustrations to life.
+              Create an account to design products, edit visuals, and bring your
+              illustrations to life.
             </p>
           </div>
 

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ImageZoomModalProps {
   src: string;
@@ -10,24 +10,28 @@ interface ImageZoomModalProps {
   className?: string;
 }
 
-export const ImageZoomModal = ({ src, alt = '', className }: ImageZoomModalProps) => {
+export const ImageZoomModal = ({
+  src,
+  alt = "",
+  className,
+}: ImageZoomModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setIsOpen(false);
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -61,4 +65,4 @@ export const ImageZoomModal = ({ src, alt = '', className }: ImageZoomModalProps
       )}
     </>
   );
-}; 
+};

@@ -223,10 +223,7 @@
         "inputs/placeholders/general/timeless.webp",
         "inputs/placeholders/general/seventy.webp"
       ],
-      "missing": [
-        "defaults/geometric1.jpg",
-        "defaults/geometric2.jpg"
-      ],
+      "missing": ["defaults/geometric1.jpg", "defaults/geometric2.jpg"],
       "pathAnalysis": {
         "inputs/designs/general/minimalsleek&sophisticated": {
           "total": 2,

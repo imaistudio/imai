@@ -71,7 +71,7 @@ export default function Reset() {
       // Cache for the session
       sessionStorage.setItem(
         `imagesCache-${userId}`,
-        JSON.stringify(sortedUrls)
+        JSON.stringify(sortedUrls),
       );
 
       setImages(sortedUrls);
@@ -87,7 +87,7 @@ export default function Reset() {
   // Append the next batch when the user scrolls near the bottom
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
-    const startIndex = (page) * IMAGES_PER_PAGE;
+    const startIndex = page * IMAGES_PER_PAGE;
     const endIndex = startIndex + IMAGES_PER_PAGE;
 
     // If no more images to load, do nothing

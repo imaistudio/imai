@@ -2,10 +2,18 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import {Spinner} from "@heroui/react";
-import {Button, Input, Link, Divider, User, Checkbox, Form} from "@heroui/react";
-import {Icon} from "@iconify/react";
-import {IMAIIcon} from "@/app/components/imai";
+import { Spinner } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Link,
+  Divider,
+  User,
+  Checkbox,
+  Form,
+} from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { IMAIIcon } from "@/app/components/imai";
 import { auth } from "@/lib/firebase";
 import {
   signInWithPopup,
@@ -17,7 +25,7 @@ import {
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -30,7 +38,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    
+
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -39,35 +47,35 @@ export default function Login() {
   };
 
   const handlePhoneRedirect = () => {
-  router.push("/phone");
+    router.push("/phone");
   };
 
   const handleGoogleSignIn = async () => {
-  setIsLoading(true);
-  const provider = new GoogleAuthProvider();
-  try {
-    await signInWithPopup(auth, provider);
-    router.push("/"); // redirect if needed
-  } catch (err: any) {
-    setError(err.message);
-    setIsLoading(false);
-  }
-};
+    setIsLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push("/"); // redirect if needed
+    } catch (err: any) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  };
 
-const handleAppleSignIn = async () => {
-  setIsLoading(true);
-  const provider = new OAuthProvider("apple.com");
-  provider.addScope("email");
-  provider.addScope("name");
+  const handleAppleSignIn = async () => {
+    setIsLoading(true);
+    const provider = new OAuthProvider("apple.com");
+    provider.addScope("email");
+    provider.addScope("name");
 
-  try {
-    await signInWithPopup(auth, provider);
-    router.push("/");
-  } catch (err: any) {
-    setError(err.message);
-    setIsLoading(false);
-  }
-};
+    try {
+      await signInWithPopup(auth, provider);
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="relative flex h-full min-h-screen w-full">
@@ -82,7 +90,7 @@ const handleAppleSignIn = async () => {
             </div>
             <p className="pb-2 text-xl font-medium">Welcome Back</p>
           </div>
-            <Form
+          <Form
             className="flex w-full flex-col gap-3"
             validationBehavior="native"
             onSubmit={handleLogin}
@@ -128,8 +136,13 @@ const handleAppleSignIn = async () => {
                 Forgot password?
               </Link>
             </div>
-            <Button className="w-full" color="primary" type="submit" isDisabled={isLoading}>
-                {isLoading ? <Spinner size="sm" color="white" /> : " Log In"}
+            <Button
+              className="w-full"
+              color="primary"
+              type="submit"
+              isDisabled={isLoading}
+            >
+              {isLoading ? <Spinner size="sm" color="white" /> : " Log In"}
             </Button>
           </Form>
 
@@ -139,8 +152,7 @@ const handleAppleSignIn = async () => {
             <Divider className="flex-1" />
           </div>
 
-
-            <div className="flex w-full flex-col gap-2">
+          <div className="flex w-full flex-col gap-2">
             {/* <Button
               startContent={<Icon icon="solar:phone-bold" width={22} />}
               variant="bordered"
@@ -149,14 +161,26 @@ const handleAppleSignIn = async () => {
               Continue with Phone
             </Button> */}
             <Button
-              startContent={<Icon className="text-default-500" icon="logos:google-icon" width={18} />}
+              startContent={
+                <Icon
+                  className="text-default-500"
+                  icon="logos:google-icon"
+                  width={18}
+                />
+              }
               variant="bordered"
               onPress={handleGoogleSignIn}
             >
               Continue with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500 dark:invert" icon="logos:apple" width={18} />}
+              startContent={
+                <Icon
+                  className="text-default-500 dark:invert"
+                  icon="logos:apple"
+                  width={18}
+                />
+              }
               variant="bordered"
               onPress={handleAppleSignIn}
             >
@@ -173,40 +197,40 @@ const handleAppleSignIn = async () => {
       </div>
 
       <div className="relative hidden w-1/2 flex-col-reverse rounded-tl-medium rounded-bl-medium rounded-tr-none rounded-br-none p-10 shadow-small lg:flex overflow-hidden">
-              {/* Background video */}
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 h-full w-full object-cover z-0"
-              >
-                <source src="/videos/Login_Intro.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-      
-              {/* Overlay content */}
-              <div className="relative z-10 flex flex-col items-end gap-4">
-                <User
-                  avatarProps={{
-                    src: "https://ca.slack-edge.com/T08P88BGAU9-U08NUGVDXQD-efea55cbd792-512",
-                  }}
-                  classNames={{
-                    base: "flex flex-row-reverse",
-                    name: "w-full text-right text-white",
-                    description: "text-white/60",
-                  }}
-                  description="Founder & CEO at IMAI"
-                  name="Viola Schritter"
-                />
-                <p className="w-full text-right text-2xl text-white/60">
-                  <span className="font-medium">“</span>
-                  <span className="font-normal italic">
-                   Where thoughts become pixels, and visions come to life.
-                  </span>
-                  <span className="font-medium">”</span>
-                </p>
-              </div>
+        {/* Background video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover z-0"
+        >
+          <source src="/videos/Login_Intro.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Overlay content */}
+        <div className="relative z-10 flex flex-col items-end gap-4">
+          <User
+            avatarProps={{
+              src: "https://ca.slack-edge.com/T08P88BGAU9-U08NUGVDXQD-efea55cbd792-512",
+            }}
+            classNames={{
+              base: "flex flex-row-reverse",
+              name: "w-full text-right text-white",
+              description: "text-white/60",
+            }}
+            description="Founder & CEO at IMAI"
+            name="Viola Schritter"
+          />
+          <p className="w-full text-right text-2xl text-white/60">
+            <span className="font-medium">“</span>
+            <span className="font-normal italic">
+              Where thoughts become pixels, and visions come to life.
+            </span>
+            <span className="font-medium">”</span>
+          </p>
+        </div>
       </div>
     </div>
   );

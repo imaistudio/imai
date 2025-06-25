@@ -30,27 +30,27 @@ export const HeroParallax = ({
 
   const translateX = useSpring(
     useTransform(scrollYProgress, [0, 1], [0, 1000]),
-    springConfig
+    springConfig,
   );
   const translateXReverse = useSpring(
     useTransform(scrollYProgress, [0, 1], [0, -1000]),
-    springConfig
+    springConfig,
   );
   const rotateX = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [15, 0]),
-    springConfig
+    springConfig,
   );
   const opacity = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [0.2, 1]),
-    springConfig
+    springConfig,
   );
   const rotateZ = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [20, 0]),
-    springConfig
+    springConfig,
   );
   const translateY = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [-700, 500]),
-    springConfig
+    springConfig,
   );
   return (
     <div
@@ -106,7 +106,12 @@ export const Header = () => {
         About IMAI <br /> Creating Newness
       </h1>
       <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
-        Whether you&apos;re an entrepreneur customizing your product catalog, a designer fine-tuning visuals, or a business owner looking to streamline your design workflow, IMAI is your all-in-one platform. Were building a web-based solution that lets you easily edit products, design assets, manage visuals, and bring your ideas to life — no complex software or steep learning curves
+        Whether you&apos;re an entrepreneur customizing your product catalog, a
+        designer fine-tuning visuals, or a business owner looking to streamline
+        your design workflow, IMAI is your all-in-one platform. Were building a
+        web-based solution that lets you easily edit products, design assets,
+        manage visuals, and bring your ideas to life — no complex software or
+        steep learning curves
       </p>
     </div>
   );
@@ -134,10 +139,7 @@ export const ProductCard = ({
       key={product.title}
       className="group/product h-96 w-[30rem] relative shrink-0"
     >
-      <a
-        href={product.link}
-        className="block group-hover/product:shadow-2xl "
-      >
+      <a href={product.link} className="block group-hover/product:shadow-2xl ">
         <img
           src={product.thumbnail}
           height="600"

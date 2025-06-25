@@ -1,9 +1,9 @@
 "use client";
-import type {IconProps} from "@iconify/react";
+import type { IconProps } from "@iconify/react";
 import React from "react";
-import {Link, Spacer} from "@heroui/react";
-import {Icon} from "@iconify/react";
-import {IMAIIcon} from "@/app/components/imai";
+import { Link, Spacer } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { IMAIIcon } from "@/app/components/imai";
 type SocialIconProps = Omit<IconProps, "icon">;
 
 const navLinks = [
@@ -41,27 +41,37 @@ const socialItems = [
   {
     name: "Facebook",
     href: "#",
-    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:facebook" />,
+    icon: (props: SocialIconProps) => (
+      <Icon {...props} icon="fontisto:facebook" />
+    ),
   },
   {
     name: "Instagram",
     href: "#",
-    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:instagram" />,
+    icon: (props: SocialIconProps) => (
+      <Icon {...props} icon="fontisto:instagram" />
+    ),
   },
   {
     name: "Twitter",
     href: "#",
-    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:twitter" />,
+    icon: (props: SocialIconProps) => (
+      <Icon {...props} icon="fontisto:twitter" />
+    ),
   },
   {
     name: "linkedIn",
     href: "#",
-    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:linkedin" />,
+    icon: (props: SocialIconProps) => (
+      <Icon {...props} icon="fontisto:linkedin" />
+    ),
   },
   {
     name: "YouTube",
     href: "#",
-    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:youtube-play" />,
+    icon: (props: SocialIconProps) => (
+      <Icon {...props} icon="fontisto:youtube-play" />
+    ),
   },
 ];
 
@@ -89,8 +99,15 @@ export default function Footer() {
         <Spacer y={6} />
         <div className="flex justify-center gap-x-4">
           {socialItems.map((item) => (
-            <Link key={item.name} isExternal className="text-black dark:text-white hover:scale-110 hover:font-semibold" href={item.href}>
-              <span className="sr-only text-black dark:text-white hover:scale-110 hover:font-semibold">{item.name}</span>
+            <Link
+              key={item.name}
+              isExternal
+              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+              href={item.href}
+            >
+              <span className="sr-only text-black dark:text-white hover:scale-110 hover:font-semibold">
+                {item.name}
+              </span>
               <item.icon aria-hidden="true" className="w-5" />
             </Link>
           ))}

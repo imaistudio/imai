@@ -11,7 +11,7 @@ try {
       credential: cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       }),
       storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
@@ -19,7 +19,10 @@ try {
   firebaseInitialized = true;
   console.log("🔥 Firebase initialized for reframe route");
 } catch (error) {
-  console.warn("⚠️ Firebase initialization failed, running in test mode:", error);
+  console.warn(
+    "⚠️ Firebase initialization failed, running in test mode:",
+    error,
+  );
   firebaseInitialized = false;
 }
 
@@ -35,7 +38,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 async function processReframe(
   imageUrl: string,
-  options: { imageSize: string; webhookUrl?: string }
+  options: { imageSize: string; webhookUrl?: string },
 ) {
   try {
     console.log("🖼️ Processing reframe...");
@@ -44,10 +47,10 @@ async function processReframe(
 
     // Map imageSize to aspect ratios for FAL AI
     const aspectRatioMap: { [key: string]: string } = {
-      "square_hd": "1:1",
-      "square": "1:1", 
-      "portrait": "3:4",
-      "landscape": "4:3"
+      square_hd: "1:1",
+      square: "1:1",
+      portrait: "3:4",
+      landscape: "4:3",
     };
 
     const targetAspectRatio = aspectRatioMap[options.imageSize] || "1:1";
@@ -60,7 +63,7 @@ async function processReframe(
         aspect_ratio: targetAspectRatio,
         guidance_scale: 3.5,
         num_inference_steps: 30,
-        output_format: "jpeg"
+        output_format: "jpeg",
       },
     });
 
@@ -91,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -103,8 +106,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } catch (error) {
         console.log("❌ Invalid Firebase user ID for reframe:", error);
         return NextResponse.json(
-          { status: "error", error: "Invalid Firebase user ID - authentication required" },
-          { status: 401 }
+          {
+            status: "error",
+            error: "Invalid Firebase user ID - authentication required",
+          },
+          { status: 401 },
         );
       }
     } else {
@@ -129,14 +135,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             error:
               "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (imageFile.size > MAX_FILE_SIZE) {
         return NextResponse.json(
           { error: "File size too large. Maximum size is 10MB." },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -148,7 +154,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } else {
       return NextResponse.json(
         { error: "Either image_url or image file must be provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -156,7 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!validImageSizes.includes(imageSize)) {
       return NextResponse.json(
         { error: "Invalid image size option." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -181,7 +187,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.error("Error in reframe route:", error);
     return NextResponse.json(
       { error: error.message || "Failed to process image" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

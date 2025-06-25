@@ -24,66 +24,73 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
   const handleNewChatClick = async () => {
     try {
       await createNewChatIfNeeded();
-      console.log("New chat created or switched to existing empty chat successfully");
+      console.log(
+        "New chat created or switched to existing empty chat successfully",
+      );
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
   };
 
   useEffect(() => {
-  const fetchLibraryImage = async () => {
-    if (!user) {
-      console.log("No user found");
-      return;
-    }
+    const fetchLibraryImage = async () => {
+      if (!user) {
+        console.log("No user found");
+        return;
+      }
 
-    console.log("User UID:", user.uid);
-    console.log("Fetching from path:", `${user.uid}/output`);
+      console.log("User UID:", user.uid);
+      console.log("Fetching from path:", `${user.uid}/output`);
 
-    const cached = sessionStorage.getItem("libraryCache");
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      console.log("Using cached data:", parsed);
-      setLibraryCount(parsed.count);
-      setLatestImageUrl(parsed.url);
-      return;
-    }
+      const cached = sessionStorage.getItem("libraryCache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        console.log("Using cached data:", parsed);
+        setLibraryCount(parsed.count);
+        setLatestImageUrl(parsed.url);
+        return;
+      }
 
-    try {
-      const outputRef = ref(storage, `${user.uid}/output`);
-      console.log("Created storage reference");
-      
-      const items = await listAll(outputRef);
-      console.log("Found items:", items.items.length);
-      console.log("Item names:", items.items.map(item => item.name));
-      
-      const sortedItems = items.items.sort((a, b) =>
-        b.name.localeCompare(a.name)
-      );
+      try {
+        const outputRef = ref(storage, `${user.uid}/output`);
+        console.log("Created storage reference");
 
-      const url = sortedItems.length > 0
-        ? await getDownloadURL(sortedItems[0])
-        : null;
+        const items = await listAll(outputRef);
+        console.log("Found items:", items.items.length);
+        console.log(
+          "Item names:",
+          items.items.map((item) => item.name),
+        );
 
-      console.log("Download URL:", url);
+        const sortedItems = items.items.sort((a, b) =>
+          b.name.localeCompare(a.name),
+        );
 
-      const result = {
-        count: items.items.length,
-        url,
-      };
+        const url =
+          sortedItems.length > 0 ? await getDownloadURL(sortedItems[0]) : null;
 
-      console.log("Final result:", result);
-      sessionStorage.setItem("libraryCache", JSON.stringify(result));
-      setLibraryCount(result.count);
-      setLatestImageUrl(result.url);
-    } catch (error) {
-      console.error("Error fetching latest library image:", error);
-      console.error("Error details:", error instanceof Error ? error.message : String(error));
-    }
-  };
+        console.log("Download URL:", url);
 
-  fetchLibraryImage();
-}, [user]);
+        const result = {
+          count: items.items.length,
+          url,
+        };
+
+        console.log("Final result:", result);
+        sessionStorage.setItem("libraryCache", JSON.stringify(result));
+        setLibraryCount(result.count);
+        setLatestImageUrl(result.url);
+      } catch (error) {
+        console.error("Error fetching latest library image:", error);
+        console.error(
+          "Error details:",
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+    };
+
+    fetchLibraryImage();
+  }, [user]);
 
   return (
     <>

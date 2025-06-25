@@ -5,7 +5,8 @@ export const SEO_CONFIG = {
   site: {
     name: "IMAI.studio",
     url: "https://imai.studio",
-    description: "Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio's advanced AI technology.",
+    description:
+      "Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio's advanced AI technology.",
     language: "en",
     region: "US",
     timezone: "America/New_York",
@@ -38,7 +39,9 @@ export const SEO_CONFIG = {
       key: process.env.NEXT_PUBLIC_AHREFS_KEY || "1TZ7wA8+FN+Xqd+svevHBw",
     },
     googleSearchConsole: {
-      verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "google6db09e8c742fe3a5",
+      verification:
+        process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
+        "google6db09e8c742fe3a5",
     },
   },
 
@@ -55,7 +58,8 @@ export const SEO_CONFIG = {
   seo: {
     defaultTitle: "IMAI.studio - AI Image Generation Platform",
     titleTemplate: "%s | IMAI.studio",
-    defaultDescription: "Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio's advanced AI technology.",
+    defaultDescription:
+      "Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio's advanced AI technology.",
     maxDescriptionLength: 160,
     maxTitleLength: 60,
     robots: {
@@ -64,9 +68,9 @@ export const SEO_CONFIG = {
       googleBot: {
         index: true,
         follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
     },
   },
@@ -111,56 +115,74 @@ export const SEO_CONFIG = {
   pages: {
     home: {
       title: "IMAI.studio - AI Image Generation Platform",
-      description: "Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio's advanced AI technology.",
-      keywords: ["AI image generation", "artificial intelligence", "image creation", "AI art"],
+      description:
+        "Creating newness through AI-powered image generation. Transform your ideas into stunning visuals with IMAI.studio's advanced AI technology.",
+      keywords: [
+        "AI image generation",
+        "artificial intelligence",
+        "image creation",
+        "AI art",
+      ],
       priority: 1.0,
       changeFrequency: "daily" as const,
     },
     about: {
       title: "About IMAI.studio",
-      description: "Learn about IMAI.studio's mission to democratize AI-powered image generation and make creative tools accessible to everyone.",
+      description:
+        "Learn about IMAI.studio's mission to democratize AI-powered image generation and make creative tools accessible to everyone.",
       keywords: ["about", "mission", "company", "AI image generation"],
       priority: 0.8,
       changeFrequency: "monthly" as const,
     },
     pricing: {
       title: "Pricing - IMAI.studio",
-      description: "Choose the perfect plan for your AI image generation needs. Affordable pricing with powerful features for creators and businesses.",
-      keywords: ["pricing", "plans", "subscription", "AI image generation cost"],
+      description:
+        "Choose the perfect plan for your AI image generation needs. Affordable pricing with powerful features for creators and businesses.",
+      keywords: [
+        "pricing",
+        "plans",
+        "subscription",
+        "AI image generation cost",
+      ],
       priority: 0.9,
       changeFrequency: "weekly" as const,
     },
     contact: {
       title: "Contact Us - IMAI.studio",
-      description: "Get in touch with the IMAI.studio team. We're here to help with your AI image generation needs and answer any questions.",
+      description:
+        "Get in touch with the IMAI.studio team. We're here to help with your AI image generation needs and answer any questions.",
       keywords: ["contact", "support", "help", "customer service"],
       priority: 0.7,
       changeFrequency: "monthly" as const,
     },
     privacy: {
       title: "Privacy Policy - IMAI.studio",
-      description: "Learn how IMAI.studio protects your privacy and handles your data when using our AI image generation platform.",
+      description:
+        "Learn how IMAI.studio protects your privacy and handles your data when using our AI image generation platform.",
       keywords: ["privacy", "data protection", "security", "privacy policy"],
       priority: 0.5,
       changeFrequency: "monthly" as const,
     },
     terms: {
       title: "Terms of Service - IMAI.studio",
-      description: "Read IMAI.studio's terms of service to understand the rules and guidelines for using our AI image generation platform.",
+      description:
+        "Read IMAI.studio's terms of service to understand the rules and guidelines for using our AI image generation platform.",
       keywords: ["terms", "terms of service", "legal", "agreement"],
       priority: 0.5,
       changeFrequency: "monthly" as const,
     },
     library: {
       title: "Image Library - IMAI.studio",
-      description: "Browse and manage your AI-generated images in the IMAI.studio library. Organize, download, and share your creations.",
+      description:
+        "Browse and manage your AI-generated images in the IMAI.studio library. Organize, download, and share your creations.",
       keywords: ["library", "gallery", "images", "AI art collection"],
       priority: 0.8,
       changeFrequency: "daily" as const,
     },
     explore: {
       title: "Explore AI Art - IMAI.studio",
-      description: "Discover amazing AI-generated artwork created by the IMAI.studio community. Get inspired and explore the possibilities of AI art.",
+      description:
+        "Discover amazing AI-generated artwork created by the IMAI.studio community. Get inspired and explore the possibilities of AI art.",
       keywords: ["explore", "discover", "AI art", "community", "inspiration"],
       priority: 0.8,
       changeFrequency: "daily" as const,
@@ -245,11 +267,17 @@ export function validateSEOConfig(): { valid: boolean; errors: string[] } {
     errors.push("Site URL is required");
   }
 
-  if (!SEO_CONFIG.analytics.googleTagManager.id || SEO_CONFIG.analytics.googleTagManager.id === "GTM-XXXXXXX") {
+  if (
+    !SEO_CONFIG.analytics.googleTagManager.id ||
+    SEO_CONFIG.analytics.googleTagManager.id === "GTM-XXXXXXX"
+  ) {
     errors.push("Google Tag Manager ID is not configured");
   }
 
-  if (!SEO_CONFIG.analytics.ahrefs.key || SEO_CONFIG.analytics.ahrefs.key === "1TZ7wA8+FN+Xqd+svevHBw") {
+  if (
+    !SEO_CONFIG.analytics.ahrefs.key ||
+    SEO_CONFIG.analytics.ahrefs.key === "1TZ7wA8+FN+Xqd+svevHBw"
+  ) {
     errors.push("Ahrefs Analytics key is not configured");
   }
 
@@ -257,4 +285,4 @@ export function validateSEOConfig(): { valid: boolean; errors: string[] } {
     valid: errors.length === 0,
     errors,
   };
-} 
+}

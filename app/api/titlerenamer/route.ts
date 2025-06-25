@@ -20,7 +20,7 @@ interface TitleRequest {
 }
 
 async function generateChatTitle(
-  messages: ChatMessage[]
+  messages: ChatMessage[],
 ): Promise<{ title: string; category: string }> {
   const systemPrompt = `You are a smart title generator for IMAI image platform chat sessions. Generate concise, descriptive titles (3-6 words) based on the conversation content.
 
@@ -56,7 +56,7 @@ Respond with JSON only:
     const conversationSummary = recentMessages
       .map(
         (msg, index) =>
-          `${index + 1}. ${msg.role}: ${msg.content.substring(0, 150)}${msg.content.length > 150 ? "..." : ""}`
+          `${index + 1}. ${msg.role}: ${msg.content.substring(0, 150)}${msg.content.length > 150 ? "..." : ""}`,
       )
       .join("\n");
 
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } catch {
         return NextResponse.json(
           { status: "error", error: "Invalid Firebase user ID" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!messagesStr) {
       return NextResponse.json(
         { status: "error", error: 'Missing "messages" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -165,14 +165,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } catch {
       return NextResponse.json(
         { status: "error", error: "Invalid JSON format for messages" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         { status: "error", error: "Messages must be a non-empty array" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 

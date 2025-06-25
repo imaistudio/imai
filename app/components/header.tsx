@@ -42,10 +42,7 @@ export default function App() {
 
     if (user) {
       // If user is logged in, add logout and remove login/signup
-      return [
-        ...baseItems,
-        { label: "Logout", href: "/", action: "logout" },
-      ];
+      return [...baseItems, { label: "Logout", href: "/", action: "logout" }];
     } else {
       // If user is not logged in, show login/signup
       return [
@@ -61,7 +58,7 @@ export default function App() {
       await logout();
       setIsMenuOpen(false); // Close mobile menu after logout
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
@@ -74,7 +71,11 @@ export default function App() {
   };
 
   return (
-    <Navbar className="bg-white dark:bg-black" position="sticky" onMenuOpenChange={setIsMenuOpen}>
+    <Navbar
+      className="bg-white dark:bg-black"
+      position="sticky"
+      onMenuOpenChange={setIsMenuOpen}
+    >
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -82,25 +83,55 @@ export default function App() {
         />
         <NavbarBrand as={Link} href="/">
           <IMAIIcon className="text-black dark:text-white" size={32} />
-          <p className="hidden md:flex pl-2 font-bold text-black dark:text-white">IMAI</p>
+          <p className="hidden md:flex pl-2 font-bold text-black dark:text-white">
+            IMAI
+          </p>
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-4 text-black dark:text-white" justify="center">
+      <NavbarContent
+        className="hidden sm:flex gap-4 text-black dark:text-white"
+        justify="center"
+      >
         <NavbarItem>
-          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/explore">Explore</Link>
+          <Link
+            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+            href="/explore"
+          >
+            Explore
+          </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/about">About</Link>
+          <Link
+            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+            href="/about"
+          >
+            About
+          </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/pricing">Pricing</Link>
+          <Link
+            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+            href="/pricing"
+          >
+            Pricing
+          </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/contact">Contact</Link>
+          <Link
+            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+            href="/contact"
+          >
+            Contact
+          </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/terms">Terms</Link>
+          <Link
+            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+            href="/terms"
+          >
+            Terms
+          </Link>
         </NavbarItem>
       </NavbarContent>
 
@@ -110,19 +141,31 @@ export default function App() {
             {user ? (
               // Show when user is authenticated
               <>
-              <InteractiveHoverButton onClick={() => router.push("/")} className="hidden lg:flex">Start Generating</InteractiveHoverButton>
-              <ThemeSwitch className="hidden lg:flex" />
+                <InteractiveHoverButton
+                  onClick={() => router.push("/")}
+                  className="hidden lg:flex"
+                >
+                  Start Generating
+                </InteractiveHoverButton>
+                <ThemeSwitch className="hidden lg:flex" />
               </>
             ) : (
               // Show when user is not authenticated
               <>
                 <NavbarItem className="hidden lg:flex text-black dark:text-white">
-                  <Link className="text-black dark:text-white hover:scale-110 hover:font-semibold" href="/login">
+                  <Link
+                    className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+                    href="/login"
+                  >
                     Login
                   </Link>
                 </NavbarItem>
                 <NavbarItem>
-                  <Button as={Link} href="/signup" className="rounded-full bg-primary text-white">
+                  <Button
+                    as={Link}
+                    href="/signup"
+                    className="rounded-full bg-primary text-white"
+                  >
                     Getting Started
                   </Button>
                 </NavbarItem>
@@ -136,16 +179,16 @@ export default function App() {
         {getMenuItems().map((item, index) => (
           <NavbarMenuItem key={`${item.label}-${index}`}>
             {item.action === "logout" ? (
-              <button 
+              <button
                 className="w-full text-left text-lg text-red-400 hover:text-red-300"
                 onClick={() => handleMenuItemClick(item)}
               >
                 {item.label}
               </button>
             ) : (
-              <Link 
-                className="w-full" 
-                href={item.href} 
+              <Link
+                className="w-full"
+                href={item.href}
                 size="lg"
                 onClick={() => handleMenuItemClick(item)}
               >

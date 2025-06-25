@@ -1,7 +1,12 @@
 import type { IconSvgProps } from "@/types/icon";
 import React from "react";
 
-export const IMAIIcon: React.FC<IconSvgProps> = ({ size = 32, width, height, ...props }) => (
+export const IMAIIcon: React.FC<IconSvgProps> = ({
+  size = 32,
+  width,
+  height,
+  ...props
+}) => (
   <svg
     fill="none"
     height={size || height}

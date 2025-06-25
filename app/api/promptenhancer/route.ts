@@ -33,12 +33,12 @@ setInterval(
       }
     });
   },
-  10 * 60 * 1000
+  10 * 60 * 1000,
 );
 
 async function enhancePromptWithClaude(
   originalPrompt: string,
-  enhancementType: string = "design"
+  enhancementType: string = "design",
 ): Promise<{
   enhanced_prompt: string;
   tokens_used: number;
@@ -108,14 +108,14 @@ function detectEnhancementType(
   prompt: string,
   hasProductImage?: boolean,
   hasDesignImage?: boolean,
-  hasColorImage?: boolean
+  hasColorImage?: boolean,
 ): string {
   if (hasProductImage) return "product";
   if (hasDesignImage) return "design";
   const lowerPrompt = prompt.toLowerCase();
   if (
     /\b(blueprint|technical|engineering|architectural|cad|schematic|diagram)\b/.test(
-      lowerPrompt
+      lowerPrompt,
     )
   ) {
     return "technical";
@@ -123,7 +123,7 @@ function detectEnhancementType(
 
   if (
     /\b(product|commercial|e-commerce|catalog|marketing|brand|retail)\b/.test(
-      lowerPrompt
+      lowerPrompt,
     )
   ) {
     return "product";
@@ -131,7 +131,7 @@ function detectEnhancementType(
 
   if (
     /\b(artistic|creative|abstract|painting|art|gallery|mood|dramatic|painterly)\b/.test(
-      lowerPrompt
+      lowerPrompt,
     )
   ) {
     return "artistic";
@@ -149,14 +149,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const originalPrompt = (formData.get("prompt") as string | null)?.trim();
     if (!originalPrompt) {
       return NextResponse.json(
         { status: "error", error: 'Missing "prompt" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (originalPrompt.length > 2000) {
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           status: "error",
           error: "Prompt too long. Maximum 2000 characters allowed.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const hasProductImage =
@@ -181,14 +181,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         originalPrompt,
         hasProductImage,
         hasDesignImage,
-        hasColorImage
+        hasColorImage,
       );
     }
     console.log(
       "🤖 Auto-detected enhancement type:",
       enhancementType,
       "for prompt:",
-      originalPrompt.substring(0, 50) + "..."
+      originalPrompt.substring(0, 50) + "...",
     );
 
     const inputWordCount = originalPrompt.trim().split(/\s+/).length;
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const enhancementResult = await enhancePromptWithClaude(
       originalPrompt,
-      enhancementType
+      enhancementType,
     );
 
     enhancementCache.set(cacheKey, {
@@ -324,7 +324,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.error("Prompt Enhancer GET API Error:", err);
     return NextResponse.json(
       { status: "error", error: "Failed to retrieve API information" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

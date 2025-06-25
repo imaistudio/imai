@@ -37,7 +37,7 @@ interface MirrorMagicResponse {
  */
 function bufferToBase64DataUrl(
   buffer: Buffer,
-  mimeType: string = "image/png"
+  mimeType: string = "image/png",
 ): string {
   const base64 = buffer.toString("base64");
   return `data:${mimeType};base64,${base64}`;
@@ -81,7 +81,7 @@ async function analyzeImageWithGPT4Vision(imageUrl: string): Promise<string> {
 
 async function enhancePromptWithClaude(
   analysis: string,
-  userPrompt?: string
+  userPrompt?: string,
 ): Promise<string> {
   try {
     console.log("[DEBUG] Enhancing prompt with Claude...");
@@ -116,7 +116,7 @@ async function enhancePromptWithClaude(
 
 async function generateImageWithDALLE(
   prompt: string,
-  options: { size?: string; quality?: string; n?: number } = {}
+  options: { size?: string; quality?: string; n?: number } = {},
 ): Promise<string[]> {
   try {
     console.log("[DEBUG] Generating image with DALL-E...");
@@ -133,7 +133,7 @@ async function generateImageWithDALLE(
 
     console.log(
       "[DEBUG] Raw OpenAI response:",
-      JSON.stringify(response, null, 2)
+      JSON.stringify(response, null, 2),
     );
 
     if (!response.data) {
@@ -159,7 +159,7 @@ async function generateImageWithDALLE(
     console.error("[DEBUG] Error in DALL-E image generation:", error);
     console.error(
       "[DEBUG] Full error details:",
-      JSON.stringify(error, null, 2)
+      JSON.stringify(error, null, 2),
     );
     throw new Error("Failed to generate image with DALL-E");
   }
@@ -168,7 +168,7 @@ async function generateImageWithDALLE(
 async function editImageWithDALLE(
   imageUrl: string,
   prompt: string,
-  options: { size?: string; n?: number } = {}
+  options: { size?: string; n?: number } = {},
 ): Promise<string[]> {
   try {
     console.log("[DEBUG] Editing image with DALL-E...");
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -238,7 +238,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             error: error.message,
             details: error.toString(),
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
     }
@@ -252,7 +252,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           error:
             'Missing "image_url" parameter. This endpoint expects to be called through intentroute.',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -264,7 +264,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     console.log("[DEBUG] Starting Mirror Magic workflow...");
     console.log(
-      `[DEBUG] Parameters: workflow=${workflow}, prompt=${prompt}, size=${size}, quality=${quality}, n=${n}`
+      `[DEBUG] Parameters: workflow=${workflow}, prompt=${prompt}, size=${size}, quality=${quality}, n=${n}`,
     );
     console.log(`[DEBUG] Image URL: ${imageUrl}`);
 
@@ -321,7 +321,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const response = await fetch(firstOutputUrl);
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch generated image: ${response.statusText}`
+          `Failed to fetch generated image: ${response.statusText}`,
         );
       }
       const arrayBuffer = await response.arrayBuffer();

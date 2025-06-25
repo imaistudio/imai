@@ -1,14 +1,15 @@
 "use client";
 
-import type {ComponentProps} from "react";
-import type {ButtonProps} from "@heroui/react";
+import type { ComponentProps } from "react";
+import type { ButtonProps } from "@heroui/react";
 
 import React from "react";
-import {useControlledState} from "@react-stately/utils";
-import {m, LazyMotion, domAnimation} from "framer-motion";
-import {cn} from "@heroui/react";
+import { useControlledState } from "@react-stately/utils";
+import { m, LazyMotion, domAnimation } from "framer-motion";
+import { cn } from "@heroui/react";
 
-export interface MinimalRowStepsProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface MinimalRowStepsProps
+  extends React.HTMLAttributes<HTMLButtonElement> {
   /**
    * The label of the steps.
    */
@@ -57,11 +58,17 @@ export interface MinimalRowStepsProps extends React.HTMLAttributes<HTMLButtonEle
 
 function CheckIcon(props: ComponentProps<"svg">) {
   return (
-    <svg {...props} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg
+      {...props}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      viewBox="0 0 24 24"
+    >
       <m.path
-        animate={{pathLength: 1}}
+        animate={{ pathLength: 1 }}
         d="M5 13l4 4L19 7"
-        initial={{pathLength: 0}}
+        initial={{ pathLength: 0 }}
         strokeLinecap="round"
         strokeLinejoin="round"
         transition={{
@@ -75,7 +82,10 @@ function CheckIcon(props: ComponentProps<"svg">) {
   );
 }
 
-const MinimalRowSteps = React.forwardRef<HTMLButtonElement, MinimalRowStepsProps>(
+const MinimalRowSteps = React.forwardRef<
+  HTMLButtonElement,
+  MinimalRowStepsProps
+>(
   (
     {
       color = "primary",
@@ -149,19 +159,31 @@ const MinimalRowSteps = React.forwardRef<HTMLButtonElement, MinimalRowStepsProps
     }, [color]);
 
     return (
-      <nav aria-label="Progress" className="flex max-w-fit items-center overflow-x-auto">
+      <nav
+        aria-label="Progress"
+        className="flex max-w-fit items-center overflow-x-auto"
+      >
         {label && (
           <label className="w-28 text-small font-medium text-default-foreground lg:text-medium">
             {label}
           </label>
         )}
-        <ol className={cn("flex flex-row flex-nowrap gap-x-3", colors, className)}>
-          {Array.from({length: stepsCount})?.map((_, stepIdx) => {
+        <ol
+          className={cn("flex flex-row flex-nowrap gap-x-3", colors, className)}
+        >
+          {Array.from({ length: stepsCount })?.map((_, stepIdx) => {
             let status =
-              currentStep === stepIdx ? "active" : currentStep < stepIdx ? "inactive" : "complete";
+              currentStep === stepIdx
+                ? "active"
+                : currentStep < stepIdx
+                  ? "inactive"
+                  : "complete";
 
             return (
-              <li key={stepIdx} className="relative flex w-full items-center pr-12">
+              <li
+                key={stepIdx}
+                className="relative flex w-full items-center pr-12"
+              >
                 <button
                   key={stepIdx}
                   ref={ref}
@@ -184,7 +206,7 @@ const MinimalRowSteps = React.forwardRef<HTMLButtonElement, MinimalRowStepsProps
                             },
                           )}
                           initial={false}
-                          transition={{duration: 0.25}}
+                          transition={{ duration: 0.25 }}
                           variants={{
                             inactive: {
                               backgroundColor: "transparent",
@@ -197,7 +219,8 @@ const MinimalRowSteps = React.forwardRef<HTMLButtonElement, MinimalRowStepsProps
                               color: "var(--active-color)",
                             },
                             complete: {
-                              backgroundColor: "var(--complete-background-color)",
+                              backgroundColor:
+                                "var(--complete-background-color)",
                               borderColor: "var(--complete-border-color)",
                             },
                           }}
