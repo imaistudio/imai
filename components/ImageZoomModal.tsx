@@ -40,6 +40,7 @@ export const ImageZoomModal = ({
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         className={cn(className)}
         onClick={() => setIsOpen(true)}
       />
