@@ -249,7 +249,7 @@ export default function ChatWindow({
               {msg.sender === "user" ? (
                 <div className="flex justify-end group">
                   <div className="flex items-end gap-2">
-                    <div className="max-w-fit">
+                    <div className="max-w-4xl">
                       {msg.images && msg.images.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-2 justify-end">
                           {msg.images.map((img, i) => (
