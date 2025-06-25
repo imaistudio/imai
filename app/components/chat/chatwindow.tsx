@@ -267,7 +267,7 @@ export default function ChatWindow({
                         </div>
                       )}
                       {msg.text && (
-                        <div className="text-sm bg-primary text-primary-foreground rounded-full py-2 px-4 leading-relaxed text-left">
+                        <div className="text-sm  text-white bg-primary rounded-full py-2 px-4 leading-relaxed text-left">
                           <p>{msg.text}</p>
                         </div>
                       )}
@@ -289,7 +289,7 @@ export default function ChatWindow({
                       <div className="flex items-end gap-2">
                         <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
                           <div className="text-sm leading-relaxed">
-                            <p>
+                            <p className="text-black dark:text-white">
                               {msg.text}
                               {(msg as any).isStreaming && (
                                 <span className="animate-pulse ml-1">▊</span>
