@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChat } from "@/contexts/ChatContext";
@@ -145,7 +145,30 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
           const handleShare = () => console.log("🔗 Share clicked:", item);
           const handleRename = () => console.log("✏️ Rename clicked:", item);
           const handleArchive = () => console.log("📦 Archive clicked:", item);
-          const handleDelete = () => console.log("🗑️ Delete clicked:", item);
+          
+          const handleDelete = async () => {
+            if (!currentUser) return;
+            
+            try {
+              console.log("🗑️ Deleting chat:", item.chatId);
+              
+              // Delete the sidebar entry
+              const sidebarDocRef = doc(firestore, `users/${currentUser.uid}/sidebar`, item.id);
+              await deleteDoc(sidebarDocRef);
+              
+              // Delete the actual chat document
+              const chatDocRef = doc(firestore, `users/${currentUser.uid}/chats`, item.chatId);
+              await deleteDoc(chatDocRef);
+              
+              // If the deleted chat was the current chat, clear the current chat
+              if (currentChatId === item.chatId) {
+                switchToChat('');
+              }
+              
+            } catch (error) {
+              console.error("❌ Error deleting chat:", error);
+            }
+          };
 
           return (
             <div
