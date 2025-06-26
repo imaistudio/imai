@@ -21,6 +21,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SearchForm onSearchChange={setSearchTerm} />
       </SidebarHeader>
       <SidebarContent>
+        
         <SidebarData searchTerm={searchTerm} />
       </SidebarContent>
       <SidebarFooter>

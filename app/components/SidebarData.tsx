@@ -126,8 +126,10 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   // }
 
   return (
-    <div className="h-full overflow-y-auto hide-scrollbar">
+    <div className="mt-2 md:mt-2 lg:mt-4 h-full overflow-y-auto hide-scrollbar">
+      <p className="ml-4 p-0 opacity-50">Chats</p>
       <div className="space-y-1 p-2">
+
         {filteredItems.map((item) => {
           const isClicking = clickingItem === item.chatId;
           const isDisabled = isSwitching || clickingItem !== null;
