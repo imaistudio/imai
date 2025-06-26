@@ -131,13 +131,16 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         {filteredItems.map((item) => {
           const isClicking = clickingItem === item.chatId;
           const isDisabled = isSwitching || clickingItem !== null;
+          const isSelected = currentChatId === item.chatId;
 
           return (
             <div
               key={item.id}
               onClick={() => handleItemClick(item)}
               className={`p-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                isDisabled
+                isSelected 
+                  ? "bg-white dark:bg-black" 
+                  : isDisabled
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-muted/50"
               } ${isClicking ? "scale-95 bg-primary/5" : ""}`}
