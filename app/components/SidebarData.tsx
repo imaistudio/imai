@@ -4,7 +4,7 @@ import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from "firebase
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChat } from "@/contexts/ChatContext";
-import { Archive, Share, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { Archive, Pin, Pencil, Trash2, MoreHorizontal } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -142,7 +142,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
           const isDisabled = isSwitching || clickingItem !== null;
           const isSelected = currentChatId === item.chatId;
 
-          const handleShare = () => console.log("🔗 Share clicked:", item);
+          const handlePin = () => console.log("Pin clicked:", item);
           const handleRename = () => console.log("✏️ Rename clicked:", item);
           const handleArchive = () => console.log("📦 Archive clicked:", item);
           
@@ -209,16 +209,17 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                       </DropdownTrigger>
                       <DropdownMenu>
                         <DropdownSection  showDivider>
-                          <DropdownItem key="share" onClick={handleShare}>
-                            <div className="flex items-center gap-2">
-                              <Share size={16} />
-                              Share
-                            </div>
-                          </DropdownItem>
+                         
                           <DropdownItem key="rename" onClick={handleRename}>
                             <div className="flex items-center gap-2">
                               <Pencil size={16} />
                               Rename
+                            </div>
+                          </DropdownItem>
+                          <DropdownItem key="pin" onClick={handlePin}>
+                            <div className="flex items-center gap-2">
+                              <Pin size={16} />
+                              pin
                             </div>
                           </DropdownItem>
                         </DropdownSection>
