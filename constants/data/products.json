@@ -140,10 +140,24 @@
     "gothic":"/inputs/placeholders/jewelry/gothic.webp",
     "tribalethnic":"/inputs/placeholders/jewelry/tribalethnic.webp",
     "marineelements":"/inputs/placeholders/jewelry/marineelements.webp",
-    "industrial":"/inputs/placeholders/jewelry/industrial.webp"
+    "industrial":"/inputs/placeholders/jewelry/industrial.webp",
 
-
-
+    "boldcolors":"/inputs/placeholders/officesupplies/boldcolors.webp",
+    "graphictouch":"/inputs/placeholders/officesupplies/graphictouch.webp",
+    "inthemoodforcolor":"/inputs/placeholders/officesupplies/inthemoodforcolor.webp",
+    "artfulelegance":"/inputs/placeholders/officesupplies/artfulelegance.webp",
+    "preppyclassic":"/inputs/placeholders/officesupplies/preppyclassic.webp",
+    "naturalescape":"/inputs/placeholders/officesupplies/naturalescape.webp",
+    "popart":"/inputs/placeholders/officesupplies/popart.webp",
+    "classicmood":"/inputs/placeholders/officesupplies/classicmood.webp",
+    "nostalgic":"/inputs/placeholders/officesupplies/nostalgic.webp",
+    "retroencounters":"/inputs/placeholders/officesupplies/retroencounters.webp",
+    "mediterraneanfeel":"/inputs/placeholders/officesupplies/mediterraneanfeel.webp",
+    "aroundtheglobe":"/inputs/placeholders/officesupplies/aroundtheglobe.webp",
+    "animalworld":"/inputs/placeholders/officesupplies/animalworld.webp",
+    "nautical":"/inputs/placeholders/officesupplies/nautical.webp",
+    "mozaiq":"/inputs/placeholders/officesupplies/mozaiq.webp",
+    "tuttifrutti":"/inputs/placeholders/officesupplies/tuttifrutti.webp"
 
   },
   "specificDesigns": {
@@ -801,7 +815,24 @@
       ]
     },
     "plate": {},
-    "notebook": {},
+    "notebook": {
+      "boldcolors":["/inputs/designs/officesupplies/boldcolors/boldcolors1.webp","/inputs/designs/officesupplies/boldcolors/boldcolors2.webp","/inputs/designs/officesupplies/boldcolors/boldcolors3.webp"],
+      "graphictouch":["/inputs/designs/officesupplies/graphictouch/graphictouch1.webp"],
+      "inthemoodforcolor":["/inputs/designs/officesupplies/inthemoodforcolor/inthemoodforcolor1.webp"],
+      "artfulelegance":["/inputs/designs/officesupplies/artfulelegance/artfulelegance1.webp","/inputs/designs/officesupplies/artfulelegance/artfulelegance2.webp"],
+      "preppyclassic":["/inputs/designs/officesupplies/preppyclassic/preppyclassic1.webp","/inputs/designs/officesupplies/preppyclassic/preppyclassic2.webp"],
+      "naturalescape":["/inputs/designs/officesupplies/naturalescape/naturalescape1.webp"],
+      "popart":["/inputs/designs/officesupplies/popart/popart1.webp"],
+      "classicmood":["/inputs/designs/officesupplies/classicmood/classicmood1.webp","/inputs/designs/officesupplies/classicmood/classicmood2.webp"],
+      "nostalgic":["/inputs/designs/officesupplies/nostalgic/nostalgic1.webp","/inputs/designs/officesupplies/nostalgic/nostalgic2.webp"],
+      "retroencounters":["/inputs/designs/officesupplies/retroencounters/retroencounters1.webp"],
+      "mediterraneanfeel":["/inputs/designs/officesupplies/mediterraneanfeel/mediterraneanfeel1.webp"],
+      "aroundtheglobe":["/inputs/designs/officesupplies/aroundtheglobe/aroundtheglobe1.webp"],
+      "animalworld":["/inputs/designs/officesupplies/animalworld/animalworld1.webp","/inputs/designs/officesupplies/animalworld/animalworld2.webp"],
+      "nautical":["/inputs/designs/officesupplies/nautical/nautical1.webp"],
+      "mozaiq":["/inputs/designs/officesupplies/mozaiq/mozaiq1.webp"],
+      "tuttifrutti":["/inputs/designs/officesupplies/tuttifrutti/tuttifrutti1.webp","/inputs/designs/officesupplies/tuttifrutti/tuttifrutti2.webp"]
+    },
     "shoulderbag": {
       "quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
       "understatedelegance": [
