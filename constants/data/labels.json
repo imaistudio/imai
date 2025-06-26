@@ -95,7 +95,28 @@
     "opposingelements": "opposing elements",
     "artisanal": "artisanal",
     "whimsical": "whimsical",
-    "sporty": "sporty"
+    "sporty": "sporty",
+
+    "minimalistsubtle":"Minimalist Subtle",
+    "luxuryhighend":"luxury high <br> end",
+    "alphabetnamejewelry":"alphabet name <br> jewelry",
+    "statementboldandelegant":"statement bold <br> and elegant",
+    "celestial":"celestial",
+    "modernelements":"modern elements",
+    "natureinspired":"nature inspired",
+    "bohemian":"bohemian",
+    "artfulsculptural":"artful sculptural",
+    "retrotouch":"retro touch",
+    "edgypunk":"edgy punk",
+    "gothic":"gothic",
+    "tribalethnic":"tribal ethnic",
+    "marineelements":"marine elements",
+    "industrial":"industrial"
+
+
+
+
+
   },
   "colors": {
     "neutral": "Neutral",

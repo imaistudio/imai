@@ -124,7 +124,27 @@
     "opposingelements": "/inputs/placeholders/bags/opposingelementsrockchic.webp",
     "artisanal": "/inputs/placeholders/bags/artisanal.webp",
     "whimsical": "/inputs/placeholders/bags/whimsical.webp",
-    "sporty": "/inputs/placeholders/bags/sporty.webp"
+    "sporty": "/inputs/placeholders/bags/sporty.webp",
+
+    "minimalistsubtle":"/inputs/placeholders/jewelry/minimalistsubtleelegance.webp",
+    "luxuryhighend":"/inputs/placeholders/jewelry/luxuryhighendgemstones.webp",
+    "alphabetnamejewelry":"/inputs/placeholders/jewelry/alphabetnamejewelry.webp",
+    "statementboldandelegant":"/inputs/placeholders/jewelry/statementboldandoversized.webp",
+    "celestial":"/inputs/placeholders/jewelry/celestial.webp",
+    "modernelements":"/inputs/placeholders/jewelry/modernelementsgeometrical.webp",
+    "natureinspired":"/inputs/placeholders/jewelry/natureinspired.webp",
+    "bohemian":"/inputs/placeholders/jewelry/bohemian.webp",
+    "artfulsculptural":"/inputs/placeholders/jewelry/artfulsculptural.webp",
+    "retrotouch":"/inputs/placeholders/jewelry/retrotouch.webp",
+    "edgypunk":"/inputs/placeholders/jewelry/edgy punk.webp",
+    "gothic":"/inputs/placeholders/jewelry/gothic.webp",
+    "tribalethnic":"/inputs/placeholders/jewelry/tribalethnic.webp",
+    "marineelements":"/inputs/placeholders/jewelry/marineelements.webp",
+    "industrial":"/inputs/placeholders/jewelry/industrial.webp"
+
+
+
+
   },
   "specificDesigns": {
     "tshirt": {
@@ -474,7 +494,27 @@
         "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
       ]
     },
-    "earrings": {},
+    "earrings": {
+
+    "minimalistsubtle":["/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance1.webp","public/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance2.webp"],
+    "luxuryhighend":["/inputs/designs/Jewelry/luxuryhighendgemstones/luxuryhighendgemstones1.webp"],
+    "alphabetnamejewelry":["/inputs/designs/Jewelry/alphabetnamejewelry/alphabetnamejewelry1.webp"],
+    "statementboldandelegant":["/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized1.webp","public/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized2.webp"],
+    "celestial":["/inputs/designs/Jewelry/celestial/celestial1.webp"],
+    "modernelements":["/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical1.webp","/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical2.webp","/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical3.webp"],
+    "natureinspired":["/inputs/designs/Jewelry/natureinspired/natureinspired1.webp","/inputs/designs/Jewelry/natureinspired/natureinspired2.webp"],
+    "bohemian":["/inputs/designs/Jewelry/bohemian/bohemian1.webp","/inputs/designs/Jewelry/bohemian/bohemian2.webp"],
+    "artfulsculptural":["/inputs/designs/Jewelry/artfulsculptural/artfulsculptural1.webp","/inputs/designs/Jewelry/artfulsculptural/artfulsculptural2.webp","/inputs/designs/Jewelry/artfulsculptural/artfulsculptural3.webp"],
+    "retrotouch":["/inputs/designs/Jewelry/retrotouch/retrotouch1.webp","/inputs/designs/Jewelry/retrotouch/retrotouch2.webp"],
+    "edgypunk":["/inputs/designs/Jewelry/edgy punk/edgy punk1.webp"],
+    "gothic":["/inputs/designs/Jewelry/gothic/gothic1.webp"],
+    "tribalethnic":["/inputs/designs/Jewelry/tribalethnic/tribalethnic1.webp","/inputs/designs/Jewelry/tribalethnic/tribalethnic2.webp"],
+    "marineelements":["/inputs/designs/Jewelry/marineelements/marineelements1.webp","/inputs/designs/Jewelry/marineelements/marineelements2.webp"],
+    "industrial":["/inputs/designs/Jewelry/industrial/industrial1.webp","/inputs/designs/Jewelry/industrial/industrial2.webp"]
+
+
+
+    },
     "sofa": {},
     "scarf": {
       "streetwear": [
