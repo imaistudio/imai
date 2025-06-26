@@ -9,6 +9,9 @@ Todo
 7. add sharing system model | public link | shareable chat window 
 8. fix all the mobile views pixel Perfect
 9. copy paste drag and drop system in chat window 
+10. archive chats through Sidebar
+11. rename thorugh sidebar 
+12. pin messages through Sidebar
 
 Extras 
 

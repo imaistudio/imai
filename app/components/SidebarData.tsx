@@ -156,9 +156,11 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
               const sidebarDocRef = doc(firestore, `users/${currentUser.uid}/sidebar`, item.id);
               await deleteDoc(sidebarDocRef);
               
-              // Delete the actual chat document
-              const chatDocRef = doc(firestore, `users/${currentUser.uid}/chats`, item.chatId);
-              await deleteDoc(chatDocRef);
+              // Delete the actual chat document only if chatId exists
+              if (item.chatId) {
+                const chatDocRef = doc(firestore, `users/${currentUser.uid}/chats`, item.chatId);
+                await deleteDoc(chatDocRef);
+              }
               
               // If the deleted chat was the current chat, clear the current chat
               if (currentChatId === item.chatId) {
@@ -174,7 +176,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
             <div
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className={`p-2 rounded-lg cursor-pointer transition-all duration-200 group ${
+              className={`p-2 rounded-lg cursor-pointer transition-all duration-200 group/item ${
                 isSelected
                   ? "bg-white dark:bg-black"
                   : isDisabled
@@ -195,7 +197,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                 {isClicking ? (
                   <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin ml-2 flex-shrink-0"></div>
                 ) : (
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  <div className="opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
                     <Dropdown backdrop="blur" className="w-3/4 p-1" shadow="none">
                       <DropdownTrigger>
                         <button
