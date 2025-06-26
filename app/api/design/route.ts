@@ -272,119 +272,103 @@ function generateWorkflowPrompt(
   designAnalysis?: string,
   colorAnalysis?: string,
 ): string {
+  // Common suffix to enforce product position and no text
+  const commonSuffix = `
+No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+
   switch (workflowType) {
-    case "full_composition":
-      const baseFullPrompt = `Create a photorealistic version of the original product, drawing design inspiration only and not the colors from the design reference and applying the colors from the color reference. Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette. The design reference should inspire creative visual elements, patterns, or stylistic approaches, but not be directly copied or imprinted. The color reference should only provide the color palette and color scheme to apply.
+    case "full_composition": {
+      const basePrompt = `Create a photorealistic version of the original product, drawing design inspiration only (not colors) from the design reference and applying colors solely from the color reference. Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette. Use the design reference to inspire creative visual elements, patterns, or stylistic approaches, but do NOT directly copy or imprint the design. Use the color reference only for the color palette and scheme.
 
-BASE PRODUCT ANALYSIS: ${productAnalysis}
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
-COLOR PALETTE ANALYSIS: ${colorAnalysis}`;
+BASE PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis ?? "N/A"}
+COLOR PALETTE ANALYSIS: ${colorAnalysis ?? "N/A"}`;
 
-      if (userPrompt) {
-        return `${baseFullPrompt}
+      return userPrompt
+        ? `${basePrompt}
 
-USER PROMPT: ${userPrompt}
+USER PROMPT: ${userPrompt}${commonSuffix}`
+        : `${basePrompt}${commonSuffix}`;
+    }
 
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
-      }
-      return `${baseFullPrompt}
+    case "product_color": {
+      const basePrompt = `Apply only the color palette and color scheme from the color reference image to the product while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette. Photorealistic.
 
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+ORIGINAL PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
+COLOR PALETTE ANALYSIS: ${colorAnalysis ?? "N/A"}`;
 
-    case "product_color":
-      const baseColorPrompt = `Apply only the color palette and color scheme from the color reference image to the product while maintaining its original design and structure. Extract only the colors from the reference - do not copy any design patterns, textures, or visual elements. Keep all product details but transform only the colors to match the reference palette. Photorealistic.
+      return userPrompt
+        ? `${basePrompt}
 
-ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
-COLOR PALETTE ANALYSIS: ${colorAnalysis}`;
+USER PROMPT: ${userPrompt}${commonSuffix}`
+        : `${basePrompt}${commonSuffix}`;
+    }
 
-      if (userPrompt) {
-        return `${baseColorPrompt}
+    case "product_design": {
+      const basePrompt = `Create a new version of the product drawing creative inspiration from the design reference. Use the design reference for visual style, creative direction, or artistic approach — but do NOT directly copy or imprint the design onto the product. Maintain the product's original form, structure, proportions, and geometry. Photorealistic.
 
-USER PROMPT: ${userPrompt}
+ORIGINAL PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis ?? "N/A"}`;
 
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
-      }
-      return `${baseColorPrompt}
+      return userPrompt
+        ? `${basePrompt}
 
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+USER PROMPT: ${userPrompt}${commonSuffix}`
+        : `${basePrompt}${commonSuffix}`;
+    }
 
-    case "product_design":
-      const baseDesignPrompt = `Create a new version of the product drawing creative inspiration from the design reference. Use the design reference as inspiration for visual style, creative direction, or artistic approach - but do not directly copy or imprint the design onto the product. Maintain the product's original form and structure while creating something inspired by the reference's aesthetic sensibility. Photorealistic.
-
-ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis}`;
-
-      if (userPrompt) {
-        return `${baseDesignPrompt}
-
-USER PROMPT: ${userPrompt}
-
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
-      }
-      return `${baseDesignPrompt}
-
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
-
-    case "color_design":
+    case "color_design": {
       if (colorAnalysis && designAnalysis) {
-        return `Create a new product design that draws color inspiration from the color reference and design inspiration from the design reference. Use the color reference only for its color palette and the design reference only for creative inspiration and stylistic direction. Generate a cohesive product that incorporates both elements thoughtfully. Photorealistic.
+        return `Create a new product design that thoughtfully incorporates color inspiration from the color reference and design inspiration from the design reference. Use the color reference strictly for the color palette and scheme, and the design reference strictly for creative inspiration and stylistic direction. Maintain the product's original shape, structure, and proportions. Photorealistic.
 
 DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
 COLOR PALETTE ANALYSIS: ${colorAnalysis}
-USER PROMPT: ${userPrompt}
-
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
       } else if (colorAnalysis) {
-        return `Create a product using this color palette for inspiration.
+        return `Create a product using this color palette for inspiration while preserving the original product's features.
 
 COLOR PALETTE ANALYSIS: ${colorAnalysis}
-USER PROMPT: ${userPrompt}
-
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
       } else {
-        return `Create a product drawing inspiration from this design reference.
+        return `Create a product drawing inspiration from this design reference while strictly maintaining the original product's form and details.
 
 DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
-USER PROMPT: ${userPrompt}
-
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
       }
+    }
 
-    case "color_prompt":
-      return `Create a new product design using this color palette as inspiration and following the user's description.
+    case "color_prompt": {
+      return `Create a new product design using this color palette as inspiration and following the user's description. Preserve the product's original shape and details.
 
-COLOR PALETTE ANALYSIS: ${colorAnalysis}
-USER PROMPT: ${userPrompt}
+COLOR PALETTE ANALYSIS: ${colorAnalysis ?? "N/A"}
+USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
+    }
 
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+    case "design_prompt": {
+      return `Create a new product design drawing creative inspiration from this design reference and following the user's description. Use the design reference for inspiration and creative direction only — do NOT copy directly. Maintain the original product's form and structure.
 
-    case "design_prompt":
-      return `Create a new product design drawing creative inspiration from this design reference and following the user's description. Use the design reference for inspiration and creative direction, not for direct copying.
+DESIGN INSPIRATION ANALYSIS: ${designAnalysis ?? "N/A"}
+USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
+    }
 
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
-USER PROMPT: ${userPrompt}
+    case "prompt_only": {
+      return `Create a new innovative photorealistic product design based on the provided description. Maintain product integrity in form and structure.
 
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
+    }
 
-    case "prompt_only":
-      return `Create a new innovative photorealistic product design based on the provided description. Generate a photorealistic, high-quality product design.
+    case "product_prompt": {
+      return `Create a new version or variation of the provided product based on the custom description. Maintain the core product identity, including shape, structure, and proportions, while incorporating the requested changes. Generate a photorealistic design.
 
-USER PROMPT: ${userPrompt}
-
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
-
-    case "product_prompt":
-      return `Create a new version or variation of the provided product based on the custom description. Maintain the core product identity while incorporating the requested changes. Generate a photorealistic design.
-
-ORIGINAL PRODUCT ANALYSIS: ${productAnalysis}
-USER PROMPT: ${userPrompt}
-
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+ORIGINAL PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
+USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
+    }
 
     default:
-      return userPrompt || "";
+      return userPrompt ?? "";
   }
 }
+
 
 /**
  * Resize image if it's too large for OpenAI's vision API
@@ -415,8 +399,6 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
 
     // Use sharp to resize the image if available, otherwise return original
     try {
-      const sharp = require("sharp");
-
       // Resize to max 2048x2048 while maintaining aspect ratio
       const resizedBuffer = await sharp(buffer)
         .resize(2048, 2048, {
