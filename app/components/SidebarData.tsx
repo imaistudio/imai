@@ -4,6 +4,14 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChat } from "@/contexts/ChatContext";
+import { Archive, Share, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  DropdownSection,
+} from "@heroui/react";
 
 interface SidebarItem {
   id: string;
@@ -32,7 +40,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     if (!searchTerm.trim()) {
       return sidebarItems;
     }
-    
+
     return sidebarItems.filter((item) =>
       item.chatSummary?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -129,22 +137,26 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     <div className="mt-2 md:mt-2 lg:mt-4 h-full overflow-y-auto hide-scrollbar">
       <p className="ml-4 p-0 opacity-50">Chats</p>
       <div className="space-y-1 p-2">
-
         {filteredItems.map((item) => {
           const isClicking = clickingItem === item.chatId;
           const isDisabled = isSwitching || clickingItem !== null;
           const isSelected = currentChatId === item.chatId;
 
+          const handleShare = () => console.log("🔗 Share clicked:", item);
+          const handleRename = () => console.log("✏️ Rename clicked:", item);
+          const handleArchive = () => console.log("📦 Archive clicked:", item);
+          const handleDelete = () => console.log("🗑️ Delete clicked:", item);
+
           return (
             <div
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className={`p-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                isSelected 
-                  ? "bg-white dark:bg-black" 
+              className={`p-2 rounded-lg cursor-pointer transition-all duration-200 group ${
+                isSelected
+                  ? "bg-white dark:bg-black"
                   : isDisabled
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-muted/50"
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-muted/50"
               } ${isClicking ? "scale-95 bg-primary/5" : ""}`}
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
@@ -153,11 +165,60 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
               <div className="flex items-center justify-between">
                 <small className="capitalize text-sm text-foreground truncate whitespace-nowrap overflow-hidden flex-1">
                   {(item.chatSummary?.length > 30
-                    ? item.chatSummary.slice(0, 30) + "..."
+                    ? item.chatSummary.slice(0, 30) 
                     : item.chatSummary) || "Untitled Chat"}
                 </small>
-                {isClicking && (
+
+                {isClicking ? (
                   <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin ml-2 flex-shrink-0"></div>
+                ) : (
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                    <Dropdown backdrop="blur" className="w-3/4 p-1" shadow="none">
+                      <DropdownTrigger>
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1 text-black dark:text-white rounded"
+                        >
+                          <MoreHorizontal size={16} />
+                        </button>
+                      </DropdownTrigger>
+                      <DropdownMenu>
+                        <DropdownSection  showDivider>
+                          <DropdownItem key="share" onClick={handleShare}>
+                            <div className="flex items-center gap-2">
+                              <Share size={16} />
+                              Share
+                            </div>
+                          </DropdownItem>
+                          <DropdownItem key="rename" onClick={handleRename}>
+                            <div className="flex items-center gap-2">
+                              <Pencil size={16} />
+                              Rename
+                            </div>
+                          </DropdownItem>
+                        </DropdownSection>
+                        <DropdownSection >
+                          <DropdownItem key="archive" onClick={handleArchive}>
+                            <div className="flex items-center gap-2">
+                              <Archive size={16} />
+                              Archive
+                            </div>
+                          </DropdownItem>
+                          <DropdownItem
+                            key="delete"
+                            className="text-danger"
+                            color="danger"
+                            onClick={handleDelete}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Trash2 size={16} />
+                              Delete
+                            </div>
+                          </DropdownItem>
+                        </DropdownSection>
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
                 )}
               </div>
             </div>
