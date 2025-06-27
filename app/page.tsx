@@ -44,6 +44,9 @@ export default function Home() {
   const [referencedMessage, setReferencedMessage] =
     useState<ReferencedMessage | null>(null);
 
+  // 🔧 NEW: State to prevent multiple submissions
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // 🔧 OPTIMIZED: Track if we've already attempted to create a session chat
   const [sessionChatAttempted, setSessionChatAttempted] = useState(false);
 
@@ -158,6 +161,9 @@ export default function Home() {
     if (!currentChatId) {
       return;
     }
+
+    // 🔧 NEW: Set loading state to prevent multiple submissions
+    setIsSubmitting(true);
 
     try {
       // Store user's message in Firestore
@@ -456,6 +462,8 @@ export default function Home() {
           { merge: true },
         );
 
+        // 🔧 NEW: Reset loading state on error
+        setIsSubmitting(false);
         return; // Exit early on API error
       }
 
@@ -596,6 +604,9 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error in chat submission:", error);
+    } finally {
+      // 🔧 NEW: Always reset loading state when done
+      setIsSubmitting(false);
     }
   };
 
@@ -749,6 +760,7 @@ export default function Home() {
           maxLength={500}
           referencedMessage={referencedMessage}
           onClearReference={clearReference}
+          isSubmitting={isSubmitting}
         />
         <small className="text-xs">
           AI-generated content may not be perfect. Review{" "}

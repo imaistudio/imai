@@ -88,6 +88,7 @@ interface UnifiedPromptContainerProps {
   maxLength?: number;
   referencedMessage?: ReferencedMessage | null; // 🔧 NEW: Referenced message prop
   onClearReference?: () => void; // 🔧 NEW: Clear reference callback
+  isSubmitting?: boolean; // 🔧 NEW: Loading state to prevent multiple submissions
 }
 
 export default function UnifiedPromptContainer({
@@ -96,6 +97,7 @@ export default function UnifiedPromptContainer({
   maxLength = 1000,
   referencedMessage, // 🔧 NEW: Referenced message prop
   onClearReference, // 🔧 NEW: Clear reference callback
+  isSubmitting, // 🔧 NEW: Loading state to prevent multiple submissions
 }: UnifiedPromptContainerProps) {
   const [prompt, setPrompt] = useState("");
   const [images, setImages] = useState<ImageAsset[]>([]);
@@ -230,6 +232,11 @@ export default function UnifiedPromptContainer({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // 🔧 NEW: Prevent submission if already submitting
+    if (isSubmitting) {
+      return;
+    }
 
     // Separate images by type
     const productImage = images.find((img) => img.type === "product");
@@ -418,7 +425,7 @@ export default function UnifiedPromptContainer({
       // Convert iOS formats to JPG if needed
       const file = await convertToJpg(originalFile);
 
-      // Create a unique filename using converted file name
+       // Create a unique filename using converted file name
       const fileExtension = file.name.split(".").pop();
       const baseName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
       const fileName = `${type}_${baseName}.${fileExtension}`;
@@ -763,7 +770,7 @@ export default function UnifiedPromptContainer({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    if (prompt.trim() || images.length > 0) {
+                    if ((prompt.trim() || images.length > 0) && !isSubmitting) {
                       const form = e.currentTarget.closest("form");
                       if (form) {
                         form.requestSubmit();
@@ -837,7 +844,8 @@ export default function UnifiedPromptContainer({
                   color={
                     prompt.trim() || images.length > 0 ? "primary" : "default"
                   }
-                  isDisabled={!prompt.trim() && images.length === 0}
+                  isDisabled={(!prompt.trim() && images.length === 0) || isSubmitting}
+                  isLoading={isSubmitting}
                   radius="full"
                   size="sm"
                   type="submit"
@@ -846,7 +854,7 @@ export default function UnifiedPromptContainer({
                   <Icon
                     className={cn(
                       "[&>path]:stroke-[2px]",
-                      !prompt.trim() && images.length === 0
+                      (!prompt.trim() && images.length === 0) || isSubmitting
                         ? "text-default-600"
                         : "text-primary-foreground",
                     )}
