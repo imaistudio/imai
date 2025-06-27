@@ -375,7 +375,7 @@ USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
  */
 async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
   try {
-    // Fetch the image to check its size
+    // Fetch the image to check its size and format
     const response = await fetch(imageUrl);
     if (!response.ok) {
       console.warn(
@@ -391,40 +391,74 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
     const sizeMB = buffer.length / (1024 * 1024);
     console.log(`Image size: ${sizeMB.toFixed(2)}MB`);
 
-    if (sizeMB <= 20) {
-      return imageUrl; // Image is fine as-is
-    }
-
-    console.log(`Image too large (${sizeMB.toFixed(2)}MB), resizing...`);
-
-    // Use sharp to resize the image if available, otherwise return original
+    // Detect image format using sharp
+    let needsConversion = false;
+    let formatInfo = "";
+    
     try {
-      // Resize to max 2048x2048 while maintaining aspect ratio
-      const resizedBuffer = await sharp(buffer)
-        .resize(2048, 2048, {
-          fit: "inside",
-          withoutEnlargement: true,
-        })
-        .jpeg({ quality: 85 })
-        .toBuffer();
-
-      // Convert to base64 data URL
-      const base64 = resizedBuffer.toString("base64");
-      const resizedUrl = `data:image/jpeg;base64,${base64}`;
-
-      console.log(
-        `Image resized from ${sizeMB.toFixed(2)}MB to ${(resizedBuffer.length / (1024 * 1024)).toFixed(2)}MB`,
-      );
-      return resizedUrl;
-    } catch (sharpError) {
-      console.warn(
-        "Sharp not available or failed, using original image:",
-        sharpError,
-      );
-      return imageUrl;
+      const metadata = await sharp(buffer).metadata();
+      formatInfo = metadata.format || "unknown";
+      console.log(`Detected image format: ${formatInfo}`);
+      
+      // Check if format is supported by OpenAI (jpg, png, webp)
+      const supportedFormats = ['jpeg', 'jpg', 'png', 'webp'];
+      const unsupportedFormats = ['mpo', 'heic', 'heif', 'tiff', 'bmp', 'gif'];
+      
+      if (unsupportedFormats.includes(formatInfo.toLowerCase())) {
+        console.log(`🔄 Unsupported format detected: ${formatInfo} - converting to JPEG`);
+        needsConversion = true;
+      } else if (!supportedFormats.includes(formatInfo.toLowerCase())) {
+        console.log(`⚠️ Unknown format: ${formatInfo} - attempting conversion to JPEG`);
+        needsConversion = true;
+      }
+    } catch (metadataError) {
+      console.log(`⚠️ Could not detect format, attempting conversion: ${metadataError}`);
+      needsConversion = true;
     }
+
+    // Convert if needed or if image is too large
+    if (needsConversion || sizeMB > 20) {
+      const reason = needsConversion 
+        ? `unsupported format (${formatInfo})` 
+        : `large size (${sizeMB.toFixed(2)}MB)`;
+      console.log(`🔄 Converting image due to ${reason}...`);
+
+      try {
+        // Convert to JPEG with size optimization
+        const convertedBuffer = await sharp(buffer)
+          .resize(2048, 2048, {
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .jpeg({ 
+            quality: 85,
+            mozjpeg: true // Better compression for MPO and other formats
+          })
+          .toBuffer();
+
+        // Convert to base64 data URL
+        const base64 = convertedBuffer.toString("base64");
+        const convertedUrl = `data:image/jpeg;base64,${base64}`;
+
+        const newSizeMB = convertedBuffer.length / (1024 * 1024);
+        console.log(
+          `✅ Image converted from ${formatInfo} (${sizeMB.toFixed(2)}MB) to JPEG (${newSizeMB.toFixed(2)}MB)`
+        );
+        return convertedUrl;
+      } catch (conversionError) {
+        console.warn(
+          `❌ Sharp conversion failed for ${formatInfo} format:`,
+          conversionError,
+        );
+        return imageUrl; // Return original URL if conversion fails
+      }
+    }
+
+    // Image is fine as-is
+    console.log(`✅ Image format ${formatInfo} is supported, no conversion needed`);
+    return imageUrl;
   } catch (error) {
-    console.error("Error checking/resizing image:", error);
+    console.error("Error checking/processing image:", error);
     return imageUrl; // Return original URL on error
   }
 }
@@ -518,14 +552,71 @@ async function uploadImageToFiles(
       buffer = Buffer.from(arrayBuffer);
     }
 
-    // Create a File-like object for OpenAI
-    const file = new File([buffer], filename, { type: "image/jpeg" });
+    // Format conversion for OpenAI Files API compatibility
+    let finalBuffer = buffer;
+    let finalMimeType = "image/jpeg";
+    let finalFilename = filename;
+    
+    try {
+      // Import Sharp dynamically for format detection and conversion
+      const sharp = (await import("sharp")).default;
+      
+      // Get metadata to detect actual format
+      const metadata = await sharp(buffer).metadata();
+      const formatInfo = metadata.format || "unknown";
+      console.log(`🔍 Files API - Detected image format: ${formatInfo}`);
+      
+      // Define supported and unsupported formats for OpenAI Files API
+      const supportedFormats = ['jpeg', 'jpg', 'png', 'webp'];
+      const unsupportedFormats = ['mpo', 'heic', 'heif', 'tiff', 'bmp', 'gif'];
+      
+      // Check if format conversion is needed
+      if (unsupportedFormats.includes(formatInfo.toLowerCase())) {
+        console.log(`🔄 Files API - Unsupported format detected: ${formatInfo} - converting to JPEG`);
+        
+        // Convert to JPEG using Sharp
+        finalBuffer = await sharp(buffer)
+          .jpeg({ quality: 95 })
+          .toBuffer();
+        
+        finalMimeType = "image/jpeg";
+        finalFilename = filename.replace(/\.[^/.]+$/, "") + ".jpg";
+        
+        console.log(`✅ Files API - Successfully converted ${formatInfo} to JPEG`);
+        console.log(`📊 Files API - Size change: ${Math.round(buffer.length / 1024)}KB → ${Math.round(finalBuffer.length / 1024)}KB`);
+        
+      } else if (!supportedFormats.includes(formatInfo.toLowerCase())) {
+        console.log(`⚠️ Files API - Unknown format detected: ${formatInfo} - attempting conversion to JPEG`);
+        
+        // Convert unknown formats to JPEG as well
+        finalBuffer = await sharp(buffer)
+          .jpeg({ quality: 95 })
+          .toBuffer();
+        
+        finalMimeType = "image/jpeg";
+        finalFilename = filename.replace(/\.[^/.]+$/, "") + ".jpg";
+        
+        console.log(`✅ Files API - Successfully converted unknown format to JPEG`);
+        
+      } else {
+        console.log(`✅ Files API - Image format ${formatInfo} is supported, no conversion needed`);
+      }
+      
+    } catch (sharpError) {
+      console.warn(`⚠️ Files API - Sharp format detection failed: ${sharpError}`);
+      console.log(`📤 Files API - Using original buffer without conversion`);
+      // Continue with original buffer if Sharp fails
+    }
+
+    // Create a File-like object for OpenAI with converted format
+    const file = new File([finalBuffer], finalFilename, { type: finalMimeType });
 
     const uploadResponse = await openai.files.create({
       file: file,
       purpose: "vision",
     });
 
+    console.log(`✅ Files API - Successfully uploaded ${finalFilename} (${finalMimeType}) with ID: ${uploadResponse.id}`);
     return uploadResponse.id;
   } catch (err) {
     console.error("Error uploading to OpenAI Files:", err);
@@ -575,6 +666,9 @@ async function generateWithResponsesAPI(
     if (imageUrls) {
       if (imageUrls.product) {
         try {
+          // Log which product URL we're processing
+          console.log(`📤 Processing product image URL: ${imageUrls.product.substring(0, 100)}...`);
+          
           const fileId = await uploadImageToFiles(
             imageUrls.product,
             "product.jpg",
@@ -683,6 +777,21 @@ async function generateWithResponsesAPI(
       );
       responseParams.stream = false;
     }
+
+    // Debug: Log the exact request being sent to Responses API
+    console.log("🔍 Responses API Request Debug:");
+    console.log(`Model: ${responseParams.model}`);
+    console.log(`Input content items: ${responseParams.input[0].content.length}`);
+    responseParams.input[0].content.forEach((item: any, index: number) => {
+      if (item.type === "input_image") {
+        console.log(`  [${index}] input_image - file_id: ${item.file_id}`);
+      } else if (item.type === "input_text") {
+        console.log(`  [${index}] input_text - ${item.text.substring(0, 50)}...`);
+      } else {
+        console.log(`  [${index}] ${item.type}`);
+      }
+    });
+    console.log(`Tools: ${JSON.stringify(responseParams.tools)}`);
 
     const response = await openai.responses.create(responseParams);
 
@@ -1188,33 +1297,61 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // Then, handle preset color palette (can be in addition to uploaded)
       if (presetColorPalette) {
         console.log("Using preset color palette:", presetColorPalette);
+        
         // Handle multiple color palettes (comma-separated)
         const colorPalettes = presetColorPalette.includes(",")
           ? presetColorPalette.split(",").map((p) => p.trim())
           : [presetColorPalette];
 
-        // Convert color preset names to text descriptions instead of images
-        const colorDescriptions = colorPalettes.map((palette) => {
-          // Create descriptive text for the color palette
-          const formattedName = palette
+        // For the first color palette, try to use the actual image for generation
+        const firstPalette = colorPalettes[0];
+        const presetColorImagePath = `/inputs/placeholders/colors/${firstPalette}.webp`;
+        const presetColorImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${presetColorImagePath}`;
+        
+        console.log(`🎨 Using color preset URL: ${presetColorImageUrl}`);
+        
+        // Set the color image URL for generation (like design presets do)
+        if (!inputUrls.color) {
+          // Only set if no uploaded color image exists
+          inputUrls.color = presetColorImageUrl;
+        }
+        
+        // Try to analyze the color preset image
+        try {
+          console.log(`🎨 Analyzing color preset image: ${presetColorImageUrl}`);
+          const presetColorAnalysis = await analyzeImageWithGPT4Vision(
+            presetColorImageUrl,
+            "color reference"
+          );
+          colorAnalysisParts.push(presetColorAnalysis);
+        } catch (error) {
+          console.log("Error analyzing image:", error);
+          // Fallback to text description if image analysis fails
+          const formattedName = firstPalette
             .replace(/([a-z])([A-Z])/g, "$1 $2")
             .toLowerCase();
-          return `${formattedName} color palette with its characteristic tones and harmonies`;
-        });
-
-        // Add color preset as text analysis
-        const presetColorAnalysis = `Apply ${colorDescriptions.join(" combined with ")} to create a cohesive color scheme in the design.`;
-        colorAnalysisParts.push(presetColorAnalysis);
-
-        // Add additional palette instructions if multiple palettes
-        if (colorPalettes.length > 1) {
-          const additionalInstruction = `Blend and harmonize ${colorPalettes.join(", ")} color characteristics to create a unified and balanced color composition.`;
-          colorAnalysisParts.push(additionalInstruction);
+          const fallbackAnalysis = `${formattedName} color palette with its characteristic tones and harmonies`;
+          colorAnalysisParts.push(fallbackAnalysis);
         }
 
-        console.log(
-          "Preset color palette processed successfully as text description",
-        );
+        // Handle additional palettes as text descriptions
+        if (colorPalettes.length > 1) {
+          const additionalDescriptions = colorPalettes.slice(1).map((palette) => {
+            const formattedName = palette
+              .replace(/([a-z])([A-Z])/g, "$1 $2")
+              .toLowerCase();
+            return `${formattedName} color palette with its characteristic tones and harmonies`;
+          });
+          
+          const additionalAnalysis = `Also incorporate ${additionalDescriptions.join(" combined with ")} to create a cohesive color scheme.`;
+          colorAnalysisParts.push(additionalAnalysis);
+          
+          const blendInstruction = `Blend and harmonize ${colorPalettes.join(", ")} color characteristics to create a unified and balanced color composition.`;
+          colorAnalysisParts.push(blendInstruction);
+        }
+
+        console.log("✅ Color preset", firstPalette, "analyzed successfully");
+        console.log("Preset color palette processed:", colorPalettes.length, "palette(s) analyzed");
       }
 
       // Combine all color analyses
