@@ -9,6 +9,7 @@ import {
   deleteDoc,
   updateDoc,
   serverTimestamp,
+  addDoc,
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -162,6 +163,45 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     }
   };
 
+  const handleArchive = async (item: SidebarItem) => {
+    if (!currentUser) return;
+
+    try {
+      console.log("📦 Archiving chat:", item.chatId);
+
+      // Create archive document with exact same schema as sidebar, filtering out undefined values
+      const archiveData = {
+        ...(item.chatId !== undefined && { chatId: item.chatId }),
+        ...(item.chatSummary !== undefined && { chatSummary: item.chatSummary }),
+        ...(item.userId !== undefined && { userId: item.userId }),
+        ...(item.createdAt !== undefined && { createdAt: item.createdAt }),
+        ...(item.updatedAt !== undefined && { updatedAt: item.updatedAt }),
+        ...(item.isPinned !== undefined && { isPinned: item.isPinned }),
+        ...(item.pinnedAt !== undefined && { pinnedAt: item.pinnedAt }),
+      };
+
+      const archiveRef = collection(firestore, `users/${currentUser.uid}/archive`);
+      await addDoc(archiveRef, archiveData);
+
+      // Delete the sidebar entry
+      const sidebarDocRef = doc(
+        firestore,
+        `users/${currentUser.uid}/sidebar`,
+        item.id,
+      );
+      await deleteDoc(sidebarDocRef);
+
+      // If the archived chat was the current chat, clear the current chat
+      if (currentChatId === item.chatId) {
+        switchToChat("");
+      }
+
+      console.log("📦 Successfully archived chat:", item.chatId);
+    } catch (error) {
+      console.error("❌ Error archiving chat:", error);
+    }
+  };
+
   const handleDelete = async (item: SidebarItem) => {
     if (!currentUser) return;
 
@@ -204,7 +244,6 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     const isSelected = currentChatId === item.chatId;
 
     const handleRename = () => console.log("✏️ Rename clicked:", item);
-    const handleArchive = () => console.log("📦 Archive clicked:", item);
 
     return (
       <div
@@ -261,7 +300,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                     </DropdownItem>
                   </DropdownSection>
                   <DropdownSection>
-                    <DropdownItem key="archive" onClick={handleArchive}>
+                    <DropdownItem key="archive" onClick={() => handleArchive(item)}>
                       <div className="flex items-center gap-2">
                         <Archive size={16} />
                         Archive
