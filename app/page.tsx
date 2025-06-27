@@ -415,7 +415,7 @@ export default function Home() {
       }
 
       let response, result;
-      
+
       try {
         response = await fetch("/api/intentroute", {
           method: "POST",
@@ -425,16 +425,16 @@ export default function Home() {
         result = await response.json();
       } catch (apiError) {
         console.error("❌ API call failed:", apiError);
-        
+
         // 🔧 NEW: Remove loading message on API error
         const chatDocForError = await getDoc(chatRef);
         const messagesForError = chatDocForError.exists()
           ? chatDocForError.data().messages || []
           : [];
         const messagesWithoutLoadingError = messagesForError.filter(
-          (msg: any) => !msg.isLoading
+          (msg: any) => !msg.isLoading,
         );
-        
+
         // Add error message
         const errorMessage = {
           sender: "agent",
@@ -447,7 +447,7 @@ export default function Home() {
           chatId: currentChatId,
           isLoading: false,
         };
-        
+
         await setDoc(
           chatRef,
           {
@@ -455,7 +455,7 @@ export default function Home() {
           },
           { merge: true },
         );
-        
+
         return; // Exit early on API error
       }
 
@@ -524,7 +524,7 @@ export default function Home() {
 
         // 🔧 NEW: Remove the loading message and replace with actual response
         const messagesWithoutLoading = updatedMessages.filter(
-          (msg: any) => !msg.isLoading
+          (msg: any) => !msg.isLoading,
         );
 
         // Update Firestore with the agent response

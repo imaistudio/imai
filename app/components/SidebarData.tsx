@@ -1,10 +1,26 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
-import { collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  deleteDoc,
+  updateDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChat } from "@/contexts/ChatContext";
-import { Archive, Pin, PinOff, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import {
+  Archive,
+  Pin,
+  PinOff,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+} from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -39,7 +55,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   const { pinnedItems, unpinnedItems } = useMemo(() => {
     const filteredItems = searchTerm.trim()
       ? sidebarItems.filter((item) =>
-          item.chatSummary?.toLowerCase().includes(searchTerm.toLowerCase())
+          item.chatSummary?.toLowerCase().includes(searchTerm.toLowerCase()),
         )
       : sidebarItems;
 
@@ -62,7 +78,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     // Create a real-time listener for sidebar data
     const sidebarRef = collection(
       firestore,
-      `users/${currentUser.uid}/sidebar`
+      `users/${currentUser.uid}/sidebar`,
     );
     const q = query(sidebarRef, orderBy("updatedAt", "desc"));
 
@@ -82,7 +98,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
       (error) => {
         console.error("❌ Error fetching sidebar data:", error);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -114,12 +130,16 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
 
   const handlePin = async (item: SidebarItem) => {
     if (!currentUser) return;
-    
+
     try {
       console.log("📌 Toggling pin for chat:", item.chatId);
-      
-      const sidebarDocRef = doc(firestore, `users/${currentUser.uid}/sidebar`, item.id);
-      
+
+      const sidebarDocRef = doc(
+        firestore,
+        `users/${currentUser.uid}/sidebar`,
+        item.id,
+      );
+
       if (item.isPinned) {
         // Unpin the item
         await updateDoc(sidebarDocRef, {
@@ -144,31 +164,41 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
 
   const handleDelete = async (item: SidebarItem) => {
     if (!currentUser) return;
-    
+
     try {
       console.log("🗑️ Deleting chat:", item.chatId);
-      
+
       // Delete the sidebar entry
-      const sidebarDocRef = doc(firestore, `users/${currentUser.uid}/sidebar`, item.id);
+      const sidebarDocRef = doc(
+        firestore,
+        `users/${currentUser.uid}/sidebar`,
+        item.id,
+      );
       await deleteDoc(sidebarDocRef);
-      
+
       // Delete the actual chat document only if chatId exists
       if (item.chatId) {
-        const chatDocRef = doc(firestore, `users/${currentUser.uid}/chats`, item.chatId);
+        const chatDocRef = doc(
+          firestore,
+          `users/${currentUser.uid}/chats`,
+          item.chatId,
+        );
         await deleteDoc(chatDocRef);
       }
-      
+
       // If the deleted chat was the current chat, clear the current chat
       if (currentChatId === item.chatId) {
-        switchToChat('');
+        switchToChat("");
       }
-      
     } catch (error) {
       console.error("❌ Error deleting chat:", error);
     }
   };
 
-  const renderChatItem = (item: SidebarItem, isPinnedSection: boolean = false) => {
+  const renderChatItem = (
+    item: SidebarItem,
+    isPinnedSection: boolean = false,
+  ) => {
     const isClicking = clickingItem === item.chatId;
     const isDisabled = isSwitching || clickingItem !== null;
     const isSelected = currentChatId === item.chatId;
@@ -194,7 +224,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         <div className="flex items-center justify-between">
           <small className="capitalize text-sm text-foreground truncate whitespace-nowrap overflow-hidden flex-1">
             {(item.chatSummary?.length > 30
-              ? item.chatSummary.slice(0, 30) 
+              ? item.chatSummary.slice(0, 30)
               : item.chatSummary) || "Untitled Chat"}
           </small>
 
@@ -221,7 +251,11 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                     </DropdownItem>
                     <DropdownItem key="pin" onClick={() => handlePin(item)}>
                       <div className="flex items-center gap-2">
-                        {item.isPinned ? <PinOff size={16} /> : <Pin size={16} />}
+                        {item.isPinned ? (
+                          <PinOff size={16} />
+                        ) : (
+                          <Pin size={16} />
+                        )}
                         {item.isPinned ? "Unpin" : "Pin"}
                       </div>
                     </DropdownItem>

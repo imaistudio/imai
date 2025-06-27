@@ -46,60 +46,71 @@ async function validateAndProcessImage(file: File): Promise<File> {
   // Get file buffer and detect format using Sharp
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
-  
+
   let formatInfo = "unknown";
   let needsConversion = false;
-  
+
   try {
     // Import Sharp dynamically
     const sharp = (await import("sharp")).default;
-    
+
     // Get metadata to detect actual format
     const metadata = await sharp(buffer).metadata();
     formatInfo = metadata.format || "unknown";
     console.log(`🔍 Detected image format: ${formatInfo}`);
-    
+
     // Define supported and unsupported formats
-    const supportedFormats = ['jpeg', 'jpg', 'png', 'webp'];
-    const unsupportedFormats = ['mpo', 'heic', 'heif', 'tiff', 'bmp', 'gif'];
-    
+    const supportedFormats = ["jpeg", "jpg", "png", "webp"];
+    const unsupportedFormats = ["mpo", "heic", "heif", "tiff", "bmp", "gif"];
+
     // Check if format conversion is needed
     if (unsupportedFormats.includes(formatInfo.toLowerCase())) {
-      console.log(`🔄 Unsupported format detected: ${formatInfo} - converting to JPEG`);
+      console.log(
+        `🔄 Unsupported format detected: ${formatInfo} - converting to JPEG`,
+      );
       needsConversion = true;
     } else if (!supportedFormats.includes(formatInfo.toLowerCase())) {
-      console.log(`⚠️ Unknown format detected: ${formatInfo} - attempting conversion to JPEG`);
+      console.log(
+        `⚠️ Unknown format detected: ${formatInfo} - attempting conversion to JPEG`,
+      );
       needsConversion = true;
     } else {
-      console.log(`✅ Image format ${formatInfo} is supported, no conversion needed`);
+      console.log(
+        `✅ Image format ${formatInfo} is supported, no conversion needed`,
+      );
     }
-    
+
     // Convert format if needed
     if (needsConversion) {
       console.log(`🔄 Converting ${formatInfo} to JPEG format...`);
-      
+
       // Convert to JPEG using Sharp
       const convertedBuffer = await sharp(buffer)
         .jpeg({ quality: 95 })
         .toBuffer();
-      
+
       // Create new file with converted buffer
       const jpegFileName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-      const convertedFile = new File([convertedBuffer], jpegFileName, { type: "image/jpeg" });
-      
-      console.log(`✅ Successfully converted ${file.name} (${formatInfo}) to ${jpegFileName} (JPEG)`);
-      console.log(`📊 Size change: ${Math.round(file.size / 1024)}KB → ${Math.round(convertedFile.size / 1024)}KB`);
-      
+      const convertedFile = new File([convertedBuffer], jpegFileName, {
+        type: "image/jpeg",
+      });
+
+      console.log(
+        `✅ Successfully converted ${file.name} (${formatInfo}) to ${jpegFileName} (JPEG)`,
+      );
+      console.log(
+        `📊 Size change: ${Math.round(file.size / 1024)}KB → ${Math.round(convertedFile.size / 1024)}KB`,
+      );
+
       return convertedFile;
     } else {
       // Format is already supported, return as-is
       console.log(`✅ Image ${file.name} format ${formatInfo} is compatible`);
       return file;
     }
-    
   } catch (sharpError) {
     console.warn(`⚠️ Sharp format detection failed: ${sharpError}`);
-    
+
     // Fallback: Basic format checking without Sharp
     const isValidMimeType = SUPPORTED_IMAGE_FORMATS.includes(
       file.type.toLowerCase(),
@@ -115,7 +126,9 @@ async function validateAndProcessImage(file: File): Promise<File> {
     }
 
     // Return file as-is if basic validation passes
-    console.log(`✅ Image ${file.name} passed basic validation (Sharp unavailable)`);
+    console.log(
+      `✅ Image ${file.name} passed basic validation (Sharp unavailable)`,
+    );
     return file;
   }
 }
@@ -2083,31 +2096,37 @@ async function routeToAPI(
 
       // Also check for any processed URLs from file uploads that might have different key names
       // Prioritize fresh uploads over cached URLs
-      const productKeys = Object.keys(imageUrls).filter(key => key.includes("product"));
-      const designKeys = Object.keys(imageUrls).filter(key => key.includes("design"));
-      const colorKeys = Object.keys(imageUrls).filter(key => key.includes("color"));
-      
+      const productKeys = Object.keys(imageUrls).filter((key) =>
+        key.includes("product"),
+      );
+      const designKeys = Object.keys(imageUrls).filter((key) =>
+        key.includes("design"),
+      );
+      const colorKeys = Object.keys(imageUrls).filter((key) =>
+        key.includes("color"),
+      );
+
       // For product URLs, prioritize fresh uploads (containing timestamps) over cached ones
       if (productKeys.length > 0 && !formData.has("product_image_url")) {
         // Sort keys to prioritize fresh uploads with timestamps over cached URLs
         const sortedProductKeys = productKeys.sort((a, b) => {
           const aUrl = imageUrls[a];
           const bUrl = imageUrls[b];
-          
+
           // Prioritize URLs with timestamps (fresh uploads) over those with IMG_ (cached)
-          const aIsFresh = aUrl.includes('/input/') && /\d{13}_/.test(aUrl);
-          const bIsFresh = bUrl.includes('/input/') && /\d{13}_/.test(bUrl);
-          const aIsCached = aUrl.includes('IMG_');
-          const bIsCached = bUrl.includes('IMG_');
-          
+          const aIsFresh = aUrl.includes("/input/") && /\d{13}_/.test(aUrl);
+          const bIsFresh = bUrl.includes("/input/") && /\d{13}_/.test(bUrl);
+          const aIsCached = aUrl.includes("IMG_");
+          const bIsCached = bUrl.includes("IMG_");
+
           if (aIsFresh && !bIsFresh) return -1;
           if (!aIsFresh && bIsFresh) return 1;
           if (aIsCached && !bIsCached) return 1;
           if (!aIsCached && bIsCached) return -1;
-          
+
           return 0;
         });
-        
+
         const selectedProductKey = sortedProductKeys[0];
         formData.append("product_image_url", imageUrls[selectedProductKey]);
         console.log(
@@ -2115,20 +2134,28 @@ async function routeToAPI(
           imageUrls[selectedProductKey],
         );
         if (productKeys.length > 1) {
-          console.log(`📋 Skipped ${productKeys.length - 1} other product URLs (prioritized fresh upload)`);
+          console.log(
+            `📋 Skipped ${productKeys.length - 1} other product URLs (prioritized fresh upload)`,
+          );
         }
       }
-      
+
       if (designKeys.length > 0 && !formData.has("design_image_url")) {
         const selectedDesignKey = designKeys[0];
         formData.append("design_image_url", imageUrls[selectedDesignKey]);
-        console.log(`🔗 Added design_image_url from ${selectedDesignKey}:`, imageUrls[selectedDesignKey]);
+        console.log(
+          `🔗 Added design_image_url from ${selectedDesignKey}:`,
+          imageUrls[selectedDesignKey],
+        );
       }
-      
+
       if (colorKeys.length > 0 && !formData.has("color_image_url")) {
         const selectedColorKey = colorKeys[0];
         formData.append("color_image_url", imageUrls[selectedColorKey]);
-        console.log(`🔗 Added color_image_url from ${selectedColorKey}:`, imageUrls[selectedColorKey]);
+        console.log(
+          `🔗 Added color_image_url from ${selectedColorKey}:`,
+          imageUrls[selectedColorKey],
+        );
       }
 
       // 🔄 Handle reference image intelligently based on context

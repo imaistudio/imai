@@ -14,7 +14,7 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
     const response = await fetch(imageUrl);
     if (!response.ok) {
       console.warn(
-        `Failed to fetch image for size check: ${response.statusText}`
+        `Failed to fetch image for size check: ${response.statusText}`,
       );
       return imageUrl; // Return original URL if we can't fetch
     }
@@ -50,13 +50,13 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
       const resizedUrl = `data:image/jpeg;base64,${base64}`;
 
       console.log(
-        `✅ Image resized from ${sizeMB.toFixed(2)}MB to ${(resizedBuffer.length / (1024 * 1024)).toFixed(2)}MB`
+        `✅ Image resized from ${sizeMB.toFixed(2)}MB to ${(resizedBuffer.length / (1024 * 1024)).toFixed(2)}MB`,
       );
       return resizedUrl;
     } catch (sharpError) {
       console.warn(
         "Sharp not available or failed, using original image:",
-        sharpError
+        sharpError,
       );
       return imageUrl;
     }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
             status: "error",
             error: 'Either "image_url" or "base64Image" is required',
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
     console.error("API Error:", error);
     return NextResponse.json(
       { status: "error", error: error.message || "Unknown error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -298,14 +298,17 @@ export default function UnifiedPromptContainer({
     return new Promise((resolve, reject) => {
       const fileType = file.type.toLowerCase();
       const fileName = file.name.toLowerCase();
-      
+
       // Check if it's a HEIF/HEIC file
-      const isHEIF = fileType.includes('heif') || fileType.includes('heic') || 
-                    fileName.endsWith('.heif') || fileName.endsWith('.heic');
-      
+      const isHEIF =
+        fileType.includes("heif") ||
+        fileType.includes("heic") ||
+        fileName.endsWith(".heif") ||
+        fileName.endsWith(".heic");
+
       // Check if it's a MOV file
-      const isMOV = fileType.includes('quicktime') || fileName.endsWith('.mov');
-      
+      const isMOV = fileType.includes("quicktime") || fileName.endsWith(".mov");
+
       if (!isHEIF && !isMOV) {
         // If it's not an iOS-specific format, return the original file
         resolve(file);
@@ -314,74 +317,82 @@ export default function UnifiedPromptContainer({
 
       if (isMOV) {
         // For MOV files, extract first frame as JPG
-        const video = document.createElement('video') as HTMLVideoElement;
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
+        const video = document.createElement("video") as HTMLVideoElement;
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
         video.onloadedmetadata = () => {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
-          
+
           video.currentTime = 0.1; // Seek to 0.1 seconds to get a frame
         };
-        
+
         video.onseeked = () => {
           if (ctx) {
             ctx.drawImage(video, 0, 0);
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const baseName = file.name.replace(/\.[^/.]+$/, '');
-                const convertedFile = new File([blob], `${baseName}.jpg`, {
-                  type: 'image/jpeg',
-                  lastModified: Date.now()
-                });
-                resolve(convertedFile);
-              } else {
-                reject(new Error('Failed to convert MOV to JPG'));
-              }
-            }, 'image/jpeg', 0.8);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  const baseName = file.name.replace(/\.[^/.]+$/, "");
+                  const convertedFile = new File([blob], `${baseName}.jpg`, {
+                    type: "image/jpeg",
+                    lastModified: Date.now(),
+                  });
+                  resolve(convertedFile);
+                } else {
+                  reject(new Error("Failed to convert MOV to JPG"));
+                }
+              },
+              "image/jpeg",
+              0.8,
+            );
           }
-          
+
           // Clean up
           URL.revokeObjectURL(video.src);
-          video.src = '';
+          video.src = "";
           video.remove();
         };
-        
-        video.onerror = () => reject(new Error('Failed to load MOV file'));
+
+        video.onerror = () => reject(new Error("Failed to load MOV file"));
         video.src = URL.createObjectURL(file);
         video.load();
       } else {
         // For HEIF/HEIC files, use Image element with canvas conversion
-        const img = document.createElement('img');
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
+        const img = document.createElement("img");
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
         img.onload = () => {
           canvas.width = img.naturalWidth;
           canvas.height = img.naturalHeight;
-          
+
           if (ctx) {
             ctx.drawImage(img, 0, 0);
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const baseName = file.name.replace(/\.[^/.]+$/, '');
-                const convertedFile = new File([blob], `${baseName}.jpg`, {
-                  type: 'image/jpeg',
-                  lastModified: Date.now()
-                });
-                resolve(convertedFile);
-              } else {
-                reject(new Error('Failed to convert HEIF/HEIC to JPG'));
-              }
-            }, 'image/jpeg', 0.8);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  const baseName = file.name.replace(/\.[^/.]+$/, "");
+                  const convertedFile = new File([blob], `${baseName}.jpg`, {
+                    type: "image/jpeg",
+                    lastModified: Date.now(),
+                  });
+                  resolve(convertedFile);
+                } else {
+                  reject(new Error("Failed to convert HEIF/HEIC to JPG"));
+                }
+              },
+              "image/jpeg",
+              0.8,
+            );
           }
-          
+
           // Clean up
           URL.revokeObjectURL(img.src);
         };
-        
-        img.onerror = () => reject(new Error('Failed to load HEIF/HEIC file'));
+
+        img.onerror = () => reject(new Error("Failed to load HEIF/HEIC file"));
         img.src = URL.createObjectURL(file);
       }
     });
@@ -406,7 +417,7 @@ export default function UnifiedPromptContainer({
     try {
       // Convert iOS formats to JPG if needed
       const file = await convertToJpg(originalFile);
-      
+
       // Create a unique filename using converted file name
       const fileExtension = file.name.split(".").pop();
       const baseName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
