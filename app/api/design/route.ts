@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 // Firebase disabled - intentroute handles all file operations
 let firebaseInitialized = false;
 console.log(
-  "🔥 Firebase disabled in design route - using intentroute for file handling",
+  "🔥 Firebase disabled in design route - using intentroute for file handling"
 );
 
 const openai = new OpenAI({
@@ -44,12 +44,12 @@ interface ComposeProductResponse {
  */
 async function uploadBufferToFirebase(
   buffer: Buffer,
-  destinationPath: string,
+  destinationPath: string
 ): Promise<string> {
   try {
     if (!firebaseInitialized) {
       throw new Error(
-        "Firebase is not initialized - cannot upload to Firebase Storage",
+        "Firebase is not initialized - cannot upload to Firebase Storage"
       );
     }
 
@@ -62,7 +62,7 @@ async function uploadBufferToFirebase(
     }
 
     console.log(
-      `Uploading to Firebase Storage: ${destinationPath}, size: ${buffer.length} bytes`,
+      `Uploading to Firebase Storage: ${destinationPath}, size: ${buffer.length} bytes`
     );
 
     const bucket = getStorage().bucket();
@@ -113,20 +113,20 @@ async function fileToJpegBuffer(file: File): Promise<Buffer> {
 
     if (!file.type.startsWith("image/")) {
       throw new Error(
-        `Invalid file type: ${file.type}. Only image files are supported.`,
+        `Invalid file type: ${file.type}. Only image files are supported.`
       );
     }
 
     // Add file size limit check (10MB)
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB for high-res compositions
     if (file.size > MAX_FILE_SIZE) {
       throw new Error(
-        `File size too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+        `File size too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
       );
     }
 
     console.log(
-      `Processing file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`,
+      `Processing file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`
     );
 
     const arrayBuffer = await file.arrayBuffer();
@@ -159,7 +159,7 @@ async function fileToJpegBuffer(file: File): Promise<Buffer> {
     }
 
     console.log(
-      `Successfully converted image to JPEG, size: ${jpegBuffer.length} bytes`,
+      `Successfully converted image to JPEG, size: ${jpegBuffer.length} bytes`
     );
     return jpegBuffer;
   } catch (error: any) {
@@ -176,7 +176,7 @@ function validateWorkflowInputs(
   hasProduct: boolean,
   hasDesign: boolean,
   hasColor: boolean,
-  hasPrompt: boolean,
+  hasPrompt: boolean
 ): { valid: boolean; error?: string } {
   switch (workflowType) {
     case "full_composition":
@@ -219,12 +219,20 @@ function validateWorkflowInputs(
       break;
 
     case "color_prompt":
-      if (!hasColor || !hasPrompt || hasProduct || hasDesign) {
+      // color_prompt supports: (color reference + prompt) OR (product/design + color in prompt)
+      if (!hasPrompt) {
         return {
           valid: false,
-          error: "color_prompt requires only color image and prompt",
+          error: "color_prompt requires a prompt with color description",
         };
       }
+      if (!hasColor && !hasProduct && !hasDesign) {
+        return {
+          valid: false,
+          error: "color_prompt requires either a color reference image OR a product/design to modify",
+        };
+      }
+      // Valid combinations: color only, product only, design only, or any combination with prompt
       break;
 
     case "design_prompt":
@@ -255,6 +263,18 @@ function validateWorkflowInputs(
       }
       break;
 
+    case "preset_design":
+      // preset_design workflow supports flexible combinations with presets
+      if (!hasProduct) {
+        return {
+          valid: false,
+          error: "preset_design requires at least a product image",
+        };
+      }
+      // Allow: Product + Design preset, Product + Color preset, or Product + both presets
+      // The presence of presets is validated separately in the preset detection logic
+      break;
+
     default:
       return { valid: false, error: `Unknown workflow type: ${workflowType}` };
   }
@@ -270,19 +290,36 @@ function generateWorkflowPrompt(
   userPrompt?: string,
   productAnalysis?: string,
   designAnalysis?: string,
-  colorAnalysis?: string,
+  colorAnalysis?: string
 ): string {
+  // Extract only essential information for OpenAI
+  const essentialProductAnalysis = productAnalysis ? extractEssentialAnalysis(productAnalysis, "product") : undefined;
+  const essentialDesignAnalysis = designAnalysis ? extractEssentialAnalysis(designAnalysis, "design reference") : undefined;
+  const essentialColorAnalysis = colorAnalysis ? extractEssentialAnalysis(colorAnalysis, "color reference") : undefined;
   // Common suffix to enforce product position and no text
   const commonSuffix = `
-No text or fonts allowed. ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION.`;
+
+🚨 CRITICAL LEGAL REQUIREMENTS 🚨:
+- ABSOLUTELY NO BRAND LOGOS (Nike, Adidas, Puma, LV, Prada, etc.) - This is MANDATORY
+- NO TEXT, FONTS, or WRITTEN CHARACTERS of any kind
+- NO COPYRIGHTED DESIGNS or trademarked symbols
+- Create GENERIC, UNBRANDED product designs only
+- Remove any existing brand elements and replace with original designs
+- DO NOT CHANGE THE PRODUCT'S ORIGINAL CAMERA ANGLE
+
+PRODUCT REQUIREMENTS:
+- ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION
+- Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
+- Use the design reference to inspire creative visual elements, patterns, or stylistic approaches, but do NOT directly copy or imprint the design
+- Use the color reference only for the color palette and scheme`;
 
   switch (workflowType) {
     case "full_composition": {
       const basePrompt = `Create a photorealistic version of the original product, drawing design inspiration only (not colors) from the design reference and applying colors solely from the color reference. Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette. Use the design reference to inspire creative visual elements, patterns, or stylistic approaches, but do NOT directly copy or imprint the design. Use the color reference only for the color palette and scheme.
 
-BASE PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis ?? "N/A"}
-COLOR PALETTE ANALYSIS: ${colorAnalysis ?? "N/A"}`;
+BASE PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
+DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}
+COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
 
       return userPrompt
         ? `${basePrompt}
@@ -294,8 +331,8 @@ USER PROMPT: ${userPrompt}${commonSuffix}`
     case "product_color": {
       const basePrompt = `Apply only the color palette and color scheme from the color reference image to the product while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette. Photorealistic.
 
-ORIGINAL PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
-COLOR PALETTE ANALYSIS: ${colorAnalysis ?? "N/A"}`;
+ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
+COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
 
       return userPrompt
         ? `${basePrompt}
@@ -307,8 +344,8 @@ USER PROMPT: ${userPrompt}${commonSuffix}`
     case "product_design": {
       const basePrompt = `Create a new version of the product drawing creative inspiration from the design reference. Use the design reference for visual style, creative direction, or artistic approach — but do NOT directly copy or imprint the design onto the product. Maintain the product's original form, structure, proportions, and geometry. Photorealistic.
 
-ORIGINAL PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis ?? "N/A"}`;
+ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
+DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}`;
 
       return userPrompt
         ? `${basePrompt}
@@ -318,36 +355,61 @@ USER PROMPT: ${userPrompt}${commonSuffix}`
     }
 
     case "color_design": {
-      if (colorAnalysis && designAnalysis) {
-        return `Create a new product design that thoughtfully incorporates color inspiration from the color reference and design inspiration from the design reference. Use the color reference strictly for the color palette and scheme, and the design reference strictly for creative inspiration and stylistic direction. Maintain the product's original shape, structure, and proportions. Photorealistic.
+      if (essentialColorAnalysis && essentialDesignAnalysis) {
+        return `Create a new patten that thoughtfully incorporates and mixes color inspiration from the color reference and design inspiration from the design reference. Use the color reference strictly for the color palette and scheme, and the design reference strictly for creative inspiration and stylistic direction.
 
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
-COLOR PALETTE ANALYSIS: ${colorAnalysis}
+DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis}
+COLOR PALETTE ANALYSIS: ${essentialColorAnalysis}
 USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
-      } else if (colorAnalysis) {
+      } else if (essentialColorAnalysis) {
         return `Create a product using this color palette for inspiration while preserving the original product's features.
 
-COLOR PALETTE ANALYSIS: ${colorAnalysis}
+COLOR PALETTE ANALYSIS: ${essentialColorAnalysis}
 USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
       } else {
         return `Create a product drawing inspiration from this design reference while strictly maintaining the original product's form and details.
 
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis}
+DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis}
 USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
       }
     }
 
     case "color_prompt": {
-      return `Create a new product design using this color palette as inspiration and following the user's description. Preserve the product's original shape and details.
+      // Handle two cases: color reference image OR color description in prompt
+      if (essentialColorAnalysis && essentialColorAnalysis !== "N/A") {
+        // Case 1: Color reference image provided
+        const basePrompt = essentialProductAnalysis && essentialProductAnalysis !== "N/A" 
+          ? `Modify the existing product using this color palette as inspiration. Preserve the product's original shape, structure, and details while applying the new color scheme.
 
-COLOR PALETTE ANALYSIS: ${colorAnalysis ?? "N/A"}
+ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis}
+COLOR PALETTE ANALYSIS: ${essentialColorAnalysis}`
+          : `Create a new product design using this color palette as inspiration and following the user's description.
+
+COLOR PALETTE ANALYSIS: ${essentialColorAnalysis}`;
+        
+        return userPrompt 
+          ? `${basePrompt}
+
+USER PROMPT: ${userPrompt}${commonSuffix}`
+          : `${basePrompt}${commonSuffix}`;
+      } else {
+        // Case 2: Color described in prompt only
+        const basePrompt = essentialProductAnalysis && essentialProductAnalysis !== "N/A"
+          ? `Modify the existing product by applying the color scheme described in the user's prompt. Preserve the product's original shape, structure, and details while applying the new colors.
+
+ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis}`
+          : `Create a new product design using the color scheme described in the user's prompt.`;
+
+        return `${basePrompt}
+
 USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
+      }
     }
 
     case "design_prompt": {
       return `Create a new product design drawing creative inspiration from this design reference and following the user's description. Use the design reference for inspiration and creative direction only — do NOT copy directly. Maintain the original product's form and structure.
 
-DESIGN INSPIRATION ANALYSIS: ${designAnalysis ?? "N/A"}
+DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}
 USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
     }
 
@@ -360,8 +422,75 @@ USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
     case "product_prompt": {
       return `Create a new version or variation of the provided product based on the custom description. Maintain the core product identity, including shape, structure, and proportions, while incorporating the requested changes. Generate a photorealistic design.
 
-ORIGINAL PRODUCT ANALYSIS: ${productAnalysis ?? "N/A"}
+ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
+    }
+
+    case "preset_design": {
+      // Handle preset-based designs (product + design preset + color preset)  
+      const basePrompt = `Create a PHOTOREALISTIC product photograph with design-inspired surface patterns and color treatments. This must look like a real, professionally photographed product - NOT artwork or illustrations.
+
+🚨 PHOTOREALISM REQUIREMENTS (CRITICAL):
+- Render as REALISTIC PRODUCT PHOTOGRAPHY with professional studio lighting
+- Maintain actual product materials, textures, and physical properties
+- NO artistic rendering, NO cartoon style, NO illustration style
+- Must look like you could purchase this exact product from a store
+- Use proper lighting, shadows, reflections, and surface details
+
+🎨 SURFACE DESIGN APPLICATION:
+- Apply design reference elements as SURFACE PATTERNS, PRINTS, or TEXTURES only
+- Use design elements as printed graphics, embossed patterns, or applied decorations
+- Design motifs should appear as if they were manufactured onto the product
+- Keep all patterns realistic and physically possible on the product material
+
+🎯 COLOR APPLICATION:
+- Apply color palette from color reference exclusively to the product surfaces
+- Colors should look like real fabric dyes, paints, or materials - not digital overlays
+- Maintain realistic color saturation appropriate for the product material
+- Keep background neutral white/gray studio lighting
+
+🔧 PRODUCT INTEGRITY:
+- Preserve exact product shape, structure, proportions, and functionality
+- Maintain original product identity and recognizable form
+- Apply design elements as surface treatments that enhance rather than obscure the product
+
+BASE PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
+DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}
+COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
+
+      return userPrompt
+        ? `${basePrompt}
+
+USER PROMPT: ${userPrompt}
+
+🚨 CRITICAL LEGAL REQUIREMENTS 🚨:
+- ABSOLUTELY NO BRAND LOGOS (Nike, Adidas, etc.) - This is MANDATORY
+- NO TEXT, FONTS, or WRITTEN CHARACTERS of any kind
+- NO COPYRIGHTED DESIGNS or trademarked symbols
+- Create GENERIC, UNBRANDED product designs only
+- Remove any existing brand elements and replace with original designs
+
+VISUAL REQUIREMENTS:
+- PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply colors and patterns as realistic surface treatments (prints, dyes, textures)
+- Product must look tangible and purchasable - like a real manufactured item
+- Design elements as surface graphics, not artistic rendering transformations`
+        : `${basePrompt}
+
+🚨 CRITICAL LEGAL REQUIREMENTS 🚨:
+- ABSOLUTELY NO BRAND LOGOS (Nike, Adidas, etc.) - This is MANDATORY
+- NO TEXT, FONTS, or WRITTEN CHARACTERS of any kind
+- NO COPYRIGHTED DESIGNS or trademarked symbols
+- Create GENERIC, UNBRANDED product designs only
+- Remove any existing brand elements and replace with original designs
+
+VISUAL REQUIREMENTS:
+- PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply colors and patterns as realistic surface treatments (prints, dyes, textures)
+- Product must look tangible and purchasable - like a real manufactured item
+- Design elements as surface graphics, not artistic rendering transformations`;
     }
 
     default:
@@ -378,7 +507,7 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
     const response = await fetch(imageUrl);
     if (!response.ok) {
       console.warn(
-        `Failed to fetch image for size check: ${response.statusText}`,
+        `Failed to fetch image for size check: ${response.statusText}`
       );
       return imageUrl; // Return original URL if we can't fetch
     }
@@ -405,18 +534,18 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
 
       if (unsupportedFormats.includes(formatInfo.toLowerCase())) {
         console.log(
-          `🔄 Unsupported format detected: ${formatInfo} - converting to JPEG`,
+          `🔄 Unsupported format detected: ${formatInfo} - converting to JPEG`
         );
         needsConversion = true;
       } else if (!supportedFormats.includes(formatInfo.toLowerCase())) {
         console.log(
-          `⚠️ Unknown format: ${formatInfo} - attempting conversion to JPEG`,
+          `⚠️ Unknown format: ${formatInfo} - attempting conversion to JPEG`
         );
         needsConversion = true;
       }
     } catch (metadataError) {
       console.log(
-        `⚠️ Could not detect format, attempting conversion: ${metadataError}`,
+        `⚠️ Could not detect format, attempting conversion: ${metadataError}`
       );
       needsConversion = true;
     }
@@ -447,13 +576,13 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
 
         const newSizeMB = convertedBuffer.length / (1024 * 1024);
         console.log(
-          `✅ Image converted from ${formatInfo} (${sizeMB.toFixed(2)}MB) to JPEG (${newSizeMB.toFixed(2)}MB)`,
+          `✅ Image converted from ${formatInfo} (${sizeMB.toFixed(2)}MB) to JPEG (${newSizeMB.toFixed(2)}MB)`
         );
         return convertedUrl;
       } catch (conversionError) {
         console.warn(
           `❌ Sharp conversion failed for ${formatInfo} format:`,
-          conversionError,
+          conversionError
         );
         return imageUrl; // Return original URL if conversion fails
       }
@@ -461,7 +590,7 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
 
     // Image is fine as-is
     console.log(
-      `✅ Image format ${formatInfo} is supported, no conversion needed`,
+      `✅ Image format ${formatInfo} is supported, no conversion needed`
     );
     return imageUrl;
   } catch (error) {
@@ -471,15 +600,311 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
 }
 
 /**
+ * Extract only the essential sections from analysis for OpenAI prompt
+ */
+function extractEssentialAnalysis(fullAnalysis: string, analysisType: string): string {
+  try {
+    console.log(`🔍 Extracting essential analysis for type: ${analysisType}`);
+    console.log(`🔍 Full analysis preview: ${fullAnalysis.substring(0, 300)}...`);
+    
+    // Check if this is a simple preset-generated analysis (should be passed through as-is)
+    if (analysisType === "product" && fullAnalysis.includes("product ready for design application")) {
+      console.log(`✅ Product preset analysis detected - using as-is`);
+      return fullAnalysis;
+    }
+    
+    if (analysisType === "color reference") {
+      const colorSections: string[] = [];
+      
+      // Look for "Specific Color Values" section
+      let colorValuesMatch = fullAnalysis.match(/\*\*Specific Color Values:\*\*\s*([\s\S]*?)(?=\n\*\*[A-Z]|\n\n\*\*|\n\n[A-Z]|$)/);
+      if (colorValuesMatch) {
+        colorSections.push("**Specific Color Values:**\n" + colorValuesMatch[1].trim());
+      }
+      
+      // Look for "Color Palette" section
+      let paletteMatch = fullAnalysis.match(/\*\*Color Palette:\*\*\s*([\s\S]*?)(?=\n\*\*[A-Z]|\n\n\*\*|\n\n[A-Z]|$)/);
+      if (paletteMatch) {
+        colorSections.push("**Color Palette:**\n" + paletteMatch[1].trim());
+      }
+      
+      // Look for bullet-point color lists (like the failing case)
+      const bulletColorMatches = fullAnalysis.match(/(?:^|\n)- \*\*[^*]*(?:Background|Color|HEX|RGB)[^*]*\*\*[^:\n]*:[\s\S]*?(?=\n- \*\*|\n\n|\*\*[A-Z]|$)/gm);
+      if (bulletColorMatches && bulletColorMatches.length >= 3) {
+        colorSections.push("**Color List:**\n" + bulletColorMatches.join("\n"));
+      }
+      
+      // Look for hex color codes and RGB values anywhere in the text
+      const hexColorPattern = /#[0-9a-fA-F]{6}/g;
+      const hexColors = fullAnalysis.match(hexColorPattern);
+      const rgbPattern = /RGB[:\s]*\(?(\d+),?\s*(\d+),?\s*(\d+)\)?/g;
+      const rgbColors = fullAnalysis.match(rgbPattern);
+      
+      if (hexColors || rgbColors) {
+        let colorInfo = "**Extracted Colors:**\n";
+        if (hexColors) {
+          colorInfo += `Hex codes: ${hexColors.join(", ")}\n`;
+        }
+        if (rgbColors) {
+          colorInfo += `RGB values: ${rgbColors.join(", ")}\n`;
+        }
+        colorSections.push(colorInfo);
+      }
+      
+      // Look for any section with "Color" in the title
+      const colorSectionMatches = fullAnalysis.match(/(?:###?\s*)?\*\*[^*]*[Cc]olor[^*]*\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/g);
+      if (colorSectionMatches) {
+        colorSectionMatches.forEach(section => {
+          if (!colorSections.some(existing => existing.includes(section.substring(0, 50)))) {
+            colorSections.push(section.trim());
+          }
+        });
+      }
+      
+      // If still no sections found, look for any content that contains color information
+      if (colorSections.length === 0) {
+        // Look for lines that mention specific colors
+        const colorLines = fullAnalysis.split('\n').filter(line => {
+          const lowerLine = line.toLowerCase();
+          return (lowerLine.includes('color') || lowerLine.includes('#') || 
+                  lowerLine.includes('rgb') || lowerLine.includes('hex') ||
+                  lowerLine.includes('beige') || lowerLine.includes('brown') ||
+                  lowerLine.includes('cream') || lowerLine.includes('pink') ||
+                  lowerLine.includes('yellow') || lowerLine.includes('blue') ||
+                  lowerLine.includes('green') || lowerLine.includes('red') ||
+                  lowerLine.includes('purple') || lowerLine.includes('gray') ||
+                  lowerLine.includes('white') || lowerLine.includes('black')) && 
+                 line.length > 10;
+        });
+        
+        if (colorLines.length > 0) {
+          colorSections.push("**Color Information:**\n" + colorLines.slice(0, 10).join("\n"));
+        }
+      }
+      
+      if (colorSections.length > 0) {
+        console.log(`✅ Color extraction successful: ${colorSections.length} sections found`);
+        return colorSections.join("\n\n");
+      }
+      
+    } else if (analysisType === "design reference") {
+      // For design analysis, let's look for any sections with specific keywords
+      // Extract any sections that mention key design elements
+      const keywordSections: string[] = [];
+      
+      // Try to find sections with ### or ## headers
+      const sectionMatches = fullAnalysis.match(/(?:###?\s*)?\*\*[^*]*\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/g);
+      
+      if (sectionMatches) {
+        console.log(`🔍 Found ${sectionMatches.length} sections in design analysis`);
+        
+        sectionMatches.forEach((section, index) => {
+          const sectionLower = section.toLowerCase();
+          if (sectionLower.includes('pattern') || 
+              sectionLower.includes('texture') || 
+              sectionLower.includes('material') || 
+              sectionLower.includes('style') ||
+              sectionLower.includes('distinctive') ||
+              sectionLower.includes('feature') ||
+              sectionLower.includes('visual') ||
+              sectionLower.includes('artistic') ||
+              sectionLower.includes('application') ||
+              sectionLower.includes('summary for ai') ||
+              sectionLower.includes('ai generation')) {
+            console.log(`✅ Including design section ${index + 1}: ${section.substring(0, 50)}...`);
+            keywordSections.push(section.trim());
+          }
+        });
+      }
+      
+      if (keywordSections.length > 0) {
+        console.log(`✅ Design extraction successful: ${keywordSections.length} relevant sections found`);
+        return keywordSections.join("\n\n");
+      }
+      
+      // If no sections found, try to get the main descriptive content
+      // Look for content after the introduction
+      const mainContentMatch = fullAnalysis.match(/---\s*([\s\S]*?)(?=\n---|\n\n---|\n\n\n|$)/);
+      if (mainContentMatch && mainContentMatch[1].length > 200) {
+        console.log(`✅ Design extraction using main content: ${mainContentMatch[1].length} chars`);
+        return mainContentMatch[1].trim();
+      }
+      
+    } else if (analysisType === "product") {
+      const sections = [];
+      
+      // Look for "Materials & Textures" section (with &)
+      let materialsTexturesMatch = fullAnalysis.match(/\*\*Materials & Textures\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/);
+      if (materialsTexturesMatch) {
+        sections.push("**Materials & Textures:**\n" + materialsTexturesMatch[1].trim());
+      }
+      
+      // Look for "Materials" section (without &)
+      if (!materialsTexturesMatch) {
+        let materialsMatch = fullAnalysis.match(/\*\*Materials\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/);
+        if (materialsMatch) {
+          sections.push("**Materials:**\n" + materialsMatch[1].trim());
+        }
+      }
+      
+      // Look for "Structural Details" section
+      let structuralMatch = fullAnalysis.match(/\*\*Structural Details\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/);
+      if (structuralMatch) {
+        sections.push("**Structural Details:**\n" + structuralMatch[1].trim());
+      }
+      
+      // Look for "Style & Aesthetics" section
+      let styleMatch = fullAnalysis.match(/\*\*Style & Aesthetics\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/);
+      if (styleMatch) {
+        sections.push("**Style & Aesthetics:**\n" + styleMatch[1].trim());
+      }
+      
+      // Look for "Design Features" section
+      let featuresMatch = fullAnalysis.match(/\*\*Design Features\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/);
+      if (featuresMatch) {
+        sections.push("**Design Features:**\n" + featuresMatch[1].trim());
+      }
+      
+      // Look for "Technical Specs" section
+      let specsMatch = fullAnalysis.match(/\*\*Technical Specs\*\*\s*([\s\S]*?)(?=\n(?:###?\s*)?\*\*|\n\n|$)/);
+      if (specsMatch) {
+        sections.push("**Technical Specs:**\n" + specsMatch[1].trim());
+      }
+      
+      // If we didn't find the expected sections, try to find any product-related content
+      if (sections.length === 0) {
+        // Look for any content that describes the product
+        const productContentMatch = fullAnalysis.match(/- \*\*[^*]*\*\*:\s*[\s\S]*?(?=\n- \*\*|\n\n|$)/g);
+        if (productContentMatch) {
+          productContentMatch.forEach(content => {
+            const contentLower = content.toLowerCase();
+            if (contentLower.includes('material') || 
+                contentLower.includes('texture') || 
+                contentLower.includes('finish') ||
+                contentLower.includes('upper') ||
+                contentLower.includes('sole') ||
+                contentLower.includes('structure') ||
+                contentLower.includes('shape') ||
+                contentLower.includes('style')) {
+              sections.push(content.trim());
+            }
+          });
+        }
+      }
+      
+      if (sections.length > 0) {
+        console.log(`✅ Product extraction successful: ${sections.length} sections found`);
+        return sections.join("\n\n");
+      }
+    }
+    
+    // If extraction fails, create a more targeted fallback based on analysis type
+    console.log(`⚠️ Extraction failed for ${analysisType}, using improved fallback`);
+    
+    if (analysisType === "color reference") {
+      // For color, try to extract just color-related information
+      const colorContent = fullAnalysis.split('\n').filter(line => 
+        line.toLowerCase().includes('color') || 
+        line.includes('#') || 
+        line.toLowerCase().includes('rgb') ||
+        line.toLowerCase().includes('hex') ||
+        line.toLowerCase().includes('palette')
+      ).slice(0, 10).join('\n');
+      
+      if (colorContent.length > 50) {
+        return colorContent + "...";
+      }
+    } else if (analysisType === "product") {
+      // For product, try to extract product identity information
+      const productContent = fullAnalysis.split('\n').filter(line => 
+        line.toLowerCase().includes('material') || 
+        line.toLowerCase().includes('texture') || 
+        line.toLowerCase().includes('structure') ||
+        line.toLowerCase().includes('shape') ||
+        line.toLowerCase().includes('style') ||
+        line.toLowerCase().includes('feature')
+      ).slice(0, 10).join('\n');
+      
+      if (productContent.length > 50) {
+        return productContent + "...";
+      }
+    }
+    
+    return fullAnalysis.substring(0, 500) + "...";
+  } catch (error) {
+    console.log("Error extracting essential analysis, using truncated version:", error);
+    return fullAnalysis.substring(0, 500) + "...";
+  }
+}
+
+/**
  * Sends an image URL to GPT-4 Vision to get a textual analysis.
  */
 async function analyzeImageWithGPT4Vision(
   imageUrl: string,
   analysisType: string,
+  customInstructions?: string
 ): Promise<string> {
   try {
-    // Resize image if needed before sending to OpenAI
-    const processedImageUrl = await resizeImageIfNeeded(imageUrl);
+    let processedImageUrl = imageUrl;
+
+    // Check if it's a localhost URL and convert to base64
+    if (imageUrl.includes("localhost:3000")) {
+      console.log(`🔄 Localhost URL detected, converting to base64 for analysis: ${imageUrl}`);
+      try {
+        processedImageUrl = await urlToBase64DataUrl(imageUrl);
+        console.log(`✅ Successfully converted localhost URL to base64 for analysis`);
+      } catch (conversionError) {
+        console.error(`❌ Failed to convert localhost URL to base64:`, conversionError);
+        return ""; // Return empty analysis if conversion fails
+      }
+    } else {
+      // Resize image if needed before sending to OpenAI (for non-localhost URLs)
+      processedImageUrl = await resizeImageIfNeeded(imageUrl);
+    }
+
+    // Get analysis instructions based on type
+    let analysisPrompt = customInstructions;
+    
+    if (!analysisPrompt) {
+      switch (analysisType.toLowerCase()) {
+        case "product":
+          analysisPrompt = `Analyze this PRODUCT image for AI image generation. Focus on:
+- **Materials & Textures**: Specific surface materials, finishes, fabric types
+- **Structural Details**: Shape, form, construction elements, hardware
+- **Design Features**: Unique characteristics, branding elements, functional details
+- **Style & Aesthetics**: Overall design language, style category
+- **Technical Specs**: Dimensions, proportions, component parts
+Be specific about what makes this product unique and how these qualities could be preserved while applying new designs.`;
+          break;
+          
+        case "design reference":
+        case "design":
+          analysisPrompt = `Analyze this DESIGN REFERENCE image for AI image generation. Focus on:
+- **Visual Patterns**: Specific patterns, motifs, graphic elements that could be applied to products
+- **Artistic Style**: Art style, technique, aesthetic approach
+- **Color Harmony**: How colors work together (ignore specific colors, focus on relationships)
+- **Compositional Elements**: Layout, balance, focal points
+- **Distinctive Features**: Unique design elements that could be adapted/transferred to products
+Be specific about HOW these design elements could be applied to transform a product's appearance.`;
+          break;
+          
+        case "color reference":
+        case "color":
+          analysisPrompt = `Analyze this COLOR REFERENCE image for AI image generation. Focus EXCLUSIVELY on:
+- **Specific Color Values**: Exact colors, hex codes if possible, RGB descriptions
+- **Color Palette**: Primary, secondary, accent colors
+- **Color Relationships**: How colors complement each other
+- **Tone & Saturation**: Brightness, vibrancy, muted vs bold
+- **Color Temperature**: Warm vs cool tones
+- **Color Distribution**: Which colors dominate vs accent
+Ignore all other visual elements - focus ONLY on the color information that should be applied to products.`;
+          break;
+          
+        default:
+          analysisPrompt = `Analyze this ${analysisType} image in detail for AI image generation. Describe the visual elements, colors, patterns, textures, materials, style, and any distinctive features that would be useful for recreating or referencing these qualities in a new design. Be specific and technical.`;
+      }
+    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-4.1",
@@ -489,7 +914,7 @@ async function analyzeImageWithGPT4Vision(
           content: [
             {
               type: "text",
-              text: `Analyze this ${analysisType} image in detail for AI image generation. Describe the visual elements, colors, patterns, textures, materials, style, and any distinctive features that would be useful for recreating or referencing these qualities in a new design. Be specific and technical.`,
+              text: analysisPrompt,
             },
             {
               type: "image_url",
@@ -537,7 +962,7 @@ async function urlToBase64DataUrl(url: string): Promise<string> {
  */
 async function uploadImageToFiles(
   imageUrl: string,
-  filename: string,
+  filename: string
 ): Promise<string> {
   try {
     // First resize image if needed
@@ -580,7 +1005,7 @@ async function uploadImageToFiles(
       // Check if format conversion is needed
       if (unsupportedFormats.includes(formatInfo.toLowerCase())) {
         console.log(
-          `🔄 Files API - Unsupported format detected: ${formatInfo} - converting to JPEG`,
+          `🔄 Files API - Unsupported format detected: ${formatInfo} - converting to JPEG`
         );
 
         // Convert to JPEG using Sharp
@@ -590,14 +1015,14 @@ async function uploadImageToFiles(
         finalFilename = filename.replace(/\.[^/.]+$/, "") + ".jpg";
 
         console.log(
-          `✅ Files API - Successfully converted ${formatInfo} to JPEG`,
+          `✅ Files API - Successfully converted ${formatInfo} to JPEG`
         );
         console.log(
-          `📊 Files API - Size change: ${Math.round(buffer.length / 1024)}KB → ${Math.round(finalBuffer.length / 1024)}KB`,
+          `📊 Files API - Size change: ${Math.round(buffer.length / 1024)}KB → ${Math.round(finalBuffer.length / 1024)}KB`
         );
       } else if (!supportedFormats.includes(formatInfo.toLowerCase())) {
         console.log(
-          `⚠️ Files API - Unknown format detected: ${formatInfo} - attempting conversion to JPEG`,
+          `⚠️ Files API - Unknown format detected: ${formatInfo} - attempting conversion to JPEG`
         );
 
         // Convert unknown formats to JPEG as well
@@ -607,16 +1032,16 @@ async function uploadImageToFiles(
         finalFilename = filename.replace(/\.[^/.]+$/, "") + ".jpg";
 
         console.log(
-          `✅ Files API - Successfully converted unknown format to JPEG`,
+          `✅ Files API - Successfully converted unknown format to JPEG`
         );
       } else {
         console.log(
-          `✅ Files API - Image format ${formatInfo} is supported, no conversion needed`,
+          `✅ Files API - Image format ${formatInfo} is supported, no conversion needed`
         );
       }
     } catch (sharpError) {
       console.warn(
-        `⚠️ Files API - Sharp format detection failed: ${sharpError}`,
+        `⚠️ Files API - Sharp format detection failed: ${sharpError}`
       );
       console.log(`📤 Files API - Using original buffer without conversion`);
       // Continue with original buffer if Sharp fails
@@ -633,7 +1058,7 @@ async function uploadImageToFiles(
     });
 
     console.log(
-      `✅ Files API - Successfully uploaded ${finalFilename} (${finalMimeType}) with ID: ${uploadResponse.id}`,
+      `✅ Files API - Successfully uploaded ${finalFilename} (${finalMimeType}) with ID: ${uploadResponse.id}`
     );
     return uploadResponse.id;
   } catch (err) {
@@ -663,7 +1088,7 @@ async function generateWithResponsesAPI(
     color?: string;
     color2?: string;
   },
-  mainlineModel: string = "gpt-4.1",
+  mainlineModel: string = "gpt-4.1"
 ): Promise<{
   images: Array<{ type: "url" | "base64"; data: string }>;
   response_id?: string;
@@ -686,12 +1111,12 @@ async function generateWithResponsesAPI(
         try {
           // Log which product URL we're processing
           console.log(
-            `📤 Processing product image URL: ${imageUrls.product.substring(0, 100)}...`,
+            `📤 Processing product image URL: ${imageUrls.product.substring(0, 100)}...`
           );
 
           const fileId = await uploadImageToFiles(
             imageUrls.product,
-            "product.jpg",
+            "product.jpg"
           );
           inputContent.push({
             type: "input_image",
@@ -700,7 +1125,7 @@ async function generateWithResponsesAPI(
         } catch (err) {
           console.warn(
             "Failed to upload product image to Files API, skipping:",
-            err,
+            err
           );
         }
       }
@@ -708,7 +1133,7 @@ async function generateWithResponsesAPI(
         try {
           const fileId = await uploadImageToFiles(
             imageUrls.design,
-            "design.jpg",
+            "design.jpg"
           );
           inputContent.push({
             type: "input_image",
@@ -717,7 +1142,7 @@ async function generateWithResponsesAPI(
         } catch (err) {
           console.warn(
             "Failed to upload design image to Files API, skipping:",
-            err,
+            err
           );
         }
       }
@@ -731,7 +1156,7 @@ async function generateWithResponsesAPI(
         } catch (err) {
           console.warn(
             "Failed to upload color image to Files API, skipping:",
-            err,
+            err
           );
         }
       }
@@ -739,7 +1164,7 @@ async function generateWithResponsesAPI(
         try {
           const fileId = await uploadImageToFiles(
             imageUrls.color2,
-            "color2.jpg",
+            "color2.jpg"
           );
           inputContent.push({
             type: "input_image",
@@ -748,7 +1173,7 @@ async function generateWithResponsesAPI(
         } catch (err) {
           console.warn(
             "Failed to upload color2 image to Files API, skipping:",
-            err,
+            err
           );
         }
       }
@@ -763,7 +1188,7 @@ async function generateWithResponsesAPI(
     if (options.stream && options.partial_images) {
       imageGenTool.partial_images = Math.min(
         Math.max(options.partial_images, 1),
-        3,
+        3
       );
     }
 
@@ -793,7 +1218,7 @@ async function generateWithResponsesAPI(
       // For streaming, we would need to handle the stream properly
       // For now, we'll fall back to non-streaming
       console.log(
-        "Streaming requested but not implemented in this version, using non-streaming...",
+        "Streaming requested but not implemented in this version, using non-streaming..."
       );
       responseParams.stream = false;
     }
@@ -802,14 +1227,14 @@ async function generateWithResponsesAPI(
     console.log("🔍 Responses API Request Debug:");
     console.log(`Model: ${responseParams.model}`);
     console.log(
-      `Input content items: ${responseParams.input[0].content.length}`,
+      `Input content items: ${responseParams.input[0].content.length}`
     );
     responseParams.input[0].content.forEach((item: any, index: number) => {
       if (item.type === "input_image") {
         console.log(`  [${index}] input_image - file_id: ${item.file_id}`);
       } else if (item.type === "input_text") {
         console.log(
-          `  [${index}] input_text - ${item.text.substring(0, 50)}...`,
+          `  [${index}] input_text - ${item.text.substring(0, 50)}...`
         );
       } else {
         console.log(`  [${index}] ${item.type}`);
@@ -821,7 +1246,7 @@ async function generateWithResponsesAPI(
 
     // Extract image generation results - using any type to handle potential API changes
     const imageGenerationCalls = (response.output as any[]).filter(
-      (output: any) => output.type === "image_generation_call",
+      (output: any) => output.type === "image_generation_call"
     );
 
     if (imageGenerationCalls.length === 0) {
@@ -855,6 +1280,62 @@ async function generateWithResponsesAPI(
 }
 
 /**
+ * Get image dimensions from URL
+ */
+async function getImageDimensions(imageUrl: string): Promise<{ width: number; height: number }> {
+  try {
+    const response = await fetch(imageUrl);
+    const buffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(buffer);
+    
+    // Simple PNG dimension detection
+    if (uint8Array[0] === 0x89 && uint8Array[1] === 0x50 && uint8Array[2] === 0x4E && uint8Array[3] === 0x47) {
+      const width = (uint8Array[16] << 24) | (uint8Array[17] << 16) | (uint8Array[18] << 8) | uint8Array[19];
+      const height = (uint8Array[20] << 24) | (uint8Array[21] << 16) | (uint8Array[22] << 8) | uint8Array[23];
+      return { width, height };
+    }
+    
+    // Simple JPEG dimension detection (basic implementation)
+    if (uint8Array[0] === 0xFF && uint8Array[1] === 0xD8) {
+      // For JPEG, we'll use a more complex parser or fallback to default
+      // This is a simplified approach - for production, consider using a proper image library
+      for (let i = 0; i < uint8Array.length - 8; i++) {
+        if (uint8Array[i] === 0xFF && (uint8Array[i + 1] === 0xC0 || uint8Array[i + 1] === 0xC2)) {
+          const height = (uint8Array[i + 5] << 8) | uint8Array[i + 6];
+          const width = (uint8Array[i + 7] << 8) | uint8Array[i + 8];
+          return { width, height };
+        }
+      }
+    }
+    
+    // Default fallback
+    return { width: 1024, height: 1024 };
+  } catch (error) {
+    console.log("Could not determine image dimensions, using default 1024x1024");
+    return { width: 1024, height: 1024 };
+  }
+}
+
+/**
+ * Convert dimensions to appropriate generation size
+ */
+function dimensionsToGenerationSize(width: number, height: number): string {
+  const aspectRatio = width / height;
+  
+  // Determine if it's landscape, portrait, or square based on aspect ratio
+  if (aspectRatio > 1.2) {
+    // Landscape
+    return "1536x1024";
+  } else if (aspectRatio < 0.8) {
+    // Portrait  
+    return "1024x1536";
+  } else {
+    // Square (or close to square)
+    return "1024x1024";
+  }
+}
+
+/**
  * Composes product images with GPT Image, using Responses API first, then fallback to Image API
  */
 async function composeProductWithGPTImage(
@@ -874,7 +1355,7 @@ async function composeProductWithGPTImage(
     design?: string;
     color?: string;
     color2?: string;
-  },
+  }
 ): Promise<{
   results: Array<{ type: "url" | "base64"; data: string }>;
   response_id?: string;
@@ -895,7 +1376,7 @@ async function composeProductWithGPTImage(
         const responsesResult = await generateWithResponsesAPI(
           prompt,
           options,
-          imageUrls,
+          imageUrls
         );
         return {
           results: responsesResult.images,
@@ -906,13 +1387,32 @@ async function composeProductWithGPTImage(
       } catch (responsesError) {
         console.log(
           "Responses API failed, falling back to Image API:",
-          responsesError,
+          responsesError
         );
       }
     }
 
     // Fallback to Image API
     console.log("Using Image API...");
+
+    // Enhance prompt for Image API since it can't see the actual images
+    let enhancedPrompt = prompt;
+    if (imageUrls && (imageUrls.product || imageUrls.design || imageUrls.color)) {
+      console.log("🔄 Enhancing prompt for Image API - adding visual context descriptions");
+      
+      // Add explicit product description context
+      enhancedPrompt = enhancedPrompt.replace(
+        "Create a new product design",
+        "Create a new product design (based on uploaded product analysis)"
+      );
+      
+      // Add emphasis for Image API that it needs to generate the specific product
+      enhancedPrompt = `${enhancedPrompt}
+
+🎯 IMAGE API CONTEXT: Since this is generating from text only, use the detailed product analysis above to recreate the SPECIFIC product described, then apply the design and color transformations to that exact product. The product analysis contains the exact materials, shape, and features that must be recreated accurately.`;
+      
+      console.log(`📝 Enhanced prompt for Image API (${enhancedPrompt.length} chars)`);
+    }
 
     let gptImageQuality = options.quality;
     if (gptImageQuality === "standard") gptImageQuality = "medium";
@@ -922,7 +1422,7 @@ async function composeProductWithGPTImage(
 
     const imageParams: any = {
       model: "gpt-image-1",
-      prompt: prompt,
+      prompt: enhancedPrompt,
       size: options.size,
       quality: gptImageQuality,
       n: options.n,
@@ -968,7 +1468,7 @@ function determineWorkflowType(
   hasProduct: boolean,
   hasDesign: boolean,
   hasColor: boolean,
-  hasPrompt: boolean,
+  hasPrompt: boolean
 ): string {
   // Product-based workflows (when we have a product image)
   if (hasProduct) {
@@ -995,7 +1495,7 @@ function determineWorkflowType(
     // 5) Product only (no other inputs) → not supported
     if (!hasDesign && !hasColor && !hasPrompt) {
       throw new Error(
-        "Product image alone is not sufficient. Please provide either: design image, color image, or a text prompt along with the product image.",
+        "Product image alone is not sufficient. Please provide either: design image, color image, or a text prompt along with the product image."
       );
     }
   }
@@ -1025,7 +1525,7 @@ function determineWorkflowType(
     // 10) No valid combination
     if (hasDesign || hasColor) {
       throw new Error(
-        "Design or color images require a text prompt when no product image is provided.",
+        "Design or color images require a text prompt when no product image is provided."
       );
     }
   }
@@ -1042,20 +1542,22 @@ function determineWorkflowType(
      • Color + Prompt
      • Prompt only
      
-     Current inputs: product=${hasProduct}, design=${hasDesign}, color=${hasColor}, prompt=${hasPrompt}`,
+     Current inputs: product=${hasProduct}, design=${hasDesign}, color=${hasColor}, prompt=${hasPrompt}`
   );
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  console.log("🎯 DESIGN ROUTE START: Beginning design route processing");
   try {
     const formData = await request.formData();
+    console.log("🎯 DESIGN ROUTE: FormData extracted successfully");
 
     // 1) Extract and validate userid
     const userid = (formData.get("userid") as string | null)?.trim();
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 },
+        { status: 400 }
       );
     }
     if (firebaseInitialized) {
@@ -1064,7 +1566,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } catch {
         return NextResponse.json(
           { status: "error", error: "Invalid Firebase user ID" },
-          { status: 400 },
+          { status: 400 }
         );
       }
     } else {
@@ -1103,51 +1605,110 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       hasPresetColor: !!presetColorPalette,
     });
 
-    // 3) Infer workflow_type based on which inputs are present
+    // 3) Get explicit workflow_type or infer based on inputs
     let workflow_type: string;
     const hasProduct =
       !!productImage || !!productImageUrl || !!presetProductType;
     const hasDesign = !!designImage || !!designImageUrl || !!presetDesignStyle;
     const hasColor = !!colorImage || !!colorImageUrl || !!presetColorPalette;
 
-    try {
-      workflow_type = determineWorkflowType(
-        hasProduct,
-        hasDesign,
-        hasColor,
-        !!prompt,
-      );
-    } catch (e: any) {
-      return NextResponse.json(
-        { status: "error", error: e.message },
-        { status: 400 },
-      );
-    }
-
-    // 4) Retrieve enhanced generation parameters
-    // Support aspect ratios: square, portrait, landscape
-    const sizeParam = (formData.get("size") as string) || "1024x1024";
-    const aspectRatio = (formData.get("aspect_ratio") as string) || "";
-
-    // Map aspect ratio to size if specified (using OpenAI supported sizes)
-    let size = sizeParam;
-    if (aspectRatio) {
-      switch (aspectRatio.toLowerCase()) {
-        case "portrait":
-          size = "1024x1536"; // OpenAI supported portrait
-          break;
-        case "landscape":
-          size = "1536x1024"; // OpenAI supported landscape
-          break;
-        case "square":
-        default:
-          size = "1024x1024"; // 1:1 aspect ratio
-          break;
+    // Check if workflow_type is explicitly provided (from intentroute)
+    const explicitWorkflowType = formData.get("workflow_type") as string | null;
+    
+    if (explicitWorkflowType) {
+      console.log(`🎯 Using explicit workflow type: ${explicitWorkflowType}`);
+      workflow_type = explicitWorkflowType;
+    } else {
+      console.log("🔄 No explicit workflow type, determining from inputs...");
+      try {
+        workflow_type = determineWorkflowType(
+          hasProduct,
+          hasDesign,
+          hasColor,
+          !!prompt
+        );
+        console.log(`🔄 Determined workflow type: ${workflow_type}`);
+      } catch (e: any) {
+        return NextResponse.json(
+          { status: "error", error: e.message },
+          { status: 400 }
+        );
       }
     }
 
+    // 4) Retrieve enhanced generation parameters with dynamic aspect ratio detection
+    const sizeParam = (formData.get("size") as string) || "";
+    const aspectRatio = (formData.get("aspect_ratio") as string) || "";
+
+    // 🎯 DYNAMIC ASPECT RATIO DETECTION - Match Product Image Dimensions
+    let size = sizeParam;
+    let detectedAspectRatio = aspectRatio;
+    
+    if (!aspectRatio && !sizeParam) {
+      // Auto-detect aspect ratio from PRODUCT IMAGE dimensions
+      let targetProductImageUrl = null;
+      
+      // Find the product image URL (from form data at this point)
+      if (productImageUrl && typeof productImageUrl === 'string') {
+        targetProductImageUrl = productImageUrl;
+      }
+      
+      if (targetProductImageUrl) {
+        try {
+          console.log("📏 Detecting product image dimensions for aspect ratio matching...");
+          const dimensions = await getImageDimensions(targetProductImageUrl);
+          size = dimensionsToGenerationSize(dimensions.width, dimensions.height);
+          
+          const aspectRatio = dimensions.width / dimensions.height;
+          if (aspectRatio > 1.2) {
+            detectedAspectRatio = "landscape";
+          } else if (aspectRatio < 0.8) {
+            detectedAspectRatio = "portrait";
+          } else {
+            detectedAspectRatio = "square";
+          }
+          
+          console.log(`📏 Product image: ${dimensions.width}x${dimensions.height} → Output: ${size} (${detectedAspectRatio})`);
+        } catch (error) {
+          console.log("⚠️ Could not detect product image dimensions, using default square");
+          size = "1024x1024";
+          detectedAspectRatio = "square";
+        }
+      } else {
+        // No product image available, use square as default
+        size = "1024x1024";
+        detectedAspectRatio = "square";
+        console.log("📏 No product image available, using default square aspect ratio");
+      }
+    } else if (aspectRatio) {
+      // Manual override provided
+      switch (aspectRatio.toLowerCase()) {
+        case "portrait":
+          size = "1024x1536";
+          break;
+        case "landscape":
+          size = "1536x1024";
+          break;
+        case "square":
+        default:
+          size = "1024x1024";
+          break;
+      }
+      detectedAspectRatio = aspectRatio;
+    } else {
+      // Size explicitly provided, extract aspect ratio
+      if (sizeParam.includes("1536x1024")) {
+        detectedAspectRatio = "landscape";
+      } else if (sizeParam.includes("1024x1536")) {
+        detectedAspectRatio = "portrait";
+      } else {
+        detectedAspectRatio = "square";
+      }
+      size = sizeParam;
+    }
+
     console.log(
-      `🎯 Using size: ${size} (aspect_ratio: ${aspectRatio || "square"})`,
+      `🎯 Using size: ${size} (${detectedAspectRatio}) ${!aspectRatio && !sizeParam ? "[AUTO-DETECTED]" : "[EXPLICIT]"}`
     );
     const quality = (formData.get("quality") as string) || "auto";
     const n = parseInt((formData.get("n") as string) || "1", 10);
@@ -1155,28 +1716,44 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const outputFormat = (formData.get("output_format") as string) || "png";
     const outputCompression = parseInt(
       (formData.get("output_compression") as string) || "0",
-      10,
+      10
     );
     const stream = (formData.get("stream") as string) === "true";
     const partialImages = parseInt(
       (formData.get("partial_images") as string) || "2",
-      10,
+      10
     );
     const mainlineModel =
       (formData.get("mainline_model") as string) || "gpt-4.1";
 
     // 5) Validate that this inferred workflow is valid
-    const validation = validateWorkflowInputs(
-      workflow_type,
-      hasProduct,
-      hasDesign,
-      hasColor,
-      !!prompt,
-    );
+    // For modification workflows, separate actual inputs from inherited presets
+    const hasActualColor = !!colorImage || !!colorImageUrl; // Only actual color inputs, not presets
+    const hasActualDesign = !!designImage || !!designImageUrl; // Only actual design inputs, not presets
+    const hasActualProduct = !!productImage || !!productImageUrl; // Only actual product inputs, not presets
+    
+    // Use different validation logic for modification workflows vs fresh creation
+    const isModificationWorkflow = ["product_design", "product_color", "full_composition"].includes(workflow_type);
+    
+    const validation = isModificationWorkflow 
+      ? validateWorkflowInputs(
+          workflow_type,
+          hasActualProduct || !!presetProductType, // Product: actual input OR preset OK
+          hasActualDesign, // Design: only actual input for validation
+          hasActualColor,  // Color: only actual input for validation  
+          !!prompt
+        )
+      : validateWorkflowInputs(
+          workflow_type,
+          hasProduct,  // Use original logic for non-modification workflows
+          hasDesign,
+          hasColor,
+          !!prompt
+        );
     if (!validation.valid) {
       return NextResponse.json(
         { status: "error", error: validation.error },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -1197,25 +1774,59 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const productPath = `${userid}/input/${uuidv4()}.jpg`;
         const productUrl = await uploadBufferToFirebase(
           productBuffer,
-          productPath,
+          productPath
         );
         inputUrls.product = productUrl;
         analyses.product = await analyzeImageWithGPT4Vision(
           productUrl,
-          "product",
+          "product"
         );
         console.log("Product image file processed successfully");
       } else if (productImageUrl) {
         console.log("Using product image URL:", productImageUrl);
         inputUrls.product = productImageUrl;
+        console.log("🔍 Starting product image analysis...");
         analyses.product = await analyzeImageWithGPT4Vision(
           productImageUrl,
-          "product",
+          "product"
         );
+        console.log("🔍 Product analysis result length:", analyses.product?.length || 0);
+        if (!analyses.product || analyses.product.length === 0) {
+          console.log("⚠️ Product analysis returned empty result!");
+        }
         console.log("Product image URL processed successfully");
       } else if (presetProductType) {
         console.log("Using preset product type:", presetProductType);
-        analyses.product = `A ${presetProductType} product ready for design application. This is a ${presetProductType} that will serve as the base for the design composition.`;
+        
+        // Extract actual product name from path (e.g., "inputs/placeholders/t-shirt.svg" -> "tshirt")
+        let productName = presetProductType;
+        if (presetProductType.includes('/')) {
+          // Extract filename and remove extension
+          const filename = presetProductType.split('/').pop() || presetProductType;
+          productName = filename.replace(/\.(svg|png|jpg|jpeg|webp)$/i, '');
+          // Convert "t-shirt" to "tshirt" for lookup
+          productName = productName.replace(/[-\s]/g, '');
+        }
+        
+        console.log(`Extracted product name: "${productName}" from "${presetProductType}"`);
+        
+        // Create detailed product specification based on type
+        const productSpecs: Record<string, string> = {
+          "tshirt": "T-shirt - Cotton/cotton blend fabric garment with short sleeves, crew or V-neck, standard fit. Key features: front chest area for designs, back panel for large graphics, sleeve space for accent designs. Maintain classic t-shirt silhouette and proportions.",
+          "totebag": "Tote bag - Large rectangular canvas or fabric bag with two parallel handles. Key features: spacious main compartment, flat front and back panels ideal for designs, sturdy construction. Maintain practical tote bag structure and proportions.",
+          "hoodie": "Hoodie - Pullover sweatshirt with attached hood and front pocket. Key features: hood area, front chest space, sleeve areas, back panel for large designs. Maintain casual hoodie silhouette and proportions.",
+          "shoes": "Shoes - Footwear with sole, upper, and closure system. Key features: toe box, side panels, heel area, tongue, and sole. Maintain functional shoe structure while allowing surface design application.",
+          "pillow": "Decorative pillow - Square or rectangular cushion with removable cover. Key features: flat front surface ideal for patterns/designs, maintain standard pillow dimensions and soft fabric appearance.",
+          "backpack": "Backpack - Multi-compartment bag with shoulder straps. Key features: main body panel, front pocket areas, side panels, adjustable straps. Maintain functional backpack structure and proportions.",
+          "phonecase": "Phone case - Protective cover for smartphone. Key features: camera cutout area, port access, flat back surface for designs. Maintain precise fit and protective functionality.",
+          "coffecup": "Coffee mug - Cylindrical ceramic drinking vessel with handle. Key features: wrap-around surface area for designs, handle attachment, maintain standard mug proportions and functionality.",
+          "blanket": "Throw blanket - Rectangular textile covering. Key features: large flat surface ideal for patterns, soft fabric texture, maintain cozy blanket appearance and drape.",
+          "dress": "Dress - One-piece garment for upper and lower body. Key features: bodice area, skirt section, sleeve/shoulder areas. Maintain feminine dress silhouette and flowing fabric characteristics."
+        };
+        
+        const productSpec = productSpecs[productName] || `${productName} - Product type to be generated with characteristic shape, structure, and design surfaces appropriate for the product category.`;
+        
+        analyses.product = `TARGET PRODUCT: ${productSpec} This product ready for design application will serve as the base for the design composition. IMPORTANT: Generate specifically a ${productName}, not any other product type.`;
         console.log("Preset product type processed successfully");
       }
 
@@ -1226,47 +1837,57 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const designPath = `${userid}/input/${uuidv4()}.jpg`;
         const designUrl = await uploadBufferToFirebase(
           designBuffer,
-          designPath,
+          designPath
         );
         inputUrls.design = designUrl;
         analyses.design = await analyzeImageWithGPT4Vision(
           designUrl,
-          "design reference",
+          "design reference"
         );
         console.log("Design image file processed successfully");
       } else if (designImageUrl) {
         console.log("Using design image URL:", designImageUrl);
         inputUrls.design = designImageUrl;
+        console.log("🔍 Starting design image analysis...");
         analyses.design = await analyzeImageWithGPT4Vision(
           designImageUrl,
-          "design reference",
+          "design reference"
         );
+        console.log("🔍 Design analysis result length:", analyses.design?.length || 0);
+        if (!analyses.design || analyses.design.length === 0) {
+          console.log("⚠️ Design analysis returned empty result!");
+        }
         console.log("Design image URL processed successfully");
       } else if (presetDesignStyle) {
         console.log("Using preset design style:", presetDesignStyle);
         // Convert preset name to actual image URL using proper category detection
 
         // Import designs data for category lookup
-        const designsData = await import(
-          "../../../constants/data/designs.json"
-        );
+        let designsData: any;
+        try {
+          const designsModule = await import("../../../constants/data/designs.json");
+          designsData = designsModule.default || designsModule;
+        } catch (importError) {
+          console.log("Could not import designs.json, using fallback logic");
+          designsData = { defaultImages: {} };
+        }
 
         // Find the preset in the designs data to determine correct category and path
         let presetImageUrl = null;
 
         // Search through all categories in defaultImages
         for (const [presetKey, imagePaths] of Object.entries(
-          designsData.defaultImages,
+          designsData.defaultImages
         )) {
           if (Array.isArray(imagePaths)) {
             // Find matching image path for this preset
             const matchingPath = imagePaths.find((path) =>
-              path.includes(`/${presetDesignStyle}.webp`),
+              path.includes(`/${presetDesignStyle}.webp`)
             );
             if (matchingPath) {
               presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${matchingPath}`;
               console.log(
-                `✅ Found preset ${presetDesignStyle} in category: ${matchingPath}`,
+                `✅ Found preset ${presetDesignStyle} in category: ${matchingPath}`
               );
               break;
             }
@@ -1276,7 +1897,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // Fallback to old logic if not found in designs.json
         if (!presetImageUrl) {
           console.log(
-            `⚠️ Preset ${presetDesignStyle} not found in designs.json, using fallback logic`,
+            `⚠️ Preset ${presetDesignStyle} not found in designs.json, using fallback logic`
           );
           const baseStyle = presetDesignStyle.replace(/\d+$/, "");
           const presetImagePath = `/inputs/designs/general/${baseStyle}/${presetDesignStyle}.webp`;
@@ -1286,7 +1907,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         inputUrls.design = presetImageUrl;
         analyses.design = await analyzeImageWithGPT4Vision(
           presetImageUrl,
-          "design reference",
+          "design reference"
         );
         console.log("Preset design style processed successfully");
       }
@@ -1303,7 +1924,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         inputUrls.color = colorUrl;
         const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
           colorUrl,
-          "color reference",
+          "color reference"
         );
         colorAnalysisParts.push(uploadedColorAnalysis);
         console.log("Color image file processed successfully");
@@ -1312,7 +1933,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         inputUrls.color = colorImageUrl;
         const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
           colorImageUrl,
-          "color reference",
+          "color reference"
         );
         colorAnalysisParts.push(uploadedColorAnalysis);
         console.log("Color image URL processed successfully");
@@ -1327,62 +1948,76 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           ? presetColorPalette.split(",").map((p) => p.trim())
           : [presetColorPalette];
 
-        // For the first color palette, try to use the actual image for generation
-        const firstPalette = colorPalettes[0];
-        const presetColorImagePath = `/inputs/placeholders/colors/${firstPalette}.webp`;
-        const presetColorImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${presetColorImagePath}`;
+        // 🎨 ENHANCED: Analyze ALL color presets as actual images for true blending
+        const allColorAnalyses: string[] = [];
+        
+        for (let i = 0; i < colorPalettes.length; i++) {
+          const palette = colorPalettes[i];
+          const presetColorImagePath = `/inputs/placeholders/colors/${palette}.webp`;
+          const presetColorImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${presetColorImagePath}`;
 
-        console.log(`🎨 Using color preset URL: ${presetColorImageUrl}`);
+          console.log(`🎨 Analyzing color preset ${i + 1}/${colorPalettes.length}: ${palette}`);
+          console.log(`🎨 Using color preset URL: ${presetColorImageUrl}`);
 
-        // Set the color image URL for generation (like design presets do)
-        if (!inputUrls.color) {
-          // Only set if no uploaded color image exists
-          inputUrls.color = presetColorImageUrl;
+          // Set color URLs for generation - support multiple presets
+          if (i === 0 && !inputUrls.color) {
+            inputUrls.color = presetColorImageUrl;
+            console.log(`🎨 Set primary color URL: ${presetColorImageUrl}`);
+          } else if (i === 1 && !inputUrls.color2) {
+            inputUrls.color2 = presetColorImageUrl;
+            console.log(`🎨 Set secondary color URL: ${presetColorImageUrl}`);
+          }
+
+          // Analyze each color preset as an actual image
+          try {
+            console.log(`🔄 Localhost URL detected, converting to base64 for analysis: ${presetColorImageUrl}`);
+            const presetColorAnalysis = await analyzeImageWithGPT4Vision(
+              presetColorImageUrl,
+              "color reference"
+            );
+            allColorAnalyses.push(presetColorAnalysis);
+            console.log(`✅ Color preset ${palette} analyzed successfully`);
+          } catch (error) {
+            console.log(`⚠️ Error analyzing color preset ${palette}:`, error);
+            // Fallback to text description if image analysis fails
+            const formattedName = palette
+              .replace(/([a-z])([A-Z])/g, "$1 $2")
+              .toLowerCase();
+            const fallbackAnalysis = `${formattedName} color palette with its characteristic tones and harmonies`;
+            allColorAnalyses.push(fallbackAnalysis);
+          }
         }
 
-        // Try to analyze the color preset image
-        try {
-          console.log(
-            `🎨 Analyzing color preset image: ${presetColorImageUrl}`,
-          );
-          const presetColorAnalysis = await analyzeImageWithGPT4Vision(
-            presetColorImageUrl,
-            "color reference",
-          );
-          colorAnalysisParts.push(presetColorAnalysis);
-        } catch (error) {
-          console.log("Error analyzing image:", error);
-          // Fallback to text description if image analysis fails
-          const formattedName = firstPalette
-            .replace(/([a-z])([A-Z])/g, "$1 $2")
-            .toLowerCase();
-          const fallbackAnalysis = `${formattedName} color palette with its characteristic tones and harmonies`;
-          colorAnalysisParts.push(fallbackAnalysis);
+        // 🎨 BLEND: Combine all color analyses into a unified color analysis
+        if (allColorAnalyses.length === 1) {
+          // Single palette - use as is
+          colorAnalysisParts.push(allColorAnalyses[0]);
+        } else if (allColorAnalyses.length > 1) {
+          // Multiple palettes - create blended analysis
+          const blendedColorAnalysis = `
+**BLENDED COLOR PALETTE ANALYSIS:**
+This design combines and harmonizes colors from ${colorPalettes.join(" + ")} palettes.
+
+${allColorAnalyses.map((analysis, index) => `
+**Palette ${index + 1} (${colorPalettes[index]}):**
+${analysis}
+`).join('\n')}
+
+**BLENDING INSTRUCTIONS:**
+- Extract key colors from each palette above
+- Create smooth color transitions between ${colorPalettes.join(", ")} themes
+- Maintain color harmony while incorporating elements from all palettes
+- Use ${colorPalettes[0]} as the primary base, enhanced with accents from ${colorPalettes.slice(1).join(" and ")}
+- Ensure the final result feels cohesive, not chaotic - blend the palettes thoughtfully
+          `.trim();
+          
+          colorAnalysisParts.push(blendedColorAnalysis);
         }
 
-        // Handle additional palettes as text descriptions
-        if (colorPalettes.length > 1) {
-          const additionalDescriptions = colorPalettes
-            .slice(1)
-            .map((palette) => {
-              const formattedName = palette
-                .replace(/([a-z])([A-Z])/g, "$1 $2")
-                .toLowerCase();
-              return `${formattedName} color palette with its characteristic tones and harmonies`;
-            });
-
-          const additionalAnalysis = `Also incorporate ${additionalDescriptions.join(" combined with ")} to create a cohesive color scheme.`;
-          colorAnalysisParts.push(additionalAnalysis);
-
-          const blendInstruction = `Blend and harmonize ${colorPalettes.join(", ")} color characteristics to create a unified and balanced color composition.`;
-          colorAnalysisParts.push(blendInstruction);
-        }
-
-        console.log("✅ Color preset", firstPalette, "analyzed successfully");
         console.log(
           "Preset color palette processed:",
           colorPalettes.length,
-          "palette(s) analyzed",
+          "palette(s) analyzed and blended"
         );
       }
 
@@ -1400,7 +2035,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         error?.message || "Unknown error occurred while processing images";
       return NextResponse.json(
         { status: "error", error: errorMessage },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
@@ -1410,8 +2045,39 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       prompt || undefined,
       analyses.product,
       analyses.design,
-      analyses.color,
+      analyses.color
     );
+
+    // 🔍 DEBUG: Log what's being sent to OpenAI
+    console.log("🚀🚀🚀 === FINAL OPENAI REQUEST DEBUG === 🚀🚀🚀");
+    console.log(`📋 Workflow Type: ${workflow_type}`);
+    console.log(`📋 User Prompt: ${prompt || "N/A"}`);
+    console.log("\n📊 === ANALYSIS DATA USED ===");
+    
+    // Extract essential analyses for debugging
+    const debugEssentialProductAnalysis = analyses.product ? extractEssentialAnalysis(analyses.product, "product") : undefined;
+    const debugEssentialDesignAnalysis = analyses.design ? extractEssentialAnalysis(analyses.design, "design reference") : undefined;
+    const debugEssentialColorAnalysis = analyses.color ? extractEssentialAnalysis(analyses.color, "color reference") : undefined;
+    
+    console.log(`🔍 Product Analysis Length: ${analyses.product?.length || 0} chars → Essential: ${debugEssentialProductAnalysis?.length || 0} chars`);
+    if (debugEssentialProductAnalysis) {
+      console.log(`🔍 Essential Product Analysis: ${debugEssentialProductAnalysis.substring(0, 200)}...`);
+    }
+    console.log(`🔍 Design Analysis Length: ${analyses.design?.length || 0} chars → Essential: ${debugEssentialDesignAnalysis?.length || 0} chars`);
+    if (debugEssentialDesignAnalysis) {
+      console.log(`🔍 Essential Design Analysis: ${debugEssentialDesignAnalysis.substring(0, 200)}...`);
+    }
+    console.log(`🔍 Color Analysis Length: ${analyses.color?.length || 0} chars → Essential: ${debugEssentialColorAnalysis?.length || 0} chars`);
+    if (debugEssentialColorAnalysis) {
+      console.log(`🔍 Essential Color Analysis: ${debugEssentialColorAnalysis.substring(0, 200)}...`);
+    }
+    console.log("\n🎯 === COMPLETE FINAL PROMPT ===");
+    console.log(`📝 Final Prompt Length: ${workflowPrompt.length} chars`);
+    console.log("📝 Complete Final Prompt:");
+    console.log("=" + "=".repeat(80));
+    console.log(workflowPrompt);
+    console.log("=" + "=".repeat(80));
+    console.log("🚀🚀🚀 === END DEBUG === 🚀🚀🚀\n");
 
     // 8) Generate the product with enhanced options
     const generationOptions = {
@@ -1425,11 +2091,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       partial_images: partialImages,
     };
 
+    console.log("🎯 DESIGN ROUTE: About to call OpenAI generation");
+    console.log("  - Workflow prompt length:", workflowPrompt.length);
+    console.log("  - Generation options:", generationOptions);
+    console.log("  - Input URLs:", inputUrls);
+
     const generationResult = await composeProductWithGPTImage(
       workflowPrompt,
       generationOptions,
-      inputUrls,
+      inputUrls
     );
+
+    console.log("🎯 DESIGN ROUTE: OpenAI generation completed");
+    console.log("  - Result status:", generationResult ? "success" : "failed");
+    console.log("  - Result keys:", generationResult ? Object.keys(generationResult) : 'none');
 
     if (generationResult.results.length === 0) {
       throw new Error("GPT Image returned no images");
@@ -1451,7 +2126,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const response = await fetch(firstResult.data);
         if (!response.ok) {
           throw new Error(
-            `Failed to fetch GPT Image URL: ${response.statusText}`,
+            `Failed to fetch GPT Image URL: ${response.statusText}`
           );
         }
         const arrayBuffer = await response.arrayBuffer();
@@ -1463,7 +2138,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const outputPath = `${userid}/output/${uuidv4()}.jpg`;
       finalOutputUrl = await uploadBufferToFirebase(
         outputJpegBuffer,
-        outputPath,
+        outputPath
       );
     } else {
       // Non-Firebase mode: use the generated URL directly

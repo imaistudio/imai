@@ -34,7 +34,7 @@ fal.config({
 export const maxDuration = 300;
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB for high-res compositions
 
 async function processReframe(
   imageUrl: string,
@@ -56,14 +56,15 @@ async function processReframe(
     const targetAspectRatio = aspectRatioMap[options.imageSize] || "1:1";
     console.log("🎯 Target aspect ratio:", targetAspectRatio);
 
-    // Use FAL AI's image reframing service
+    // Use FAL AI's image reframing service with high quality settings
     const result = await fal.subscribe("fal-ai/image-editing/reframe", {
       input: {
         image_url: imageUrl,
         aspect_ratio: targetAspectRatio,
-        guidance_scale: 3.5,
-        num_inference_steps: 30,
-        output_format: "jpeg",
+        guidance_scale: 7.5, // Increased for better quality
+        num_inference_steps: 50, // Increased for better quality
+        output_format: "png", // Use PNG to avoid JPEG compression
+        output_quality: 95, // High quality output
       },
     });
 
