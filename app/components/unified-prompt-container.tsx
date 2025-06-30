@@ -109,6 +109,7 @@ export default function UnifiedPromptContainer({
     new Set(),
   );
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLFormElement>(null); // 🔧 NEW: Ref for click outside detection
   const [user, loading, error] = useAuthState(auth);
 
   // Voice state
@@ -118,6 +119,28 @@ export default function UnifiedPromptContainer({
   );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationIdRef = useRef<number | null>(null);
+
+  // 🔧 NEW: Handle click outside to close drawer
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        drawerOpen &&
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setDrawerOpen(false);
+        setDrawerType(null);
+      }
+    };
+
+    if (drawerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [drawerOpen]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -750,6 +773,7 @@ export default function UnifiedPromptContainer({
       <div className="flex h-full w-full items-center justify-center">
         <div className="relative w-full md:max-w-4xl flex flex-col items-center gap-8">
           <Form
+            ref={containerRef}
             onSubmit={handleSubmit}
             className="flex w-full flex-col gap-0 rounded-medium bg-default-100 overflow-hidden"
           >
