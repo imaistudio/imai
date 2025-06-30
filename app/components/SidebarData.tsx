@@ -367,10 +367,14 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
       )}
 
       {/* Regular Chats Section */}
-      <p className="ml-4 p-0 opacity-50">Chats</p>
-      <div className="space-y-1 p-2">
-        {unpinnedItems.map((item) => renderChatItem(item, false))}
-      </div>
+      {unpinnedItems.length > 0 && (
+        <>
+          <p className="ml-4 p-0 opacity-50">Chats</p>
+          <div className="space-y-1 p-2">
+            {unpinnedItems.map((item) => renderChatItem(item, false))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
