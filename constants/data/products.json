@@ -27,7 +27,7 @@
   ],
   "defaultImages": {
     "tshirt": ["inputs/placeholders/t-shirt.svg"],
-    "pillow": ["inputs/placeholders/pillow.svg.svg"],
+    "pillow": ["inputs/placeholders/pillow.svg"],
     "shoes": ["inputs/placeholders/shoes.svg"],
     "phonecase": ["inputs/placeholders/phonecase.svg"],
     "wallart": ["inputs/placeholders/wallart.svg"],
@@ -338,7 +338,7 @@
         "/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
       ],
       "romanticandsoft": [
-        "/inputs/designs/bags/romantic&soft/romantic&soft1.webp"
+        "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
       ],
       "funchicpieces": [
         "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
@@ -428,7 +428,7 @@
     "earrings": {
       "minimalistsubtle": [
         "/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance1.webp",
-        "public/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance2.webp"
+        "/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance2.webp"
       ],
       "luxuryhighend": [
         "/inputs/designs/Jewelry/luxuryhighendgemstones/luxuryhighendgemstones1.webp"
@@ -438,7 +438,7 @@
       ],
       "statementboldandelegant": [
         "/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized1.webp",
-        "public/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized2.webp"
+        "/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized2.webp"
       ],
       "celestial": ["/inputs/designs/Jewelry/celestial/celestial1.webp"],
       "modernelements": [
@@ -463,7 +463,7 @@
         "/inputs/designs/Jewelry/retrotouch/retrotouch1.webp",
         "/inputs/designs/Jewelry/retrotouch/retrotouch2.webp"
       ],
-      "edgypunk": ["/inputs/designs/Jewelry/edgy punk/edgy punk1.webp"],
+      "edgypunk": ["/inputs/designs/Jewelry/edgypunk/edgypunk1.webp"],
       "gothic": ["/inputs/designs/Jewelry/gothic/gothic1.webp"],
       "tribalethnic": [
         "/inputs/designs/Jewelry/tribalethnic/tribalethnic1.webp",
@@ -556,7 +556,7 @@
         "/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
       ],
       "romanticandsoft": [
-        "/inputs/designs/bags/romantic&soft/romantic&soft1.webp"
+        "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
       ],
       "funchicpieces": [
         "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
@@ -793,14 +793,14 @@
         "/inputs/designs/officesupplies/classicmood/classicmood2.webp"
       ],
       "nostalgic": [
-        "/inputs/designs/officesupplies/nostalgic/nostalgic1.webp",
-        "/inputs/designs/officesupplies/nostalgic/nostalgic2.webp"
+        "/inputs/designs/officesupplies/nostalgia/nostalgia1.webp",
+        "/inputs/designs/officesupplies/nostalgia/nostalgia1.webp"
       ],
       "retroencounters": [
         "/inputs/designs/officesupplies/retroencounters/retroencounters1.webp"
       ],
       "mediterraneanfeel": [
-        "/inputs/designs/officesupplies/mediterraneanfeel/mediterraneanfeel1.webp"
+        "/inputs/designs/officesupplies/mediteraneanfeel/mediteraneanfeel1.webp"
       ],
       "aroundtheglobe": [
         "/inputs/designs/officesupplies/aroundtheglobe/aroundtheglobe1.webp"
@@ -810,7 +810,7 @@
         "/inputs/designs/officesupplies/animalworld/animalworld2.webp"
       ],
       "nautical": ["/inputs/designs/officesupplies/nautical/nautical1.webp"],
-      "mozaiq": ["/inputs/designs/officesupplies/mozaiq/mozaiq1.webp"],
+      "mozaiq": ["/inputs/designs/officesupplies/mozaique/mozaique1.webp"],
       "tuttifrutti": [
         "/inputs/designs/officesupplies/tuttifrutti/tuttifrutti1.webp",
         "/inputs/designs/officesupplies/tuttifrutti/tuttifrutti2.webp"
@@ -833,7 +833,7 @@
         "/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
       ],
       "romanticandsoft": [
-        "/inputs/designs/bags/romantic&soft/romantic&soft1.webp"
+        "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
       ],
       "funchicpieces": [
         "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
