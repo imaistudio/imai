@@ -172,7 +172,7 @@ export default function Home() {
         `chats/${currentUser.uid}/prompts/${currentChatId}`,
       );
 
-      // Collect all images from the unified container data
+      // Collect all images from the unified container data - USE PLACEHOLDER DATA FOR CHAT DISPLAY
       const allImages: string[] = [];
 
       // Helper function to safely add only string URLs to the array
@@ -190,19 +190,19 @@ export default function Home() {
         }
       };
 
-      // Add product image if exists (only valid strings)
-      if (data.product) {
-        addImageIfValid(data.product);
+      // Add product placeholder image if exists (only valid strings)
+      if (data.productplaceholder) {
+        addImageIfValid(data.productplaceholder);
       }
 
-      // Add design images if they exist (only valid strings)
-      if (data.design && Array.isArray(data.design)) {
-        data.design.forEach(addImageIfValid);
+      // Add design placeholder images if they exist (only valid strings)
+      if (data.designplaceholder && Array.isArray(data.designplaceholder)) {
+        data.designplaceholder.forEach(addImageIfValid);
       }
 
-      // Add color images if they exist (only valid strings)
-      if (data.color && Array.isArray(data.color)) {
-        data.color.forEach(addImageIfValid);
+      // Add color placeholder images if they exist (only valid strings)
+      if (data.colorplaceholder && Array.isArray(data.colorplaceholder)) {
+        data.colorplaceholder.forEach(addImageIfValid);
       }
 
       // Create the user message object
