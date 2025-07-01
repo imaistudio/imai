@@ -10,6 +10,7 @@ import { CheckCircle, Loader2, Sparkles } from "lucide-react"
 import Footer from "../components/footer";
 import Header from "../components/header";
 import Spline from "@splinetool/react-spline";
+import { SparklesText } from "@/components/magicui/sparkles-text";
 
 async function submitInviteRequest(formData: FormData) {
   // Debug: Log form data being sent
@@ -54,7 +55,7 @@ export default function InvitePage() {
   return (
     <>
     <Header></Header>
-    <div className="min-h-screen relative bg-white dark:bg-black">
+    <div className="h-auto py-12 relative bg-white dark:bg-black">
       {/* Spline 3D Scene Background */}
       <div className="absolute inset-0 w-full h-full">
         <Spline
@@ -70,7 +71,7 @@ export default function InvitePage() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-black dark:text-white mb-4">
-              Join the Future of AI Image Generation
+              Join the Future of AI Image Generation 
             </h1>
             <p className="text-xl text-black dark:text-white mb-2">
               Get early access to our revolutionary AI platform
