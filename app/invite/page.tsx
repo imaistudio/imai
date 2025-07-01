@@ -62,7 +62,7 @@ export default function InvitePage() {
           className="w-full h-full object-cover"
         />
         {/* Overlay for better form readability */}
-        <div className="absolute inset-0  backdrop-blur-none" />
+        <div className="absolute inset-0 bg-white/70 dark:bg-black/70 backdrop-blur-sm" />
       </div>
       
       <div className="relative z-10 container mx-auto px-4 py-16">
@@ -76,7 +76,7 @@ export default function InvitePage() {
               Get early access to our revolutionary AI platform
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              We're carefully selecting our first users.  Tell us about yourself and we'll review your application.
+              We're carefully selecting our first users. Tell us about yourself and we'll review your application.
             </p>
           </div>
 
