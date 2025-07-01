@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import {
   collection,
   query,
@@ -51,6 +51,9 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   const [sidebarItems, setSidebarItems] = useState<SidebarItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [clickingItem, setClickingItem] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Filter and separate pinned and unpinned items based on search term
   const { pinnedItems, unpinnedItems } = useMemo(() => {
@@ -104,6 +107,14 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
 
     return () => unsubscribe();
   }, [currentUser]);
+
+  // Auto-focus the input when editing starts
+  useEffect(() => {
+    if (editingItem && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingItem]);
 
   const handleItemClick = async (item: SidebarItem) => {
     // Prevent multiple clicks and clicking on already active chat
@@ -202,6 +213,29 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     }
   };
 
+  const handleRename = async (item: SidebarItem, newSummary: string) => {
+    if (!currentUser || !newSummary.trim()) return;
+
+    try {
+      console.log("✏️ Renaming chat:", item.chatId, "to:", newSummary);
+
+      const sidebarDocRef = doc(
+        firestore,
+        `users/${currentUser.uid}/sidebar`,
+        item.id,
+      );
+
+      await updateDoc(sidebarDocRef, {
+        chatSummary: newSummary.trim(),
+        updatedAt: serverTimestamp(),
+      });
+
+      console.log("✏️ Successfully renamed chat:", item.chatId);
+    } catch (error) {
+      console.error("❌ Error renaming chat:", error);
+    }
+  };
+
   const handleDelete = async (item: SidebarItem) => {
     if (!currentUser) return;
 
@@ -235,6 +269,27 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     }
   };
 
+  const startRename = (item: SidebarItem) => {
+    console.log("🔍 Starting rename for:", item.chatId, item.chatSummary);
+    setEditingItem(item.chatId);
+    setEditingValue(item.chatSummary || "");
+  };
+
+  const saveRename = async (item: SidebarItem) => {
+    console.log("💾 Saving rename:", editingValue);
+    if (editingValue.trim() && editingValue.trim() !== item.chatSummary) {
+      await handleRename(item, editingValue.trim());
+    }
+    setEditingItem(null);
+    setEditingValue("");
+  };
+
+  const cancelRename = () => {
+    console.log("❌ Canceling rename");
+    setEditingItem(null);
+    setEditingValue("");
+  };
+
   const renderChatItem = (
     item: SidebarItem,
     isPinnedSection: boolean = false,
@@ -242,34 +297,58 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     const isClicking = clickingItem === item.chatId;
     const isDisabled = isSwitching || clickingItem !== null;
     const isSelected = currentChatId === item.chatId;
-
-    const handleRename = () => console.log("✏️ Rename clicked:", item);
+    const isEditing = editingItem === item.chatId;
 
     return (
       <div
         key={item.id}
-        onClick={() => handleItemClick(item)}
-        className={`p-2 rounded-lg cursor-pointer transition-all duration-200 group/item ${
+        onClick={() => !isEditing && handleItemClick(item)}
+        className={`p-2 rounded-lg transition-all duration-200 group/item ${
           isSelected
             ? "bg-white dark:bg-black"
-            : isDisabled
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-muted/50"
+            : isDisabled || isEditing
+              ? "opacity-50"
+              : "hover:bg-muted/50 cursor-pointer"
         } ${isClicking ? "scale-95 bg-primary/5" : ""}`}
         style={{
           pointerEvents: isDisabled ? "none" : "auto",
+          cursor: isEditing ? "default" : "pointer",
         }}
       >
         <div className="flex items-center justify-between">
-          <small className="capitalize text-sm text-foreground truncate whitespace-nowrap overflow-hidden flex-1">
-            {(item.chatSummary?.length > 30
-              ? item.chatSummary.slice(0, 30)
-              : item.chatSummary) || "Untitled Chat"}
-          </small>
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={editingValue}
+              onChange={(e) => setEditingValue(e.target.value)}
+              onBlur={() => saveRename(item)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  saveRename(item);
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  cancelRename();
+                }
+              }}
+              className="flex-1 px-2 py-1 text-sm bg-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              maxLength={100}
+              autoComplete="off"
+              spellCheck={false}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <small className="capitalize text-sm text-foreground truncate whitespace-nowrap overflow-hidden flex-1">
+              {(item.chatSummary?.length > 30
+                ? item.chatSummary.slice(0, 30)
+                : item.chatSummary) || "Untitled Chat"}
+            </small>
+          )}
 
           {isClicking ? (
             <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin ml-2 flex-shrink-0"></div>
-          ) : (
+          ) : !isEditing ? (
             <div className="opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
               <Dropdown backdrop="blur" className="w-3/4 p-1" shadow="none">
                 <DropdownTrigger>
@@ -282,7 +361,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                 </DropdownTrigger>
                 <DropdownMenu>
                   <DropdownSection showDivider>
-                    <DropdownItem key="rename" onClick={handleRename}>
+                    <DropdownItem key="rename" onClick={() => startRename(item)}>
                       <div className="flex items-center gap-2">
                         <Pencil size={16} />
                         Rename
@@ -321,38 +400,11 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                 </DropdownMenu>
               </Dropdown>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     );
   };
-
-  // if (!currentUser) {
-  //   return (
-  //     <div className="flex items-center justify-center p-4 text-muted-foreground">
-  //       Please log in to view chats
-  //     </div>
-  //   );
-  // }
-
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center p-4 text-muted-foreground">
-  //       <div className="flex items-center gap-2">
-  //         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-  //         Loading chats...
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // if (sidebarItems.length === 0) {
-  //   return (
-  //     <div className="flex items-center justify-center p-4 text-muted-foreground">
-  //       No chats yet
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="mt-2 md:mt-2 lg:mt-4 h-full overflow-y-auto hide-scrollbar">
