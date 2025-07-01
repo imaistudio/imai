@@ -263,7 +263,7 @@ export default function ChatWindow({
                               <ImageZoomModal
                                 src={img}
                                 alt={`image-${i}`}
-                                className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                                className="min-w-20 max-h-20 object-cover rounded-lg"
                               />
                             </div>
                           ))}
@@ -343,7 +343,7 @@ export default function ChatWindow({
                                 <ImageZoomModal
                                   src={img}
                                   alt={`image-${i}`}
-                                  className="w-auto h-auto max-h-36 object-cover rounded-lg border border-border/20 hover:border-border/40 transition-colors cursor-pointer"
+                                  className="min-w-36 w-auto h-36 md:h-52 object-cover rounded-lg"
                                 />
                               </div>
                             ))}
