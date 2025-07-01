@@ -161,7 +161,23 @@
     "fullchrome": "full chrome",
     "veggieforms": "veggie forms",
     "phatstyle": "phat style",
-    "70s": "70s"
+    "70s": "70s",
+
+    "electric": "electric suv",
+    "fullelectricsleek": "full electric<br>sleek",
+    "futuristicandintelligent": "futuristic and<br>intelligent",
+    "sleek": "sleek",
+    "sportsandvelocity": "sports and <br>velocity",
+    "futuristicdetailing": "futuristic <br> detailing",
+    "angularandbold": "angular<br>and bold",
+    "redefiningmobility": "redefining<br>mobility",
+    "absolutedeluxe": "absolute <br> deluxe",
+    "deluxetouch": "de luxe<br>touch",
+    "thesupersport": "the super<br>sport",
+    "hybridboxy": "hybrid boxy",
+    "electricdreams": "electric<br>dreams",
+    "aquietstorm": "a quiet storm",
+    "thesmallandfurious": "the small<br>and furious"
   },
   "colors": {
     "neutral": "Neutral",

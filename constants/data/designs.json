@@ -561,7 +561,48 @@
       "/inputs/designs/kitchenware/phatstyle/phatstyle2.webp",
       "/inputs/designs/kitchenware/phatstyle/phatstyle3.webp"
     ],
-    "70s": ["/inputs/designs/kitchenware/70s/70s1.webp"]
+    "70s": ["/inputs/designs/kitchenware/70s/70s1.webp"],
+
+    "electric": ["/inputs/designs/vehicles/electricsuv/electricsuv1.webp"],
+    "fullelectricsleek": [
+      "/inputs/designs/vehicles/fullelectricsleek/fullelectricsleek1.webp"
+    ],
+    "futuristicandintelligent": [
+      "/inputs/designs/vehicles/futuristicandintelligent/futuristicandintelligent1.webp"
+    ],
+    "sleek": ["/inputs/designs/vehicles/sleek/sleek1.webp"],
+    "sportsandvelocity": [
+      "/inputs/designs/vehicles/sportsandvelocity/sportsandvelocity1.webp",
+      "/inputs/designs/vehicles/sportsandvelocity/sportsandvelocity2.webp"
+    ],
+    "futuristicdetailing": [
+      "/inputs/designs/vehicles/futuristicdetailing/futuristicdetailing1.webp"
+    ],
+    "angularandbold": [
+      "/inputs/designs/vehicles/angularandbold/angularandbold1.webp"
+    ],
+    "redefiningmobility": [
+      "/inputs/designs/vehicles/redefiningmobility/redefiningmobility1.webp"
+    ],
+    "absolutedeluxe": [
+      "/inputs/designs/vehicles/absolutedeluxe/absolutedeluxe1.webp"
+    ],
+    "deluxetouch": ["/inputs/designs/vehicles/deluxetouch/deluxetouch1.webp"],
+    "thesupersport": [
+      "/inputs/designs/vehicles/thesupersport/thesupersport1.webp",
+      "/inputs/designs/vehicles/thesupersport/thesupersport2.webp",
+      "/inputs/designs/vehicles/thesupersport/thesupersport3.webp"
+    ],
+    "hybridboxy": ["/inputs/designs/vehicles/hybridboxy/hybridboxy1.webp"],
+    "electricdreams": [
+      "/inputs/designs/vehicles/electricdreams/electricdreams1.webp",
+      "/inputs/designs/vehicles/electricdreams/electricdreams2.webp",
+      "/inputs/designs/vehicles/electricdreams/electricdreams3.webp"
+    ],
+    "aquietstorm": ["/inputs/designs/vehicles/aquietstorm/aquietstorm1.webp"],
+    "thesmallandfurious": [
+      "/inputs/designs/vehicles/thesmallandfurious/thesmallandfurious1.webp"
+    ]
   },
   "placeholders": {
     "minimalsleek": "/inputs/placeholders/bags/minimalsleeksophisticated.webp",
@@ -699,6 +740,22 @@
     "fullchrome": "/inputs/placeholders/kitchenware/fullchrome.webp",
     "veggieforms": "/inputs/placeholders/kitchenware/veggieforms.webp",
     "phatstyle": "/inputs/placeholders/kitchenware/phatstyle.webp",
-    "70s": "/inputs/placeholders/kitchenware/70's.webp"
+    "70s": "/inputs/placeholders/kitchenware/70's.webp",
+
+    "electric": "/inputs/placeholders/vehicles/electricsuv.webp",
+    "fullelectricsleek": "/inputs/placeholders/vehicles/fullelectricsleek.webp",
+    "futuristicandintelligent": "/inputs/placeholders/vehicles/futuristicandintelligent.webp",
+    "sleek": "/inputs/placeholders/vehicles/sleek.webp",
+    "sportsandvelocity": "/inputs/placeholders/vehicles/sportsandvelocity.webp",
+    "futuristicdetailing": "/inputs/placeholders/vehicles/futuristicdetailing.webp",
+    "angularandbold": "/inputs/placeholders/vehicles/angularandbold.webp",
+    "redefiningmobility": "/inputs/placeholders/vehicles/redefiningmobility.webp",
+    "absolutedeluxe": "/inputs/placeholders/vehicles/absolutedeluxe.webp",
+    "deluxetouch": "/inputs/placeholders/vehicles/deluxetouch.webp",
+    "thesupersport": "public/inputs/placeholders/vehicles/thesupersport.webp",
+    "hybridboxy": "/inputs/placeholders/vehicles/hybridboxy.webp",
+    "electricdreams": "/inputs/placeholders/vehicles/electricdreams.webp",
+    "aquietstorm": "/inputs/placeholders/vehicles/aquietstorm.webp",
+    "thesmallandfurious": "/inputs/placeholders/vehicles/thesmallandfurious.webp"
   }
 }

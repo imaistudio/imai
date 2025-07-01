@@ -1038,7 +1038,48 @@
       ]
     },
     "toys": {},
-    "vehicles": {},
+    "vehicles": {
+      "electric": ["/inputs/designs/vehicles/electricsuv/electricsuv1.webp"],
+      "fullelectricsleek": [
+        "/inputs/designs/vehicles/fullelectricsleek/fullelectricsleek1.webp"
+      ],
+      "futuristicandintelligent": [
+        "/inputs/designs/vehicles/futuristicandintelligent/futuristicandintelligent1.webp"
+      ],
+      "sleek": ["/inputs/designs/vehicles/sleek/sleek1.webp"],
+      "sportsandvelocity": [
+        "/inputs/designs/vehicles/sportsandvelocity/sportsandvelocity1.webp",
+        "/inputs/designs/vehicles/sportsandvelocity/sportsandvelocity2.webp"
+      ],
+      "futuristicdetailing": [
+        "/inputs/designs/vehicles/futuristicdetailing/futuristicdetailing1.webp"
+      ],
+      "angularandbold": [
+        "/inputs/designs/vehicles/angularandbold/angularandbold1.webp"
+      ],
+      "redefiningmobility": [
+        "/inputs/designs/vehicles/redefiningmobility/redefiningmobility1.webp"
+      ],
+      "absolutedeluxe": [
+        "/inputs/designs/vehicles/absolutedeluxe/absolutedeluxe1.webp"
+      ],
+      "deluxetouch": ["/inputs/designs/vehicles/deluxetouch/deluxetouch1.webp"],
+      "thesupersport": [
+        "/inputs/designs/vehicles/thesupersport/thesupersport1.webp",
+        "/inputs/designs/vehicles/thesupersport/thesupersport2.webp",
+        "/inputs/designs/vehicles/thesupersport/thesupersport3.webp"
+      ],
+      "hybridboxy": ["/inputs/designs/vehicles/hybridboxy/hybridboxy1.webp"],
+      "electricdreams": [
+        "/inputs/designs/vehicles/electricdreams/electricdreams1.webp",
+        "/inputs/designs/vehicles/electricdreams/electricdreams2.webp",
+        "/inputs/designs/vehicles/electricdreams/electricdreams3.webp"
+      ],
+      "aquietstorm": ["/inputs/designs/vehicles/aquietstorm/aquietstorm1.webp"],
+      "thesmallandfurious": [
+        "/inputs/designs/vehicles/thesmallandfurious/thesmallandfurious1.webp"
+      ]
+    },
     "glasses": {},
     "watches": {}
   }
