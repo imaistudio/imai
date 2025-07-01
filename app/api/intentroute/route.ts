@@ -534,7 +534,8 @@ async function analyzeIntent(
         ([key]) =>
           key === "design_image" ||
           key === "design_image_url" ||
-          key === "preset_design_style",
+          key === "preset_design_style" ||
+          key.includes("design_image") // ✅ Catch design_image_0_image, etc.
       ) ||
       conversationHistory.some(
         (msg) =>
@@ -546,7 +547,8 @@ async function analyzeIntent(
         ([key]) =>
           key === "color_image" ||
           key === "color_image_url" ||
-          key === "preset_color_palette",
+          key === "preset_color_palette" ||
+          key.includes("color_image") // ✅ Catch color_image_0_image, etc.
       ) ||
       conversationHistory.some(
         (msg) =>
@@ -722,8 +724,32 @@ async function analyzeIntent(
       const hasPreviousResult = !!lastGeneratedResult?.imageUrl;
       const shouldClearContext = !hasExplicitReference && !hasPreviousResult; // Only clear if no explicit reference AND no previous result
 
+      // 🎯 SMART WORKFLOW DETECTION: Choose workflow based on combination of uploads + presets
+      let workflowType = "preset_design"; // default for preset-only operations
+      
+      if (hasProductImage || hasPreviousResult) {
+        // When product image/context exists, use specific workflows based on BOTH presets AND actual uploads
+        const hasDesignPreset = formDataEntries.some(([key]) => key.startsWith("preset_design") || key.startsWith("design_style"));
+        const hasColorPreset = formDataEntries.some(([key]) => key.startsWith("preset_color") || key.startsWith("color_palette"));
+        
+        // 🔧 CRITICAL FIX: Also check for actual uploaded images, not just presets
+        const hasDesignInput = hasDesignPreset || hasDesignImage; // Design preset OR actual design image
+        const hasColorInput = hasColorPreset || hasColorImage;   // Color preset OR actual color image
+        
+        if (hasDesignInput && hasColorInput) {
+          workflowType = "full_composition"; // Product + (design preset/image) + (color preset/image)
+        } else if (hasDesignInput && !hasColorInput) {
+          workflowType = "product_design"; // Product + (design preset/image) only
+        } else if (!hasDesignInput && hasColorInput) {
+          workflowType = "product_color"; // Product + (color preset/image) only
+        } else {
+          workflowType = "product_prompt"; // Product + other presets
+        }
+      }
+      // If no product image and no previous result, keep "preset_design" for preset-only workflows
+
       console.log(
-        `📋 Preset with explicit reference: ${hasExplicitReference}, has previous result: ${hasPreviousResult}, clear_context: ${shouldClearContext}`,
+        `📋 Preset with explicit reference: ${hasExplicitReference}, has previous result: ${hasPreviousResult}, workflow: ${workflowType}, clear_context: ${shouldClearContext}`,
       );
 
       return {
@@ -731,17 +757,65 @@ async function analyzeIntent(
         confidence: 0.95,
         endpoint: "/api/design",
         parameters: {
-          workflow_type: "preset_design",
+          workflow_type: workflowType,
           // No explicit size - let design route auto-detect aspect ratio from product image
           quality: "auto",
           clear_context: shouldClearContext,
         },
         requiresFiles: false, // Presets don't require actual files
         explanation: hasExplicitReference
-          ? "User selected preset options to modify referenced image - preserving context"
+          ? `User selected preset options (${workflowType}) to modify referenced image - preserving context`
           : hasPreviousResult
-          ? "User selected preset options with auto-reference to previous result - preserving context"
-          : "User selected preset options - routing directly to design endpoint with fresh context",
+          ? `User selected preset options (${workflowType}) with auto-reference to previous result - preserving context`
+          : `User selected preset options (${workflowType}) - routing directly to design endpoint with fresh context`,
+      };
+    }
+
+    // 🎯 PRIORITY: Direct routing for actual image uploads with auto-referencing (same as presets)
+    if ((hasDesignImage || hasColorImage) && !hasAnyPresets) {
+      console.log(
+        "Smart fallback routing directly to design endpoint - actual images detected",
+      );
+
+      // 🔧 AUTO-REFERENCING: Preserve context if there's a previous result available  
+      const hasPreviousResult = !!lastGeneratedResult?.imageUrl;
+      const shouldClearContext = !hasPreviousResult; // Only clear if no previous result
+
+      // 🎯 SMART WORKFLOW DETECTION: Choose workflow based on images
+      let workflowType = "prompt_only"; // default
+      if (hasPreviousResult && hasDesignImage && hasColorImage) {
+        workflowType = "full_composition"; // Previous result + design + color = full composition
+      } else if (hasPreviousResult && hasDesignImage && !hasColorImage) {
+        workflowType = "product_design"; // Previous result + design only  
+      } else if (hasPreviousResult && !hasDesignImage && hasColorImage) {
+        workflowType = "product_color"; // Previous result + color only
+      } else if (hasDesignImage && hasColorImage) {
+        workflowType = "color_design"; // Fresh design + color (no previous result)
+      } else if (hasDesignImage) {
+        workflowType = "design_prompt"; // Fresh design only
+      } else if (hasColorImage) {
+        workflowType = "color_prompt"; // Fresh color only
+      }
+
+      console.log(
+        `📋 Image upload with previous result: ${hasPreviousResult}, workflow: ${workflowType}, clear_context: ${shouldClearContext}`,
+      );
+
+      return {
+        intent: "design",
+        confidence: 0.95,
+        endpoint: "/api/design",
+        parameters: {
+          workflow_type: workflowType,
+          // No explicit size - let design route auto-detect aspect ratio from product image
+          quality: "auto",
+          clear_context: shouldClearContext,
+          ...(hasPreviousResult ? { reference_image_url: lastGeneratedResult.imageUrl } : {}),
+        },
+        requiresFiles: true,
+        explanation: hasPreviousResult
+          ? `User uploaded ${hasDesignImage ? "design" : ""}${hasDesignImage && hasColorImage ? " and " : ""}${hasColorImage ? "color" : ""} image(s) with auto-reference to previous result - preserving context`
+          : `User uploaded ${hasDesignImage ? "design" : ""}${hasDesignImage && hasColorImage ? " and " : ""}${hasColorImage ? "color" : ""} image(s) - fresh design request`,
       };
     }
 
@@ -1473,6 +1547,13 @@ CLASSIFICATION RULES:
    - "crop it" → /api/reframe (regardless of previous endpoint)
    - "analyze it" → /api/analyzeimage (regardless of previous endpoint)
 
+MODIFICATION WITH NEW UPLOADS (previous result + new images):
+   - Previous result available + design image uploaded → workflow_type: "product_design"
+   - Previous result available + color image uploaded → workflow_type: "product_color"  
+   - Previous result available + design + color images → workflow_type: "full_composition"
+   - Always set reference_image_url to previous result URL for modification workflows
+   - These are MODIFICATION operations, not fresh creation
+
 3. NEW IMAGE OPERATIONS → specific API endpoint
    A. NEW PATTERN CREATION → /api/flowdesign
       - ONLY for creating NEW abstract patterns/flows from scratch
@@ -1712,78 +1793,163 @@ For single operations:
     "reference_image_url": "use_previous_result_if_referencing",
     "color_modification": "extracted_colors_if_mentioned",
     "style_modification": "extracted_style_if_mentioned",
-    "product_type": "pants|shirt|shoe|scarf|dress|etc_if_mentioned"
+    "product_type": "pants|shirt|shoe|scarf|dress|etc_if_mentioned",
+    "semantic_analysis": {
+      "user_intent": "modification|creation|extraction|inspiration",
+      "reference_role": "product|design|color|none",
+      "input_roles": {
+        "product_sources": "reference|preset|upload|none",
+        "design_sources": "reference|preset|upload|none", 
+        "color_sources": "reference|preset|upload|none"
+      }
+    }
   },
   "requiresFiles": true/false,
-  "explanation": "Brief explanation including context awareness"
+  "explanation": "Brief explanation including semantic role assignments and intent analysis"
 }
 
-WORKFLOW TYPE SELECTION GUIDE (FOR /api/design ENDPOINT ONLY):
-Based on the number and type of images uploaded, choose the correct workflow_type:
+🧠 INTELLIGENT SEMANTIC WORKFLOW ANALYSIS (FOR /api/design ENDPOINT):
 
-✅ 3 IMAGES (Product + Design + Color):
-- workflow_type: "full_composition"
-- Use when user uploads product image, design reference, and color reference
+YOU ARE A SEMANTIC ANALYZER - DO NOT JUST COUNT INPUTS, UNDERSTAND INTENT AND CONTEXT!
 
-✅ 2 IMAGES (Product + Design):
-- workflow_type: "product_design" 
-- Use when user uploads product image and design reference (no color)
+🎯 CORE PRINCIPLE: SAME INPUT CAN PLAY DIFFERENT ROLES based on user intent:
+- Reference image can be PRODUCT (base to modify) OR DESIGN (style inspiration) OR COLOR (palette source)
+- Uploaded image can be PRODUCT OR DESIGN OR COLOR depending on context
+- Presets can supplement or replace actual uploads
 
-✅ 2 IMAGES (Product + Color):
-- workflow_type: "product_color"
-- Use when user uploads product image and color reference (no design)
+🚨 CRITICAL RULE: REFERENCE FILLS THE MISSING ROLE
+When user has BOTH product AND design presets, the reference should be used as COLOR source!
+When user has product preset but NO design preset, reference is DESIGN source.  
+When user has design preset but NO product preset, reference is PRODUCT source.
+This prevents conflicts between explicit presets and reference assignments.
 
-✅ 2 IMAGES (Design + Color):
-- workflow_type: "color_design"
-- Use when user uploads design reference and color reference (no product)
+🧠 SEMANTIC ROLE ASSIGNMENT LOGIC:
 
-✅ 1 IMAGE (Product only):
-- workflow_type: "product_prompt"
-- Use when user uploads only product image + has text prompt
+1. ANALYZE USER INTENT FIRST:
+- "Apply this color to..." → Color application intent
+- "Make this look like..." → Design/style application intent  
+- "Create a product..." → Product creation intent
+- "Extract colors from..." → Color extraction intent
+- "Use this as inspiration..." → Design inspiration intent
 
-✅ 1 IMAGE (Design only):
-- workflow_type: "design_prompt"
-- Use when user uploads only design reference + has text prompt
-- 🎯 ALSO FOR MODIFICATIONS: When user wants to modify DESIGN/STYLE of previous result
+2. ASSIGN INPUT ROLES BASED ON INTENT:
 
-✅ 1 IMAGE (Color only):
-- workflow_type: "color_prompt"
-- Use when user uploads only color reference + has text prompt
-- 🎯 ALSO FOR MODIFICATIONS: When user wants to change COLORS of previous result
+📦 PRODUCT ROLE (base item to modify/create):
+- Reference image when user wants to MODIFY existing result
+- Product preset selection
+- Uploaded image when user wants to APPLY something TO it
+- Previous generated result in modification context
 
-✅ NO IMAGES (Text only):
-- workflow_type: "prompt_only"
-- Use when user only provides text prompt (no images)
+🎨 DESIGN ROLE (style/pattern/visual inspiration):
+- Reference image when user wants NEW product INSPIRED by reference
+- Design preset selection  
+- Uploaded image when user wants to APPLY its style to something else
+- ANY image when user says "make it look like this", "use this style"
 
-✅ PRESET SELECTIONS:
-- workflow_type: "preset_design"
-- Use when user selects presets (product_type, design_style, color_palette) from UI
+🌈 COLOR ROLE (palette/color scheme source):
+- Color preset selection
+- Uploaded image when user wants to EXTRACT colors from it
+- Reference image when user says "use these colors", "apply this palette"
+- ANY image when focus is on COLOR extraction/application
 
-🔄 MODIFICATION WORKFLOW SELECTION:
-When user wants to modify previous results, choose workflow based on WHAT they want to change:
+3. INTELLIGENT EDGE CASE HANDLING:
 
-🎯 REFERENCE IMAGE + NEW COLOR IMAGE:
-- **ANY** prompt with reference image available + new color image uploaded = MODIFY EXISTING → "product_color" 
-- "Create a design using these" = MODIFY EXISTING → "product_color" (reference as product, new image as color)
-- "Apply these colors to this design" = MODIFY EXISTING → "product_color" (reference as product, new image as color)
-- "Recolor this design" = MODIFY EXISTING → "product_color" (reference as product, new image as color)
-- "Create a design composition using the uploaded images" = MODIFY EXISTING → "product_color" (when reference available)
+🔄 REFERENCE + PRESET COMBINATIONS:
 
-🎯 REFERENCE IMAGE + NEW DESIGN IMAGE:
-- "Apply this style to that design" = MODIFY EXISTING → "product_design" (reference as product, new image as design)
-- "Make this look like that" = MODIFY EXISTING → "product_design" (reference as product, new image as design)
+🚨 CRITICAL: REFERENCE FILLS THE MISSING ROLE!
 
-🎯 SINGLE MODIFICATION (text-based):
-- "Add yellow and metal" = COLOR change → "color_prompt" (previous result as color reference)
-- "Make it more futuristic" = DESIGN/STYLE change → "design_prompt" (previous result as design reference)  
-- "Change the material to leather" = PRODUCT change → "product_prompt" (previous result as product base)
-- "Make it completely different" = FRESH START → "prompt_only" (no reference to previous)
+Reference + Product Preset + Design Preset:
+├─ Intent: Create product using both presets, extract colors from reference
+├─ Product Preset → PRODUCT role (base form)  
+├─ Design Preset → DESIGN role (style/patterns)
+├─ Reference → COLOR role (extract color palette)
+└─ Workflow: preset_design (all three inputs covered)
 
-⚠️ KEY DISTINCTION: 
-- If user uploads NEW images WITH reference to previous result = MODIFICATION workflow (product_color, product_design)
-- If user uploads images WITHOUT referencing previous result = FRESH CREATION workflow (color_prompt, design_prompt)
+Reference + Product Preset ONLY (no design preset):
+├─ Intent: Create product using reference as design inspiration
+├─ Product Preset → PRODUCT role (base form)
+├─ Reference → DESIGN role (style inspiration)
+└─ Workflow: preset_design
 
-CRITICAL: Count actual uploaded images, not preset selections. Presets use "preset_design" workflow.`;
+Reference + Design Preset ONLY (no product preset):
+├─ Intent: Apply design to reference as product base
+├─ Reference → PRODUCT role (base to modify)
+├─ Design Preset → DESIGN role (style to apply)
+└─ Workflow: preset_design
+
+Reference + Color Preset ONLY (no product/design presets):
+├─ Intent: Apply color to existing reference
+├─ Reference → PRODUCT role (base to modify)
+├─ Color Preset → COLOR role (palette to apply)
+└─ Workflow: preset_design
+
+Reference as Color Source + Design Image:
+├─ Intent: Extract colors from reference, apply to design
+├─ Reference → COLOR role (extract palette)
+├─ Design Image → DESIGN role (style to color)
+└─ Workflow: color_design
+
+🔄 MULTI-INPUT SCENARIOS:
+
+Product + Design + Color (any combination of actual images/presets):
+└─ Workflow: full_composition OR preset_design (if any presets involved)
+
+Product + Design (any combination):
+└─ Workflow: product_design OR preset_design (if any presets involved)
+
+Product + Color (any combination):
+└─ Workflow: product_color OR preset_design (if any presets involved)
+
+Design + Color (no product):
+└─ Workflow: color_design
+
+Single Input + Prompt:
+├─ Product role → product_prompt
+├─ Design role → design_prompt  
+└─ Color role → color_prompt
+
+No Images + Prompt:
+└─ Workflow: prompt_only
+
+4. PRESET vs ACTUAL IMAGE PRIORITY:
+- ANY preset involved → Use preset_design workflow (it handles mixed scenarios perfectly)
+- Pure actual images → Use specific workflow (full_composition, product_color, etc.)
+- Mixed presets + images → Always use preset_design (it's designed for this)
+
+5. REFERENCE IMAGE CONTEXT ANALYSIS:
+
+"Create a design composition using the uploaded images" + Reference Available:
+├─ Analysis: User wants to COMPOSE/CREATE something new
+├─ Reference → DESIGN role (inspiration for composition) 
+├─ New uploads → PRODUCT/COLOR roles (materials for composition)
+└─ This is CREATION, not modification of the reference
+
+"Apply this color to the design" + Reference Available:
+├─ Analysis: User wants to MODIFY existing reference
+├─ Reference → PRODUCT role (base to modify)
+├─ Color upload → COLOR role (palette to apply)
+└─ This is MODIFICATION of the reference
+
+6. CRITICAL SEMANTIC DISTINCTION:
+- MODIFICATION INTENT: "Change this", "Apply to this", "Modify this" → Reference = PRODUCT role
+- INSPIRATION INTENT: "Create using this", "Make something like this", "Inspired by this" → Reference = DESIGN role  
+- EXTRACTION INTENT: "Use colors from this", "Extract palette" → Reference = COLOR role
+
+WORKFLOW DECISION TREE:
+1. Check if ANY presets involved → preset_design
+2. Analyze user intent (modification vs creation vs extraction)
+3. Assign semantic roles to each input based on intent
+4. Count roles: Product + Design + Color = full_composition
+5. Count roles: Product + Design = product_design  
+6. Count roles: Product + Color = product_color
+7. And so on...
+
+EDGE CASE EXAMPLES:
+- Reference + Product preset + Color preset = full_composition (reference as design inspiration)
+- Reference + Color preset = product_color (reference as product base)
+- Reference as color source + Design upload = color_design (reference as color source)
+- Multiple color presets = preset_design (blend multiple color palettes)
+- Reference + "make it look different" = product_prompt (reference as product base)`;
 
   // 🧠 CLAUDE FIRST: Let Claude handle 95% of intent classification
   // Only use smart fallback for very obvious cases where Claude is unnecessary
@@ -1803,7 +1969,12 @@ CRITICAL: Count actual uploaded images, not preset selections. Presets use "pres
       // This handles the case where user just selects presets and clicks generate
       (smartResult.intent === "design" &&
         formDataEntries.some(([key]) => key.startsWith("preset_")) &&
-        !formDataEntries.some(([key]) => key === "explicit_reference")));
+        !formDataEntries.some(([key]) => key === "explicit_reference")) ||
+      // ✅ NEW: Always bypass Claude for actual image uploads with auto-referencing
+      // Smart fallback is excellent at detecting these workflow combinations
+      (smartResult.intent === "design" &&
+        formDataEntries.some(([key]) => key.includes("design_image") || key.includes("color_image")) &&
+        !formDataEntries.some(([key]) => key.startsWith("preset_"))));
 
   if (isSuperObvious) {
     console.log(
@@ -2302,6 +2473,15 @@ async function routeToAPI(
         formData.append("quality", parameters.quality);
       }
 
+      // 🧠 CRITICAL: Pass semantic analysis for intelligent input role assignment
+      if (parameters.semantic_analysis) {
+        const serializedAnalysis = typeof parameters.semantic_analysis === 'object' 
+          ? JSON.stringify(parameters.semantic_analysis) 
+          : parameters.semantic_analysis;
+        formData.append("semantic_analysis", serializedAnalysis);
+        console.log("🧠 Added semantic analysis for intelligent processing:", serializedAnalysis);
+      }
+
       // Add color/style modifications if specified
       if (parameters.color_modification) {
         formData.append("color_modification", parameters.color_modification);
@@ -2532,7 +2712,9 @@ async function routeToAPI(
 
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && key !== "image_url") {
-          formData.append(key, String(value));
+          // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+          formData.append(key, serializedValue);
         }
       });
     } else if (endpoint === "/api/upscale") {
@@ -2557,7 +2739,9 @@ async function routeToAPI(
       // Add other upscale-specific parameters
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
+          // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+          formData.append(key, serializedValue);
         }
       });
 
@@ -2584,7 +2768,9 @@ async function routeToAPI(
 
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
+          // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+          formData.append(key, serializedValue);
         }
       });
 
@@ -2645,7 +2831,9 @@ async function routeToAPI(
       // Add other kling-specific parameters
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && key !== "image_url") {
-          formData.append(key, String(value));
+          // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+          formData.append(key, serializedValue);
         }
       });
     } else if (endpoint === "/api/mirrormagic") {
@@ -2742,7 +2930,9 @@ async function routeToAPI(
     } else {
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
+          // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+          formData.append(key, serializedValue);
         }
       });
 
@@ -3665,6 +3855,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             explicitReference?.inheritedPresets &&
             Object.keys(explicitReference.inheritedPresets).length > 0;
 
+          // 🎯 DIFFERENT PRODUCT PRESET DETECTION: Check if user selected a different product type
+          const currentProductPreset = formData.get("preset_product_type") as string;
+          const previousProductPreset = explicitReference?.inheritedPresets?.preset_product_type;
+          const isDifferentProductPreset = currentProductPreset && 
+            currentProductPreset !== previousProductPreset &&
+            !currentProductPreset.includes("undefined") &&
+            !currentProductPreset.includes("null");
+
           // 🎯 FRESH REQUEST DETECTION: Check if Claude said this is a fresh design request
           const claudeExplanation = intentAnalysis.explanation?.toLowerCase() || "";
           const isExplicitlyFreshRequest =
@@ -3682,7 +3880,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             workflowType === "full_composition";
           const hasNewUploads = hasActualImages; // User uploaded new images in this request
 
-          if (isModificationWorkflow && referenceResult?.imageUrl) {
+          if (isDifferentProductPreset) {
+            console.log(
+              `🎯 DIFFERENT PRODUCT PRESET DETECTED: User selected "${currentProductPreset}" (different from previous "${previousProductPreset}") - prioritizing new preset over previous result`,
+            );
+            // User explicitly selected a different product type - don't use previous result image
+            // Let the system create fresh with the new product preset
+            intentAnalysis.parameters.has_inherited_presets = false;
+            intentAnalysis.parameters.use_new_product_preset = true;
+          } else if (isModificationWorkflow && referenceResult?.imageUrl) {
             console.log(
               `🔄 MODIFICATION DETECTED: ${workflowType} workflow with reference image - using reference as base product`,
             );

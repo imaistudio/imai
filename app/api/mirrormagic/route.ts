@@ -131,25 +131,9 @@ async function generateImageWithDALLE(
       n: options.n || 1,
     });
 
-    // Clean logging helper for OpenAI responses
-    const sanitizeOpenAIResponse = (obj: any): any => {
-      if (!obj) return obj;
-      const sanitized = { ...obj };
-      if (sanitized.data && Array.isArray(sanitized.data)) {
-        sanitized.data = sanitized.data.map((item: any) => {
-          const cleanItem = { ...item };
-          if (cleanItem.b64_json) {
-            cleanItem.b64_json = `[BASE64_IMAGE_DATA_${Math.floor(cleanItem.b64_json.length/1024)}KB]`;
-          }
-          return cleanItem;
-        });
-      }
-      return sanitized;
-    };
-
     console.log(
-      "[DEBUG] OpenAI response structure:",
-      JSON.stringify(sanitizeOpenAIResponse(response), null, 2),
+      "[DEBUG] Raw OpenAI response:",
+      JSON.stringify(response, null, 2),
     );
 
     if (!response.data) {

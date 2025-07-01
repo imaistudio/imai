@@ -85,21 +85,8 @@ async function upscaleImage(
     }
 
     if (!outputImageUrl) {
-      // Sanitize result for error logging
-      const sanitizeResult = (obj: any): any => {
-        if (!obj) return obj;
-        const sanitized = { ...obj };
-        Object.keys(sanitized).forEach(key => {
-          const value = sanitized[key];
-          if (typeof value === 'string' && value.length > 500) {
-            sanitized[key] = `[LARGE_STRING_${Math.floor(value.length/1024)}KB]`;
-          }
-        });
-        return sanitized;
-      };
-
       throw new Error(
-        `No image URL found in result. Result structure: ${JSON.stringify(sanitizeResult(result))}`,
+        `No image URL found in result. Result structure: ${JSON.stringify(result)}`,
       );
     }
 

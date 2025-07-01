@@ -329,7 +329,17 @@ USER PROMPT: ${userPrompt}${commonSuffix}`
     }
 
     case "product_color": {
-      const basePrompt = `Apply only the color palette and color scheme from the color reference image to the product while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette. Photorealistic.
+      const basePrompt = `Apply only the color palette and color scheme from the color reference image to the PRODUCT ONLY while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette. PHOTOREALISTIC.
+
+🎯 CRITICAL COLOR APPLICATION RULES:
+- ONLY change colors on the PRODUCT itself (shoes, clothing, bag, etc.)
+- PRESERVE the original background completely unchanged
+- PRESERVE the original lighting and shadows
+- Apply new colors ONLY to product surfaces, materials, and components
+- Do NOT change background color, lighting, or environmental elements
+- Maintain the exact same photo composition and setting
+
+Photorealistic.
 
 ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
@@ -437,11 +447,13 @@ USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
 - Must look like you could purchase this exact product from a store
 - Use proper lighting, shadows, reflections, and surface details
 
-🎨 SURFACE DESIGN APPLICATION:
+🎨 SURFACE DESIGN APPLICATION (CRITICAL - REPLACE EXISTING DESIGNS):
+- **COMPLETELY REPLACE** any existing decorative elements from the product with new design elements
 - Apply design reference elements as SURFACE PATTERNS, PRINTS, or TEXTURES only
 - Use design elements as printed graphics, embossed patterns, or applied decorations
 - Design motifs should appear as if they were manufactured onto the product
 - Keep all patterns realistic and physically possible on the product material
+- **DO NOT PRESERVE** original product's design elements - use ONLY the design reference patterns
 
 🎯 COLOR APPLICATION:
 - Apply color palette from color reference exclusively to the product surfaces
@@ -450,9 +462,10 @@ USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
 - Keep background neutral white/gray studio lighting
 
 🔧 PRODUCT INTEGRITY:
-- Preserve exact product shape, structure, proportions, and functionality
-- Maintain original product identity and recognizable form
-- Apply design elements as surface treatments that enhance rather than obscure the product
+- **PRESERVE**: Exact product shape, structure, proportions, functionality, and materials
+- **PRESERVE**: Product silhouette and recognizable form (sneaker, bag, etc.)
+- **REPLACE**: All decorative elements, patterns, graphics, and surface designs
+- Apply NEW design elements as surface treatments - do not preserve original decorations
 
 BASE PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}
@@ -605,11 +618,12 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
 function extractEssentialAnalysis(fullAnalysis: string, analysisType: string): string {
   try {
     console.log(`🔍 Extracting essential analysis for type: ${analysisType}`);
-    console.log(`🔍 Full analysis preview: ${fullAnalysis.substring(0, 300)}...`);
     
     // Check if this is a simple preset-generated analysis (should be passed through as-is)
     if (analysisType === "product" && fullAnalysis.includes("product ready for design application")) {
       console.log(`✅ Product preset analysis detected - using as-is`);
+      console.log(`🔍 PRESET ANALYSIS PASSTHROUGH (${fullAnalysis.length} chars):`);
+      console.log(`${fullAnalysis}`);
       return fullAnalysis;
     }
     
@@ -683,8 +697,11 @@ function extractEssentialAnalysis(fullAnalysis: string, analysisType: string): s
       }
       
       if (colorSections.length > 0) {
+        const extracted = colorSections.join("\n\n");
         console.log(`✅ Color extraction successful: ${colorSections.length} sections found`);
-        return colorSections.join("\n\n");
+        console.log(`🔍 EXTRACTED ESSENTIAL ANALYSIS (${extracted.length} chars):`);
+        console.log(`${extracted}`);
+        return extracted;
       }
       
     } else if (analysisType === "design reference") {
@@ -718,16 +735,22 @@ function extractEssentialAnalysis(fullAnalysis: string, analysisType: string): s
       }
       
       if (keywordSections.length > 0) {
+        const extracted = keywordSections.join("\n\n");
         console.log(`✅ Design extraction successful: ${keywordSections.length} relevant sections found`);
-        return keywordSections.join("\n\n");
+        console.log(`🔍 EXTRACTED ESSENTIAL ANALYSIS (${extracted.length} chars):`);
+        console.log(`${extracted}`);
+        return extracted;
       }
       
       // If no sections found, try to get the main descriptive content
       // Look for content after the introduction
       const mainContentMatch = fullAnalysis.match(/---\s*([\s\S]*?)(?=\n---|\n\n---|\n\n\n|$)/);
       if (mainContentMatch && mainContentMatch[1].length > 200) {
-        console.log(`✅ Design extraction using main content: ${mainContentMatch[1].length} chars`);
-        return mainContentMatch[1].trim();
+        const mainContent = mainContentMatch[1].trim();
+        console.log(`✅ Design extraction using main content: ${mainContent.length} chars`);
+        console.log(`🔍 MAIN CONTENT EXTRACTED ANALYSIS (${mainContent.length} chars):`);
+        console.log(`${mainContent}`);
+        return mainContent;
       }
       
     } else if (analysisType === "product") {
@@ -793,8 +816,11 @@ function extractEssentialAnalysis(fullAnalysis: string, analysisType: string): s
       }
       
       if (sections.length > 0) {
+        const extracted = sections.join("\n\n");
         console.log(`✅ Product extraction successful: ${sections.length} sections found`);
-        return sections.join("\n\n");
+        console.log(`🔍 EXTRACTED ESSENTIAL ANALYSIS (${extracted.length} chars):`);
+        console.log(`${extracted}`);
+        return extracted;
       }
     }
     
@@ -812,28 +838,57 @@ function extractEssentialAnalysis(fullAnalysis: string, analysisType: string): s
       ).slice(0, 10).join('\n');
       
       if (colorContent.length > 50) {
-        return colorContent + "...";
+        const fallback = colorContent + "...";
+        console.log(`🔍 FALLBACK EXTRACTED ANALYSIS (${fallback.length} chars):`);
+        console.log(`${fallback}`);
+        return fallback;
       }
     } else if (analysisType === "product") {
-      // For product, try to extract product identity information
-      const productContent = fullAnalysis.split('\n').filter(line => 
-        line.toLowerCase().includes('material') || 
-        line.toLowerCase().includes('texture') || 
-        line.toLowerCase().includes('structure') ||
-        line.toLowerCase().includes('shape') ||
-        line.toLowerCase().includes('style') ||
-        line.toLowerCase().includes('feature')
-      ).slice(0, 10).join('\n');
+      // For product, extract ONLY structural/material info - EXCLUDE decorative elements
+      const productContent = fullAnalysis.split('\n').filter(line => {
+        const lower = line.toLowerCase();
+        
+        // EXCLUDE lines with decorative elements (these should come from design reference)
+        const hasDecorative = lower.includes('embroidery') || lower.includes('embroidered') ||
+                            lower.includes('design features') || lower.includes('decorative') ||
+                            lower.includes('pattern') || lower.includes('motif') ||
+                            lower.includes('artwork') || lower.includes('graphics') ||
+                            lower.includes('print') || lower.includes('logo') ||
+                            lower.includes('branding') || lower.includes('visual') ||
+                            lower.includes('fox') || lower.includes('floral') ||
+                            lower.includes('animal') || lower.includes('character') ||
+                            lower.includes('illustration') || lower.includes('art style');
+        
+        // INCLUDE lines with structural/material info
+        const hasStructural = lower.includes('material') || lower.includes('texture') ||
+                            lower.includes('structure') || lower.includes('shape') ||
+                            lower.includes('construction') || lower.includes('sole') ||
+                            lower.includes('fabric') || lower.includes('hardware') ||
+                            lower.includes('component') || lower.includes('build') ||
+                            lower.includes('silhouette') || lower.includes('dimensions') ||
+                            lower.includes('technical') || lower.includes('specs');
+        
+        return hasStructural && !hasDecorative;
+      }).slice(0, 15).join('\n');
       
       if (productContent.length > 50) {
-        return productContent + "...";
+        const fallback = productContent + "...";
+        console.log(`🔍 FALLBACK EXTRACTED ANALYSIS (${fallback.length} chars):`);
+        console.log(`${fallback}`);
+        return fallback;
       }
     }
     
-    return fullAnalysis.substring(0, 500) + "...";
+    const truncated = fullAnalysis.substring(0, 500) + "...";
+    console.log(`🔍 TRUNCATED FALLBACK ANALYSIS (${truncated.length} chars):`);
+    console.log(`${truncated}`);
+    return truncated;
   } catch (error) {
     console.log("Error extracting essential analysis, using truncated version:", error);
-    return fullAnalysis.substring(0, 500) + "...";
+    const errorTruncated = fullAnalysis.substring(0, 500) + "...";
+    console.log(`🔍 ERROR FALLBACK ANALYSIS (${errorTruncated.length} chars):`);
+    console.log(`${errorTruncated}`);
+    return errorTruncated;
   }
 }
 
@@ -1470,29 +1525,29 @@ function determineWorkflowType(
   hasColor: boolean,
   hasPrompt: boolean
 ): string {
-  // Product-based workflows (when we have a product image)
+  // 1. Product-based workflows (product image, preset, or reference)
   if (hasProduct) {
-    // 1) All three images → full_composition (prompt optional)
+    // All three images → full_composition
     if (hasDesign && hasColor) {
+      console.log('[determineWorkflowType] Chose: full_composition', { hasProduct, hasDesign, hasColor, hasPrompt });
       return "full_composition";
     }
-
-    // 2) Product + Design only → product_design (prompt optional)
+    // Product + Design only → product_design
     if (hasDesign && !hasColor) {
+      console.log('[determineWorkflowType] Chose: product_design', { hasProduct, hasDesign, hasColor, hasPrompt });
       return "product_design";
     }
-
-    // 3) Product + Color only → product_color (prompt optional)
+    // Product + Color only → product_color
     if (!hasDesign && hasColor) {
+      console.log('[determineWorkflowType] Chose: product_color', { hasProduct, hasDesign, hasColor, hasPrompt });
       return "product_color";
     }
-
-    // 4) Product + Prompt only → product_prompt
+    // Product + Prompt only → product_prompt
     if (!hasDesign && !hasColor && hasPrompt) {
+      console.log('[determineWorkflowType] Chose: product_prompt', { hasProduct, hasDesign, hasColor, hasPrompt });
       return "product_prompt";
     }
-
-    // 5) Product only (no other inputs) → not supported
+    // Product only (no other inputs) → not supported
     if (!hasDesign && !hasColor && !hasPrompt) {
       throw new Error(
         "Product image alone is not sufficient. Please provide either: design image, color image, or a text prompt along with the product image."
@@ -1500,34 +1555,42 @@ function determineWorkflowType(
     }
   }
 
-  // Non-product workflows (when we don't have a product image)
-  if (!hasProduct) {
-    // 6) Design + Color + prompt → color_design
-    if (hasDesign && hasColor && hasPrompt) {
-      return "color_design";
-    }
+  // 2. Color-based workflows (color image or preset, and prompt, but no product or design)
+  if (!hasProduct && hasColor && !hasDesign && hasPrompt) {
+    console.log('[determineWorkflowType] Chose: color_prompt', { hasProduct, hasDesign, hasColor, hasPrompt });
+    return "color_prompt";
+  }
 
-    // 7) Design + prompt (no color) → design_prompt
-    if (hasDesign && !hasColor && hasPrompt) {
-      return "design_prompt";
-    }
+  // 3. Design-based workflows (design image or preset, and prompt, but no product or color)
+  if (!hasProduct && !hasColor && hasDesign && hasPrompt) {
+    console.log('[determineWorkflowType] Chose: design_prompt', { hasProduct, hasDesign, hasColor, hasPrompt });
+    return "design_prompt";
+  }
 
-    // 8) Color + prompt (no design) → color_prompt
-    if (!hasDesign && hasColor && hasPrompt) {
-      return "color_prompt";
-    }
+  // 4. Design + Color + prompt (no product) → color_design
+  if (!hasProduct && hasDesign && hasColor && hasPrompt) {
+    console.log('[determineWorkflowType] Chose: color_design', { hasProduct, hasDesign, hasColor, hasPrompt });
+    return "color_design";
+  }
 
-    // 9) Prompt only → prompt_only
-    if (!hasDesign && !hasColor && hasPrompt) {
-      return "prompt_only";
-    }
+  // 5. Prompt only (no images)
+  if (!hasProduct && !hasDesign && !hasColor && hasPrompt) {
+    console.log('[determineWorkflowType] Chose: prompt_only', { hasProduct, hasDesign, hasColor, hasPrompt });
+    return "prompt_only";
+  }
 
-    // 10) No valid combination
-    if (hasDesign || hasColor) {
-      throw new Error(
-        "Design or color images require a text prompt when no product image is provided."
-      );
-    }
+  // 6. If a reference image (previously generated product image) is present and a prompt is given, but no new design or color is provided, trigger product_prompt
+  // This is a fallback for referencing a generated image as product context, even if the workflow_type is set explicitly or auto-inferred
+  if (hasPrompt) {
+    console.log('[determineWorkflowType] Fallback: product_prompt', { hasProduct, hasDesign, hasColor, hasPrompt });
+    return "product_prompt";
+  }
+
+  // 7. No valid combination
+  if (hasDesign || hasColor) {
+    throw new Error(
+      "Design or color images require a text prompt when no product image is provided."
+    );
   }
 
   // Fallback error for any other invalid combinations
@@ -1644,42 +1707,42 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let size = sizeParam;
     let detectedAspectRatio = aspectRatio;
     
-    if (!aspectRatio && !sizeParam) {
-      // Auto-detect aspect ratio from PRODUCT IMAGE dimensions
-      let targetProductImageUrl = null;
-      
-      // Find the product image URL (from form data at this point)
-      if (productImageUrl && typeof productImageUrl === 'string') {
-        targetProductImageUrl = productImageUrl;
-      }
-      
-      if (targetProductImageUrl) {
-        try {
-          console.log("📏 Detecting product image dimensions for aspect ratio matching...");
-          const dimensions = await getImageDimensions(targetProductImageUrl);
-          size = dimensionsToGenerationSize(dimensions.width, dimensions.height);
-          
-          const aspectRatio = dimensions.width / dimensions.height;
-          if (aspectRatio > 1.2) {
-            detectedAspectRatio = "landscape";
-          } else if (aspectRatio < 0.8) {
-            detectedAspectRatio = "portrait";
-          } else {
-            detectedAspectRatio = "square";
-          }
-          
-          console.log(`📏 Product image: ${dimensions.width}x${dimensions.height} → Output: ${size} (${detectedAspectRatio})`);
-        } catch (error) {
-          console.log("⚠️ Could not detect product image dimensions, using default square");
+    // 🎯 Smart aspect ratio detection based on input type
+    const hasActualProductImage = !!(productImage || productImageUrl);
+    const hasOnlyPresets = !!presetProductType && !hasActualProductImage;
+    
+    if (hasActualProductImage && !aspectRatio) {
+      // User provided actual image (uploaded or referenced) - always auto-detect aspect ratio
+      try {
+        console.log("📏 Detecting product image dimensions for aspect ratio matching...");
+        const dimensions = await getImageDimensions(productImageUrl!);
+        size = dimensionsToGenerationSize(dimensions.width, dimensions.height);
+        
+        const aspectRatio = dimensions.width / dimensions.height;
+        if (aspectRatio > 1.2) {
+          detectedAspectRatio = "landscape";
+        } else if (aspectRatio < 0.8) {
+          detectedAspectRatio = "portrait";
+        } else {
+          detectedAspectRatio = "square";
+        }
+        
+        console.log(`📏 Product image: ${dimensions.width}x${dimensions.height} → Output: ${size} (${detectedAspectRatio}) [AUTO-DETECTED from ${productImage ? 'UPLOADED' : 'REFERENCED'} image]`);
+      } catch (error) {
+        console.log("⚠️ Could not detect product image dimensions, using Claude's decision or default");
+        if (!sizeParam) {
           size = "1024x1024";
           detectedAspectRatio = "square";
         }
-      } else {
-        // No product image available, use square as default
-        size = "1024x1024";
-        detectedAspectRatio = "square";
-        console.log("📏 No product image available, using default square aspect ratio");
       }
+    } else if (hasOnlyPresets && sizeParam) {
+      // User selected preset only - use Claude's aspect ratio decision
+      console.log(`📏 Using Claude's aspect ratio decision for preset: ${presetProductType} → ${size} (Claude-decided)`);
+    } else if (!aspectRatio && !sizeParam) {
+      // No product info at all - use square default
+      size = "1024x1024";
+      detectedAspectRatio = "square";
+      console.log("📏 No product image or preset, using default square aspect ratio");
     } else if (aspectRatio) {
       // Manual override provided
       switch (aspectRatio.toLowerCase()) {
@@ -1708,7 +1771,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     console.log(
-      `🎯 Using size: ${size} (${detectedAspectRatio}) ${!aspectRatio && !sizeParam ? "[AUTO-DETECTED]" : "[EXPLICIT]"}`
+      `🎯 Using size: ${size} (${detectedAspectRatio}) ${hasActualProductImage && !aspectRatio ? "[AUTO-DETECTED]" : hasOnlyPresets && sizeParam ? "[CLAUDE-DECIDED]" : "[EXPLICIT]"}`
     );
     const quality = (formData.get("quality") as string) || "auto";
     const n = parseInt((formData.get("n") as string) || "1", 10);
@@ -1726,6 +1789,55 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const mainlineModel =
       (formData.get("mainline_model") as string) || "gpt-4.1";
 
+    // 🧠 Extract Claude's semantic analysis for intelligent input role assignment
+    const semanticAnalysisParam = formData.get("semantic_analysis") as string | null;
+    let semanticAnalysis: any = null;
+    
+    if (semanticAnalysisParam) {
+      try {
+        semanticAnalysis = JSON.parse(semanticAnalysisParam);
+        console.log("🧠 Claude's semantic analysis:", semanticAnalysis);
+      } catch (e) {
+        console.log("⚠️ Could not parse semantic analysis:", e);
+      }
+    }
+
+    // 🎯 INTELLIGENT INPUT ROLE OVERRIDE based on Claude's semantic analysis
+    // When Claude specifies input roles, override default preset inheritance
+    let overrideInputs = {
+      useReferenceAsDesign: false,
+      useReferenceAsColor: false,
+      useReferenceAsProduct: false,
+      skipInheritedPresets: false
+    };
+
+    if (semanticAnalysis) {
+      const referenceRole = semanticAnalysis.reference_role;
+      const userIntent = semanticAnalysis.user_intent;
+      
+      console.log(`🧠 Semantic analysis detected: intent="${userIntent}", reference_role="${referenceRole}"`);
+      
+      // When Claude says reference should be design source, override preset inheritance
+      if (referenceRole === "design" && productImageUrl) {
+        overrideInputs.useReferenceAsDesign = true;
+        overrideInputs.skipInheritedPresets = true;
+        console.log("🎯 OVERRIDE: Using reference image as DESIGN source (ignoring inherited design presets)");
+      }
+      
+      // When Claude says reference should be color source
+      if (referenceRole === "color" && productImageUrl) {
+        overrideInputs.useReferenceAsColor = true;
+        overrideInputs.skipInheritedPresets = true;
+        console.log("🎯 OVERRIDE: Using reference image as COLOR source (ignoring inherited color presets)");
+      }
+      
+      // When Claude says reference should be product (default behavior)
+      if (referenceRole === "product" && productImageUrl) {
+        overrideInputs.useReferenceAsProduct = true;
+        console.log("🎯 Using reference image as PRODUCT source (default behavior)");
+      }
+    }
+
     // 5) Validate that this inferred workflow is valid
     // For modification workflows, separate actual inputs from inherited presets
     const hasActualColor = !!colorImage || !!colorImageUrl; // Only actual color inputs, not presets
@@ -1740,7 +1852,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           workflow_type,
           hasActualProduct || !!presetProductType, // Product: actual input OR preset OK
           hasActualDesign, // Design: only actual input for validation
-          hasActualColor,  // Color: only actual input for validation  
+          hasActualColor || !!presetColorPalette,  // Color: actual input OR preset OK
           !!prompt
         )
       : validateWorkflowInputs(
@@ -1782,7 +1894,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           "product"
         );
         console.log("Product image file processed successfully");
-      } else if (productImageUrl) {
+      } else if (productImageUrl && !overrideInputs.useReferenceAsDesign && !overrideInputs.useReferenceAsColor) {
+        // Only use productImageUrl as product if it's not being used as design/color source
         console.log("Using product image URL:", productImageUrl);
         inputUrls.product = productImageUrl;
         console.log("🔍 Starting product image analysis...");
@@ -1796,6 +1909,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }
         console.log("Product image URL processed successfully");
       } else if (presetProductType) {
+        // 🎯 SEMANTIC OVERRIDE: When reference is used as design/color, use preset for product
+        if (overrideInputs.useReferenceAsDesign || overrideInputs.useReferenceAsColor) {
+          console.log("🧠 SEMANTIC OVERRIDE: Using preset product type as base (reference used for design/color)");
+        }
         console.log("Using preset product type:", presetProductType);
         
         // Extract actual product name from path (e.g., "inputs/placeholders/t-shirt.svg" -> "tshirt")
@@ -1809,6 +1926,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }
         
         console.log(`Extracted product name: "${productName}" from "${presetProductType}"`);
+        
+        // 🎯 CORRECT FIX: Don't set product image URL for presets - rely on text analysis only
+        // This allows the AI to generate the product from text description while using reference for design
+        console.log(`🎯 Using text-only product specification (no image URL) for: ${productName}`);
         
         // Create detailed product specification based on type
         const productSpecs: Record<string, string> = {
@@ -1830,8 +1951,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log("Preset product type processed successfully");
       }
 
-      // Handle design image (file, URL, or preset)
-      if (designImage && firebaseInitialized) {
+      // Handle design image (file, URL, or preset) with semantic override
+      if (overrideInputs.useReferenceAsDesign && productImageUrl) {
+        // 🎯 CLAUDE'S SEMANTIC OVERRIDE: Use reference image as design source
+        console.log("🧠 SEMANTIC OVERRIDE: Using reference image as DESIGN source instead of presets");
+        inputUrls.design = productImageUrl;
+        console.log("🔍 Starting reference-as-design analysis...");
+        analyses.design = await analyzeImageWithGPT4Vision(
+          productImageUrl,
+          "design reference"
+        );
+        console.log("✅ Reference image processed as DESIGN source");
+      } else if (designImage && firebaseInitialized) {
         console.log("Processing design image file...");
         const designBuffer = await fileToJpegBuffer(designImage);
         const designPath = `${userid}/input/${uuidv4()}.jpg`;
@@ -1858,7 +1989,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           console.log("⚠️ Design analysis returned empty result!");
         }
         console.log("Design image URL processed successfully");
-      } else if (presetDesignStyle) {
+      } else if (presetDesignStyle && !overrideInputs.skipInheritedPresets) {
         console.log("Using preset design style:", presetDesignStyle);
         // Convert preset name to actual image URL using proper category detection
 
@@ -1912,35 +2043,59 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log("Preset design style processed successfully");
       }
 
-      // Handle color image (file, URL, and/or preset) - support multiple color inputs
+      // Handle color image (file, URL, and/or preset) with semantic override - support multiple color inputs
       let colorAnalysisParts = [];
 
-      // First, handle uploaded color image/URL
-      if (colorImage && firebaseInitialized) {
-        console.log("Processing color image file...");
-        const colorBuffer = await fileToJpegBuffer(colorImage);
-        const colorPath = `${userid}/input/${uuidv4()}.jpg`;
-        const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
-        inputUrls.color = colorUrl;
-        const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
-          colorUrl,
+      // 🎯 SEMANTIC OVERRIDE: When reference is used as design AND no color inputs, extract colors from reference
+      if (overrideInputs.useReferenceAsDesign && productImageUrl && !colorImage && !colorImageUrl && !presetColorPalette) {
+        console.log("🧠 SEMANTIC OVERRIDE: Extracting COLOR palette from reference image (since no color input provided)");
+        inputUrls.color = productImageUrl;
+        const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
+          productImageUrl,
           "color reference"
         );
-        colorAnalysisParts.push(uploadedColorAnalysis);
-        console.log("Color image file processed successfully");
-      } else if (colorImageUrl) {
-        console.log("Using color image URL:", colorImageUrl);
-        inputUrls.color = colorImageUrl;
-        const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
-          colorImageUrl,
+        colorAnalysisParts.push(referenceColorAnalysis);
+        console.log("✅ Reference image processed as COLOR source");
+      } else if (overrideInputs.useReferenceAsColor && productImageUrl) {
+        // When Claude explicitly says reference should be color source
+        console.log("🧠 SEMANTIC OVERRIDE: Using reference image as COLOR source instead of presets");
+        inputUrls.color = productImageUrl;
+        const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
+          productImageUrl,
           "color reference"
         );
-        colorAnalysisParts.push(uploadedColorAnalysis);
-        console.log("Color image URL processed successfully");
+        colorAnalysisParts.push(referenceColorAnalysis);
+        console.log("✅ Reference image processed as COLOR source");
+      } else {
+        // Standard color processing when no semantic override
+        
+        // First, handle uploaded color image/URL
+        if (colorImage && firebaseInitialized) {
+          console.log("Processing color image file...");
+          const colorBuffer = await fileToJpegBuffer(colorImage);
+          const colorPath = `${userid}/input/${uuidv4()}.jpg`;
+          const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
+          inputUrls.color = colorUrl;
+          const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
+            colorUrl,
+            "color reference"
+          );
+          colorAnalysisParts.push(uploadedColorAnalysis);
+          console.log("Color image file processed successfully");
+        } else if (colorImageUrl) {
+          console.log("Using color image URL:", colorImageUrl);
+          inputUrls.color = colorImageUrl;
+          const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
+            colorImageUrl,
+            "color reference"
+          );
+          colorAnalysisParts.push(uploadedColorAnalysis);
+          console.log("Color image URL processed successfully");
+        }
       }
 
-      // Then, handle preset color palette (can be in addition to uploaded)
-      if (presetColorPalette) {
+      // Then, handle preset color palette (can be in addition to uploaded) - unless overridden
+      if (presetColorPalette && !overrideInputs.skipInheritedPresets) {
         console.log("Using preset color palette:", presetColorPalette);
 
         // Handle multiple color palettes (comma-separated)
@@ -2037,6 +2192,24 @@ ${analysis}
         { status: "error", error: errorMessage },
         { status: 500 }
       );
+    }
+
+    // 🧠 SEMANTIC ANALYSIS SUMMARY
+    if (semanticAnalysis) {
+      console.log("\n🧠 === CLAUDE'S SEMANTIC ANALYSIS SUMMARY ===");
+      console.log(`🎯 User Intent: ${semanticAnalysis.user_intent}`);
+      console.log(`🔗 Reference Role: ${semanticAnalysis.reference_role}`);
+      console.log("📋 Input Role Assignments:");
+      if (semanticAnalysis.input_roles) {
+        console.log(`  • Product sources: ${semanticAnalysis.input_roles.product_sources}`);
+        console.log(`  • Design sources: ${semanticAnalysis.input_roles.design_sources}`);
+        console.log(`  • Color sources: ${semanticAnalysis.input_roles.color_sources}`);
+      }
+      console.log("\n🎯 === FINAL INPUT MAPPING AFTER SEMANTIC ANALYSIS ===");
+      console.log(`📦 Product: ${inputUrls.product ? 'SET' : 'NOT SET'} ${inputUrls.product ? '(from ' + (overrideInputs.useReferenceAsDesign || overrideInputs.useReferenceAsColor ? 'preset' : 'reference/upload') + ')' : ''}`);
+      console.log(`🎨 Design: ${inputUrls.design ? 'SET' : 'NOT SET'} ${inputUrls.design ? '(from ' + (overrideInputs.useReferenceAsDesign ? 'reference image' : 'preset/upload') + ')' : ''}`);
+      console.log(`🌈 Color: ${inputUrls.color ? 'SET' : 'NOT SET'} ${inputUrls.color ? '(from ' + (overrideInputs.useReferenceAsColor || (overrideInputs.useReferenceAsDesign && !presetColorPalette) ? 'reference image' : 'preset/upload') + ')' : ''}`);
+      console.log("🧠 === END SEMANTIC ANALYSIS === 🧠\n");
     }
 
     // 7) Build the enhanced prompt
