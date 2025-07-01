@@ -20,9 +20,9 @@ interface TitleRequest {
 }
 
 async function generateChatTitle(
-  messages: ChatMessage[],
+  input: ChatMessage[] | string,
 ): Promise<{ title: string; category: string }> {
-  const systemPrompt = `You are a smart title generator for IMAI image platform chat sessions. Generate concise, descriptive titles (3-6 words) based on the conversation content.
+  const systemPrompt = `You are a smart title generator for IMAI image platform chat sessions. Generate concise, descriptive titles (3-6 words) based on the content.
 
 **Categories:**
 - "design" - Product design, composition, creative work
@@ -34,16 +34,15 @@ async function generateChatTitle(
 
 **Title Style:**
 - Short and descriptive (3-6 words max)
-- Focus on the main action/topic
+- Focus on the main product/action
 - Use natural language, avoid technical jargon
-- Examples: "Blue sky design", "Product upscaling", "Logo analysis", "Vintage poster creation"
+- Examples: "Blue Phone Case Design", "Earth Tone T-Shirt", "Contemporary Pillow Creation", "Vintage Poster Analysis"
 
-**Examples:**
-- User uploads product + design images → "Product design composition"
-- User asks to upscale image → "Image enhancement request"  
-- User greets and asks about features → "Platform introduction chat"
-- User analyzes logo → "Logo design analysis"
-- User creates vintage poster → "Vintage poster creation"
+**When analyzing generated prompts:**
+- Extract the product type (t-shirt, phone case, pillow, etc.)
+- Extract key descriptors (colors, style, theme)
+- Focus on what was actually created
+- Example: "Phone case with black/white/blue/orange color blocks" → "Contemporary Phone Case Design"
 
 Respond with JSON only:
 {
@@ -52,19 +51,54 @@ Respond with JSON only:
 }`;
 
   try {
-    const recentMessages = messages.slice(-6);
-    const conversationSummary = recentMessages
-      .map(
-        (msg, index) =>
-          `${index + 1}. ${msg.role}: ${msg.content.substring(0, 150)}${msg.content.length > 150 ? "..." : ""}`,
-      )
-      .join("\n");
+    let analysisContent: string;
+    
+    if (typeof input === 'string') {
+      // New format: Complete Final Prompt
+      console.log("🎯 Analyzing Complete Final Prompt for title generation");
+      
+      // Extract key information from the generated prompt
+      const prompt = input;
+      
+      // Try to extract product type
+      const productMatch = prompt.match(/TARGET PRODUCT:\s*([^-\n]+)/i);
+      const product = productMatch ? productMatch[1].trim() : '';
+      
+      // Try to extract color information
+      const colorMatches = prompt.match(/(?:color|colours?)[^:]*:\s*([^\.]+)/gi);
+      const colors = colorMatches ? colorMatches.slice(0, 2).join(', ') : '';
+      
+      // Try to extract user prompt
+      const userPromptMatch = prompt.match(/USER PROMPT:\s*([^\n]+)/i);
+      const userIntent = userPromptMatch ? userPromptMatch[1].trim() : '';
+      
+      analysisContent = `
+Generated Design Analysis:
+- Product: ${product}
+- Colors/Style: ${colors}
+- User Intent: ${userIntent}
 
-    const prompt = `Analyze this chat conversation and generate an appropriate title:
+Full Generated Prompt Context:
+${prompt.substring(0, 800)}...
+      `.trim();
+      
+    } else {
+      // Legacy format: Chat Messages
+      console.log("📜 Analyzing chat messages for title generation");
+      const recentMessages = input.slice(-6);
+      analysisContent = recentMessages
+        .map(
+          (msg, index) =>
+            `${index + 1}. ${msg.role}: ${msg.content.substring(0, 150)}${msg.content.length > 150 ? "..." : ""}`,
+        )
+        .join("\n");
+    }
 
-${conversationSummary}
+    const prompt = `Analyze this content and generate an appropriate title:
 
-Generate a short, descriptive title and category for this conversation.`;
+${analysisContent}
+
+Generate a short, descriptive title and category for this design/conversation.`;
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
@@ -98,29 +132,21 @@ Generate a short, descriptive title and category for this conversation.`;
   } catch (error) {
     console.error("Error generating title:", error);
 
-    const lastUserMessage =
-      messages.filter((m) => m.role === "user").pop()?.content || "";
-    const messageContent = lastUserMessage.toLowerCase();
+    // Fallback logic
+    const inputStr = typeof input === 'string' ? input : 
+      input.filter((m) => m.role === "user").pop()?.content || "";
+    const content = inputStr.toLowerCase();
 
-    if (
-      messageContent.includes("upscale") ||
-      messageContent.includes("enhance")
-    ) {
+    if (content.includes("upscale") || content.includes("enhance")) {
       return { title: "Image Enhancement", category: "upscale" };
     }
-    if (
-      messageContent.includes("design") ||
-      messageContent.includes("create")
-    ) {
+    if (content.includes("design") || content.includes("create") || content.includes("phone case") || content.includes("t-shirt") || content.includes("pillow")) {
       return { title: "Design Creation", category: "design" };
     }
-    if (
-      messageContent.includes("analyze") ||
-      messageContent.includes("describe")
-    ) {
+    if (content.includes("analyze") || content.includes("describe")) {
       return { title: "Image Analysis", category: "analysis" };
     }
-    if (messageContent.includes("reframe") || messageContent.includes("crop")) {
+    if (content.includes("reframe") || content.includes("crop")) {
       return { title: "Image Reframing", category: "reframe" };
     }
 
@@ -151,10 +177,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
+    // Check for new format (Complete Final Prompt)
+    const promptStr = formData.get("prompt") as string;
+    if (promptStr) {
+      console.log("🎯 Using Complete Final Prompt for title generation");
+      const { title, category } = await generateChatTitle(promptStr);
+
+      const response: TitleRequest = {
+        status: "success",
+        title,
+        category,
+      };
+
+      return NextResponse.json(response);
+    }
+
+    // Legacy format (Chat Messages)
     const messagesStr = formData.get("messages") as string;
     if (!messagesStr) {
       return NextResponse.json(
-        { status: "error", error: 'Missing "messages" parameter' },
+        { status: "error", error: 'Missing "messages" or "prompt" parameter' },
         { status: 400 },
       );
     }
@@ -176,6 +218,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    console.log("📜 Using legacy chat messages for title generation");
     const { title, category } = await generateChatTitle(messages);
 
     const response: TitleRequest = {
