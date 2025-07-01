@@ -470,7 +470,7 @@ export const SOCIAL_MEDIA_PLATFORMS: SocialMediaPlatform[] = [
     name: "telegram",
     displayName: "Telegram",
     icon: "📱",
-    maxImageSize: 10 * 1024 * 1024, // 10MB
+    maxImageSize: 100 * 1024 * 1024, // 100MB for high-res compositions
     supportedFormats: ["jpg", "jpeg", "png", "gif", "webp"],
     maxCaptionLength: 1024,
     hashtagLimit: 50,
