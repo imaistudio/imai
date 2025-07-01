@@ -13,6 +13,7 @@ import {
   defaultProductImages,
   productSpecificDesigns,
   defaultDesignImages,
+  generalDesignImages,
   defaultColorImages,
   defaultPlaceholders,
   designPlaceholders,
@@ -531,7 +532,7 @@ export default function UnifiedPromptContainer({
     if (selectedProductType && productSpecificDesigns[selectedProductType]) {
       return productSpecificDesigns[selectedProductType];
     }
-    return defaultDesignImages;
+    return generalDesignImages;
   };
 
   const getPlaceholder = (image: ImageAsset): string => {
