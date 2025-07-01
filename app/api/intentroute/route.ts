@@ -42,8 +42,7 @@ async function validateAndProcessImage(file: File): Promise<File> {
       `⚠️ Large image detected: ${file.name} (${Math.round(file.size / 1024 / 1024)}MB)`,
     );
     // Only reject extremely large files that might cause memory issues
-    if (file.size > 200 * 1024 * 1024) {
-      // 200MB absolute limit
+    if (file.size > 200 * 1024 * 1024) { // 200MB absolute limit
       throw new Error(
         `Image ${file.name} is too large (${Math.round(file.size / 1024 / 1024)}MB). Maximum size is 200MB.`,
       );
@@ -498,12 +497,8 @@ function extractOfferedOptions(assistantMessage: string): string[] {
     options.push("enhance");
   if (message.includes("analyze") || message.includes("describe"))
     options.push("analyze");
-  if (
-    message.includes("remove background") ||
-    message.includes("transparent") ||
-    message.includes("cut out") ||
-    message.includes("removebg")
-  )
+  if (message.includes("remove background") || message.includes("transparent") || 
+      message.includes("cut out") || message.includes("removebg"))
     options.push("removebg");
 
   return options;
@@ -527,7 +522,7 @@ async function analyzeIntent(
         ([key]) =>
           key === "product_image" ||
           key === "product_image_url" ||
-          key === "preset_product_type",
+          key.includes("product_image") // ✅ Catch product_image_0_image, etc.
       ) ||
       conversationHistory.some(
         (msg) =>
@@ -539,8 +534,7 @@ async function analyzeIntent(
         ([key]) =>
           key === "design_image" ||
           key === "design_image_url" ||
-          key === "preset_design_style" ||
-          key.includes("design_image"), // ✅ Catch design_image_0_image, etc.
+          key.includes("design_image") // ✅ Catch design_image_0_image, etc.
       ) ||
       conversationHistory.some(
         (msg) =>
@@ -552,8 +546,7 @@ async function analyzeIntent(
         ([key]) =>
           key === "color_image" ||
           key === "color_image_url" ||
-          key === "preset_color_palette" ||
-          key.includes("color_image"), // ✅ Catch color_image_0_image, etc.
+          key.includes("color_image") // ✅ Catch color_image_0_image, etc.
       ) ||
       conversationHistory.some(
         (msg) =>
@@ -724,29 +717,26 @@ async function analyzeIntent(
       const hasExplicitReference = formDataEntries.some(
         ([key]) => key === "explicit_reference",
       );
-
+      
       // 🔧 AUTO-REFERENCING: Preserve context if there's a previous result available
       const hasPreviousResult = !!lastGeneratedResult?.imageUrl;
       const shouldClearContext = !hasExplicitReference && !hasPreviousResult; // Only clear if no explicit reference AND no previous result
 
       // 🎯 SMART WORKFLOW DETECTION: Choose workflow based on combination of uploads + presets
       let workflowType = "preset_design"; // default for preset-only operations
-
-      if (hasProductImage || hasPreviousResult) {
-        // When product image/context exists, use specific workflows based on BOTH presets AND actual uploads
-        const hasDesignPreset = formDataEntries.some(
-          ([key]) =>
-            key.startsWith("preset_design") || key.startsWith("design_style"),
-        );
-        const hasColorPreset = formDataEntries.some(
-          ([key]) =>
-            key.startsWith("preset_color") || key.startsWith("color_palette"),
-        );
-
-        // 🔧 CRITICAL FIX: Also check for actual uploaded images, not just presets
+      
+      // 🔧 CRITICAL: Only override preset_design if there are ACTUAL images, not just previous results
+      const hasAnyActualImages = hasProductImage || hasDesignImage || hasColorImage;
+      
+      if (hasAnyActualImages) {
+        // When actual images exist, use specific workflows based on BOTH presets AND actual uploads
+        const hasDesignPreset = formDataEntries.some(([key]) => key.startsWith("preset_design") || key.startsWith("design_style"));
+        const hasColorPreset = formDataEntries.some(([key]) => key.startsWith("preset_color") || key.startsWith("color_palette"));
+        
+        // Check for both presets and actual images
         const hasDesignInput = hasDesignPreset || hasDesignImage; // Design preset OR actual design image
-        const hasColorInput = hasColorPreset || hasColorImage; // Color preset OR actual color image
-
+        const hasColorInput = hasColorPreset || hasColorImage;   // Color preset OR actual color image
+        
         if (hasDesignInput && hasColorInput) {
           workflowType = "full_composition"; // Product + (design preset/image) + (color preset/image)
         } else if (hasDesignInput && !hasColorInput) {
@@ -757,7 +747,7 @@ async function analyzeIntent(
           workflowType = "product_prompt"; // Product + other presets
         }
       }
-      // If no product image and no previous result, keep "preset_design" for preset-only workflows
+      // If no actual images, keep "preset_design" for preset-only workflows (even with previous results)
 
       console.log(
         `📋 Preset with explicit reference: ${hasExplicitReference}, has previous result: ${hasPreviousResult}, workflow: ${workflowType}, clear_context: ${shouldClearContext}`,
@@ -777,8 +767,8 @@ async function analyzeIntent(
         explanation: hasExplicitReference
           ? `User selected preset options (${workflowType}) to modify referenced image - preserving context`
           : hasPreviousResult
-            ? `User selected preset options (${workflowType}) with auto-reference to previous result - preserving context`
-            : `User selected preset options (${workflowType}) - routing directly to design endpoint with fresh context`,
+          ? `User selected preset options (${workflowType}) with auto-reference to previous result - preserving context`
+          : `User selected preset options (${workflowType}) - routing directly to design endpoint with fresh context`,
       };
     }
 
@@ -788,7 +778,7 @@ async function analyzeIntent(
         "Smart fallback routing directly to design endpoint - actual images detected",
       );
 
-      // 🔧 AUTO-REFERENCING: Preserve context if there's a previous result available
+      // 🔧 AUTO-REFERENCING: Preserve context if there's a previous result available  
       const hasPreviousResult = !!lastGeneratedResult?.imageUrl;
       const shouldClearContext = !hasPreviousResult; // Only clear if no previous result
 
@@ -797,7 +787,7 @@ async function analyzeIntent(
       if (hasPreviousResult && hasDesignImage && hasColorImage) {
         workflowType = "full_composition"; // Previous result + design + color = full composition
       } else if (hasPreviousResult && hasDesignImage && !hasColorImage) {
-        workflowType = "product_design"; // Previous result + design only
+        workflowType = "product_design"; // Previous result + design only  
       } else if (hasPreviousResult && !hasDesignImage && hasColorImage) {
         workflowType = "product_color"; // Previous result + color only
       } else if (hasDesignImage && hasColorImage) {
@@ -821,9 +811,7 @@ async function analyzeIntent(
           // No explicit size - let design route auto-detect aspect ratio from product image
           quality: "auto",
           clear_context: shouldClearContext,
-          ...(hasPreviousResult
-            ? { reference_image_url: lastGeneratedResult.imageUrl }
-            : {}),
+          ...(hasPreviousResult ? { reference_image_url: lastGeneratedResult.imageUrl } : {}),
         },
         requiresFiles: true,
         explanation: hasPreviousResult
@@ -1060,7 +1048,7 @@ async function analyzeIntent(
       "isolate",
       "extract",
       "removebg",
-      "rembg",
+      "rembg"
     ];
     const hasRemovebgRequest = removebgKeywords.some((keyword) =>
       message.includes(keyword),
@@ -1931,11 +1919,35 @@ No Images + Prompt:
 
 5. REFERENCE IMAGE CONTEXT ANALYSIS:
 
-"Create a design composition using the uploaded images" + Reference Available:
-├─ Analysis: User wants to COMPOSE/CREATE something new
-├─ Reference → DESIGN role (inspiration for composition) 
-├─ New uploads → PRODUCT/COLOR roles (materials for composition)
-└─ This is CREATION, not modification of the reference
+🚨 CRITICAL CONTEXT RULES FOR REFERENCE + PRESET COMBINATIONS:
+
+Reference + Color Preset ONLY:
+├─ Intent: RECOLOR/MODIFY the reference image with new color palette
+├─ Reference → PRODUCT role (base item to recolor)
+├─ Color Preset → COLOR role (new colors to apply)
+├─ User wants: Same product structure, different colors
+└─ This is MODIFICATION of existing reference, NOT creation of new design
+
+Reference + Design Preset ONLY:
+├─ Intent: RESTYLE the reference image with new design patterns
+├─ Reference → PRODUCT role (base item to restyle)
+├─ Design Preset → DESIGN role (new patterns to apply)
+├─ User wants: Same product structure, different design elements
+└─ This is MODIFICATION of existing reference, NOT creation inspired by reference
+
+Reference + Product Preset + Other Presets:
+├─ Intent: CREATE new product using reference as DESIGN inspiration
+├─ Product Preset → PRODUCT role (what to create)
+├─ Reference → DESIGN role (style inspiration)
+├─ Other Presets → Additional styling
+└─ This is CREATION inspired by reference
+
+"Create a design composition using the uploaded images" + Reference + Color Preset:
+├─ Analysis: User wants to RECOLOR existing design composition
+├─ Reference → PRODUCT role (existing composition to modify)
+├─ Color Preset → COLOR role (new color scheme)
+├─ Result: Same design composition with different colors
+└─ This is MODIFICATION/RECOLORING, not new creation
 
 "Apply this color to the design" + Reference Available:
 ├─ Analysis: User wants to MODIFY existing reference
@@ -1944,18 +1956,15 @@ No Images + Prompt:
 └─ This is MODIFICATION of the reference
 
 6. CRITICAL SEMANTIC DISTINCTION:
-- MODIFICATION INTENT: "Change this", "Apply to this", "Modify this" → Reference = PRODUCT role
-- INSPIRATION INTENT: "Create using this", "Make something like this", "Inspired by this" → Reference = DESIGN role  
+- MODIFICATION INTENT: "Change this", "Apply to this", "Modify this", "recolor this", "use these colors on this" → Reference = PRODUCT role
+- CREATION INTENT: "Create using this", "Make something like this", "Inspired by this", "new design based on this" → Reference = DESIGN role  
 - EXTRACTION INTENT: "Use colors from this", "Extract palette" → Reference = COLOR role
 
-WORKFLOW DECISION TREE:
-1. Check if ANY presets involved → preset_design
-2. Analyze user intent (modification vs creation vs extraction)
-3. Assign semantic roles to each input based on intent
-4. Count roles: Product + Design + Color = full_composition
-5. Count roles: Product + Design = product_design  
-6. Count roles: Product + Color = product_color
-7. And so on...
+🚨 SPECIAL CASE: When user has ONLY reference + single preset (color OR design):
+- This is ALMOST ALWAYS modification intent (recolor or restyle the reference)
+- Reference should be PRODUCT role (base to modify)
+- Preset provides the modification (color change or design change)
+- NOT inspiration for creating something new
 
 EDGE CASE EXAMPLES:
 - Reference + Product preset + Color preset = full_composition (reference as design inspiration)
@@ -1986,10 +1995,7 @@ EDGE CASE EXAMPLES:
       // ✅ NEW: Always bypass Claude for actual image uploads with auto-referencing
       // Smart fallback is excellent at detecting these workflow combinations
       (smartResult.intent === "design" &&
-        formDataEntries.some(
-          ([key]) =>
-            key.includes("design_image") || key.includes("color_image"),
-        ) &&
+        formDataEntries.some(([key]) => key.includes("design_image") || key.includes("color_image")) &&
         !formDataEntries.some(([key]) => key.startsWith("preset_"))));
 
   if (isSuperObvious) {
@@ -2142,35 +2148,27 @@ REFERENCE ANALYSIS:
 CRITICAL: If user uploaded images and uses words like "it", "this", "that" - they are referring to the UPLOADED images, NOT previous results!
 
 🎯 WORKFLOW SCENARIO DETECTION:
-${
-  hasUploadedImages && lastGeneratedResult?.imageUrl
-    ? `
+${hasUploadedImages && lastGeneratedResult?.imageUrl ? `
 ⚠️ MODIFICATION SCENARIO DETECTED:
 - User has REFERENCE IMAGE available: ${lastGeneratedResult.imageUrl}
 - User uploaded NEW IMAGE(S): ${imageFileEntries.map(([key]) => key).join(", ")}
 - This is a MODIFICATION workflow, not fresh creation
 - Choose appropriate product_* workflow (product_color, product_design, etc.)
-`
-    : hasUploadedImages
-      ? `
+` : hasUploadedImages ? `
 🆕 FRESH CREATION SCENARIO:
 - User uploaded image(s) but no reference available
 - This is a FRESH CREATION workflow
 - Choose appropriate *_prompt workflow (color_prompt, design_prompt, etc.)
-`
-      : lastGeneratedResult?.imageUrl
-        ? `
+` : lastGeneratedResult?.imageUrl ? `
 📝 TEXT MODIFICATION SCENARIO:
 - User has reference image but no new uploads
 - This is text-based modification of existing result
 - Choose appropriate *_prompt workflow based on what user wants to change
-`
-        : `
+` : `
 💬 NO IMAGES SCENARIO:
 - No reference image and no uploads detected
 - This might be casual conversation or prompt-only generation
-`
-}
+`}
 
 Follow system instructions and return intent JSON only.`;
 
@@ -2290,23 +2288,20 @@ async function generateResponse(
         if (intentAnalysis.intent === "analyze_image" && apiResult.result) {
           // Helper to clean result data
           const sanitizeAnalysis = (obj: any): string => {
-            if (typeof obj === "string") return obj;
+            if (typeof obj === 'string') return obj;
             const sanitized = { ...obj };
-            Object.keys(sanitized).forEach((key) => {
+            Object.keys(sanitized).forEach(key => {
               const value = sanitized[key];
-              if (
-                typeof value === "string" &&
-                (value.startsWith("data:image/") || value.length > 1000)
-              ) {
-                sanitized[key] =
-                  `[TRUNCATED_${Math.floor(value.length / 1024)}KB]`;
+              if (typeof value === 'string' && (value.startsWith('data:image/') || value.length > 1000)) {
+                sanitized[key] = `[TRUNCATED_${Math.floor(value.length/1024)}KB]`;
               }
             });
             return JSON.stringify(sanitized, null, 2);
           };
-
+          
           const analysisContent =
-            apiResult.result.raw_analysis || sanitizeAnalysis(apiResult.result);
+            apiResult.result.raw_analysis ||
+            sanitizeAnalysis(apiResult.result);
           prompt = `The user said: "${userMessage}"
 
 I successfully analyzed their image using ${intentAnalysis.endpoint}. Here's what I found:
@@ -2457,12 +2452,10 @@ async function routeToAPI(
           // Handle comma-separated multiple presets
           if (value.includes(",")) {
             // Split by comma, extract category from each path, then rejoin
-            const paths = value.split(",").map((path) => path.trim());
-            const categories = paths.map((path) => extractPresetCategory(path));
+            const paths = value.split(",").map(path => path.trim());
+            const categories = paths.map(path => extractPresetCategory(path));
             processedValue = categories.join(", ");
-            console.log(
-              `🎨 Multiple presets detected: ${categories.join(" + ")} (from ${paths.length} paths)`,
-            );
+            console.log(`🎨 Multiple presets detected: ${categories.join(" + ")} (from ${paths.length} paths)`);
           } else {
             processedValue = extractPresetCategory(value);
           }
@@ -2504,15 +2497,11 @@ async function routeToAPI(
 
       // 🧠 CRITICAL: Pass semantic analysis for intelligent input role assignment
       if (parameters.semantic_analysis) {
-        const serializedAnalysis =
-          typeof parameters.semantic_analysis === "object"
-            ? JSON.stringify(parameters.semantic_analysis)
-            : parameters.semantic_analysis;
+        const serializedAnalysis = typeof parameters.semantic_analysis === 'object' 
+          ? JSON.stringify(parameters.semantic_analysis) 
+          : parameters.semantic_analysis;
         formData.append("semantic_analysis", serializedAnalysis);
-        console.log(
-          "🧠 Added semantic analysis for intelligent processing:",
-          serializedAnalysis,
-        );
+        console.log("🧠 Added semantic analysis for intelligent processing:", serializedAnalysis);
       }
 
       // Add color/style modifications if specified
@@ -2608,7 +2597,10 @@ async function routeToAPI(
       if (parameters.reference_image_url) {
         // Check if we have inherited product presets - if so, DON'T override product
         const hasInheritedProduct = presetSelections.preset_product_type;
-
+        
+        // 🎯 CRITICAL FIX: Check if user selected a different product preset
+        const useNewProductPreset = parameters.use_new_product_preset;
+        
         // Check if this is a fresh design request
         const claudeExplanation = parameters.explanation?.toLowerCase() || "";
         const isExplicitlyFreshRequest =
@@ -2618,53 +2610,41 @@ async function routeToAPI(
           parameters.workflow_type === "prompt_only";
 
         // 🔧 MODIFICATION WORKFLOWS: Always need reference image as product base
-        const modificationWorkflows = [
-          "product_color",
-          "product_design",
-          "full_composition",
-        ];
-        const isModificationWorkflow = modificationWorkflows.includes(
-          parameters.workflow_type,
-        );
-
+        const modificationWorkflows = ["product_color", "product_design", "full_composition"];
+        const isModificationWorkflow = modificationWorkflows.includes(parameters.workflow_type);
+        
         // 🔧 NON-PRODUCT WORKFLOWS: Don't add reference as product_image
-        const workflowsWithoutProduct = [
-          "color_prompt",
-          "design_prompt",
-          "prompt_only",
-        ];
-        const workflowRequiresNoProduct = workflowsWithoutProduct.includes(
-          parameters.workflow_type,
-        );
+        const workflowsWithoutProduct = ["color_prompt", "design_prompt", "prompt_only"];
+        const workflowRequiresNoProduct = workflowsWithoutProduct.includes(parameters.workflow_type);
 
-        if (
-          hasInheritedProduct &&
-          !formData.has("product_image_url") &&
-          !isModificationWorkflow
-        ) {
+        if (useNewProductPreset) {
+          // 🎯 USER SELECTED DIFFERENT PRODUCT PRESET: Don't use reference image as product base
+          console.log(
+            "🎯 Different product preset selected - ignoring reference image for product base, using new preset instead",
+          );
+          // Don't add reference as product_image_url - let the new product preset handle the product type
+        } else if (hasInheritedProduct && !formData.has("product_image_url") && !isModificationWorkflow) {
           // We have a product type preset, so reference image should be for inspiration only
           console.log(
             "🧬 Preserving product type preset, using reference for style inspiration only",
           );
           // Don't add reference as product_image_url - let preset handle product type
-        } else if (
-          isModificationWorkflow &&
-          !formData.has("product_image_url") &&
-          !isExplicitlyFreshRequest
-        ) {
+        } else if (isModificationWorkflow && !formData.has("product_image_url") && !isExplicitlyFreshRequest) {
           // MODIFICATION: Always use reference image as product base
-          formData.append("product_image_url", parameters.reference_image_url);
+          formData.append(
+            "product_image_url",
+            parameters.reference_image_url,
+          );
           console.log(
             `🔄 Added reference image as product_image_url for ${parameters.workflow_type} modification:`,
             parameters.reference_image_url,
           );
-        } else if (
-          !formData.has("product_image_url") &&
-          !workflowRequiresNoProduct &&
-          !isExplicitlyFreshRequest
-        ) {
+        } else if (!formData.has("product_image_url") && !workflowRequiresNoProduct && !isExplicitlyFreshRequest) {
           // GENERAL: Add reference as product if no product defined and workflow allows it
-          formData.append("product_image_url", parameters.reference_image_url);
+          formData.append(
+            "product_image_url",
+            parameters.reference_image_url,
+          );
           console.log(
             "🔄 Added reference image as product_image_url:",
             parameters.reference_image_url,
@@ -2764,8 +2744,7 @@ async function routeToAPI(
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && key !== "image_url") {
           // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
-          const serializedValue =
-            typeof value === "object" ? JSON.stringify(value) : String(value);
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
           formData.append(key, serializedValue);
         }
       });
@@ -2792,8 +2771,7 @@ async function routeToAPI(
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
-          const serializedValue =
-            typeof value === "object" ? JSON.stringify(value) : String(value);
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
           formData.append(key, serializedValue);
         }
       });
@@ -2822,8 +2800,7 @@ async function routeToAPI(
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
-          const serializedValue =
-            typeof value === "object" ? JSON.stringify(value) : String(value);
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
           formData.append(key, serializedValue);
         }
       });
@@ -2886,8 +2863,7 @@ async function routeToAPI(
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && key !== "image_url") {
           // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
-          const serializedValue =
-            typeof value === "object" ? JSON.stringify(value) : String(value);
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
           formData.append(key, serializedValue);
         }
       });
@@ -2986,8 +2962,7 @@ async function routeToAPI(
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           // 🎯 CRITICAL FIX: Properly serialize objects to JSON for complex parameters
-          const serializedValue =
-            typeof value === "object" ? JSON.stringify(value) : String(value);
+          const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
           formData.append(key, serializedValue);
         }
       });
@@ -3018,33 +2993,25 @@ async function routeToAPI(
       console.log("🚀 Calling design route...");
       const response = await designPOST(mockRequest as any);
       const result = await response.json();
-
+      
       // Clean logging helper (reused from above)
       const sanitizeForLogging = (obj: any): any => {
         if (!obj) return obj;
         const sanitized = { ...obj };
-        Object.keys(sanitized).forEach((key) => {
+        Object.keys(sanitized).forEach(key => {
           const value = sanitized[key];
-          if (typeof value === "string") {
-            if (
-              value.startsWith("data:image/") ||
-              value.match(/^[A-Za-z0-9+/]+=*$/)
-            ) {
-              sanitized[key] =
-                `[BASE64_IMAGE_DATA_${Math.floor(value.length / 1024)}KB]`;
+          if (typeof value === 'string') {
+            if (value.startsWith('data:image/') || value.match(/^[A-Za-z0-9+/]+=*$/)) {
+              sanitized[key] = `[BASE64_IMAGE_DATA_${Math.floor(value.length/1024)}KB]`;
             } else if (value.length > 1000) {
-              sanitized[key] =
-                `[LARGE_STRING_${Math.floor(value.length / 1024)}KB]`;
+              sanitized[key] = `[LARGE_STRING_${Math.floor(value.length/1024)}KB]`;
             }
           }
         });
         return sanitized;
       };
-
-      console.log(
-        "🔍 Design route result:",
-        JSON.stringify(sanitizeForLogging(result), null, 2),
-      );
+      
+      console.log("🔍 Design route result:", JSON.stringify(sanitizeForLogging(result), null, 2));
       return result;
     } else if (endpoint === "/api/reframe") {
       // Import and call the reframe API logic directly
@@ -3885,7 +3852,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           } else {
             // 🎯 SMART FALLBACK: Use correct image slot based on workflow type (same logic as other branch)
             const workflowType = intentAnalysis.parameters.workflow_type;
-
+            
             if (workflowType === "design_prompt") {
               imageUrls.design_image = referenceResult.imageUrl;
               console.log(
@@ -3898,12 +3865,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 `🔄 Claude's choice not in chain, using reference result as color_image for color_prompt:`,
                 referenceResult.imageUrl,
               );
-            } else if (
-              workflowType === "product_prompt" ||
-              workflowType === "product_design" ||
-              workflowType === "product_color" ||
-              workflowType === "full_composition"
-            ) {
+            } else if (workflowType === "product_prompt" || workflowType === "product_design" || workflowType === "product_color" || workflowType === "full_composition") {
               imageUrls.product_image = referenceResult.imageUrl;
               console.log(
                 `🔄 Claude's choice not in chain, using reference result as product_image for ${workflowType}:`,
@@ -3925,20 +3887,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             Object.keys(explicitReference.inheritedPresets).length > 0;
 
           // 🎯 DIFFERENT PRODUCT PRESET DETECTION: Check if user selected a different product type
-          const currentProductPreset = formData.get(
-            "preset_product_type",
-          ) as string;
-          const previousProductPreset =
-            explicitReference?.inheritedPresets?.preset_product_type;
-          const isDifferentProductPreset =
-            currentProductPreset &&
+          const currentProductPreset = formData.get("preset_product_type") as string;
+          const previousProductPreset = explicitReference?.inheritedPresets?.preset_product_type;
+          const isDifferentProductPreset = currentProductPreset && 
             currentProductPreset !== previousProductPreset &&
             !currentProductPreset.includes("undefined") &&
             !currentProductPreset.includes("null");
 
           // 🎯 FRESH REQUEST DETECTION: Check if Claude said this is a fresh design request
-          const claudeExplanation =
-            intentAnalysis.explanation?.toLowerCase() || "";
+          const claudeExplanation = intentAnalysis.explanation?.toLowerCase() || "";
           const isExplicitlyFreshRequest =
             claudeExplanation.includes("not referencing previous results") ||
             claudeExplanation.includes("new design request") ||
@@ -3947,9 +3904,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
           // 🔄 MODIFICATION DETECTION: Check if user uploaded new images for modification
           const workflowType = intentAnalysis.parameters.workflow_type;
-          const isModificationWorkflow =
-            workflowType === "product_color" ||
-            workflowType === "product_design" ||
+          const isModificationWorkflow = 
+            workflowType === "product_color" || 
+            workflowType === "product_design" || 
             workflowType === "product_prompt" ||
             workflowType === "full_composition";
           const hasNewUploads = hasActualImages; // User uploaded new images in this request
@@ -3962,6 +3919,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             // Let the system create fresh with the new product preset
             intentAnalysis.parameters.has_inherited_presets = false;
             intentAnalysis.parameters.use_new_product_preset = true;
+            console.log(
+              `🚫 SKIPPING reference image completely - user wants to use different product preset instead`
+            );
+            // Don't add reference image to any slot - completely ignore previous result
           } else if (isModificationWorkflow && referenceResult?.imageUrl) {
             console.log(
               `🔄 MODIFICATION DETECTED: ${workflowType} workflow with reference image - using reference as base product`,
@@ -3974,7 +3935,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             );
             // IMPORTANT: Skip inherited presets when we have a modification workflow
             console.log(
-              `🚫 SKIPPING inherited presets for modification workflow - using actual reference image instead`,
+              `🚫 SKIPPING inherited presets for modification workflow - using actual reference image instead`
             );
           } else if (hasInheritedPresets && !isModificationWorkflow) {
             console.log(
@@ -3992,7 +3953,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           } else {
             // 🎯 SMART IMAGE SLOT ASSIGNMENT: Choose correct image slot based on workflow type
             const workflowType = intentAnalysis.parameters.workflow_type;
-
+            
             if (workflowType === "design_prompt") {
               // design_prompt requires: hasDesign=true, hasPrompt=true, hasProduct=false, hasColor=false
               imageUrls.design_image = referenceResult.imageUrl;
@@ -4007,12 +3968,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 `✅ Added ${sourceType} image as color_image for color_prompt workflow:`,
                 referenceResult.imageUrl,
               );
-            } else if (
-              workflowType === "product_prompt" ||
-              workflowType === "product_design" ||
-              workflowType === "product_color" ||
-              workflowType === "full_composition"
-            ) {
+            } else if (workflowType === "product_prompt" || workflowType === "product_design" || workflowType === "product_color" || workflowType === "full_composition") {
               // These workflows expect the previous result to be the product to modify
               imageUrls.product_image = referenceResult.imageUrl;
               console.log(
@@ -4034,21 +3990,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // Also add to intent parameters if not already set and NOT a fresh request
       if (!intentAnalysis.parameters.reference_image_url) {
         // 🎯 REUSE: Use the same fresh request detection from above
-        const claudeExplanation =
-          intentAnalysis.explanation?.toLowerCase() || "";
+        const claudeExplanation = intentAnalysis.explanation?.toLowerCase() || "";
         const isExplicitlyFreshRequest =
           claudeExplanation.includes("not referencing previous results") ||
           claudeExplanation.includes("new design request") ||
           claudeExplanation.includes("fresh design request") ||
           intentAnalysis.parameters.workflow_type === "prompt_only";
 
-        if (!isExplicitlyFreshRequest) {
-          // Only add reference if Claude didn't explicitly say it's a fresh request
+        // 🎯 CRITICAL FIX: Also check if user selected a different product preset
+        const useNewProductPreset = intentAnalysis.parameters.use_new_product_preset;
+
+        if (!isExplicitlyFreshRequest && !useNewProductPreset) {
+          // Only add reference if Claude didn't explicitly say it's a fresh request AND user didn't select different product preset
           intentAnalysis.parameters.reference_image_url =
             referenceResult.imageUrl;
           console.log(
             `✅ Added reference_image_url to intent parameters:`,
             referenceResult.imageUrl,
+          );
+        } else if (useNewProductPreset) {
+          console.log(
+            `🎯 Skipping reference_image_url - user selected different product preset`,
           );
         } else {
           console.log(
@@ -4116,7 +4078,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           ) {
             // 🎯 SMART CHAINING: Use correct image slot based on current step workflow type
             const stepWorkflowType = step.parameters?.workflow_type;
-
+            
             if (stepWorkflowType === "design_prompt") {
               stepImageUrls.design_image = previousOutputUrl;
               console.log(
@@ -4165,18 +4127,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           const sanitizeStepResult = (obj: any): any => {
             if (!obj) return obj;
             const sanitized = { ...obj };
-            Object.keys(sanitized).forEach((key) => {
+            Object.keys(sanitized).forEach(key => {
               const value = sanitized[key];
-              if (typeof value === "string") {
-                if (
-                  value.startsWith("data:image/") ||
-                  value.match(/^[A-Za-z0-9+/]+=*$/)
-                ) {
-                  sanitized[key] =
-                    `[BASE64_IMAGE_DATA_${Math.floor(value.length / 1024)}KB]`;
+              if (typeof value === 'string') {
+                if (value.startsWith('data:image/') || value.match(/^[A-Za-z0-9+/]+=*$/)) {
+                  sanitized[key] = `[BASE64_IMAGE_DATA_${Math.floor(value.length/1024)}KB]`;
                 } else if (value.length > 1000) {
-                  sanitized[key] =
-                    `[LARGE_STRING_${Math.floor(value.length / 1024)}KB]`;
+                  sanitized[key] = `[LARGE_STRING_${Math.floor(value.length/1024)}KB]`;
                 }
               }
             });
@@ -4360,34 +4317,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const sanitizeForLogging = (obj: any): any => {
           if (!obj) return obj;
           const sanitized = { ...obj };
-
+          
           // Remove or truncate common base64 fields
-          Object.keys(sanitized).forEach((key) => {
+          Object.keys(sanitized).forEach(key => {
             const value = sanitized[key];
-            if (typeof value === "string") {
-              if (
-                value.startsWith("data:image/") ||
-                value.match(/^[A-Za-z0-9+/]+=*$/)
-              ) {
-                sanitized[key] =
-                  `[BASE64_IMAGE_DATA_${Math.floor(value.length / 1024)}KB]`;
+            if (typeof value === 'string') {
+              if (value.startsWith('data:image/') || value.match(/^[A-Za-z0-9+/]+=*$/)) {
+                sanitized[key] = `[BASE64_IMAGE_DATA_${Math.floor(value.length/1024)}KB]`;
               } else if (value.length > 1000) {
-                sanitized[key] =
-                  `[LARGE_STRING_${Math.floor(value.length / 1024)}KB]`;
+                sanitized[key] = `[LARGE_STRING_${Math.floor(value.length/1024)}KB]`;
               }
             }
           });
-
+          
           return sanitized;
         };
 
         console.log("🔍 routeToAPI returned:");
         console.log("  - Status:", apiResult?.status);
-        console.log("  - Keys:", apiResult ? Object.keys(apiResult) : "none");
-        console.log(
-          "  - Clean result:",
-          JSON.stringify(sanitizeForLogging(apiResult), null, 2),
-        );
+        console.log("  - Keys:", apiResult ? Object.keys(apiResult) : 'none');
+        console.log("  - Clean result:", JSON.stringify(sanitizeForLogging(apiResult), null, 2));
 
         // 🔧 Process output images and save to Firebase Storage
         if (apiResult && apiResult.status === "success") {
@@ -4489,10 +4438,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.log(`  - Intent: ${intentAnalysis.intent}`);
     console.log(`  - Is image operation: ${isImageOperation}`);
     console.log(`  - API result exists: ${!!apiResult}`);
-    console.log(`  - API result status: ${apiResult?.status || "undefined"}`);
-    console.log(
-      `  - API result keys: ${apiResult ? Object.keys(apiResult) : "none"}`,
-    );
+    console.log(`  - API result status: ${apiResult?.status || 'undefined'}`);
+    console.log(`  - API result keys: ${apiResult ? Object.keys(apiResult) : 'none'}`);
 
     if (isImageOperation && apiResult && apiResult.status === "success") {
       // 🔍 Check if this is part of a multi-step operation
