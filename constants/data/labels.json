@@ -128,7 +128,29 @@
     "animalworld": "animal world",
     "nautical": "nautical",
     "mozaiq": "mozaiq",
-    "tuttifrutti": "tutti frutti"
+    "tuttifrutti": "tutti frutti",
+
+
+    "quiteluxurymasculine":"quite luxury masculine",
+    "timelesselegance":"timeless elegance",
+    "futuristicandbold":"futuristic and bold",
+    "boldandcolorful":"bold and colorful",
+    "sculptural":"sculptural",
+    "girlyromanticsporty":"girly romantic sporty",
+    "innovativethinking":"innovative thinking",
+    "naturalelements":"natual rlemeneso",
+    "contemporaryart":"contemporary art",
+    "printedmatter":"printed matter",
+    "retrodancehall":"retro dance hall",
+    "80stouch":"80s touch",
+    "goldennights":"golden nights",
+    "whimsicaleclectic":"whimsical eclectic",
+    "artizanaltouch":"artisanal touch",
+    "wovensportymules":"woven sporty mules",
+    "homeyfeel":"homey feel"
+
+
+
   },
   "colors": {
     "neutral": "Neutral",
