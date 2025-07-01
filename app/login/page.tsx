@@ -146,11 +146,11 @@ export default function Login() {
             </Button>
           </Form>
 
-          <div className="flex w-full items-center gap-4 py-2">
+          {/* <div className="flex w-full items-center gap-4 py-2">
             <Divider className="flex-1" />
             <p className="shrink-0 text-tiny text-default-500">OR</p>
             <Divider className="flex-1" />
-          </div>
+          </div> */}
 
           <div className="flex w-full flex-col gap-2">
             {/* <Button
@@ -160,7 +160,7 @@ export default function Login() {
             >
               Continue with Phone
             </Button> */}
-            <Button
+            {/* <Button
               startContent={
                 <Icon
                   className="text-default-500"
@@ -172,8 +172,8 @@ export default function Login() {
               onPress={handleGoogleSignIn}
             >
               Continue with Google
-            </Button>
-            <Button
+            </Button> */}
+            {/* <Button
               startContent={
                 <Icon
                   className="text-default-500 dark:invert"
@@ -185,14 +185,16 @@ export default function Login() {
               onPress={handleAppleSignIn}
             >
               Continue with Apple
-            </Button>
+            </Button> */}
           </div>
-          <p className="text-center text-small">
+          {/* <p className="text-center text-small">
             Need to create an account?&nbsp;
             <Link className="text-blue-500" href="/signup" size="sm">
               Sign Up
             </Link>
-          </p>
+          </p> */}
+
+          
         </div>
       </div>
 

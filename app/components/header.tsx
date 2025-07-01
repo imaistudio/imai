@@ -152,21 +152,21 @@ export default function App() {
             ) : (
               // Show when user is not authenticated
               <>
-                <NavbarItem className="hidden lg:flex text-black dark:text-white">
+                {/* <NavbarItem className="hidden lg:flex text-black dark:text-white">
                   <Link
                     className="text-black dark:text-white hover:scale-110 hover:font-semibold"
                     href="/login"
                   >
                     Login
                   </Link>
-                </NavbarItem>
+                </NavbarItem> */}
                 <NavbarItem>
                   <Button
                     as={Link}
-                    href="/signup"
+                    href="/invite"
                     className="rounded-full bg-primary text-white"
                   >
-                    Getting Started
+                    Request Early Access
                   </Button>
                 </NavbarItem>
                 <ThemeSwitch className="hidden lg:flex" />

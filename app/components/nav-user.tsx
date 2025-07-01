@@ -145,10 +145,17 @@ export function NavUser() {
                 Login
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => router.push("/signup")}>
+              {/* <DropdownMenuItem onClick={() => router.push("/signup")}>
                 <UserPlus />
                 Sign Up
+              </DropdownMenuItem> */}
+
+              <DropdownMenuItem onClick={() => router.push("/invite")}>
+                <UserPlus />
+                Request Early Access
               </DropdownMenuItem>
+
+
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>

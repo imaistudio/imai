@@ -56,9 +56,15 @@ export default function GlobalModal() {
               </button>
             </a>
 
-            <a href="/signup" onClick={closeModal} className="w-full">
+            {/* <a href="/signup" onClick={closeModal} className="w-full">
               <button className="border border-gray-300 w-full rounded-full py-3 ">
                 Sign up for free
+              </button>
+            </a> */}
+
+            <a href="/invite" onClick={closeModal} className="w-full">
+              <button className="border border-gray-300 w-full rounded-full py-3 ">
+                Request Early Access
               </button>
             </a>
 
