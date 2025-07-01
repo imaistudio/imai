@@ -154,8 +154,6 @@ export function NavUser() {
                 <UserPlus />
                 Request Early Access
               </DropdownMenuItem>
-
-
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>

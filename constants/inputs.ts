@@ -51,8 +51,8 @@ export const defaultDesignImages: ProductImages = designsData.defaultImages;
 // General Design Images (only designs with /general/ path - for when no product is selected)
 export const generalDesignImages: ProductImages = Object.fromEntries(
   Object.entries(designsData.defaultImages).filter(([key, urls]) =>
-    urls.some((url: string) => url.includes('/general/'))
-  )
+    urls.some((url: string) => url.includes("/general/")),
+  ),
 );
 
 // Default Color Images

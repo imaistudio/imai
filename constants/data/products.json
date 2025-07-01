@@ -1,1007 +1,1045 @@
 {
-	"productTypes": [
-		"tshirt",
-		"pillow",
-		"shoes",
-		"phonecase",
-		"wallart",
-		"hoodie",
-		"coffecup",
-		"totebag",
-		"blanket",
-		"earrings",
-		"sofa",
-		"scarf",
-		"backpack",
-		"lamp",
-		"dress",
-		"jean",
-		"plate",
-		"notebook",
-		"shoulderbag",
-		"vase",
-		"toys",
-		"vehicles",
-		"glasses",
-		"watches"
-	],
-	"defaultImages": {
-		"tshirt": ["inputs/placeholders/t-shirt.svg"],
-		"pillow": ["inputs/placeholders/pillow.svg"],
-		"shoes": ["inputs/placeholders/shoes.svg"],
-		"phonecase": ["inputs/placeholders/phonecase.svg"],
-		"wallart": ["inputs/placeholders/wallart.svg"],
-		"hoodie": ["inputs/placeholders/hoodie.svg"],
-		"coffecup": ["inputs/placeholders/coffeecup.svg"],
-		"totebag": ["inputs/placeholders/totebag.svg"],
-		"blanket": ["inputs/placeholders/blanket.svg"],
-		"earrings": ["inputs/placeholders/earrings.svg"],
-		"sofa": ["inputs/placeholders/sofa.svg"],
-		"scarf": ["inputs/placeholders/scarf.svg"],
-		"backpack": ["inputs/placeholders/backpack.svg"],
-		"lamp": ["inputs/placeholders/lamp.svg"],
-		"dress": ["inputs/placeholders/dress.svg"],
-		"jean": ["inputs/placeholders/jean.svg"],
-		"plate": ["inputs/placeholders/plate.svg"],
-		"notebook": ["inputs/placeholders/notebook.svg"],
-		"shoulderbag": ["inputs/placeholders/shoulderbag.svg"],
-		"vase": ["inputs/placeholders/vase.svg"],
-		"toys": ["inputs/placeholders/toys.svg"],
-		"vehicles": ["inputs/placeholders/vehicles.svg"],
-		"glasses": ["inputs/placeholders/glasses.svg"],
-		"watches": ["inputs/placeholders/watches.svg"]
-	},
-	"placeholders": {
-		"tshirt": "/inputs/placeholders/t-shirt.svg",
-		"pillow": "/inputs/placeholders/pillow.svg",
-		"shoes": "/inputs/placeholders/shoes.svg",
-		"phonecase": "/inputs/placeholders/phonecase.svg",
-		"wallart": "/inputs/placeholders/wallart.svg",
-		"hoodie": "/inputs/placeholders/hoodie.svg",
-		"coffecup": "/inputs/placeholders/coffeecup.svg",
-		"totebag": "/inputs/placeholders/totebag.svg",
-		"blanket": "/inputs/placeholders/blanket.svg",
-		"earrings": "/inputs/placeholders/earrings.svg",
-		"sofa": "/inputs/placeholders/sofa.svg",
-		"scarf": "/inputs/placeholders/scarf.svg",
-		"backpack": "/inputs/placeholders/backpack.svg",
-		"lamp": "/inputs/placeholders/lamp.svg",
-		"dress": "/inputs/placeholders/dress.svg",
-		"jean": "/inputs/placeholders/jean.svg",
-		"plate": "/inputs/placeholders/plate.svg",
-		"notebook": "/inputs/placeholders/notebook.svg",
-		"shoulderbag": "/inputs/placeholders/shoulderbag.svg",
-		"vase": "/inputs/placeholders/vase.svg",
-		"toys": "/inputs/placeholders/toys.svg",
-		"vehicles": "/inputs/placeholders/vehicles.svg",
-		"glasses": "/inputs/placeholders/glasses.svg",
-		"watches": "/inputs/placeholders/watches.svg"
-	},
-	"specificDesigns": {
-		"tshirt": {
-			"streetwear": [
-				"/inputs/designs/fashions/streetwear/streetwear1.webp",
-				"/inputs/designs/fashions/streetwear/streetwear2.webp",
-				"/inputs/designs/fashions/streetwear/streetwear3.webp"
-			],
-			"comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
-			"youthful": [
-				"/inputs/designs/fashions/youthful/youthful1.webp",
-				"/inputs/designs/fashions/youthful/youthful2.webp"
-			],
-			"edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
-			"minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-			"prints": [""],
-			"fashionforward": [
-				"/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
-			],
-			"boldstructured": [
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
-			],
-			"luxury": [
-				"/inputs/designs/fashions/luxury/luxury1.webp",
-				"/inputs/designs/fashions/luxury/luxury2.webp",
-				"/inputs/designs/fashions/luxury/luxury3.webp"
-			],
-			"powerfullfeminity": [
-				"/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
-			],
-			"romanticflower": [
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
-			],
-			"consciousfloral": [
-				"/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
-			],
-			"artisticencounters": [
-				"/inputs/designs/fashions/artistic/artistic1.webp",
-				"/inputs/designs/fashions/artistic/artistic2.webp",
-				"/inputs/designs/fashions/artistic/artistic3.webp",
-				"/inputs/designs/fashions/artistic/artistic4.webp",
-				"/inputs/designs/fashions/artistic/artistic5.webp",
-				"/inputs/designs/fashions/artistic/artistic6.webp",
-				"/inputs/designs/fashions/artistic/artistic7.webp",
-				"/inputs/designs/fashions/artistic/artistic8.webp",
-				"/inputs/designs/fashions/artistic/artistic9.webp",
-				"/inputs/designs/fashions/artistic/artistic10.webp",
-				"/inputs/designs/fashions/artistic/artistic11.webp",
-				"/inputs/designs/fashions/artistic/artistic12.webp"
-			],
-			"wellnesssporty": [
-				"/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
-			],
-			"businessclean": [
-				"/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
-			],
-			"effortlesschicinnovative": [
-				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
-			]
-		},
-		"pillow": {
-			"midcenturymodern": [
-				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
-			],
-			"organicshapes": [
-				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
-				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
-			],
-			"rawexposedmaterials": [
-				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
-			],
-			"traditionaljapanese": [
-				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
-			],
-			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
-			"turnofthecenturyluxe": [
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
-			],
-			"nomadic": [
-				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
-				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
-			],
-			"popcraft": [
-				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
-				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
-			],
-			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
-			"chromelook": [
-				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
-			],
-			"spaceage": [
-				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
-			],
-			"animalia": [
-				"/inputs/designs/homedecor/animalia/animalia1.webp",
-				"/inputs/designs/homedecor/animalia/animalia2.webp"
-			],
-			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
-			"daliesquemodern": [
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
-			],
-			"melting": [
-				"/inputs/designs/homedecor/melting/melting1.webp",
-				"/inputs/designs/homedecor/melting/melting2.webp",
-				"/inputs/designs/homedecor/melting/melting3.webp",
-				"/inputs/designs/homedecor/melting/melting4.webp"
-			],
-			"primordialart": [
-				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
-			],
-			"toteminspired": [
-				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
-			]
-		},
-		"shoes": {
-			"quiteluxurymasculine": [
-				"/inputs/designs/footwear/quietluxurymasculinechic/quietluxurymasculinechic1.webp"
-			],
-			"timelesselegance": [
-				"/inputs/designs/footwear/timelesselegance/timelesselegance1.webp",
-				"/inputs/designs/footwear/timelesselegance/timelesselegance2.webp",
-				"/inputs/designs/footwear/timelesselegance/timelesselegance3.webp",
-				"/inputs/designs/footwear/timelesselegance/timelesselegance4.webp"
-			],
-			"futuristicandbold": [
-				"/inputs/designs/footwear/futuristicandbold/futuristicandbold1.webp",
-				"/inputs/designs/footwear/futuristicandbold/futuristicandbold2.webp"
-			],
-			"boldandcolorful": [
-				"/inputs/designs/footwear/boldandcoloful/boldandcoloful1.webp"
-			],
-			"sculptural": ["/inputs/designs/footwear/sculptural/sculptural1.webp"],
-			"girlyromanticsporty": [
-				"/inputs/designs/footwear/girlyromanticsporty/girlyromanticsporty1.webp"
-			],
-			"innovativethinking": [
-				"/inputs/designs/footwear/innovativethinking/innovativethinking1.webp",
-				"/inputs/designs/footwear/innovativethinking/innovativethinking2.webp"
-			],
-			"naturalelements": [
-				"/inputs/designs/footwear/naturalelements/naturalelements1.webp"
-			],
-			"contemporaryart": [
-				"/inputs/designs/footwear/contemporaryart/contemporaryart1.webp"
-			],
-			"printedmatter": [
-				"/inputs/designs/footwear/printedmatter/printedmatter1.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter2.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter3.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter4.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter5.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter6.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter7.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter8.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter9.webp",
-				"/inputs/designs/footwear/printedmatter/printedmatter10.webp"
-			],
-			"retrodancehall": [
-				"/inputs/designs/footwear/retrodancehall/retrodancehall1.webp"
-			],
-			"80stouch": ["/inputs/designs/footwear/80stouch/80stouch1.webp"],
-			"goldennights": [
-				"/inputs/designs/footwear/goldennights/goldennights1.webp"
-			],
-			"whimsicaleclectic": [
-				"/inputs/designs/footwear/whimsicaleclecticglamour/whimsicaleclecticglamour1.webp",
-				"/inputs/designs/footwear/whimsicaleclecticglamour/whimsicaleclecticglamour2.webp"
-			],
-			"artizanaltouch": [
-				"/inputs/designs/footwear/artizanaltouch/artizanaltouch1.webp"
-			],
-			"wovensportymules": [
-				"/inputs/designs/footwear/wovensportymules/wovensportymules1.webp"
-			],
-			"homeyfeel": [
-				"/inputs/designs/footwear/homeyfeel/homeyfeel1.webp",
-				"/inputs/designs/footwear/homeyfeel/homeyfeel2.webp"
-			]
-		},
-		"phonecase": {},
-		"wallart": {
-			"midcenturymodern": [
-				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
-			],
-			"organicshapes": [
-				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
-				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
-			],
-			"rawexposedmaterials": [
-				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
-			],
-			"traditionaljapanese": [
-				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
-			],
-			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
-			"turnofthecenturyluxe": [
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
-			],
-			"nomadic": [
-				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
-				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
-			],
-			"popcraft": [
-				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
-				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
-			],
-			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
-			"chromelook": [
-				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
-			],
-			"spaceage": [
-				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
-			],
-			"animalia": [
-				"/inputs/designs/homedecor/animalia/animalia1.webp",
-				"/inputs/designs/homedecor/animalia/animalia2.webp"
-			],
-			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
-			"daliesquemodern": [
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
-			],
-			"melting": [
-				"/inputs/designs/homedecor/melting/melting1.webp",
-				"/inputs/designs/homedecor/melting/melting2.webp",
-				"/inputs/designs/homedecor/melting/melting3.webp",
-				"/inputs/designs/homedecor/melting/melting4.webp"
-			],
-			"primordialart": [
-				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
-			],
-			"toteminspired": [
-				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
-			]
-		},
-		"hoodie": {
-			"streetwear": [
-				"/inputs/designs/fashions/streetwear/streetwear1.webp",
-				"/inputs/designs/fashions/streetwear/streetwear2.webp",
-				"/inputs/designs/fashions/streetwear/streetwear3.webp"
-			],
-			"comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
-			"youthful": [
-				"/inputs/designs/fashions/youthful/youthful1.webp",
-				"/inputs/designs/fashions/youthful/youthful2.webp"
-			],
-			"edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
-			"minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-			"prints": [""],
-			"fashionforward": [
-				"/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
-			],
-			"boldstructured": [
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
-			],
-			"luxury": [
-				"/inputs/designs/fashions/luxury/luxury1.webp",
-				"/inputs/designs/fashions/luxury/luxury2.webp",
-				"/inputs/designs/fashions/luxury/luxury3.webp"
-			],
-			"powerfullfeminity": [
-				"/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
-			],
-			"romanticflower": [
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
-			],
-			"consciousfloral": [
-				"/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
-			],
-			"artisticencounters": [
-				"/inputs/designs/fashions/artistic/artistic1.webp",
-				"/inputs/designs/fashions/artistic/artistic2.webp",
-				"/inputs/designs/fashions/artistic/artistic3.webp",
-				"/inputs/designs/fashions/artistic/artistic4.webp",
-				"/inputs/designs/fashions/artistic/artistic5.webp",
-				"/inputs/designs/fashions/artistic/artistic6.webp",
-				"/inputs/designs/fashions/artistic/artistic7.webp",
-				"/inputs/designs/fashions/artistic/artistic8.webp",
-				"/inputs/designs/fashions/artistic/artistic9.webp",
-				"/inputs/designs/fashions/artistic/artistic10.webp",
-				"/inputs/designs/fashions/artistic/artistic11.webp",
-				"/inputs/designs/fashions/artistic/artistic12.webp"
-			],
-			"wellnesssporty": [
-				"/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
-			],
-			"businessclean": [
-				"/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
-			],
-			"effortlesschicinnovative": [
-				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
-			]
-		},
-		"coffecup": {
-		"colorfulglass":["/inputs/designs/kitchenware/colorfulglass/colorfulglass1.webp","/inputs/designs/kitchenware/colorfulglass/colorfulglass2.webp","/inputs/designs/kitchenware/colorfulglass/colorfulglass3.webp"],
-		"artfulchic":["/inputs/designs/kitchenware/artfulchic/artfulchic1.webp","/inputs/designs/kitchenware/artfulchic/artfulchic2.webp","/inputs/designs/kitchenware/artfulchic/artfulchic3.webp","/inputs/designs/kitchenware/artfulchic/artfulchic4.webp"],
-		"vintagetouch":["/inputs/designs/kitchenware/vintagetouch/vintagetouch1.webp","/inputs/designs/kitchenware/vintagetouch/vintagetouch2.webp","/inputs/designs/kitchenware/vintagetouch/vintagetouch3.webp"],
-		"boiddetails":["/inputs/designs/kitchenware/bolddetails/bolddetails1.webp"],
-		"colorfulbistrostylrcutlery":["/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery1.webp","/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery2.webp","/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery3.webp"],
-		"boldcutlery":["/inputs/designs/kitchenware/boldcutlery/boldcutlery1.webp","/inputs/designs/kitchenware/boldcutlery/boldcutlery2.webp","/inputs/designs/kitchenware/boldcutlery/boldcutlery3.webp"],
-		"dustypink":["/inputs/designs/kitchenware/dustypink/dustypink1.webp","/inputs/designs/kitchenware/dustypink/dustypink2.webp"],
-		"metallicvibes":["/inputs/designs/kitchenware/metalicvibes/metalicvibes1.webp","/inputs/designs/kitchenware/metalicvibes/metalicvibes2.webp"],
-		"rippleglass":["/inputs/designs/kitchenware/rippleglass/rippleglass1.webp"],
-		"confetti":["/inputs/designs/kitchenware/confetti/confetti1.webp"],
-		"fullchrome":["/inputs/designs/kitchenware/fullchrome/fullchrome1.webp"],
-		"veggieforms":["/inputs/designs/kitchenware/veggieforms/veggieforms1.webp","/inputs/designs/kitchenware/veggieforms/veggieforms2.webp"],
-		"phatstyle":["/inputs/designs/kitchenware/phatstyle/phatstyle1.webp","/inputs/designs/kitchenware/phatstyle/phatstyle2.webp","/inputs/designs/kitchenware/phatstyle/phatstyle3.webp"],
-		"70s":["/inputs/designs/kitchenware/70s/70s1.webp"]
-		},
-		"totebag": {
-			"quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
-			"understatedelegance": [
-				"/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
-			],
-			"elegantandsophisticated": [
-				"/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"
-			],
-			"businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
-			"luxuryfeelapplied": [
-				"/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"
-			],
-			"jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
-			"retroeleganc": [
-				"/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
-			],
-			"romanticandsoft": [
-				"/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
-			],
-			"funchicpieces": [
-				"/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
-				"/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
-				"/inputs/designs/bags/funchicpieces/funchicpieces3.webp"
-			],
-			"girlyandfun": [
-				"/inputs/designs/bags/girlyandfun/girlyandfun1.webp",
-				"/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
-				"/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
-			],
-			"opposingelements": [
-				"/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
-			],
-			"artisanal": [
-				"/inputs/designs/bags/artisan/artisan1.webp",
-				"/inputs/designs/bags/artisan/artisan2.webp",
-				"/inputs/designs/bags/artisan/artisan3.webp"
-			],
-			"whimsical": [
-				"/inputs/designs/bags/whimsical/whimsical1.webp",
-				"/inputs/designs/bags/whimsical/whimsical2.webp",
-				"/inputs/designs/bags/whimsical/whimsical3.webp"
-			],
-			"sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
-		},
-		"blanket": {
-			"streetwear": [
-				"/inputs/designs/fashions/streetwear/streetwear1.webp",
-				"/inputs/designs/fashions/streetwear/streetwear2.webp",
-				"/inputs/designs/fashions/streetwear/streetwear3.webp"
-			],
-			"comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
-			"youthful": [
-				"/inputs/designs/fashions/youthful/youthful1.webp",
-				"/inputs/designs/fashions/youthful/youthful2.webp"
-			],
-			"edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
-			"minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-			"prints": [""],
-			"fashionforward": [
-				"/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
-			],
-			"boldstructured": [
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
-			],
-			"luxury": [
-				"/inputs/designs/fashions/luxury/luxury1.webp",
-				"/inputs/designs/fashions/luxury/luxury2.webp",
-				"/inputs/designs/fashions/luxury/luxury3.webp"
-			],
-			"powerfullfeminity": [
-				"/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
-			],
-			"romanticflower": [
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
-			],
-			"consciousfloral": [
-				"/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
-			],
-			"artisticencounters": [
-				"/inputs/designs/fashions/artistic/artistic1.webp",
-				"/inputs/designs/fashions/artistic/artistic2.webp",
-				"/inputs/designs/fashions/artistic/artistic3.webp",
-				"/inputs/designs/fashions/artistic/artistic4.webp",
-				"/inputs/designs/fashions/artistic/artistic5.webp",
-				"/inputs/designs/fashions/artistic/artistic6.webp",
-				"/inputs/designs/fashions/artistic/artistic7.webp",
-				"/inputs/designs/fashions/artistic/artistic8.webp",
-				"/inputs/designs/fashions/artistic/artistic9.webp",
-				"/inputs/designs/fashions/artistic/artistic10.webp",
-				"/inputs/designs/fashions/artistic/artistic11.webp",
-				"/inputs/designs/fashions/artistic/artistic12.webp"
-			],
-			"wellnesssporty": [
-				"/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
-			],
-			"businessclean": [
-				"/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
-			],
-			"effortlesschicinnovative": [
-				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
-			]
-		},
-		"earrings": {
-			"minimalistsubtle": [
-				"/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance1.webp",
-				"/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance2.webp"
-			],
-			"luxuryhighend": [
-				"/inputs/designs/Jewelry/luxuryhighendgemstones/luxuryhighendgemstones1.webp"
-			],
-			"alphabetnamejewelry": [
-				"/inputs/designs/Jewelry/alphabetnamejewelry/alphabetnamejewelry1.webp"
-			],
-			"statementboldandelegant": [
-				"/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized1.webp",
-				"/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized2.webp"
-			],
-			"celestial": ["/inputs/designs/Jewelry/celestial/celestial1.webp"],
-			"modernelements": [
-				"/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical1.webp",
-				"/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical2.webp",
-				"/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical3.webp"
-			],
-			"natureinspired": [
-				"/inputs/designs/Jewelry/natureinspired/natureinspired1.webp",
-				"/inputs/designs/Jewelry/natureinspired/natureinspired2.webp"
-			],
-			"bohemian": [
-				"/inputs/designs/Jewelry/bohemian/bohemian1.webp",
-				"/inputs/designs/Jewelry/bohemian/bohemian2.webp"
-			],
-			"artfulsculptural": [
-				"/inputs/designs/Jewelry/artfulsculptural/artfulsculptural1.webp",
-				"/inputs/designs/Jewelry/artfulsculptural/artfulsculptural2.webp",
-				"/inputs/designs/Jewelry/artfulsculptural/artfulsculptural3.webp"
-			],
-			"retrotouch": [
-				"/inputs/designs/Jewelry/retrotouch/retrotouch1.webp",
-				"/inputs/designs/Jewelry/retrotouch/retrotouch2.webp"
-			],
-			"edgypunk": ["/inputs/designs/Jewelry/edgypunk/edgypunk1.webp"],
-			"gothic": ["/inputs/designs/Jewelry/gothic/gothic1.webp"],
-			"tribalethnic": [
-				"/inputs/designs/Jewelry/tribalethnic/tribalethnic1.webp",
-				"/inputs/designs/Jewelry/tribalethnic/tribalethnic2.webp"
-			],
-			"marineelements": [
-				"/inputs/designs/Jewelry/marineelements/marineelements1.webp",
-				"/inputs/designs/Jewelry/marineelements/marineelements2.webp"
-			],
-			"industrial": [
-				"/inputs/designs/Jewelry/industrial/industrial1.webp",
-				"/inputs/designs/Jewelry/industrial/industrial2.webp"
-			]
-		},
-		"sofa": {},
-		"scarf": {
-			"streetwear": [
-				"/inputs/designs/fashions/streetwear/streetwear1.webp",
-				"/inputs/designs/fashions/streetwear/streetwear2.webp",
-				"/inputs/designs/fashions/streetwear/streetwear3.webp"
-			],
-			"comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
-			"youthful": [
-				"/inputs/designs/fashions/youthful/youthful1.webp",
-				"/inputs/designs/fashions/youthful/youthful2.webp"
-			],
-			"edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
-			"minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-			"prints": [""],
-			"fashionforward": [
-				"/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
-			],
-			"boldstructured": [
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
-			],
-			"luxury": [
-				"/inputs/designs/fashions/luxury/luxury1.webp",
-				"/inputs/designs/fashions/luxury/luxury2.webp",
-				"/inputs/designs/fashions/luxury/luxury3.webp"
-			],
-			"powerfullfeminity": [
-				"/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
-			],
-			"romanticflower": [
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
-			],
-			"consciousfloral": [
-				"/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
-			],
-			"artisticencounters": [
-				"/inputs/designs/fashions/artistic/artistic1.webp",
-				"/inputs/designs/fashions/artistic/artistic2.webp",
-				"/inputs/designs/fashions/artistic/artistic3.webp",
-				"/inputs/designs/fashions/artistic/artistic4.webp",
-				"/inputs/designs/fashions/artistic/artistic5.webp",
-				"/inputs/designs/fashions/artistic/artistic6.webp",
-				"/inputs/designs/fashions/artistic/artistic7.webp",
-				"/inputs/designs/fashions/artistic/artistic8.webp",
-				"/inputs/designs/fashions/artistic/artistic9.webp",
-				"/inputs/designs/fashions/artistic/artistic10.webp",
-				"/inputs/designs/fashions/artistic/artistic11.webp",
-				"/inputs/designs/fashions/artistic/artistic12.webp"
-			],
-			"wellnesssporty": [
-				"/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
-			],
-			"businessclean": [
-				"/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
-			],
-			"effortlesschicinnovative": [
-				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
-			]
-		},
-		"backpack": {
-			"quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
-			"understatedelegance": [
-				"/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
-			],
-			"elegantandsophisticated": [
-				"/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"
-			],
-			"businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
-			"luxuryfeelapplied": [
-				"/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"
-			],
-			"jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
-			"retroeleganc": [
-				"/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
-			],
-			"romanticandsoft": [
-				"/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
-			],
-			"funchicpieces": [
-				"/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
-				"/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
-				"/inputs/designs/bags/funchicpieces/funchicpieces3.webp"
-			],
-			"girlyandfun": [
-				"/inputs/designs/bags/girlyandfun/girlyandfun1.webp",
-				"/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
-				"/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
-			],
-			"opposingelements": [
-				"/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
-			],
-			"artisanal": [
-				"/inputs/designs/bags/artisan/artisan1.webp",
-				"/inputs/designs/bags/artisan/artisan2.webp",
-				"/inputs/designs/bags/artisan/artisan3.webp"
-			],
-			"whimsical": [
-				"/inputs/designs/bags/whimsical/whimsical1.webp",
-				"/inputs/designs/bags/whimsical/whimsical2.webp",
-				"/inputs/designs/bags/whimsical/whimsical3.webp"
-			],
-			"sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
-		},
-		"lamp": {
-			"midcenturymodern": [
-				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
-			],
-			"organicshapes": [
-				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
-				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
-			],
-			"rawexposedmaterials": [
-				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
-			],
-			"traditionaljapanese": [
-				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
-			],
-			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
-			"turnofthecenturyluxe": [
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
-			],
-			"nomadic": [
-				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
-				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
-			],
-			"popcraft": [
-				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
-				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
-			],
-			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
-			"chromelook": [
-				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
-			],
-			"spaceage": [
-				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
-			],
-			"animalia": [
-				"/inputs/designs/homedecor/animalia/animalia1.webp",
-				"/inputs/designs/homedecor/animalia/animalia2.webp"
-			],
-			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
-			"daliesquemodern": [
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
-			],
-			"melting": [
-				"/inputs/designs/homedecor/melting/melting1.webp",
-				"/inputs/designs/homedecor/melting/melting2.webp",
-				"/inputs/designs/homedecor/melting/melting3.webp",
-				"/inputs/designs/homedecor/melting/melting4.webp"
-			],
-			"primordialart": [
-				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
-			],
-			"toteminspired": [
-				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
-			]
-		},
-		"dress": {
-			"streetwear": [
-				"/inputs/designs/fashions/streetwear/streetwear1.webp",
-				"/inputs/designs/fashions/streetwear/streetwear2.webp",
-				"/inputs/designs/fashions/streetwear/streetwear3.webp"
-			],
-			"comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
-			"youthful": [
-				"/inputs/designs/fashions/youthful/youthful1.webp",
-				"/inputs/designs/fashions/youthful/youthful2.webp"
-			],
-			"edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
-			"minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-			"prints": [""],
-			"fashionforward": [
-				"/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
-			],
-			"boldstructured": [
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
-			],
-			"luxury": [
-				"/inputs/designs/fashions/luxury/luxury1.webp",
-				"/inputs/designs/fashions/luxury/luxury2.webp",
-				"/inputs/designs/fashions/luxury/luxury3.webp"
-			],
-			"powerfullfeminity": [
-				"/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
-			],
-			"romanticflower": [
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
-			],
-			"consciousfloral": [
-				"/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
-			],
-			"artisticencounters": [
-				"/inputs/designs/fashions/artistic/artistic1.webp",
-				"/inputs/designs/fashions/artistic/artistic2.webp",
-				"/inputs/designs/fashions/artistic/artistic3.webp",
-				"/inputs/designs/fashions/artistic/artistic4.webp",
-				"/inputs/designs/fashions/artistic/artistic5.webp",
-				"/inputs/designs/fashions/artistic/artistic6.webp",
-				"/inputs/designs/fashions/artistic/artistic7.webp",
-				"/inputs/designs/fashions/artistic/artistic8.webp",
-				"/inputs/designs/fashions/artistic/artistic9.webp",
-				"/inputs/designs/fashions/artistic/artistic10.webp",
-				"/inputs/designs/fashions/artistic/artistic11.webp",
-				"/inputs/designs/fashions/artistic/artistic12.webp"
-			],
-			"wellnesssporty": [
-				"/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
-			],
-			"businessclean": [
-				"/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
-			],
-			"effortlesschicinnovative": [
-				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
-			]
-		},
-		"jean": {
-			"streetwear": [
-				"/inputs/designs/fashions/streetwear/streetwear1.webp",
-				"/inputs/designs/fashions/streetwear/streetwear2.webp",
-				"/inputs/designs/fashions/streetwear/streetwear3.webp"
-			],
-			"comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
-			"youthful": [
-				"/inputs/designs/fashions/youthful/youthful1.webp",
-				"/inputs/designs/fashions/youthful/youthful2.webp"
-			],
-			"edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
-			"minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-			"prints": [""],
-			"fashionforward": [
-				"/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
-			],
-			"boldstructured": [
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
-				"/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
-			],
-			"luxury": [
-				"/inputs/designs/fashions/luxury/luxury1.webp",
-				"/inputs/designs/fashions/luxury/luxury2.webp",
-				"/inputs/designs/fashions/luxury/luxury3.webp"
-			],
-			"powerfullfeminity": [
-				"/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
-			],
-			"romanticflower": [
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
-				"/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
-			],
-			"consciousfloral": [
-				"/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
-			],
-			"artisticencounters": [
-				"/inputs/designs/fashions/artistic/artistic1.webp",
-				"/inputs/designs/fashions/artistic/artistic2.webp",
-				"/inputs/designs/fashions/artistic/artistic3.webp",
-				"/inputs/designs/fashions/artistic/artistic4.webp",
-				"/inputs/designs/fashions/artistic/artistic5.webp",
-				"/inputs/designs/fashions/artistic/artistic6.webp",
-				"/inputs/designs/fashions/artistic/artistic7.webp",
-				"/inputs/designs/fashions/artistic/artistic8.webp",
-				"/inputs/designs/fashions/artistic/artistic9.webp",
-				"/inputs/designs/fashions/artistic/artistic10.webp",
-				"/inputs/designs/fashions/artistic/artistic11.webp",
-				"/inputs/designs/fashions/artistic/artistic12.webp"
-			],
-			"wellnesssporty": [
-				"/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
-			],
-			"businessclean": [
-				"/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
-			],
-			"effortlesschicinnovative": [
-				"/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
-			]
-		},
-		"plate": {},
-		"notebook": {
-			"boldcolors": [
-				"/inputs/designs/officesupplies/boldcolors/boldcolors1.webp",
-				"/inputs/designs/officesupplies/boldcolors/boldcolors2.webp",
-				"/inputs/designs/officesupplies/boldcolors/boldcolors3.webp"
-			],
-			"graphictouch": [
-				"/inputs/designs/officesupplies/graphictouch/graphictouch1.webp"
-			],
-			"inthemoodforcolor": [
-				"/inputs/designs/officesupplies/inthemoodforcolor/inthemoodforcolor1.webp"
-			],
-			"artfulelegance": [
-				"/inputs/designs/officesupplies/artfulelegance/artfulelegance1.webp",
-				"/inputs/designs/officesupplies/artfulelegance/artfulelegance2.webp"
-			],
-			"preppyclassic": [
-				"/inputs/designs/officesupplies/preppyclassic/preppyclassic1.webp",
-				"/inputs/designs/officesupplies/preppyclassic/preppyclassic2.webp"
-			],
-			"naturalescape": [
-				"/inputs/designs/officesupplies/naturalescape/naturalescape1.webp"
-			],
-			"popart": ["/inputs/designs/officesupplies/popart/popart1.webp"],
-			"classicmood": [
-				"/inputs/designs/officesupplies/classicmood/classicmood1.webp",
-				"/inputs/designs/officesupplies/classicmood/classicmood2.webp"
-			],
-			"nostalgic": [
-				"/inputs/designs/officesupplies/nostalgia/nostalgia1.webp",
-				"/inputs/designs/officesupplies/nostalgia/nostalgia1.webp"
-			],
-			"retroencounters": [
-				"/inputs/designs/officesupplies/retroencounters/retroencounters1.webp"
-			],
-			"mediterraneanfeel": [
-				"/inputs/designs/officesupplies/mediteraneanfeel/mediteraneanfeel1.webp"
-			],
-			"aroundtheglobe": [
-				"/inputs/designs/officesupplies/aroundtheglobe/aroundtheglobe1.webp"
-			],
-			"animalworld": [
-				"/inputs/designs/officesupplies/animalworld/animalworld1.webp",
-				"/inputs/designs/officesupplies/animalworld/animalworld2.webp"
-			],
-			"nautical": ["/inputs/designs/officesupplies/nautical/nautical1.webp"],
-			"mozaiq": ["/inputs/designs/officesupplies/mozaique/mozaique1.webp"],
-			"tuttifrutti": [
-				"/inputs/designs/officesupplies/tuttifrutti/tuttifrutti1.webp",
-				"/inputs/designs/officesupplies/tuttifrutti/tuttifrutti2.webp"
-			]
-		},
-		"shoulderbag": {
-			"quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
-			"understatedelegance": [
-				"/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
-			],
-			"elegantandsophisticated": [
-				"/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"
-			],
-			"businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
-			"luxuryfeelapplied": [
-				"/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"
-			],
-			"jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
-			"retroeleganc": [
-				"/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
-			],
-			"romanticandsoft": [
-				"/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
-			],
-			"funchicpieces": [
-				"/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
-				"/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
-				"/inputs/designs/bags/funchicpieces/funchicpieces3.webp"
-			],
-			"girlyandfun": [
-				"/inputs/designs/bags/girlyandfun/girlyandfun1.webp",
-				"/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
-				"/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
-			],
-			"opposingelements": [
-				"/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
-			],
-			"artisanal": [
-				"/inputs/designs/bags/artisan/artisan1.webp",
-				"/inputs/designs/bags/artisan/artisan2.webp",
-				"/inputs/designs/bags/artisan/artisan3.webp"
-			],
-			"whimsical": [
-				"/inputs/designs/bags/whimsical/whimsical1.webp",
-				"/inputs/designs/bags/whimsical/whimsical2.webp",
-				"/inputs/designs/bags/whimsical/whimsical3.webp"
-			],
-			"sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
-		},
-		"vase": {
-			"midcenturymodern": [
-				"/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
-			],
-			"organicshapes": [
-				"/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
-				"/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
-			],
-			"rawexposedmaterials": [
-				"/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
-			],
-			"traditionaljapanese": [
-				"/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
-			],
-			"artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
-			"turnofthecenturyluxe": [
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
-				"/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
-			],
-			"nomadic": [
-				"/inputs/designs/homedecor/nomadic/nomadic1.webp",
-				"/inputs/designs/homedecor/nomadic/nomadic2.webp"
-			],
-			"popcraft": [
-				"/inputs/designs/homedecor/popcraft/popcraft1.webp",
-				"/inputs/designs/homedecor/popcraft/popcraft2.webp"
-			],
-			"arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
-			"chromelook": [
-				"/inputs/designs/homedecor/chromelook/chromelook1.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook2.webp",
-				"/inputs/designs/homedecor/chromelook/chromelook3.webp"
-			],
-			"spaceage": [
-				"/inputs/designs/homedecor/spaceage/spaceage1.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage2.webp",
-				"/inputs/designs/homedecor/spaceage/spaceage3.webp"
-			],
-			"animalia": [
-				"/inputs/designs/homedecor/animalia/animalia1.webp",
-				"/inputs/designs/homedecor/animalia/animalia2.webp"
-			],
-			"funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
-			"daliesquemodern": [
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
-				"/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
-			],
-			"melting": [
-				"/inputs/designs/homedecor/melting/melting1.webp",
-				"/inputs/designs/homedecor/melting/melting2.webp",
-				"/inputs/designs/homedecor/melting/melting3.webp",
-				"/inputs/designs/homedecor/melting/melting4.webp"
-			],
-			"primordialart": [
-				"/inputs/designs/homedecor/primordialart/primordialart1.webp"
-			],
-			"toteminspired": [
-				"/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
-			]
-		},
-		"toys": {},
-		"vehicles": {},
-		"glasses": {},
-		"watches": {}
-	}
+  "productTypes": [
+    "tshirt",
+    "pillow",
+    "shoes",
+    "phonecase",
+    "wallart",
+    "hoodie",
+    "coffecup",
+    "totebag",
+    "blanket",
+    "earrings",
+    "sofa",
+    "scarf",
+    "backpack",
+    "lamp",
+    "dress",
+    "jean",
+    "plate",
+    "notebook",
+    "shoulderbag",
+    "vase",
+    "toys",
+    "vehicles",
+    "glasses",
+    "watches"
+  ],
+  "defaultImages": {
+    "tshirt": ["inputs/placeholders/t-shirt.svg"],
+    "pillow": ["inputs/placeholders/pillow.svg"],
+    "shoes": ["inputs/placeholders/shoes.svg"],
+    "phonecase": ["inputs/placeholders/phonecase.svg"],
+    "wallart": ["inputs/placeholders/wallart.svg"],
+    "hoodie": ["inputs/placeholders/hoodie.svg"],
+    "coffecup": ["inputs/placeholders/coffeecup.svg"],
+    "totebag": ["inputs/placeholders/totebag.svg"],
+    "blanket": ["inputs/placeholders/blanket.svg"],
+    "earrings": ["inputs/placeholders/earrings.svg"],
+    "sofa": ["inputs/placeholders/sofa.svg"],
+    "scarf": ["inputs/placeholders/scarf.svg"],
+    "backpack": ["inputs/placeholders/backpack.svg"],
+    "lamp": ["inputs/placeholders/lamp.svg"],
+    "dress": ["inputs/placeholders/dress.svg"],
+    "jean": ["inputs/placeholders/jean.svg"],
+    "plate": ["inputs/placeholders/plate.svg"],
+    "notebook": ["inputs/placeholders/notebook.svg"],
+    "shoulderbag": ["inputs/placeholders/shoulderbag.svg"],
+    "vase": ["inputs/placeholders/vase.svg"],
+    "toys": ["inputs/placeholders/toys.svg"],
+    "vehicles": ["inputs/placeholders/vehicles.svg"],
+    "glasses": ["inputs/placeholders/glasses.svg"],
+    "watches": ["inputs/placeholders/watches.svg"]
+  },
+  "placeholders": {
+    "tshirt": "/inputs/placeholders/t-shirt.svg",
+    "pillow": "/inputs/placeholders/pillow.svg",
+    "shoes": "/inputs/placeholders/shoes.svg",
+    "phonecase": "/inputs/placeholders/phonecase.svg",
+    "wallart": "/inputs/placeholders/wallart.svg",
+    "hoodie": "/inputs/placeholders/hoodie.svg",
+    "coffecup": "/inputs/placeholders/coffeecup.svg",
+    "totebag": "/inputs/placeholders/totebag.svg",
+    "blanket": "/inputs/placeholders/blanket.svg",
+    "earrings": "/inputs/placeholders/earrings.svg",
+    "sofa": "/inputs/placeholders/sofa.svg",
+    "scarf": "/inputs/placeholders/scarf.svg",
+    "backpack": "/inputs/placeholders/backpack.svg",
+    "lamp": "/inputs/placeholders/lamp.svg",
+    "dress": "/inputs/placeholders/dress.svg",
+    "jean": "/inputs/placeholders/jean.svg",
+    "plate": "/inputs/placeholders/plate.svg",
+    "notebook": "/inputs/placeholders/notebook.svg",
+    "shoulderbag": "/inputs/placeholders/shoulderbag.svg",
+    "vase": "/inputs/placeholders/vase.svg",
+    "toys": "/inputs/placeholders/toys.svg",
+    "vehicles": "/inputs/placeholders/vehicles.svg",
+    "glasses": "/inputs/placeholders/glasses.svg",
+    "watches": "/inputs/placeholders/watches.svg"
+  },
+  "specificDesigns": {
+    "tshirt": {
+      "streetwear": [
+        "/inputs/designs/fashions/streetwear/streetwear1.webp",
+        "/inputs/designs/fashions/streetwear/streetwear2.webp",
+        "/inputs/designs/fashions/streetwear/streetwear3.webp"
+      ],
+      "comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
+      "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
+      "prints": [""],
+      "fashionforward": [
+        "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
+      ],
+      "boldstructured": [
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
+      ],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
+      ],
+      "powerfullfeminity": [
+        "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
+      ],
+      "romanticflower": [
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
+      ],
+      "consciousfloral": [
+        "/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
+      ],
+      "artisticencounters": [
+        "/inputs/designs/fashions/artistic/artistic1.webp",
+        "/inputs/designs/fashions/artistic/artistic2.webp",
+        "/inputs/designs/fashions/artistic/artistic3.webp",
+        "/inputs/designs/fashions/artistic/artistic4.webp",
+        "/inputs/designs/fashions/artistic/artistic5.webp",
+        "/inputs/designs/fashions/artistic/artistic6.webp",
+        "/inputs/designs/fashions/artistic/artistic7.webp",
+        "/inputs/designs/fashions/artistic/artistic8.webp",
+        "/inputs/designs/fashions/artistic/artistic9.webp",
+        "/inputs/designs/fashions/artistic/artistic10.webp",
+        "/inputs/designs/fashions/artistic/artistic11.webp",
+        "/inputs/designs/fashions/artistic/artistic12.webp"
+      ],
+      "wellnesssporty": [
+        "/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
+      ],
+      "businessclean": [
+        "/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
+      ],
+      "effortlesschicinnovative": [
+        "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
+      ]
+    },
+    "pillow": {
+      "midcenturymodern": [
+        "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+      ],
+      "organicshapes": [
+        "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+        "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+      ],
+      "rawexposedmaterials": [
+        "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+      ],
+      "traditionaljapanese": [
+        "/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+      ],
+      "artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+      "turnofthecenturyluxe": [
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+      ],
+      "nomadic": [
+        "/inputs/designs/homedecor/nomadic/nomadic1.webp",
+        "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "popcraft": [
+        "/inputs/designs/homedecor/popcraft/popcraft1.webp",
+        "/inputs/designs/homedecor/popcraft/popcraft2.webp"
+      ],
+      "arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+      "chromelook": [
+        "/inputs/designs/homedecor/chromelook/chromelook1.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook2.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook3.webp"
+      ],
+      "spaceage": [
+        "/inputs/designs/homedecor/spaceage/spaceage1.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage2.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage3.webp"
+      ],
+      "animalia": [
+        "/inputs/designs/homedecor/animalia/animalia1.webp",
+        "/inputs/designs/homedecor/animalia/animalia2.webp"
+      ],
+      "funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+      "daliesquemodern": [
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+      ],
+      "melting": [
+        "/inputs/designs/homedecor/melting/melting1.webp",
+        "/inputs/designs/homedecor/melting/melting2.webp",
+        "/inputs/designs/homedecor/melting/melting3.webp",
+        "/inputs/designs/homedecor/melting/melting4.webp"
+      ],
+      "primordialart": [
+        "/inputs/designs/homedecor/primordialart/primordialart1.webp"
+      ],
+      "toteminspired": [
+        "/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+      ]
+    },
+    "shoes": {
+      "quiteluxurymasculine": [
+        "/inputs/designs/footwear/quietluxurymasculinechic/quietluxurymasculinechic1.webp"
+      ],
+      "timelesselegance": [
+        "/inputs/designs/footwear/timelesselegance/timelesselegance1.webp",
+        "/inputs/designs/footwear/timelesselegance/timelesselegance2.webp",
+        "/inputs/designs/footwear/timelesselegance/timelesselegance3.webp",
+        "/inputs/designs/footwear/timelesselegance/timelesselegance4.webp"
+      ],
+      "futuristicandbold": [
+        "/inputs/designs/footwear/futuristicandbold/futuristicandbold1.webp",
+        "/inputs/designs/footwear/futuristicandbold/futuristicandbold2.webp"
+      ],
+      "boldandcolorful": [
+        "/inputs/designs/footwear/boldandcoloful/boldandcoloful1.webp"
+      ],
+      "sculptural": ["/inputs/designs/footwear/sculptural/sculptural1.webp"],
+      "girlyromanticsporty": [
+        "/inputs/designs/footwear/girlyromanticsporty/girlyromanticsporty1.webp"
+      ],
+      "innovativethinking": [
+        "/inputs/designs/footwear/innovativethinking/innovativethinking1.webp",
+        "/inputs/designs/footwear/innovativethinking/innovativethinking2.webp"
+      ],
+      "naturalelements": [
+        "/inputs/designs/footwear/naturalelements/naturalelements1.webp"
+      ],
+      "contemporaryart": [
+        "/inputs/designs/footwear/contemporaryart/contemporaryart1.webp"
+      ],
+      "printedmatter": [
+        "/inputs/designs/footwear/printedmatter/printedmatter1.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter2.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter3.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter4.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter5.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter6.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter7.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter8.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter9.webp",
+        "/inputs/designs/footwear/printedmatter/printedmatter10.webp"
+      ],
+      "retrodancehall": [
+        "/inputs/designs/footwear/retrodancehall/retrodancehall1.webp"
+      ],
+      "80stouch": ["/inputs/designs/footwear/80stouch/80stouch1.webp"],
+      "goldennights": [
+        "/inputs/designs/footwear/goldennights/goldennights1.webp"
+      ],
+      "whimsicaleclectic": [
+        "/inputs/designs/footwear/whimsicaleclecticglamour/whimsicaleclecticglamour1.webp",
+        "/inputs/designs/footwear/whimsicaleclecticglamour/whimsicaleclecticglamour2.webp"
+      ],
+      "artizanaltouch": [
+        "/inputs/designs/footwear/artizanaltouch/artizanaltouch1.webp"
+      ],
+      "wovensportymules": [
+        "/inputs/designs/footwear/wovensportymules/wovensportymules1.webp"
+      ],
+      "homeyfeel": [
+        "/inputs/designs/footwear/homeyfeel/homeyfeel1.webp",
+        "/inputs/designs/footwear/homeyfeel/homeyfeel2.webp"
+      ]
+    },
+    "phonecase": {},
+    "wallart": {
+      "midcenturymodern": [
+        "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+      ],
+      "organicshapes": [
+        "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+        "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+      ],
+      "rawexposedmaterials": [
+        "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+      ],
+      "traditionaljapanese": [
+        "/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+      ],
+      "artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+      "turnofthecenturyluxe": [
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+      ],
+      "nomadic": [
+        "/inputs/designs/homedecor/nomadic/nomadic1.webp",
+        "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "popcraft": [
+        "/inputs/designs/homedecor/popcraft/popcraft1.webp",
+        "/inputs/designs/homedecor/popcraft/popcraft2.webp"
+      ],
+      "arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+      "chromelook": [
+        "/inputs/designs/homedecor/chromelook/chromelook1.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook2.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook3.webp"
+      ],
+      "spaceage": [
+        "/inputs/designs/homedecor/spaceage/spaceage1.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage2.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage3.webp"
+      ],
+      "animalia": [
+        "/inputs/designs/homedecor/animalia/animalia1.webp",
+        "/inputs/designs/homedecor/animalia/animalia2.webp"
+      ],
+      "funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+      "daliesquemodern": [
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+      ],
+      "melting": [
+        "/inputs/designs/homedecor/melting/melting1.webp",
+        "/inputs/designs/homedecor/melting/melting2.webp",
+        "/inputs/designs/homedecor/melting/melting3.webp",
+        "/inputs/designs/homedecor/melting/melting4.webp"
+      ],
+      "primordialart": [
+        "/inputs/designs/homedecor/primordialart/primordialart1.webp"
+      ],
+      "toteminspired": [
+        "/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+      ]
+    },
+    "hoodie": {
+      "streetwear": [
+        "/inputs/designs/fashions/streetwear/streetwear1.webp",
+        "/inputs/designs/fashions/streetwear/streetwear2.webp",
+        "/inputs/designs/fashions/streetwear/streetwear3.webp"
+      ],
+      "comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
+      "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
+      "prints": [""],
+      "fashionforward": [
+        "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
+      ],
+      "boldstructured": [
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
+      ],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
+      ],
+      "powerfullfeminity": [
+        "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
+      ],
+      "romanticflower": [
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
+      ],
+      "consciousfloral": [
+        "/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
+      ],
+      "artisticencounters": [
+        "/inputs/designs/fashions/artistic/artistic1.webp",
+        "/inputs/designs/fashions/artistic/artistic2.webp",
+        "/inputs/designs/fashions/artistic/artistic3.webp",
+        "/inputs/designs/fashions/artistic/artistic4.webp",
+        "/inputs/designs/fashions/artistic/artistic5.webp",
+        "/inputs/designs/fashions/artistic/artistic6.webp",
+        "/inputs/designs/fashions/artistic/artistic7.webp",
+        "/inputs/designs/fashions/artistic/artistic8.webp",
+        "/inputs/designs/fashions/artistic/artistic9.webp",
+        "/inputs/designs/fashions/artistic/artistic10.webp",
+        "/inputs/designs/fashions/artistic/artistic11.webp",
+        "/inputs/designs/fashions/artistic/artistic12.webp"
+      ],
+      "wellnesssporty": [
+        "/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
+      ],
+      "businessclean": [
+        "/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
+      ],
+      "effortlesschicinnovative": [
+        "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
+      ]
+    },
+    "coffecup": {
+      "colorfulglass": [
+        "/inputs/designs/kitchenware/colorfulglass/colorfulglass1.webp",
+        "/inputs/designs/kitchenware/colorfulglass/colorfulglass2.webp",
+        "/inputs/designs/kitchenware/colorfulglass/colorfulglass3.webp"
+      ],
+      "artfulchic": [
+        "/inputs/designs/kitchenware/artfulchic/artfulchic1.webp",
+        "/inputs/designs/kitchenware/artfulchic/artfulchic2.webp",
+        "/inputs/designs/kitchenware/artfulchic/artfulchic3.webp",
+        "/inputs/designs/kitchenware/artfulchic/artfulchic4.webp"
+      ],
+      "vintagetouch": [
+        "/inputs/designs/kitchenware/vintagetouch/vintagetouch1.webp",
+        "/inputs/designs/kitchenware/vintagetouch/vintagetouch2.webp",
+        "/inputs/designs/kitchenware/vintagetouch/vintagetouch3.webp"
+      ],
+      "boiddetails": [
+        "/inputs/designs/kitchenware/bolddetails/bolddetails1.webp"
+      ],
+      "colorfulbistrostylrcutlery": [
+        "/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery1.webp",
+        "/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery2.webp",
+        "/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery3.webp"
+      ],
+      "boldcutlery": [
+        "/inputs/designs/kitchenware/boldcutlery/boldcutlery1.webp",
+        "/inputs/designs/kitchenware/boldcutlery/boldcutlery2.webp",
+        "/inputs/designs/kitchenware/boldcutlery/boldcutlery3.webp"
+      ],
+      "dustypink": [
+        "/inputs/designs/kitchenware/dustypink/dustypink1.webp",
+        "/inputs/designs/kitchenware/dustypink/dustypink2.webp"
+      ],
+      "metallicvibes": [
+        "/inputs/designs/kitchenware/metalicvibes/metalicvibes1.webp",
+        "/inputs/designs/kitchenware/metalicvibes/metalicvibes2.webp"
+      ],
+      "rippleglass": [
+        "/inputs/designs/kitchenware/rippleglass/rippleglass1.webp"
+      ],
+      "confetti": ["/inputs/designs/kitchenware/confetti/confetti1.webp"],
+      "fullchrome": ["/inputs/designs/kitchenware/fullchrome/fullchrome1.webp"],
+      "veggieforms": [
+        "/inputs/designs/kitchenware/veggieforms/veggieforms1.webp",
+        "/inputs/designs/kitchenware/veggieforms/veggieforms2.webp"
+      ],
+      "phatstyle": [
+        "/inputs/designs/kitchenware/phatstyle/phatstyle1.webp",
+        "/inputs/designs/kitchenware/phatstyle/phatstyle2.webp",
+        "/inputs/designs/kitchenware/phatstyle/phatstyle3.webp"
+      ],
+      "70s": ["/inputs/designs/kitchenware/70s/70s1.webp"]
+    },
+    "totebag": {
+      "quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+      "understatedelegance": [
+        "/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
+      ],
+      "elegantandsophisticated": [
+        "/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"
+      ],
+      "businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
+      "luxuryfeelapplied": [
+        "/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"
+      ],
+      "jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
+      "retroeleganc": [
+        "/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
+      ],
+      "romanticandsoft": [
+        "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
+      ],
+      "funchicpieces": [
+        "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
+        "/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
+        "/inputs/designs/bags/funchicpieces/funchicpieces3.webp"
+      ],
+      "girlyandfun": [
+        "/inputs/designs/bags/girlyandfun/girlyandfun1.webp",
+        "/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
+        "/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
+      ],
+      "opposingelements": [
+        "/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
+      ],
+      "artisanal": [
+        "/inputs/designs/bags/artisan/artisan1.webp",
+        "/inputs/designs/bags/artisan/artisan2.webp",
+        "/inputs/designs/bags/artisan/artisan3.webp"
+      ],
+      "whimsical": [
+        "/inputs/designs/bags/whimsical/whimsical1.webp",
+        "/inputs/designs/bags/whimsical/whimsical2.webp",
+        "/inputs/designs/bags/whimsical/whimsical3.webp"
+      ],
+      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
+    },
+    "blanket": {
+      "streetwear": [
+        "/inputs/designs/fashions/streetwear/streetwear1.webp",
+        "/inputs/designs/fashions/streetwear/streetwear2.webp",
+        "/inputs/designs/fashions/streetwear/streetwear3.webp"
+      ],
+      "comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
+      "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
+      "prints": [""],
+      "fashionforward": [
+        "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
+      ],
+      "boldstructured": [
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
+      ],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
+      ],
+      "powerfullfeminity": [
+        "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
+      ],
+      "romanticflower": [
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
+      ],
+      "consciousfloral": [
+        "/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
+      ],
+      "artisticencounters": [
+        "/inputs/designs/fashions/artistic/artistic1.webp",
+        "/inputs/designs/fashions/artistic/artistic2.webp",
+        "/inputs/designs/fashions/artistic/artistic3.webp",
+        "/inputs/designs/fashions/artistic/artistic4.webp",
+        "/inputs/designs/fashions/artistic/artistic5.webp",
+        "/inputs/designs/fashions/artistic/artistic6.webp",
+        "/inputs/designs/fashions/artistic/artistic7.webp",
+        "/inputs/designs/fashions/artistic/artistic8.webp",
+        "/inputs/designs/fashions/artistic/artistic9.webp",
+        "/inputs/designs/fashions/artistic/artistic10.webp",
+        "/inputs/designs/fashions/artistic/artistic11.webp",
+        "/inputs/designs/fashions/artistic/artistic12.webp"
+      ],
+      "wellnesssporty": [
+        "/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
+      ],
+      "businessclean": [
+        "/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
+      ],
+      "effortlesschicinnovative": [
+        "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
+      ]
+    },
+    "earrings": {
+      "minimalistsubtle": [
+        "/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance1.webp",
+        "/inputs/designs/Jewelry/minimalistsubtleelegance/minimalistsubtleelegance2.webp"
+      ],
+      "luxuryhighend": [
+        "/inputs/designs/Jewelry/luxuryhighendgemstones/luxuryhighendgemstones1.webp"
+      ],
+      "alphabetnamejewelry": [
+        "/inputs/designs/Jewelry/alphabetnamejewelry/alphabetnamejewelry1.webp"
+      ],
+      "statementboldandelegant": [
+        "/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized1.webp",
+        "/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized2.webp"
+      ],
+      "celestial": ["/inputs/designs/Jewelry/celestial/celestial1.webp"],
+      "modernelements": [
+        "/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical1.webp",
+        "/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical2.webp",
+        "/inputs/designs/Jewelry/modernelementsgeometrical/modernelementsgeometrical3.webp"
+      ],
+      "natureinspired": [
+        "/inputs/designs/Jewelry/natureinspired/natureinspired1.webp",
+        "/inputs/designs/Jewelry/natureinspired/natureinspired2.webp"
+      ],
+      "bohemian": [
+        "/inputs/designs/Jewelry/bohemian/bohemian1.webp",
+        "/inputs/designs/Jewelry/bohemian/bohemian2.webp"
+      ],
+      "artfulsculptural": [
+        "/inputs/designs/Jewelry/artfulsculptural/artfulsculptural1.webp",
+        "/inputs/designs/Jewelry/artfulsculptural/artfulsculptural2.webp",
+        "/inputs/designs/Jewelry/artfulsculptural/artfulsculptural3.webp"
+      ],
+      "retrotouch": [
+        "/inputs/designs/Jewelry/retrotouch/retrotouch1.webp",
+        "/inputs/designs/Jewelry/retrotouch/retrotouch2.webp"
+      ],
+      "edgypunk": ["/inputs/designs/Jewelry/edgypunk/edgypunk1.webp"],
+      "gothic": ["/inputs/designs/Jewelry/gothic/gothic1.webp"],
+      "tribalethnic": [
+        "/inputs/designs/Jewelry/tribalethnic/tribalethnic1.webp",
+        "/inputs/designs/Jewelry/tribalethnic/tribalethnic2.webp"
+      ],
+      "marineelements": [
+        "/inputs/designs/Jewelry/marineelements/marineelements1.webp",
+        "/inputs/designs/Jewelry/marineelements/marineelements2.webp"
+      ],
+      "industrial": [
+        "/inputs/designs/Jewelry/industrial/industrial1.webp",
+        "/inputs/designs/Jewelry/industrial/industrial2.webp"
+      ]
+    },
+    "sofa": {},
+    "scarf": {
+      "streetwear": [
+        "/inputs/designs/fashions/streetwear/streetwear1.webp",
+        "/inputs/designs/fashions/streetwear/streetwear2.webp",
+        "/inputs/designs/fashions/streetwear/streetwear3.webp"
+      ],
+      "comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
+      "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
+      "prints": [""],
+      "fashionforward": [
+        "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
+      ],
+      "boldstructured": [
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
+      ],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
+      ],
+      "powerfullfeminity": [
+        "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
+      ],
+      "romanticflower": [
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
+      ],
+      "consciousfloral": [
+        "/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
+      ],
+      "artisticencounters": [
+        "/inputs/designs/fashions/artistic/artistic1.webp",
+        "/inputs/designs/fashions/artistic/artistic2.webp",
+        "/inputs/designs/fashions/artistic/artistic3.webp",
+        "/inputs/designs/fashions/artistic/artistic4.webp",
+        "/inputs/designs/fashions/artistic/artistic5.webp",
+        "/inputs/designs/fashions/artistic/artistic6.webp",
+        "/inputs/designs/fashions/artistic/artistic7.webp",
+        "/inputs/designs/fashions/artistic/artistic8.webp",
+        "/inputs/designs/fashions/artistic/artistic9.webp",
+        "/inputs/designs/fashions/artistic/artistic10.webp",
+        "/inputs/designs/fashions/artistic/artistic11.webp",
+        "/inputs/designs/fashions/artistic/artistic12.webp"
+      ],
+      "wellnesssporty": [
+        "/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
+      ],
+      "businessclean": [
+        "/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
+      ],
+      "effortlesschicinnovative": [
+        "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
+      ]
+    },
+    "backpack": {
+      "quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+      "understatedelegance": [
+        "/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
+      ],
+      "elegantandsophisticated": [
+        "/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"
+      ],
+      "businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
+      "luxuryfeelapplied": [
+        "/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"
+      ],
+      "jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
+      "retroeleganc": [
+        "/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
+      ],
+      "romanticandsoft": [
+        "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
+      ],
+      "funchicpieces": [
+        "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
+        "/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
+        "/inputs/designs/bags/funchicpieces/funchicpieces3.webp"
+      ],
+      "girlyandfun": [
+        "/inputs/designs/bags/girlyandfun/girlyandfun1.webp",
+        "/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
+        "/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
+      ],
+      "opposingelements": [
+        "/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
+      ],
+      "artisanal": [
+        "/inputs/designs/bags/artisan/artisan1.webp",
+        "/inputs/designs/bags/artisan/artisan2.webp",
+        "/inputs/designs/bags/artisan/artisan3.webp"
+      ],
+      "whimsical": [
+        "/inputs/designs/bags/whimsical/whimsical1.webp",
+        "/inputs/designs/bags/whimsical/whimsical2.webp",
+        "/inputs/designs/bags/whimsical/whimsical3.webp"
+      ],
+      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
+    },
+    "lamp": {
+      "midcenturymodern": [
+        "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+      ],
+      "organicshapes": [
+        "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+        "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+      ],
+      "rawexposedmaterials": [
+        "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+      ],
+      "traditionaljapanese": [
+        "/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+      ],
+      "artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+      "turnofthecenturyluxe": [
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+      ],
+      "nomadic": [
+        "/inputs/designs/homedecor/nomadic/nomadic1.webp",
+        "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "popcraft": [
+        "/inputs/designs/homedecor/popcraft/popcraft1.webp",
+        "/inputs/designs/homedecor/popcraft/popcraft2.webp"
+      ],
+      "arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+      "chromelook": [
+        "/inputs/designs/homedecor/chromelook/chromelook1.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook2.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook3.webp"
+      ],
+      "spaceage": [
+        "/inputs/designs/homedecor/spaceage/spaceage1.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage2.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage3.webp"
+      ],
+      "animalia": [
+        "/inputs/designs/homedecor/animalia/animalia1.webp",
+        "/inputs/designs/homedecor/animalia/animalia2.webp"
+      ],
+      "funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+      "daliesquemodern": [
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+      ],
+      "melting": [
+        "/inputs/designs/homedecor/melting/melting1.webp",
+        "/inputs/designs/homedecor/melting/melting2.webp",
+        "/inputs/designs/homedecor/melting/melting3.webp",
+        "/inputs/designs/homedecor/melting/melting4.webp"
+      ],
+      "primordialart": [
+        "/inputs/designs/homedecor/primordialart/primordialart1.webp"
+      ],
+      "toteminspired": [
+        "/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+      ]
+    },
+    "dress": {
+      "streetwear": [
+        "/inputs/designs/fashions/streetwear/streetwear1.webp",
+        "/inputs/designs/fashions/streetwear/streetwear2.webp",
+        "/inputs/designs/fashions/streetwear/streetwear3.webp"
+      ],
+      "comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
+      "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
+      "prints": [""],
+      "fashionforward": [
+        "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
+      ],
+      "boldstructured": [
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
+      ],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
+      ],
+      "powerfullfeminity": [
+        "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
+      ],
+      "romanticflower": [
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
+      ],
+      "consciousfloral": [
+        "/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
+      ],
+      "artisticencounters": [
+        "/inputs/designs/fashions/artistic/artistic1.webp",
+        "/inputs/designs/fashions/artistic/artistic2.webp",
+        "/inputs/designs/fashions/artistic/artistic3.webp",
+        "/inputs/designs/fashions/artistic/artistic4.webp",
+        "/inputs/designs/fashions/artistic/artistic5.webp",
+        "/inputs/designs/fashions/artistic/artistic6.webp",
+        "/inputs/designs/fashions/artistic/artistic7.webp",
+        "/inputs/designs/fashions/artistic/artistic8.webp",
+        "/inputs/designs/fashions/artistic/artistic9.webp",
+        "/inputs/designs/fashions/artistic/artistic10.webp",
+        "/inputs/designs/fashions/artistic/artistic11.webp",
+        "/inputs/designs/fashions/artistic/artistic12.webp"
+      ],
+      "wellnesssporty": [
+        "/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
+      ],
+      "businessclean": [
+        "/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
+      ],
+      "effortlesschicinnovative": [
+        "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
+      ]
+    },
+    "jean": {
+      "streetwear": [
+        "/inputs/designs/fashions/streetwear/streetwear1.webp",
+        "/inputs/designs/fashions/streetwear/streetwear2.webp",
+        "/inputs/designs/fashions/streetwear/streetwear3.webp"
+      ],
+      "comfy": ["/inputs/designs/fashions/comfy/comfy1.webp"],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
+      "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
+      "prints": [""],
+      "fashionforward": [
+        "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
+      ],
+      "boldstructured": [
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
+        "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
+      ],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
+      ],
+      "powerfullfeminity": [
+        "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
+      ],
+      "romanticflower": [
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing1.webp",
+        "/inputs/designs/fashions/romanticflowerdetailing/romanticflowerdetailing2.webp"
+      ],
+      "consciousfloral": [
+        "/inputs/designs/fashions/consciousfloralembroidery/consciousfloralembroidery1.webp"
+      ],
+      "artisticencounters": [
+        "/inputs/designs/fashions/artistic/artistic1.webp",
+        "/inputs/designs/fashions/artistic/artistic2.webp",
+        "/inputs/designs/fashions/artistic/artistic3.webp",
+        "/inputs/designs/fashions/artistic/artistic4.webp",
+        "/inputs/designs/fashions/artistic/artistic5.webp",
+        "/inputs/designs/fashions/artistic/artistic6.webp",
+        "/inputs/designs/fashions/artistic/artistic7.webp",
+        "/inputs/designs/fashions/artistic/artistic8.webp",
+        "/inputs/designs/fashions/artistic/artistic9.webp",
+        "/inputs/designs/fashions/artistic/artistic10.webp",
+        "/inputs/designs/fashions/artistic/artistic11.webp",
+        "/inputs/designs/fashions/artistic/artistic12.webp"
+      ],
+      "wellnesssporty": [
+        "/inputs/designs/fashions/wellnesssportyandserene/wellnesssportyandserene1.webp"
+      ],
+      "businessclean": [
+        "/inputs/designs/fashions/businesscleansilhouette/businesscleansilhouette1.webp"
+      ],
+      "effortlesschicinnovative": [
+        "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
+      ]
+    },
+    "plate": {},
+    "notebook": {
+      "boldcolors": [
+        "/inputs/designs/officesupplies/boldcolors/boldcolors1.webp",
+        "/inputs/designs/officesupplies/boldcolors/boldcolors2.webp",
+        "/inputs/designs/officesupplies/boldcolors/boldcolors3.webp"
+      ],
+      "graphictouch": [
+        "/inputs/designs/officesupplies/graphictouch/graphictouch1.webp"
+      ],
+      "inthemoodforcolor": [
+        "/inputs/designs/officesupplies/inthemoodforcolor/inthemoodforcolor1.webp"
+      ],
+      "artfulelegance": [
+        "/inputs/designs/officesupplies/artfulelegance/artfulelegance1.webp",
+        "/inputs/designs/officesupplies/artfulelegance/artfulelegance2.webp"
+      ],
+      "preppyclassic": [
+        "/inputs/designs/officesupplies/preppyclassic/preppyclassic1.webp",
+        "/inputs/designs/officesupplies/preppyclassic/preppyclassic2.webp"
+      ],
+      "naturalescape": [
+        "/inputs/designs/officesupplies/naturalescape/naturalescape1.webp"
+      ],
+      "popart": ["/inputs/designs/officesupplies/popart/popart1.webp"],
+      "classicmood": [
+        "/inputs/designs/officesupplies/classicmood/classicmood1.webp",
+        "/inputs/designs/officesupplies/classicmood/classicmood2.webp"
+      ],
+      "nostalgic": [
+        "/inputs/designs/officesupplies/nostalgia/nostalgia1.webp",
+        "/inputs/designs/officesupplies/nostalgia/nostalgia1.webp"
+      ],
+      "retroencounters": [
+        "/inputs/designs/officesupplies/retroencounters/retroencounters1.webp"
+      ],
+      "mediterraneanfeel": [
+        "/inputs/designs/officesupplies/mediteraneanfeel/mediteraneanfeel1.webp"
+      ],
+      "aroundtheglobe": [
+        "/inputs/designs/officesupplies/aroundtheglobe/aroundtheglobe1.webp"
+      ],
+      "animalworld": [
+        "/inputs/designs/officesupplies/animalworld/animalworld1.webp",
+        "/inputs/designs/officesupplies/animalworld/animalworld2.webp"
+      ],
+      "nautical": ["/inputs/designs/officesupplies/nautical/nautical1.webp"],
+      "mozaiq": ["/inputs/designs/officesupplies/mozaique/mozaique1.webp"],
+      "tuttifrutti": [
+        "/inputs/designs/officesupplies/tuttifrutti/tuttifrutti1.webp",
+        "/inputs/designs/officesupplies/tuttifrutti/tuttifrutti2.webp"
+      ]
+    },
+    "shoulderbag": {
+      "quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+      "understatedelegance": [
+        "/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
+      ],
+      "elegantandsophisticated": [
+        "/inputs/designs/bags/elegantandsophesticated/elegantandsophesticated1.webp"
+      ],
+      "businesschic": ["/inputs/designs/bags/businesschic/businesschic1.webp"],
+      "luxuryfeelapplied": [
+        "/inputs/designs/bags/luxuryfeelappliedjewelry/luxuryfeelappliedjewelry1.webp"
+      ],
+      "jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
+      "retroeleganc": [
+        "/inputs/designs/bags/Retroelegance/Retroelegance1.webp"
+      ],
+      "romanticandsoft": [
+        "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
+      ],
+      "funchicpieces": [
+        "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
+        "/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
+        "/inputs/designs/bags/funchicpieces/funchicpieces3.webp"
+      ],
+      "girlyandfun": [
+        "/inputs/designs/bags/girlyandfun/girlyandfun1.webp",
+        "/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
+        "/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
+      ],
+      "opposingelements": [
+        "/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
+      ],
+      "artisanal": [
+        "/inputs/designs/bags/artisan/artisan1.webp",
+        "/inputs/designs/bags/artisan/artisan2.webp",
+        "/inputs/designs/bags/artisan/artisan3.webp"
+      ],
+      "whimsical": [
+        "/inputs/designs/bags/whimsical/whimsical1.webp",
+        "/inputs/designs/bags/whimsical/whimsical2.webp",
+        "/inputs/designs/bags/whimsical/whimsical3.webp"
+      ],
+      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
+    },
+    "vase": {
+      "midcenturymodern": [
+        "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+      ],
+      "organicshapes": [
+        "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+        "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+      ],
+      "rawexposedmaterials": [
+        "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
+      ],
+      "traditionaljapanese": [
+        "/inputs/designs/homedecor/traditionaljapanese/traditionaljapanese1.webp"
+      ],
+      "artdeco": ["/inputs/designs/homedecor/artdeco/artdeco1.webp"],
+      "turnofthecenturyluxe": [
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe1.webp",
+        "/inputs/designs/homedecor/turnofthecenturyluxe/turnofthecenturyluxe2.webp"
+      ],
+      "nomadic": [
+        "/inputs/designs/homedecor/nomadic/nomadic1.webp",
+        "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "popcraft": [
+        "/inputs/designs/homedecor/popcraft/popcraft1.webp",
+        "/inputs/designs/homedecor/popcraft/popcraft2.webp"
+      ],
+      "arabesque": ["/inputs/designs/homedecor/arabesque/arabesque1.webp"],
+      "chromelook": [
+        "/inputs/designs/homedecor/chromelook/chromelook1.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook2.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook3.webp"
+      ],
+      "spaceage": [
+        "/inputs/designs/homedecor/spaceage/spaceage1.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage2.webp",
+        "/inputs/designs/homedecor/spaceage/spaceage3.webp"
+      ],
+      "animalia": [
+        "/inputs/designs/homedecor/animalia/animalia1.webp",
+        "/inputs/designs/homedecor/animalia/animalia2.webp"
+      ],
+      "funkytimes": ["/inputs/designs/homedecor/funkytimes/funkytimes1.webp"],
+      "daliesquemodern": [
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern1.webp",
+        "/inputs/designs/homedecor/daliesquemodern/daliesquemodern2.webp"
+      ],
+      "melting": [
+        "/inputs/designs/homedecor/melting/melting1.webp",
+        "/inputs/designs/homedecor/melting/melting2.webp",
+        "/inputs/designs/homedecor/melting/melting3.webp",
+        "/inputs/designs/homedecor/melting/melting4.webp"
+      ],
+      "primordialart": [
+        "/inputs/designs/homedecor/primordialart/primordialart1.webp"
+      ],
+      "toteminspired": [
+        "/inputs/designs/homedecor/toteminspired/toteminspired1.webp"
+      ]
+    },
+    "toys": {},
+    "vehicles": {},
+    "glasses": {},
+    "watches": {}
+  }
 }

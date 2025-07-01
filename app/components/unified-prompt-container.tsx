@@ -449,7 +449,7 @@ export default function UnifiedPromptContainer({
       // Convert iOS formats to JPG if needed
       const file = await convertToJpg(originalFile);
 
-       // Create a unique filename using converted file name
+      // Create a unique filename using converted file name
       const fileExtension = file.name.split(".").pop();
       const baseName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
       const fileName = `${type}_${baseName}.${fileExtension}`;
@@ -869,7 +869,9 @@ export default function UnifiedPromptContainer({
                   color={
                     prompt.trim() || images.length > 0 ? "primary" : "default"
                   }
-                  isDisabled={(!prompt.trim() && images.length === 0) || isSubmitting}
+                  isDisabled={
+                    (!prompt.trim() && images.length === 0) || isSubmitting
+                  }
                   isLoading={isSubmitting}
                   radius="full"
                   size="sm"

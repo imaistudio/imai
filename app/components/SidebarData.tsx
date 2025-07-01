@@ -183,7 +183,9 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
       // Create archive document with exact same schema as sidebar, filtering out undefined values
       const archiveData = {
         ...(item.chatId !== undefined && { chatId: item.chatId }),
-        ...(item.chatSummary !== undefined && { chatSummary: item.chatSummary }),
+        ...(item.chatSummary !== undefined && {
+          chatSummary: item.chatSummary,
+        }),
         ...(item.userId !== undefined && { userId: item.userId }),
         ...(item.createdAt !== undefined && { createdAt: item.createdAt }),
         ...(item.updatedAt !== undefined && { updatedAt: item.updatedAt }),
@@ -191,7 +193,10 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         ...(item.pinnedAt !== undefined && { pinnedAt: item.pinnedAt }),
       };
 
-      const archiveRef = collection(firestore, `users/${currentUser.uid}/archive`);
+      const archiveRef = collection(
+        firestore,
+        `users/${currentUser.uid}/archive`,
+      );
       await addDoc(archiveRef, archiveData);
 
       // Delete the sidebar entry
@@ -361,7 +366,10 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                 </DropdownTrigger>
                 <DropdownMenu>
                   <DropdownSection showDivider>
-                    <DropdownItem key="rename" onClick={() => startRename(item)}>
+                    <DropdownItem
+                      key="rename"
+                      onClick={() => startRename(item)}
+                    >
                       <div className="flex items-center gap-2">
                         <Pencil size={16} />
                         Rename
@@ -379,7 +387,10 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                     </DropdownItem>
                   </DropdownSection>
                   <DropdownSection>
-                    <DropdownItem key="archive" onClick={() => handleArchive(item)}>
+                    <DropdownItem
+                      key="archive"
+                      onClick={() => handleArchive(item)}
+                    >
                       <div className="flex items-center gap-2">
                         <Archive size={16} />
                         Archive

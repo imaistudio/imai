@@ -193,8 +193,6 @@ export default function Login() {
               Sign Up
             </Link>
           </p> */}
-
-          
         </div>
       </div>
 

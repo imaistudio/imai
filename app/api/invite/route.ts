@@ -9,7 +9,7 @@ if (!getApps().length) {
     type: "service_account",
     project_id: process.env.FIREBASE_PROJECT_ID,
     private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
     client_id: process.env.FIREBASE_CLIENT_ID,
     auth_uri: "https://accounts.google.com/o/oauth2/auth",
@@ -29,20 +29,23 @@ const db = getFirestore();
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    
+
     // Extract all form data
     const inviteData = {
-      firstName: formData.get('firstName') as string,
-      lastName: formData.get('lastName') as string,
-      email: formData.get('email') as string,
+      firstName: formData.get("firstName") as string,
+      lastName: formData.get("lastName") as string,
+      email: formData.get("email") as string,
       submittedAt: new Date().toISOString(),
-      status: 'pending', // pending, approved, rejected
-      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-      userAgent: request.headers.get('user-agent') || 'unknown',
+      status: "pending", // pending, approved, rejected
+      ipAddress:
+        request.headers.get("x-forwarded-for") ||
+        request.headers.get("x-real-ip") ||
+        "unknown",
+      userAgent: request.headers.get("user-agent") || "unknown",
     };
 
     // Debug log to see what data we're receiving
-    console.log('Received form data:', {
+    console.log("Received form data:", {
       firstName: inviteData.firstName,
       lastName: inviteData.lastName,
       email: inviteData.email,
@@ -51,8 +54,11 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!inviteData.firstName || !inviteData.lastName || !inviteData.email) {
       return NextResponse.json(
-        { error: 'Missing required fields: firstName, lastName, and email are required' },
-        { status: 400 }
+        {
+          error:
+            "Missing required fields: firstName, lastName, and email are required",
+        },
+        { status: 400 },
       );
     }
 
@@ -60,50 +66,52 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(inviteData.email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
+        { error: "Invalid email format" },
+        { status: 400 },
       );
     }
 
     // Check if email already exists
-    const existingInvites = await db.collection('invites')
-      .where('email', '==', inviteData.email)
+    const existingInvites = await db
+      .collection("invites")
+      .where("email", "==", inviteData.email)
       .get();
 
     if (!existingInvites.empty) {
       return NextResponse.json(
-        { error: 'An invite request with this email already exists' },
-        { status: 409 }
+        { error: "An invite request with this email already exists" },
+        { status: 409 },
       );
     }
 
     // Store in Firestore
-    const docRef = await db.collection('invites').add(inviteData);
-    
+    const docRef = await db.collection("invites").add(inviteData);
+
     // Log for admin monitoring
-    console.log(`New invite request submitted: ${docRef.id} - ${inviteData.email}`);
+    console.log(
+      `New invite request submitted: ${docRef.id} - ${inviteData.email}`,
+    );
 
     // Send notification email to admins (optional)
     // You can integrate with your email service here
-    
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Invite request submitted successfully',
-        id: docRef.id 
-      },
-      { status: 201 }
-    );
 
-  } catch (error) {
-    console.error('Error processing invite request:', error);
-    
     return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        message: 'Please try again later'
+      {
+        success: true,
+        message: "Invite request submitted successfully",
+        id: docRef.id,
       },
-      { status: 500 }
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error("Error processing invite request:", error);
+
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        message: "Please try again later",
+      },
+      { status: 500 },
     );
   }
 }
@@ -113,34 +121,33 @@ export async function GET(request: NextRequest) {
   try {
     // You can add admin authentication here
     const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const email = searchParams.get("email");
+    const status = searchParams.get("status");
+    const limit = parseInt(searchParams.get("limit") || "50");
 
-    let query = db.collection('invites').orderBy('submittedAt', 'desc');
+    let query = db.collection("invites").orderBy("submittedAt", "desc");
 
     if (email) {
-      query = query.where('email', '==', email) as any;
+      query = query.where("email", "==", email) as any;
     }
 
     if (status) {
-      query = query.where('status', '==', status) as any;
+      query = query.where("status", "==", status) as any;
     }
 
     const snapshot = await query.limit(limit).get();
-    const invites = snapshot.docs.map(doc => ({
+    const invites = snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
     return NextResponse.json({ invites });
-
   } catch (error) {
-    console.error('Error fetching invite requests:', error);
-    
+    console.error("Error fetching invite requests:", error);
+
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }
