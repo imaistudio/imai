@@ -343,7 +343,7 @@ export default function ChatWindow({
                                 <ImageZoomModal
                                   src={img}
                                   alt={`image-${i}`}
-                                  className="min-w-36 w-auto h-36 md:h-52 object-cover rounded-lg"
+                                  className="w-auto h-36 md:h-96 object-cover rounded-lg"
                                 />
                               </div>
                             ))}

@@ -1,15 +1,13 @@
 Todo 
  
-1. in Sidebar Compoent add in pin | create folder and add chats into it 
-2. Archive | Rename | Share 
-3. load all the presets and add in test code to veryify the path 
-4. New Chat Show Default Promot With horizontal Scrooling 
-5. Pagination to Explore Page and firestore database 
-6. Stripe Payment Gateway 
-7. add icons in the chatimages call api routes 
-8. add sharing system model | public link | shareable chat window 
-9. fix all the mobile views pixel Perfect
-10. copy paste drag and drop system in chat window 
+1. load all the presets and add in test code to veryify the path 
+2. New Chat Show Default Promot With horizontal Scrooling 
+3. Pagination to Explore Page and firestore database 
+4. Stripe Payment Gateway 
+5. add icons in the chatimages call api routes 
+6. add sharing system model | public link | shareable chat window 
+7. fix all the mobile views pixel Perfect
+8. copy paste drag and drop system in chat window 
 
 Extras 
 
