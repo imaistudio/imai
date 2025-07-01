@@ -1,225 +1,215 @@
-# Kling Video Generation API Test Guide
+# Kling API Route Testing Instructions - Postman
 
-## Overview
-The Kling API converts static images into dynamic videos using FAL AI Kling technology. It supports both direct file uploads and URL-based processing through the IntentRoute architecture.
+## Prerequisites
+1. Ensure your Next.js application is running (usually on http://localhost:3000)
+2. Make sure you have KLING_ACCESS_KEY and KLING_SECRET_KEY set in your .env.local file
+3. Have Postman installed
 
-## Base URL
+## Environment Variables Setup
+Add these to your .env.local file:
 ```
-POST http://localhost:3000/api/kling
-```
-
-## Required Parameters
-- `file` (File): Image file to convert to video OR
-- `image_url` (string): Image URL to convert (when used with IntentRoute)
-
-## Optional Parameters
-- `prompt` (string): Description for video generation (default: "Create a smooth transition video")
-
----
-
-## CURL Examples
-
-### 1. Via IntentRoute (Recommended)
-```bash
-curl -X POST http://localhost:3000/api/intentroute \
-  -F "userid=test-user-123" \
-  -F "message=convert this image to a video" \
-  -F "product_image=@image.jpg"
+KLING_ACCESS_KEY=
+KLING_SECRET_KEY=
 ```
 
-### 2. Direct File Upload
-```bash
-curl -X POST http://localhost:3000/api/kling \
-  -F "file=@image.jpg" \
-  -F "prompt=Create a dynamic water flowing animation"
-```
+## Test Setup
 
-### 3. Direct API with URL
-```bash
-curl -X POST http://localhost:3000/api/kling \
-  -F "image_url=https://res.cloudinary.com/example/image.jpg" \
-  -F "prompt=Add gentle movement and life to this landscape"
-```
+### 1. Create New Request
+- Open Postman
+- Click "New" → "Request"
+- Name it "Kling Image to Video"
+- Save to a collection
 
-### 4. Animated Portrait
-```bash
-curl -X POST http://localhost:3000/api/kling \
-  -F "file=@portrait.jpg" \
-  -F "prompt=Create subtle facial movements and hair flowing"
-```
+### 2. Configure Request Method & URL
+- Set method to: **POST**
+- Set URL to: `http://localhost:3000/api/kling`
+- (Replace localhost:3000 with your actual domain if deployed)
 
-### 5. Nature Scene Animation
-```bash
-curl -X POST http://localhost:3000/api/kling \
-  -F "file=@landscape.jpg" \
-  -F "prompt=Add clouds moving across the sky and trees swaying"
-```
+### 3. Set Headers
+- Click on "Headers" tab
+- Add header:
+  - Key: `Content-Type`
+  - Value: `application/json`
 
-### 6. Product Animation
-```bash
-curl -X POST http://localhost:3000/api/kling \
-  -F "file=@product.jpg" \
-  -F "prompt=Create a 360-degree rotation showcase effect"
-```
-
-### 7. Minimal Animation
-```bash
-curl -X POST http://localhost:3000/api/kling \
-  -F "file=@image.jpg"
-```
-
-### 8. API Status Check
-```bash
-curl -X GET http://localhost:3000/api/kling
-```
-
----
-
-## Postman Examples
-
-### Collection Setup
-1. Create new collection: "Kling Video API Tests"
-2. Set collection variable: `baseUrl` = `http://localhost:3000`
-
-### 1. Via IntentRoute (Recommended Flow)
-```
-POST {{baseUrl}}/api/intentroute
-Content-Type: multipart/form-data
-
-Body (form-data):
-- userid: test-user-123
-- message: turn this image into a video with ocean waves
-- product_image: [file] beach-scene.jpg
-```
-
-### 2. Direct File to Video
-```
-POST {{baseUrl}}/api/kling
-Content-Type: multipart/form-data
-
-Body (form-data):
-- file: [file] image.jpg
-- prompt: Create smooth, cinematic movement
-```
-
-### 3. URL-based Video Generation
-```
-POST {{baseUrl}}/api/kling
-Content-Type: multipart/form-data
-
-Body (form-data):
-- image_url: https://res.cloudinary.com/example/image.jpg
-- prompt: Add magical sparkle effects and gentle motion
-```
-
-### 4. Portrait Animation
-```
-POST {{baseUrl}}/api/kling
-Content-Type: multipart/form-data
-
-Body (form-data):
-- file: [file] portrait.jpg
-- prompt: Create natural blinking and slight head movement
-```
-
-### 5. Architectural Animation
-```
-POST {{baseUrl}}/api/kling
-Content-Type: multipart/form-data
-
-Body (form-data):
-- file: [file] building.jpg
-- prompt: Add dramatic lighting changes and shadow movement
-```
-
-### 6. Product Showcase
-```
-POST {{baseUrl}}/api/kling
-Content-Type: multipart/form-data
-
-Body (form-data):
-- file: [file] product.jpg
-- prompt: Create elegant rotation with subtle lighting effects
-```
-
-### 7. Default Animation
-```
-POST {{baseUrl}}/api/kling
-Content-Type: multipart/form-data
-
-Body (form-data):
-- file: [file] any-image.jpg
-```
-
-### 8. API Health Check
-```
-GET {{baseUrl}}/api/kling
-```
-
----
-
-## Expected Response Format
-
-### Success Response
-```json
-{
-  "success": true,
-  "videoUrl": "https://res.cloudinary.com/example/video/upload/v123456789/kling_videos/generated_video.mp4",
-  "requestId": "req_abc123def456",
-  "originalImageUrl": "https://res.cloudinary.com/example/image/upload/v123456789/kling_videos/source_image.jpg",
-  "processingTime": "Video generation completed"
-}
-```
-
-### Error Responses
-```json
-{
-  "error": "Please provide either an image file or image_url"
-}
-```
+### 4. Configure Request Body
+- Click on "Body" tab
+- Select "raw" option
+- Choose "JSON" from dropdown
+- Add the following JSON:
 
 ```json
 {
-  "error": "Failed to process video"
+  "image": "https://example.com/your-image-url.jpg"
 }
 ```
 
----
+## Test Cases
 
-## Notes
+### Test Case 1: Valid Image URL
+```json
+{
+  "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800"
+}
+```
 
-### Video Specifications
-- **Duration**: 5 seconds
-- **Quality**: Professional grade using Kling AI v1.6 Pro
-- **Format**: MP4 (delivered via Cloudinary)
-- **CFG Scale**: 0.5 for optimal results
-- **Negative Prompt**: Automatically applied to avoid blur and distortion
+**Expected Response:**
+- Status: 200 OK
+- Body: JSON response from Kling API with video generation details
 
-### Processing Flow
-1. **Image Input**: File upload or URL from IntentRoute
-2. **Image Processing**: Auto-resize if needed (max 2000px)
-3. **Cloudinary Upload**: Source image stored temporarily
-4. **FAL AI Processing**: Kling v1.6 Pro video generation
-5. **Video Delivery**: Final video uploaded to Cloudinary
-6. **Cleanup**: Temporary files deleted after 45 seconds
+### Test Case 2: Missing Image URL
+```json
+{}
+```
 
-### Best Practices
-- **File Size**: Keep images under 10MB for optimal processing
-- **Dimensions**: Images will be auto-resized if larger than 2000px
-- **Prompts**: Be specific about desired motion and effects
-- **Content**: Works best with clear, well-lit images
-- **Format**: JPG, PNG, and WebP formats supported
+**Expected Response:**
+- Status: 400 Bad Request
+- Body: 
+```json
+{
+  "error": "Image URL is required"
+}
+```
 
-### Common Use Cases
-- **Marketing**: Product showcase videos
-- **Social Media**: Animated profile pictures and posts
-- **Architecture**: Building and interior animations
-- **Nature**: Landscape and weather effects
-- **Portraits**: Subtle facial animation and hair movement
-- **Art**: Bringing paintings and drawings to life
+### Test Case 3: Invalid Image URL
+```json
+{
+  "image": "not-a-valid-url"
+}
+```
 
-### Performance Tips
-- Use IntentRoute for better file handling and user tracking
-- Provide descriptive prompts for better results
-- Consider image composition when planning animation
-- Test with different prompt styles for varied effects 
+**Expected Response:**
+- Status: May vary (400-500) depending on Kling API response
+- Body: Error message from Kling API
+
+### Test Case 4: Empty Image URL
+```json
+{
+  "image": ""
+}
+```
+
+**Expected Response:**
+- Status: 400 Bad Request
+- Body: 
+```json
+{
+  "error": "Image URL is required"
+}
+```
+
+## Testing Different HTTP Methods
+
+### Test GET Request (Should Fail)
+- Change method to **GET**
+- Keep same URL: `http://localhost:3000/api/kling`
+- Remove body content
+
+**Expected Response:**
+- Status: 405 Method Not Allowed
+- Body:
+```json
+{
+  "error": "Method not allowed"
+}
+```
+
+## Response Analysis
+
+### Successful Response Structure
+When successful, you should receive a response similar to:
+```json
+{
+  "id": "task-id-from-kling",
+  "status": "processing",
+  "message": "Video generation started",
+  // ... other fields from Kling API
+}
+```
+
+### Error Response Structure
+```json
+{
+  "error": "Error description",
+  "details": "Additional error details (if available)",
+  "status": "HTTP status code (if from external API)"
+}
+```
+
+## Troubleshooting
+
+### Common Issues:
+
+1. **500 Internal Server Error - "Kling API credentials not configured"**
+   - Check if KLING_ACCESS_KEY and KLING_SECRET_KEY are set in .env.local
+   - Restart your Next.js server after adding the credentials
+
+2. **Connection Refused**
+   - Ensure your Next.js app is running
+   - Check if the port is correct (default: 3000)
+
+3. **CORS Issues**
+   - This shouldn't happen with API routes, but if it does, check your Next.js configuration
+
+4. **Invalid API Credentials Response**
+   - Verify your KLING_ACCESS_KEY and KLING_SECRET_KEY are correct and active
+   - Check that both credentials are provided correctly
+   - Ensure the JWT token generation is working properly
+
+## Sample Working cURL Command
+For reference, here's the equivalent cURL command:
+
+```bash
+curl --location --request POST 'http://localhost:3000/api/kling' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800"
+}'
+```
+
+## Hardcoded Parameters
+Remember that these parameters are hardcoded in the API and cannot be changed via the request:
+- model_name: "kling-v1"
+- mode: "pro"
+- duration: "5"
+- prompt: "360 view of the image"
+- cfg_scale: 0.5
+
+## Authentication Details
+The API uses JWT (JSON Web Token) authentication based on official Kling AI documentation:
+1. Your Access Key and Secret Key are used to generate a JWT token
+2. The JWT token is automatically generated server-side with a 30-minute expiry
+3. The token includes: `iss` (Access Key), `exp` (expiration), `nbf` (not before) 
+4. The token is signed using HS256 algorithm with secret key directly
+5. The header explicitly sets `alg: HS256` and `typ: JWT`
+6. The token is sent as a Bearer token in the Authorization header
+7. No manual token generation is required on the client side
+
+### JWT Structure (matches official Java implementation):
+```json
+{
+  "iss": "your_access_key",     // Access Key as issuer
+  "exp": 1234567890,            // Current time + 1800s (30 minutes)  
+  "nbf": 1234567885             // Current time - 5s (not before)
+}
+```
+
+## Debugging Authentication Issues
+If you're still getting auth errors, check the server logs for:
+1. JWT token generation details
+2. The exact payload being sent to Kling API
+3. The Authorization header format
+
+You can also test your credentials directly with this cURL command:
+```bash
+# Replace with your actual credentials
+ACCESS_KEY="AYMkTdtLNLgJHebMhbbkQDGNeLJGnHbQ"
+SECRET_KEY="mGMdp9bA9PgYykTypNtErfDaKfCK99y4"
+
+# Generate JWT manually (requires jwt command line tool)
+# Or test through the API route
+```
+
+## Next Steps After Testing
+1. If the API returns a task ID, you may need to poll another endpoint to check the status
+2. The actual video URL will be provided once processing is complete
+3. Implement proper error handling in your frontend application based on these test results
