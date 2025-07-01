@@ -7,10 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {Badge} from "@heroui/react";
 import { CheckCircle, Loader2, Sparkles } from "lucide-react"
-import {Textarea} from "@heroui/input";
-import {Select, SelectItem} from "@heroui/select";
 import Footer from "../components/footer";
 import Header from "../components/header";
+import Spline from "@splinetool/react-spline";
 
 async function submitInviteRequest(formData: FormData) {
   // Debug: Log form data being sent
@@ -18,12 +17,6 @@ async function submitInviteRequest(formData: FormData) {
     firstName: formData.get('firstName'),
     lastName: formData.get('lastName'),
     email: formData.get('email'),
-    company: formData.get('company'),
-    role: formData.get('role'),
-    website: formData.get('website'),
-    useCase: formData.get('useCase'),
-    experience: formData.get('experience'),
-    referral: formData.get('referral'),
   });
 
   const response = await fetch('/api/invite', {
@@ -61,8 +54,18 @@ export default function InvitePage() {
   return (
     <>
     <Header></Header>
-    <div className="min-h-screen bg-white dark:bg-black">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen relative bg-white dark:bg-black">
+      {/* Spline 3D Scene Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <Spline
+          scene="https://prod.spline.design/tlbc6o8eic5clyWn/scene.splinecode" 
+          className="w-full h-full object-cover"
+        />
+        {/* Overlay for better form readability */}
+        <div className="absolute inset-0  backdrop-blur-none" />
+      </div>
+      
+      <div className="relative z-10 container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
@@ -73,7 +76,7 @@ export default function InvitePage() {
               Get early access to our revolutionary AI platform
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              We're carefully selecting our first users. Tell us about yourself and we'll review your application.
+              We're carefully selecting our first users.  Tell us about yourself and we'll review your application.
             </p>
           </div>
 
@@ -149,91 +152,6 @@ export default function InvitePage() {
                     />
                   </div>
 
-                  {/* Professional Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="company" className="text-black dark:text-white">Company/Organization</Label>
-                      <Input
-                        id="company"
-                        name="company"
-                        placeholder="Acme Inc."
-                        className="bg-white dark:bg-black border-gray-200 dark:border-gray-800 text-black dark:text-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="role" className="text-black dark:text-white">Your Role</Label>
-                      <Select 
-                        name="role"
-                        placeholder="Select your role"
-                        className="bg-white dark:bg-black border-gray-200 dark:border-gray-800 text-black dark:text-white"
-                      >
-                        <SelectItem key="designer">Designer</SelectItem>
-                        <SelectItem key="developer">Developer</SelectItem>
-                        <SelectItem key="marketer">Marketer</SelectItem>
-                        <SelectItem key="content-creator">Content Creator</SelectItem>
-                        <SelectItem key="entrepreneur">Entrepreneur</SelectItem>
-                        <SelectItem key="student">Student</SelectItem>
-                        <SelectItem key="other">Other</SelectItem>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="website" className="text-black dark:text-white">Website/Portfolio (Optional)</Label>
-                    <Input
-                      id="website"
-                      name="website"
-                      type="url"
-                      placeholder="https://yourwebsite.com"
-                      className="bg-white dark:bg-black border-gray-200 dark:border-gray-800 text-black dark:text-white"
-                    />
-                  </div>
-
-                  {/* Use Case */}
-                  <div className="space-y-2">
-                    <Label htmlFor="useCase" className="text-black dark:text-white">How do you plan to use our AI image generation platform? *</Label>
-                    <Textarea
-                      id="useCase"
-                      name="useCase"
-                      placeholder="Tell us about your specific use case, projects, or goals..."
-                      required
-                      className="min-h-[100px] bg-white dark:bg-black border-gray-200 dark:border-gray-800 text-black dark:text-white"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="experience" className="text-black dark:text-white">Experience with AI Tools</Label>
-                    <Select 
-                      name="experience"
-                      placeholder="Select your experience level"
-                      className="bg-white dark:bg-black border-gray-200 dark:border-gray-800 text-black dark:text-white"
-                    >
-                      <SelectItem key="beginner">Beginner - New to AI tools</SelectItem>
-                      <SelectItem key="intermediate">Intermediate - Some experience</SelectItem>
-                      <SelectItem key="advanced">Advanced - Extensive experience</SelectItem>
-                      <SelectItem key="expert">Expert - Professional AI user</SelectItem>
-                    </Select>
-                  </div>
-
-                  {/* Additional Information */}
-                  <div className="space-y-2">
-                    <Label htmlFor="referral" className="text-black dark:text-white">How did you hear about us?</Label>
-                    <Select 
-                      name="referral"
-                      placeholder="Select source"
-                      className="bg-white dark:bg-black border-gray-200 dark:border-gray-800 text-black dark:text-white"
-                    >
-                      <SelectItem key="social-media">Social Media</SelectItem>
-                      <SelectItem key="search-engine">Search Engine</SelectItem>
-                      <SelectItem key="friend-referral">Friend/Colleague</SelectItem>
-                      <SelectItem key="blog-article">Blog/Article</SelectItem>
-                      <SelectItem key="newsletter">Newsletter</SelectItem>
-                      <SelectItem key="other">Other</SelectItem>
-                    </Select>
-                  </div>
-
-
-
                   <Button
                     type="submit"
                     disabled={isLoading}
@@ -251,19 +169,19 @@ export default function InvitePage() {
                       </>
                     )}
                   </Button>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Questions? Contact us at{" "}
+                    <a href="mailto:contact@imai.studio" className="text-blue-600 hover:underline">
+                      contact@imai.studio
+                    </a>
+                  </p>
                 </form>
+                
               </CardContent>
             </Card>
           )}
 
-          <div className="text-center mt-12 pt-8  ">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Questions? Contact us at{" "}
-              <a href="mailto:contact@imai.studio" className="text-blue-600 hover:underline">
-                contact@imai.studio
-              </a>
-            </p>
-          </div>
+          
         </div>
       </div>
     </div>

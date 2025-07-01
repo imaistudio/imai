@@ -35,12 +35,6 @@ export async function POST(request: NextRequest) {
       firstName: formData.get('firstName') as string,
       lastName: formData.get('lastName') as string,
       email: formData.get('email') as string,
-      company: formData.get('company') as string || null,
-      role: formData.get('role') as string || null,
-      website: formData.get('website') as string || null,
-      useCase: formData.get('useCase') as string,
-      experience: formData.get('experience') as string || null,
-      referral: formData.get('referral') as string || null,
       submittedAt: new Date().toISOString(),
       status: 'pending', // pending, approved, rejected
       ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
@@ -52,13 +46,12 @@ export async function POST(request: NextRequest) {
       firstName: inviteData.firstName,
       lastName: inviteData.lastName,
       email: inviteData.email,
-      useCase: inviteData.useCase,
     });
 
     // Validate required fields
-    if (!inviteData.firstName || !inviteData.lastName || !inviteData.email || !inviteData.useCase) {
+    if (!inviteData.firstName || !inviteData.lastName || !inviteData.email) {
       return NextResponse.json(
-        { error: 'Missing required fields: firstName, lastName, email, and useCase are required' },
+        { error: 'Missing required fields: firstName, lastName, and email are required' },
         { status: 400 }
       );
     }
