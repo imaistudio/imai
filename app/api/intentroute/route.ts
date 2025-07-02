@@ -4482,7 +4482,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // 🔧 NEW: Call titlerenamer with Complete Final Prompt after successful generation
         if (apiResult.generated_prompt) {
-          callTitleRenamerWithPrompt(userid, apiResult.generated_prompt, chatId);
+          callTitleRenamerWithPrompt(userid, apiResult.generated_prompt, chatId).catch(error => {
+            console.error("❌ Title renamer failed (non-blocking):", error);
+          });
         }
 
         // Always use Claude for ALL successful image operations to provide proactive recommendations
@@ -4506,7 +4508,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 🔧 NEW: Call titlerenamer with Complete Final Prompt after successful generation
     if (apiResult?.status === "success" && apiResult.generated_prompt) {
-      callTitleRenamerWithPrompt(userid, apiResult.generated_prompt, chatId);
+      callTitleRenamerWithPrompt(userid, apiResult.generated_prompt, chatId).catch(error => {
+        console.error("❌ Title renamer failed (non-blocking):", error);
+      });
     }
 
     responseMessage = await generateResponse(
@@ -4621,13 +4625,19 @@ async function callTitleRenamerWithPrompt(
     formData.append("prompt", generatedPrompt);
 
     const baseUrl = getBaseUrl();
+    console.log("🔗 Making request to:", `${baseUrl}/api/titlerenamer`);
+    
     const response = await fetch(`${baseUrl}/api/titlerenamer`, {
       method: "POST",
       body: formData,
     });
 
+    console.log("📡 Title renamer response status:", response.status);
+
     if (response.ok) {
       const result = await response.json();
+      console.log("📥 Title renamer response:", result);
+      
       if (result.status === "success") {
         console.log("✅ Title generated successfully:", result.title);
         console.log("  - Category:", result.category);
@@ -4646,12 +4656,16 @@ async function callTitleRenamerWithPrompt(
           console.log("✅ Sidebar updated with new title:", result.title);
         } catch (updateError) {
           console.error("❌ Failed to update sidebar:", updateError);
+          throw updateError; // Re-throw to see in logs
         }
       } else {
         console.error("❌ Title rename API failed:", result.error);
+        throw new Error(`Title rename API failed: ${result.error}`);
       }
     } else {
-      console.error("❌ Title rename HTTP error:", response.status);
+      const errorText = await response.text();
+      console.error("❌ Title rename HTTP error:", response.status, errorText);
+      throw new Error(`Title rename HTTP error: ${response.status} - ${errorText}`);
     }
   } catch (error) {
     console.error("❌ Title rename call failed:", error);

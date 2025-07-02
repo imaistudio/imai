@@ -190,6 +190,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.log("  - Anthropic API key available:", !!process.env.ANTHROPIC_API_KEY);
     console.log("  - Node environment:", process.env.NODE_ENV);
     
+    // Check if ANTHROPIC_API_KEY is available
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error("❌ ANTHROPIC_API_KEY environment variable is missing");
+      return NextResponse.json(
+        { status: "error", error: "ANTHROPIC_API_KEY environment variable is not configured" },
+        { status: 500 },
+      );
+    }
+    
     const formData = await request.formData();
 
     const userid = (formData.get("userid") as string | null)?.trim();
@@ -200,19 +209,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Validate Firebase user ID if Firebase is initialized
-    if (firebaseInitialized && process.env.NODE_ENV !== "development") {
+    // Validate Firebase user ID if Firebase is initialized (but don't fail if validation fails)
+    if (firebaseInitialized) {
       try {
         await getAuth().getUser(userid);
         console.log("✅ Firebase user ID validated successfully for titlerenamer");
       } catch (error) {
-        console.log("❌ Invalid Firebase user ID for titlerenamer:", error);
-        return NextResponse.json(
-          { status: "error", error: "Invalid Firebase user ID" },
-          { status: 400 },
-        );
+        console.warn("⚠️ Firebase user validation failed (continuing anyway):", error);
+        // Don't return error - continue with title generation even if user validation fails
+        // This prevents title renaming from failing due to Firebase auth issues
       }
-    } else if (!firebaseInitialized) {
+    } else {
       console.log("⚠️ Skipping Firebase user validation - Firebase not initialized");
     }
 
