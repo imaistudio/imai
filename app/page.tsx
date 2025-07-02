@@ -153,38 +153,47 @@ export default function Home() {
   };
 
   // 🔧 NEW: Function to handle title rename callback
-  const handleTitleRenamed = useCallback(async (chatId: string, newTitle: string, category: string) => {
-    console.log("🎉 SUCCESS! Title rename callback fired:");
-    console.log("  - Chat ID:", chatId);
-    console.log("  - New Title:", newTitle);
-    console.log("  - Category:", category);
-    
-    if (!currentUser) {
-      console.error("❌ No current user for title update");
-      return;
-    }
+  const handleTitleRenamed = useCallback(
+    async (chatId: string, newTitle: string, category: string) => {
+      console.log("🎉 SUCCESS! Title rename callback fired:");
+      console.log("  - Chat ID:", chatId);
+      console.log("  - New Title:", newTitle);
+      console.log("  - Category:", category);
 
-    try {
-      // Update the sidebar document with the new title
-      const sidebarDocRef = doc(firestore, `users/${currentUser.uid}/sidebar/${chatId}`);
-      
-      await setDoc(
-        sidebarDocRef,
-        {
-          chatSummary: newTitle,
-          category: category,
-          titleRenamed: true,
-          renamedAt: Timestamp.now(),
-          updatedAt: Timestamp.now(),
-        },
-        { merge: true }
-      );
-      
-      console.log("✅ Sidebar updated successfully with new title:", newTitle);
-    } catch (error) {
-      console.error("❌ Failed to update sidebar with new title:", error);
-    }
-  }, [currentUser]);
+      if (!currentUser) {
+        console.error("❌ No current user for title update");
+        return;
+      }
+
+      try {
+        // Update the sidebar document with the new title
+        const sidebarDocRef = doc(
+          firestore,
+          `users/${currentUser.uid}/sidebar/${chatId}`,
+        );
+
+        await setDoc(
+          sidebarDocRef,
+          {
+            chatSummary: newTitle,
+            category: category,
+            titleRenamed: true,
+            renamedAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+          },
+          { merge: true },
+        );
+
+        console.log(
+          "✅ Sidebar updated successfully with new title:",
+          newTitle,
+        );
+      } catch (error) {
+        console.error("❌ Failed to update sidebar with new title:", error);
+      }
+    },
+    [currentUser],
+  );
 
   const handleFormSubmission = async (data: any) => {
     if (!currentUser) {

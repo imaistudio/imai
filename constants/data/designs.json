@@ -602,6 +602,52 @@
     "aquietstorm": ["/inputs/designs/vehicles/aquietstorm/aquietstorm1.webp"],
     "thesmallandfurious": [
       "/inputs/designs/vehicles/thesmallandfurious/thesmallandfurious1.webp"
+    ],
+    "smartnewage": ["/inputs/designs/watches/smartnewage/smartnewage1.webp"],
+    "classic": [
+      "/inputs/designs/watches/classic/classic1.webp",
+      "/inputs/designs/watches/classic/classic2.webp",
+      "/inputs/designs/watches/classic/classic3.webp",
+      "/inputs/designs/watches/classic/classic4.webp"
+    ],
+    "vintagestyle": [
+      "/inputs/designs/watches/vintagestyle/vintagestyle1.webp",
+      "/inputs/designs/watches/vintagestyle/vintagestyle2.webp",
+      "/inputs/designs/watches/vintagestyle/vintagestyle3.webp"
+    ],
+    "skeletonwatch": [
+      "/inputs/designs/watches/skeletonwatch/skeletonwatch1.webp"
+    ],
+    "digitalappeal": [
+      "/inputs/designs/watches/digitalappeal/digitalappeal1.webp",
+      "/inputs/designs/watches/digitalappeal/digitalappeal2.webp"
+    ],
+    "braceletstyle": [
+      "/inputs/designs/watches/braceletstyle/braceletstyle1.webp"
+    ],
+    "artistichautehorlogerie": [
+      "/inputs/designs/watches/artistichautehorlogerie/artistichautehorlogerie1.webp"
+    ],
+    "bejeweled": [
+      "/inputs/designs/watches/bejeweled/bejeweled1.webp",
+      "/inputs/designs/watches/bejeweled/bejeweled2.webp"
+    ],
+    "boldangularshapes": [
+      "/inputs/designs/watches/boldangularshapes/boldangularshapes1.webp"
+    ],
+    "artdecoage": ["/inputs/designs/watches/artdecoage/artdecoage1.webp"],
+    "secretwatch": [
+      "/inputs/designs/watches/secretwatch/secretwatch1.webp",
+      "/inputs/designs/watches/secretwatch/secretwatch2.webp"
+    ],
+    "fantasyworld": ["/inputs/designs/watches/fantasyworld/fantasyworld1.webp"],
+    "whimsicalfun": ["/inputs/designs/watches/whimsicalfun/whimsicalfun1.webp"],
+    "naturalwonders": [
+      "/inputs/designs/watches/naturalwonders/naturalwonders1.webp",
+      "/inputs/designs/watches/naturalwonders/naturalwonders2.webp"
+    ],
+    "necklacewatch": [
+      "/inputs/designs/watches/necklacewatch/necklacewatch1.webp"
     ]
   },
   "placeholders": {
@@ -752,10 +798,26 @@
     "redefiningmobility": "/inputs/placeholders/vehicles/redefiningmobility.webp",
     "absolutedeluxe": "/inputs/placeholders/vehicles/absolutedeluxe.webp",
     "deluxetouch": "/inputs/placeholders/vehicles/deluxetouch.webp",
-    "thesupersport": "public/inputs/placeholders/vehicles/thesupersport.webp",
+    "thesupersport": "/inputs/placeholders/vehicles/thesupersport.webp",
     "hybridboxy": "/inputs/placeholders/vehicles/hybridboxy.webp",
     "electricdreams": "/inputs/placeholders/vehicles/electricdreams.webp",
     "aquietstorm": "/inputs/placeholders/vehicles/aquietstorm.webp",
-    "thesmallandfurious": "/inputs/placeholders/vehicles/thesmallandfurious.webp"
+    "thesmallandfurious": "/inputs/placeholders/vehicles/thesmallandfurious.webp",
+
+    "smartnewage": "/inputs/placeholders/watches/smartnewage.webp",
+    "classic": "/inputs/placeholders/watches/classic.webp",
+    "vintagestyle": "/inputs/placeholders/watches/vintagestyle.webp",
+    "skeletonwatch": "/inputs/placeholders/watches/skeletonwatch.webp",
+    "digitalappeal": "/inputs/placeholders/watches/digital appeal.webp",
+    "braceletstyle": "/inputs/placeholders/watches/braceletstyle.webp",
+    "artistichautehorlogerie": "/inputs/placeholders/watches/artistichautehorlogerie.webp",
+    "bejeweled": "/inputs/placeholders/watches/bejeweled.webp",
+    "boldangularshapes": "/inputs/placeholders/watches/boldangularshapes.webp",
+    "artdecoage": "/inputs/placeholders/watches/art deco age.webp",
+    "secretwatch": "/inputs/placeholders/watches/secret watch.webp",
+    "fantasyworld": "/inputs/placeholders/watches/fantasyworld.webp",
+    "whimsicalfun": "/inputs/placeholders/watches/whimsicalfun.webp",
+    "naturalwonders": "/inputs/placeholders/watches/naturalwonders.webp",
+    "necklacewatch": "/inputs/placeholders/watches/necklacewatch.webp"
   }
 }
