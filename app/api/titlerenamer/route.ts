@@ -52,28 +52,26 @@ Respond with JSON only:
 
   try {
     let analysisContent: string;
-
-    if (typeof input === "string") {
+    
+    if (typeof input === 'string') {
       // New format: Complete Final Prompt
       console.log("🎯 Analyzing Complete Final Prompt for title generation");
-
+      
       // Extract key information from the generated prompt
       const prompt = input;
-
+      
       // Try to extract product type
       const productMatch = prompt.match(/TARGET PRODUCT:\s*([^-\n]+)/i);
-      const product = productMatch ? productMatch[1].trim() : "";
-
+      const product = productMatch ? productMatch[1].trim() : '';
+      
       // Try to extract color information
-      const colorMatches = prompt.match(
-        /(?:color|colours?)[^:]*:\s*([^\.]+)/gi,
-      );
-      const colors = colorMatches ? colorMatches.slice(0, 2).join(", ") : "";
-
+      const colorMatches = prompt.match(/(?:color|colours?)[^:]*:\s*([^\.]+)/gi);
+      const colors = colorMatches ? colorMatches.slice(0, 2).join(', ') : '';
+      
       // Try to extract user prompt
       const userPromptMatch = prompt.match(/USER PROMPT:\s*([^\n]+)/i);
-      const userIntent = userPromptMatch ? userPromptMatch[1].trim() : "";
-
+      const userIntent = userPromptMatch ? userPromptMatch[1].trim() : '';
+      
       analysisContent = `
 Generated Design Analysis:
 - Product: ${product}
@@ -83,6 +81,7 @@ Generated Design Analysis:
 Full Generated Prompt Context:
 ${prompt.substring(0, 800)}...
       `.trim();
+      
     } else {
       // Legacy format: Chat Messages
       console.log("📜 Analyzing chat messages for title generation");
@@ -134,22 +133,14 @@ Generate a short, descriptive title and category for this design/conversation.`;
     console.error("Error generating title:", error);
 
     // Fallback logic
-    const inputStr =
-      typeof input === "string"
-        ? input
-        : input.filter((m) => m.role === "user").pop()?.content || "";
+    const inputStr = typeof input === 'string' ? input : 
+      input.filter((m) => m.role === "user").pop()?.content || "";
     const content = inputStr.toLowerCase();
 
     if (content.includes("upscale") || content.includes("enhance")) {
       return { title: "Image Enhancement", category: "upscale" };
     }
-    if (
-      content.includes("design") ||
-      content.includes("create") ||
-      content.includes("phone case") ||
-      content.includes("t-shirt") ||
-      content.includes("pillow")
-    ) {
+    if (content.includes("design") || content.includes("create") || content.includes("phone case") || content.includes("t-shirt") || content.includes("pillow")) {
       return { title: "Design Creation", category: "design" };
     }
     if (content.includes("analyze") || content.includes("describe")) {
