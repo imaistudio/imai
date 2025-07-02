@@ -1081,6 +1081,57 @@
       ]
     },
     "glasses": {},
-    "watches": {}
+    "watches": {
+      "smartnewage": ["/inputs/designs/watches/smartnewage/smartnewage1.webp"],
+      "classic": [
+        "/inputs/designs/watches/classic/classic1.webp",
+        "/inputs/designs/watches/classic/classic2.webp",
+        "/inputs/designs/watches/classic/classic3.webp",
+        "/inputs/designs/watches/classic/classic4.webp"
+      ],
+      "vintagestyle": [
+        "/inputs/designs/watches/vintagestyle/vintagestyle1.webp",
+        "/inputs/designs/watches/vintagestyle/vintagestyle2.webp",
+        "/inputs/designs/watches/vintagestyle/vintagestyle3.webp"
+      ],
+      "skeletonwatch": [
+        "/inputs/designs/watches/skeletonwatch/skeletonwatch1.webp"
+      ],
+      "digitalappeal": [
+        "/inputs/designs/watches/digitalappeal/digitalappeal1.webp",
+        "/inputs/designs/watches/digitalappeal/digitalappeal2.webp"
+      ],
+      "braceletstyle": [
+        "/inputs/designs/watches/braceletstyle/braceletstyle1.webp"
+      ],
+      "artistichautehorlogerie": [
+        "/inputs/designs/watches/artistichautehorlogerie/artistichautehorlogerie1.webp"
+      ],
+      "bejeweled": [
+        "/inputs/designs/watches/bejeweled/bejeweled1.webp",
+        "/inputs/designs/watches/bejeweled/bejeweled2.webp"
+      ],
+      "boldangularshapes": [
+        "/inputs/designs/watches/boldangularshapes/boldangularshapes1.webp"
+      ],
+      "artdecoage": ["/inputs/designs/watches/artdecoage/artdecoage1.webp"],
+      "secretwatch": [
+        "/inputs/designs/watches/secretwatch/secretwatch1.webp",
+        "/inputs/designs/watches/secretwatch/secretwatch2.webp"
+      ],
+      "fantasyworld": [
+        "/inputs/designs/watches/fantasyworld/fantasyworld1.webp"
+      ],
+      "whimsicalfun": [
+        "/inputs/designs/watches/whimsicalfun/whimsicalfun1.webp"
+      ],
+      "naturalwonders": [
+        "/inputs/designs/watches/naturalwonders/naturalwonders1.webp",
+        "/inputs/designs/watches/naturalwonders/naturalwonders2.webp"
+      ],
+      "necklacewatch": [
+        "/inputs/designs/watches/necklacewatch/necklacewatch1.webp"
+      ]
+    }
   }
 }

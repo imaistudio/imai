@@ -41,7 +41,7 @@ interface TitleRenameResult {
 
 /**
  * ChatWindow component for displaying chat messages
- * 
+ *
  * Features:
  * - Displays chat messages with real-time updates
  * - Reply-to-message functionality
@@ -66,7 +66,7 @@ export default function ChatWindow({
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
