@@ -311,11 +311,48 @@ PRODUCT REQUIREMENTS:
 - ALWAYS KEEP THE PRODUCT IN THE SAME POSITION AND ORIENTATION
 - Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
 - Use the design reference to inspire creative visual elements, patterns, or stylistic approaches, but do NOT directly copy or imprint the design
-- Use the color reference only for the color palette and scheme`;
+- Use the color reference only for the color palette and scheme
+
+FINAL PHOTOREALISM REQUIREMENTS (MANDATORY):
+- Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
+- HYPER-PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - absolutely no artwork, illustrations, paintings, or drawings
+- Professional studio lighting with neutral white/gray background
+- Must look like a real manufactured product you could buy in a store
+- Realistic material textures, proper shadows, reflections, and lighting
+- Sharp focus, high clarity, professional product photography quality`;
 
   switch (workflowType) {
     case "full_composition": {
-      const basePrompt = `Create a photorealistic version of the original product, drawing design inspiration only (not colors) from the design reference and applying colors solely from the color reference. Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette. Use the design reference to inspire creative visual elements, patterns, or stylistic approaches, but do NOT directly copy or imprint the design. Use the color reference only for the color palette and scheme.
+      const basePrompt = `Create a HYPER-PHOTOREALISTIC product photograph with design-inspired surface patterns and precise color application. This must look like a real, professionally photographed product - NOT artwork, illustrations, or artistic rendering.
+
+🚨 PHOTOREALISM REQUIREMENTS (CRITICAL - HIGHEST PRIORITY):'
+- Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
+- Render as REALISTIC PRODUCT PHOTOGRAPHY with professional studio lighting
+- Maintain actual product materials, textures, and physical properties
+- NO artistic rendering, NO cartoon style, NO illustration style, NO anime style
+- Must look like you could purchase this exact product from a high-end store
+- Use proper lighting, shadows, reflections, and surface details
+- HYPER-REALISTIC material textures (leather, fabric, rubber, metal, etc.)
+- Professional product photography quality with sharp focus and clarity
+
+🎨 DESIGN REFERENCE EXTRACTION (CRITICAL):
+- **IF the design reference shows a product**: IGNORE the product shape/structure completely
+- **EXTRACT ONLY**: Visual patterns, stitching styles, surface textures, material treatments, and decorative elements
+- **APPLY TO BASE PRODUCT**: Use extracted design elements as surface treatments on the base product
+- **NEVER CHANGE**: Base product's shape, silhouette, or structural form to match design reference product
+
+🎯 COLOR APPLICATION (CRITICAL):
+- Apply color palette from color reference exclusively to the base product surfaces
+- Colors should look like real fabric dyes, paints, or materials - not digital overlays
+- Maintain realistic color saturation appropriate for the base product material
+- Keep background neutral white/gray studio lighting
+
+🔧 PRODUCT INTEGRITY (ABSOLUTE PRIORITY):
+- **PRESERVE EXACTLY**: Base product's shape, structure, proportions, functionality, and materials
+- **PRESERVE EXACTLY**: Base product's silhouette and recognizable form (sneaker, bag, etc.)
+- **REPLACE ONLY**: Decorative elements, patterns, graphics, and surface designs
+- **IGNORE COMPLETELY**: Any product structure or shape shown in design reference
+- Apply design elements as surface treatments - do not preserve original decorations
 
 BASE PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}
@@ -324,12 +361,35 @@ COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
       return userPrompt
         ? `${basePrompt}
 
-USER PROMPT: ${userPrompt}${commonSuffix}`
-        : `${basePrompt}${commonSuffix}`;
+USER PROMPT: ${userPrompt}${commonSuffix}
+
+VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
+- HYPER-PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply colors and patterns as realistic surface treatments (prints, dyes, textures)
+- Product must look tangible and purchasable - like a real manufactured item
+- Design elements as surface graphics, not artistic rendering transformations`
+        : `${basePrompt}${commonSuffix}
+
+VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
+- HYPER-PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply colors and patterns as realistic surface treatments (prints, dyes, textures)
+- Product must look tangible and purchasable - like a real manufactured item
+- Design elements as surface graphics, not artistic rendering transformations`;
     }
 
     case "product_color": {
-      const basePrompt = `Apply only the color palette and color scheme from the color reference image to the PRODUCT ONLY while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette. PHOTOREALISTIC.
+      const basePrompt = `Apply only the color palette and color scheme from the color reference image to the PRODUCT ONLY while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette.
+
+🚨 PHOTOREALISM REQUIREMENTS (CRITICAL - HIGHEST PRIORITY):
+- Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
+- Render as REALISTIC PRODUCT PHOTOGRAPHY with professional studio lighting
+- Maintain actual product materials, textures, and physical properties
+- NO artistic rendering, NO cartoon style, NO illustration style, NO anime style
+- Must look like you could purchase this exact product from a high-end store
+- Use proper lighting, shadows, reflections, and surface details
+- HYPER-REALISTIC material textures (leather, fabric, rubber, metal, etc.)
 
 🎯 CRITICAL COLOR APPLICATION RULES:
 - ONLY change colors on the PRODUCT itself (shoes, clothing, bag, etc.)
@@ -338,8 +398,7 @@ USER PROMPT: ${userPrompt}${commonSuffix}`
 - Apply new colors ONLY to product surfaces, materials, and components
 - Do NOT change background color, lighting, or environmental elements
 - Maintain the exact same photo composition and setting
-
-Photorealistic.
+- Colors should look like real fabric dyes, paints, or materials - not digital overlays
 
 ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
@@ -347,12 +406,33 @@ COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
       return userPrompt
         ? `${basePrompt}
 
-USER PROMPT: ${userPrompt}${commonSuffix}`
-        : `${basePrompt}${commonSuffix}`;
+USER PROMPT: ${userPrompt}${commonSuffix}
+
+VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
+- HYPER-PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply colors as realistic surface treatments (dyes, paints, materials)
+- Product must look tangible and purchasable - like a real manufactured item`
+        : `${basePrompt}${commonSuffix}
+
+VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
+- HYPER-PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply colors as realistic surface treatments (dyes, paints, materials)
+- Product must look tangible and purchasable - like a real manufactured item`;
     }
 
     case "product_design": {
-      const basePrompt = `Create a new version of the product drawing creative inspiration from the design reference. Use the design reference for visual style, creative direction, or artistic approach — but do NOT directly copy or imprint the design onto the product. Maintain the product's original form, structure, proportions, and geometry. Photorealistic.
+      const basePrompt = `Create a HYPER-PHOTOREALISTIC product photograph drawing creative inspiration from the design reference. Use the design reference for visual style, creative direction, or artistic approach — but do NOT directly copy or imprint the design onto the product. Maintain the product's original form, structure, proportions, and geometry.
+
+🚨 PHOTOREALISM REQUIREMENTS (CRITICAL - HIGHEST PRIORITY):
+- Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
+- Render as REALISTIC PRODUCT PHOTOGRAPHY with professional studio lighting
+- Maintain actual product materials, textures, and physical properties
+- NO artistic rendering, NO cartoon style, NO illustration style, NO anime style
+- Must look like you could purchase this exact product from a high-end store
+- Use proper lighting, shadows, reflections, and surface details
+- HYPER-REALISTIC material textures (leather, fabric, rubber, metal, etc.)
 
 ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}`;
@@ -360,8 +440,20 @@ DESIGN INSPIRATION ANALYSIS: ${essentialDesignAnalysis ?? "N/A"}`;
       return userPrompt
         ? `${basePrompt}
 
-USER PROMPT: ${userPrompt}${commonSuffix}`
-        : `${basePrompt}${commonSuffix}`;
+USER PROMPT: ${userPrompt}${commonSuffix}
+
+VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
+- HYPER-PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply design elements as realistic surface treatments (prints, dyes, textures)
+- Product must look tangible and purchasable - like a real manufactured item`
+        : `${basePrompt}${commonSuffix}
+
+VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
+- HYPER-PHOTOREALISTIC PRODUCT PHOTOGRAPHY ONLY - no artwork, illustrations, or drawings
+- Professional studio lighting with neutral white/gray background
+- Apply design elements as realistic surface treatments (prints, dyes, textures)
+- Product must look tangible and purchasable - like a real manufactured item`;
     }
 
     case "color_design": {
@@ -441,6 +533,7 @@ USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
       const basePrompt = `Create a PHOTOREALISTIC product photograph with design-inspired surface patterns and color treatments. This must look like a real, professionally photographed product - NOT artwork or illustrations.
 
 🚨 PHOTOREALISM REQUIREMENTS (CRITICAL):
+- Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
 - Render as REALISTIC PRODUCT PHOTOGRAPHY with professional studio lighting
 - Maintain actual product materials, textures, and physical properties
 - NO artistic rendering, NO cartoon style, NO illustration style
@@ -1809,39 +1902,173 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // 🎯 INTELLIGENT INPUT ROLE OVERRIDE based on Claude's semantic analysis
-    // When Claude specifies input roles, override default preset inheritance
-    let overrideInputs = {
+    // 🔧 NEW: Extract explicit reference flag to distinguish auto vs manual referencing
+    const explicitReferenceStr = formData.get("explicit_reference") as string;
+    const isManualReference = explicitReferenceStr === "true";
+    const isAutoReference = !!productImageUrl && !isManualReference;
+    
+    console.log(`🔍 REFERENCE TYPE DETECTION:`);
+    console.log(`  - Has product image URL: ${!!productImageUrl}`);
+    console.log(`  - Explicit reference flag: ${explicitReferenceStr}`);
+    console.log(`  - Is manual reference: ${isManualReference}`);
+    console.log(`  - Is auto reference: ${isAutoReference}`);
+
+    // 🧠 INTELLIGENT REFERENCE LOGIC: Claude's semantic analysis + explicit rules as fallback
+    // Prioritize Claude's intelligent understanding, fallback to explicit preset logic
+    
+    const overrideInputs = {
       useReferenceAsDesign: false,
       useReferenceAsColor: false,
       useReferenceAsProduct: false,
-      skipInheritedPresets: false
+      skipProductPreset: false,
+      skipDesignPreset: false,
+      skipColorPreset: false
     };
 
-    if (semanticAnalysis) {
-      const referenceRole = semanticAnalysis.reference_role;
-      const userIntent = semanticAnalysis.user_intent;
+    if (productImageUrl) {
+      const hasProductPreset = !!presetProductType;
+      const hasDesignPreset = !!presetDesignStyle;
+      const hasColorPreset = !!presetColorPalette;
       
-      console.log(`🧠 Semantic analysis detected: intent="${userIntent}", reference_role="${referenceRole}"`);
-      
-      // When Claude says reference should be design source, override preset inheritance
-      if (referenceRole === "design" && productImageUrl) {
-        overrideInputs.useReferenceAsDesign = true;
-        overrideInputs.skipInheritedPresets = true;
-        console.log("🎯 OVERRIDE: Using reference image as DESIGN source (ignoring inherited design presets)");
+      console.log(`🧠 INTELLIGENT REFERENCE ANALYSIS:`);
+      console.log(`  - Has product preset: ${hasProductPreset}`);
+      console.log(`  - Has design preset: ${hasDesignPreset}`);
+      console.log(`  - Has color preset: ${hasColorPreset}`);
+      console.log(`  - Reference type: ${isAutoReference ? 'AUTO' : isManualReference ? 'MANUAL' : 'UNKNOWN'}`);
+      console.log(`  - Reference image: ${productImageUrl.slice(0, 50)}...`);
+
+      // 🔧 SMART AUTO-REFERENCING: Let Claude's analysis override when there are explicit preset conflicts
+      if (isAutoReference && semanticAnalysis) {
+        const referenceRole = semanticAnalysis.reference_role;
+        const userIntent = semanticAnalysis.user_intent;
+        
+        // 🧠 CONFLICT DETECTION: When user selects product preset but auto-references image
+        if (hasProductPreset && referenceRole === "product") {
+          // User explicitly selected a product type BUT auto-referenced an image
+          // Trust Claude's understanding and user's explicit preset selection
+          console.log("🤔 SMART AUTO-REFERENCE CONFLICT DETECTED:");
+          console.log(`  - User selected: ${presetProductType} (explicit product choice)`);
+          console.log(`  - Claude suggests: reference as "${referenceRole}"`);
+          console.log(`  - User intent: ${userIntent}`);
+          
+          // Use Claude's semantic analysis to resolve the conflict intelligently
+          if (userIntent === "modification" && hasProductPreset) {
+            // User wants to modify existing result WITH their chosen product type
+            // Use reference as design inspiration, keep their product preset
+            overrideInputs.useReferenceAsDesign = true;
+            overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
+            console.log("🎯 CLAUDE'S SMART RESOLUTION: Using reference as DESIGN (preserving user's explicit product choice)");
+          } else {
+            // Default to Claude's original suggestion
+            overrideInputs.useReferenceAsProduct = true;
+            console.log("🎯 CLAUDE'S CHOICE: Using reference as PRODUCT (Claude's semantic understanding)");
+          }
+        } else {
+          // No conflict - follow Claude's analysis directly
+          if (referenceRole === "design") {
+            overrideInputs.useReferenceAsDesign = true;
+            overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
+            console.log("🎯 CLAUDE'S AUTO-REFERENCE: Using reference as DESIGN (Claude's intelligent choice)");
+          } else if (referenceRole === "color") {
+            overrideInputs.useReferenceAsColor = true;
+            overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
+            console.log("🎯 CLAUDE'S AUTO-REFERENCE: Using reference as COLOR (Claude's intelligent choice)");
+          } else {
+            overrideInputs.useReferenceAsProduct = true;
+            console.log("🎯 CLAUDE'S AUTO-REFERENCE: Using reference as PRODUCT (Claude's intelligent choice)");
+          }
+        }
       }
-      
-      // When Claude says reference should be color source
-      if (referenceRole === "color" && productImageUrl) {
-        overrideInputs.useReferenceAsColor = true;
-        overrideInputs.skipInheritedPresets = true;
-        console.log("🎯 OVERRIDE: Using reference image as COLOR source (ignoring inherited color presets)");
-      }
-      
-      // When Claude says reference should be product (default behavior)
-      if (referenceRole === "product" && productImageUrl) {
+      // 🔧 FALLBACK AUTO-REFERENCE: When no Claude analysis available
+      else if (isAutoReference) {
         overrideInputs.useReferenceAsProduct = true;
-        console.log("🎯 Using reference image as PRODUCT source (default behavior)");
+        console.log("🔄 FALLBACK AUTO-REFERENCE: Using reference as PRODUCT (no Claude analysis available)");
+      }
+      // 🧠 CLAUDE'S SEMANTIC ANALYSIS: Use Claude's intelligent interpretation for manual references
+      else if (semanticAnalysis && isManualReference) {
+        const referenceRole = semanticAnalysis.reference_role;
+        const userIntent = semanticAnalysis.user_intent;
+        
+        console.log(`🧠 CLAUDE'S SEMANTIC ANALYSIS: intent="${userIntent}", reference_role="${referenceRole}"`);
+        
+        // 🔧 ENHANCED LOGIC: Respect explicit preset selections while using Claude's semantic understanding
+        if (hasProductPreset && referenceRole === "design") {
+          // User has product preset + Claude says reference is design → Perfect match!
+          overrideInputs.useReferenceAsDesign = true;
+          overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
+          console.log("🎯 CLAUDE + PRESET HARMONY: Product preset + Reference as DESIGN (Claude's intelligent choice)");
+        }
+        else if (hasProductPreset && referenceRole === "color") {
+          // User has product preset + Claude says reference is color → Perfect match!
+          overrideInputs.useReferenceAsColor = true;
+          overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
+          console.log("🎯 CLAUDE + PRESET HARMONY: Product preset + Reference as COLOR (Claude's intelligent choice)");
+        }
+        else if (referenceRole === "product") {
+          // Claude says reference should be the product
+          overrideInputs.useReferenceAsProduct = true;
+          console.log("🎯 CLAUDE'S CHOICE: Using reference as PRODUCT (Claude's semantic understanding)");
+        }
+        // 🔧 FALLBACK: When Claude's analysis doesn't align perfectly, use explicit preset logic
+        else {
+          console.log("🤔 Claude's analysis unclear, falling back to explicit preset logic...");
+          // Apply explicit rules as fallback
+          if (hasProductPreset && !hasDesignPreset && !hasColorPreset) {
+            overrideInputs.useReferenceAsDesign = true;
+            overrideInputs.useReferenceAsColor = true;
+            overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
+            overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
+            console.log("🎯 FALLBACK RULE 1: Product preset only → Reference as DESIGN + COLOR");
+          }
+          else if (hasProductPreset && hasDesignPreset && !hasColorPreset) {
+            overrideInputs.useReferenceAsColor = true;
+            overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
+            console.log("🎯 FALLBACK RULE 2: Product + Design presets → Reference as COLOR");
+          }
+          else if (hasProductPreset && !hasDesignPreset && hasColorPreset) {
+            overrideInputs.useReferenceAsDesign = true;
+            // Keep color preset, only skip design preset
+            console.log("🎯 FALLBACK RULE 3: Product + Color presets → Reference as DESIGN");
+          }
+          else if (hasProductPreset && hasDesignPreset && hasColorPreset) {
+            overrideInputs.useReferenceAsProduct = true;
+            console.log("🎯 FALLBACK RULE 4: All presets → Reference as PRODUCT (override preset)");
+          }
+          else {
+            overrideInputs.useReferenceAsProduct = true;
+            console.log("🎯 FALLBACK: Default → Reference as PRODUCT");
+          }
+        }
+      }
+      // 🔧 EXPLICIT PRESET LOGIC: When no Claude analysis available (legacy support)
+      else {
+        console.log("🔧 No Claude semantic analysis available, using explicit preset logic...");
+        
+        if (hasProductPreset && !hasDesignPreset && !hasColorPreset) {
+          overrideInputs.useReferenceAsDesign = true;
+          overrideInputs.useReferenceAsColor = true;
+          overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
+          overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
+          console.log("🎯 EXPLICIT RULE 1: Product preset only → Reference as DESIGN + COLOR");
+        }
+        else if (hasProductPreset && hasDesignPreset && !hasColorPreset) {
+          overrideInputs.useReferenceAsColor = true;
+          overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
+          console.log("🎯 EXPLICIT RULE 2: Product + Design presets → Reference as COLOR");
+        }
+        else if (hasProductPreset && !hasDesignPreset && hasColorPreset) {
+          overrideInputs.useReferenceAsDesign = true;
+          // Keep color preset, only skip design preset
+          console.log("🎯 EXPLICIT RULE 3: Product + Color presets → Reference as DESIGN");
+        }
+        else if (hasProductPreset && hasDesignPreset && hasColorPreset) {
+          overrideInputs.useReferenceAsProduct = true;
+          console.log("🎯 EXPLICIT RULE 4: All presets → Reference as PRODUCT (override preset)");
+        }
+        else {
+          overrideInputs.useReferenceAsProduct = true;
+          console.log("🎯 EXPLICIT DEFAULT: Reference as PRODUCT");
+        }
       }
     }
 
@@ -1996,7 +2223,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           console.log("⚠️ Design analysis returned empty result!");
         }
         console.log("Design image URL processed successfully");
-      } else if (presetDesignStyle && !overrideInputs.skipInheritedPresets) {
+      } else if (presetDesignStyle && !overrideInputs.skipDesignPreset) {
         console.log("Using preset design style:", presetDesignStyle);
         // Convert preset name to actual image URL using proper category detection
 
@@ -2102,7 +2329,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
 
       // Then, handle preset color palette (can be in addition to uploaded) - unless overridden
-      if (presetColorPalette && !overrideInputs.skipInheritedPresets) {
+      if (presetColorPalette && !overrideInputs.skipColorPreset) {
         console.log("Using preset color palette:", presetColorPalette);
 
         // Handle multiple color palettes (comma-separated)

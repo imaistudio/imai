@@ -31,9 +31,28 @@ interface ReferencedMessage {
   timestamp: string;
 }
 
+// 🔧 NEW: Interface for title renaming callback
+interface TitleRenameResult {
+  success: boolean;
+  title?: string;
+  category?: string;
+  error?: string;
+}
+
+/**
+ * ChatWindow component for displaying chat messages
+ * 
+ * Features:
+ * - Displays chat messages with real-time updates
+ * - Reply-to-message functionality
+ * - Image zoom modal
+ * - Loading states and animations
+ * - Automatic title generation (handled server-side)
+ */
 interface ChatWindowProps {
   chatId: string;
-  onReplyToMessage?: (message: ReferencedMessage) => void; // 🔧 NEW: Reply callback
+  onReplyToMessage?: (message: ReferencedMessage) => void;
+  onTitleRenamed?: (chatId: string, newTitle: string, category: string) => void; // For backward compatibility
 }
 
 const MESSAGES_PER_PAGE = 20;
@@ -41,11 +60,13 @@ const MESSAGES_PER_PAGE = 20;
 export default function ChatWindow({
   chatId,
   onReplyToMessage,
+  onTitleRenamed,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);

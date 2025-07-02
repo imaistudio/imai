@@ -729,22 +729,28 @@ async function analyzeIntent(
       const hasAnyActualImages = hasProductImage || hasDesignImage || hasColorImage;
       
       if (hasAnyActualImages) {
-        // When actual images exist, use specific workflows based on BOTH presets AND actual uploads
+        // When actual images exist, check for presets FIRST
         const hasDesignPreset = formDataEntries.some(([key]) => key.startsWith("preset_design") || key.startsWith("design_style"));
         const hasColorPreset = formDataEntries.some(([key]) => key.startsWith("preset_color") || key.startsWith("color_palette"));
         
-        // Check for both presets and actual images
-        const hasDesignInput = hasDesignPreset || hasDesignImage; // Design preset OR actual design image
-        const hasColorInput = hasColorPreset || hasColorImage;   // Color preset OR actual color image
-        
-        if (hasDesignInput && hasColorInput) {
-          workflowType = "full_composition"; // Product + (design preset/image) + (color preset/image)
-        } else if (hasDesignInput && !hasColorInput) {
-          workflowType = "product_design"; // Product + (design preset/image) only
-        } else if (!hasDesignInput && hasColorInput) {
-          workflowType = "product_color"; // Product + (color preset/image) only
+        // 🔧 PRIORITY 1: If ANY presets are involved, use preset_design workflow
+        if (hasDesignPreset || hasColorPreset) {
+          workflowType = "preset_design"; // Product + any preset combination
+          console.log("🎯 Presets detected with actual images - using preset_design workflow");
         } else {
-          workflowType = "product_prompt"; // Product + other presets
+          // 🔧 PRIORITY 2: Only actual images, no presets - use image-based workflows  
+          if (hasProductImage && hasDesignImage && hasColorImage) {
+            workflowType = "full_composition"; // All 3 actual images (no presets)
+          } else if (hasDesignImage && hasColorImage) {
+            workflowType = "full_composition"; // Design + color images 
+          } else if (hasDesignImage && !hasColorImage) {
+            workflowType = "product_design"; // Product + design image only
+          } else if (!hasDesignImage && hasColorImage) {
+            workflowType = "product_color"; // Product + color image only
+          } else {
+            workflowType = "product_prompt"; // Product + other scenarios
+          }
+          console.log("🎯 Only actual images detected - using image-based workflows");
         }
       }
       // If no actual images, keep "preset_design" for preset-only workflows (even with previous results)
@@ -790,8 +796,10 @@ async function analyzeIntent(
         workflowType = "product_design"; // Previous result + design only  
       } else if (hasPreviousResult && !hasDesignImage && hasColorImage) {
         workflowType = "product_color"; // Previous result + color only
+      } else if (hasProductImage && hasDesignImage && hasColorImage) {
+        workflowType = "full_composition"; // Fresh product + design + color (all 3 images)
       } else if (hasDesignImage && hasColorImage) {
-        workflowType = "color_design"; // Fresh design + color (no previous result)
+        workflowType = "color_design"; // Fresh design + color (no product)
       } else if (hasDesignImage) {
         workflowType = "design_prompt"; // Fresh design only
       } else if (hasColorImage) {
