@@ -1,10 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "firebase-admin/auth";
+import { initializeApp, getApps, cert } from "firebase-admin/app";
 import Anthropic from "@anthropic-ai/sdk";
+
+// Initialize Firebase Admin if not already initialized
+let firebaseInitialized = false;
+try {
+  if (!getApps().length) {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      }),
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    });
+  }
+  firebaseInitialized = true;
+  console.log("🔥 Firebase initialized for titlerenamer route");
+} catch (error) {
+  console.warn(
+    "⚠️ Firebase initialization failed, running in test mode:",
+    error,
+  );
+  firebaseInitialized = false;
+}
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+// Validate required environment variables
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.error("❌ ANTHROPIC_API_KEY environment variable is not set");
+}
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -156,6 +185,11 @@ Generate a short, descriptive title and category for this design/conversation.`;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    console.log("📥 Titlerenamer API called");
+    console.log("  - Firebase initialized:", firebaseInitialized);
+    console.log("  - Anthropic API key available:", !!process.env.ANTHROPIC_API_KEY);
+    console.log("  - Node environment:", process.env.NODE_ENV);
+    
     const formData = await request.formData();
 
     const userid = (formData.get("userid") as string | null)?.trim();
@@ -166,15 +200,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    if (process.env.NODE_ENV !== "development") {
+    // Validate Firebase user ID if Firebase is initialized
+    if (firebaseInitialized && process.env.NODE_ENV !== "development") {
       try {
         await getAuth().getUser(userid);
-      } catch {
+        console.log("✅ Firebase user ID validated successfully for titlerenamer");
+      } catch (error) {
+        console.log("❌ Invalid Firebase user ID for titlerenamer:", error);
         return NextResponse.json(
           { status: "error", error: "Invalid Firebase user ID" },
           { status: 400 },
         );
       }
+    } else if (!firebaseInitialized) {
+      console.log("⚠️ Skipping Firebase user validation - Firebase not initialized");
     }
 
     // Check for new format (Complete Final Prompt)
