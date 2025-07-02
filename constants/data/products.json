@@ -595,7 +595,9 @@
         "/inputs/designs/Jewelry/industrial/industrial2.webp"
       ]
     },
-    "sofa": {},
+    "sofa": {
+      
+    },
     "scarf": {
       "streetwear": [
         "/inputs/designs/fashions/streetwear/streetwear1.webp",
@@ -880,7 +882,60 @@
         "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
       ]
     },
-    "plate": {},
+    "plate": {
+      "colorfulglass": [
+        "/inputs/designs/kitchenware/colorfulglass/colorfulglass1.webp",
+        "/inputs/designs/kitchenware/colorfulglass/colorfulglass2.webp",
+        "/inputs/designs/kitchenware/colorfulglass/colorfulglass3.webp"
+      ],
+      "artfulchic": [
+        "/inputs/designs/kitchenware/artfulchic/artfulchic1.webp",
+        "/inputs/designs/kitchenware/artfulchic/artfulchic2.webp",
+        "/inputs/designs/kitchenware/artfulchic/artfulchic3.webp",
+        "/inputs/designs/kitchenware/artfulchic/artfulchic4.webp"
+      ],
+      "vintagetouch": [
+        "/inputs/designs/kitchenware/vintagetouch/vintagetouch1.webp",
+        "/inputs/designs/kitchenware/vintagetouch/vintagetouch2.webp",
+        "/inputs/designs/kitchenware/vintagetouch/vintagetouch3.webp"
+      ],
+      "boiddetails": [
+        "/inputs/designs/kitchenware/bolddetails/bolddetails1.webp"
+      ],
+      "colorfulbistrostylrcutlery": [
+        "/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery1.webp",
+        "/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery2.webp",
+        "/inputs/designs/kitchenware/colorfulbistrostylecutlery/colorfulbistrostylecutlery3.webp"
+      ],
+      "boldcutlery": [
+        "/inputs/designs/kitchenware/boldcutlery/boldcutlery1.webp",
+        "/inputs/designs/kitchenware/boldcutlery/boldcutlery2.webp",
+        "/inputs/designs/kitchenware/boldcutlery/boldcutlery3.webp"
+      ],
+      "dustypink": [
+        "/inputs/designs/kitchenware/dustypink/dustypink1.webp",
+        "/inputs/designs/kitchenware/dustypink/dustypink2.webp"
+      ],
+      "metallicvibes": [
+        "/inputs/designs/kitchenware/metalicvibes/metalicvibes1.webp",
+        "/inputs/designs/kitchenware/metalicvibes/metalicvibes2.webp"
+      ],
+      "rippleglass": [
+        "/inputs/designs/kitchenware/rippleglass/rippleglass1.webp"
+      ],
+      "confetti": ["/inputs/designs/kitchenware/confetti/confetti1.webp"],
+      "fullchrome": ["/inputs/designs/kitchenware/fullchrome/fullchrome1.webp"],
+      "veggieforms": [
+        "/inputs/designs/kitchenware/veggieforms/veggieforms1.webp",
+        "/inputs/designs/kitchenware/veggieforms/veggieforms2.webp"
+      ],
+      "phatstyle": [
+        "/inputs/designs/kitchenware/phatstyle/phatstyle1.webp",
+        "/inputs/designs/kitchenware/phatstyle/phatstyle2.webp",
+        "/inputs/designs/kitchenware/phatstyle/phatstyle3.webp"
+      ],
+      "70s": ["/inputs/designs/kitchenware/70s/70s1.webp"]
+    },
     "notebook": {
       "boldcolors": [
         "/inputs/designs/officesupplies/boldcolors/boldcolors1.webp",
