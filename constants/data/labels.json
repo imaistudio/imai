@@ -193,7 +193,27 @@
     "fantasyworld": "fantasy world",
     "whimsicalfun": "whimsical fun",
     "naturalwonders": "natural<br>wonders",
-    "necklacewatch": "necklace<br>watch"
+    "necklacewatch": "necklace<br>watch",
+
+    "buildingelements":"building<br>elements",
+    "magnetictiles":"magnetic tiles",
+    "learntoplay":"learn to play",
+    "classicfun":"classic fun",
+    "ultimatecard":"ultimate card",
+    "retromania":"retro mania",
+    "fiveinonegame":"5 in 1 game",
+    "nostalgicvibe":"nostalgic vibe",
+    "whimsicaltimes":"whimsical<br>times",
+    "moderntwist":"modern twist",
+    "geometric":"geometric",
+    "simplifiedcoolness":"simplified<br>coolness",
+    "summeradventure":"summer<br>adventure",
+    "thenightsky":"the night sky",
+    "houseofsmallwonder":"house of<br>small wonder",
+    "preppystyle":"preppy style",
+    "crystalclear":"crystalclear",
+    "effortlesssophistication":"effortless<br>sophistication",
+    "taperecorder":"tape recorder"
   },
   "colors": {
     "neutral": "Neutral",
