@@ -1038,25 +1038,65 @@
       ]
     },
     "toys": {
-       "buildingelements":["/inputs/designs/toys/buildingelements/buildingelements1.webp","/inputs/designs/toys/buildingelements/buildingelements2.webp"],
-    "magnetictiles":["/inputs/designs/toys/magnetictiles/magnetictiles1.webp","/inputs/designs/toys/magnetictiles/magnetictiles2.webp"],
-    "learntoplay":["/inputs/designs/toys/learntoplay/learntoplay1.webp","/inputs/designs/toys/learntoplay/learntoplay2.webp"],
-    "classicfun":["/inputs/designs/toys/classicfun/classicfun1.webp"],
-    "ultimatecard":["/inputs/designs/toys/ultimatecard/ultimatecard1.webp"],
-    "retromania":["/inputs/designs/toys/retromania/retromania1.webp"],
-    "fiveinonegame":["/inputs/designs/toys/5in1game/5in1game1.webp","/inputs/designs/toys/5in1game/5in1game2.webp"],
-    "nostalgicvibe":["/inputs/designs/toys/nostalgicvibe/nostalgicvibe1.webp"],
-    "whimsicaltimes":["/inputs/designs/toys/whimsicaltimes/whimsicaltimes1.webp","/inputs/designs/toys/whimsicaltimes/whimsicaltimes2.webp"],
-    "moderntwist":["/inputs/designs/toys/moderntwist/moderntwist1.webp"],
-    "geometric":["/inputs/designs/toys/geometric/geometric1.webp","/inputs/designs/toys/geometric/geometric2.webp"],
-    "simplifiedcoolness":["/inputs/designs/toys/simplifiedcoolness/simplifiedcoolness1.webp"],
-    "summeradventure":["/inputs/designs/toys/summeradventure/summeradventure1.webp"],
-    "thenightsky":["/inputs/designs/toys/thenightsky/thenightsky1.webp","/inputs/designs/toys/thenightsky/thenightsky2.webp","/inputs/designs/toys/thenightsky/thenightsky3.webp"],
-    "houseofsmallwonder":["/inputs/designs/toys/houseofsmallwonder/houseofsmallwonder1.webp","/inputs/designs/toys/houseofsmallwonder/houseofsmallwonder2.webp"],
-    "preppystyle":["/inputs/designs/toys/preppystyle/preppystyle1.webp","/inputs/designs/toys/preppystyle/preppystyle2.webp"],
-    "crystalclear":["/inputs/designs/toys/crystalclear/crystalclear1.webp","/inputs/designs/toys/crystalclear/crystalclear2.webp"],
-    "effortlesssophistication":["/inputs/designs/toys/effortlesssophistication/effortlesssophistication1.webp","/inputs/designs/toys/effortlesssophistication/effortlesssophistication2.webp"],
-    "taperecorder":["/inputs/designs/toys/taperecorder/taperecorder1.webp"]
+      "buildingelements": [
+        "/inputs/designs/toys/buildingelements/buildingelements1.webp",
+        "/inputs/designs/toys/buildingelements/buildingelements2.webp"
+      ],
+      "magnetictiles": [
+        "/inputs/designs/toys/magnetictiles/magnetictiles1.webp",
+        "/inputs/designs/toys/magnetictiles/magnetictiles2.webp"
+      ],
+      "learntoplay": [
+        "/inputs/designs/toys/learntoplay/learntoplay1.webp",
+        "/inputs/designs/toys/learntoplay/learntoplay2.webp"
+      ],
+      "classicfun": ["/inputs/designs/toys/classicfun/classicfun1.webp"],
+      "ultimatecard": ["/inputs/designs/toys/ultimatecard/ultimatecard1.webp"],
+      "retromania": ["/inputs/designs/toys/retromania/retromania1.webp"],
+      "fiveinonegame": [
+        "/inputs/designs/toys/5in1game/5in1game1.webp",
+        "/inputs/designs/toys/5in1game/5in1game2.webp"
+      ],
+      "nostalgicvibe": [
+        "/inputs/designs/toys/nostalgicvibe/nostalgicvibe1.webp"
+      ],
+      "whimsicaltimes": [
+        "/inputs/designs/toys/whimsicaltimes/whimsicaltimes1.webp",
+        "/inputs/designs/toys/whimsicaltimes/whimsicaltimes2.webp"
+      ],
+      "moderntwist": ["/inputs/designs/toys/moderntwist/moderntwist1.webp"],
+      "geometric": [
+        "/inputs/designs/toys/geometric/geometric1.webp",
+        "/inputs/designs/toys/geometric/geometric2.webp"
+      ],
+      "simplifiedcoolness": [
+        "/inputs/designs/toys/simplifiedcoolness/simplifiedcoolness1.webp"
+      ],
+      "summeradventure": [
+        "/inputs/designs/toys/summeradventure/summeradventure1.webp"
+      ],
+      "thenightsky": [
+        "/inputs/designs/toys/thenightsky/thenightsky1.webp",
+        "/inputs/designs/toys/thenightsky/thenightsky2.webp",
+        "/inputs/designs/toys/thenightsky/thenightsky3.webp"
+      ],
+      "houseofsmallwonder": [
+        "/inputs/designs/toys/houseofsmallwonder/houseofsmallwonder1.webp",
+        "/inputs/designs/toys/houseofsmallwonder/houseofsmallwonder2.webp"
+      ],
+      "preppystyle": [
+        "/inputs/designs/toys/preppystyle/preppystyle1.webp",
+        "/inputs/designs/toys/preppystyle/preppystyle2.webp"
+      ],
+      "crystalclear": [
+        "/inputs/designs/toys/crystalclear/crystalclear1.webp",
+        "/inputs/designs/toys/crystalclear/crystalclear2.webp"
+      ],
+      "effortlesssophistication": [
+        "/inputs/designs/toys/effortlesssophistication/effortlesssophistication1.webp",
+        "/inputs/designs/toys/effortlesssophistication/effortlesssophistication2.webp"
+      ],
+      "taperecorder": ["/inputs/designs/toys/taperecorder/taperecorder1.webp"]
     },
     "vehicles": {
       "electric": ["/inputs/designs/vehicles/electricsuv/electricsuv1.webp"],
@@ -1100,7 +1140,45 @@
         "/inputs/designs/vehicles/thesmallandfurious/thesmallandfurious1.webp"
       ]
     },
-    "glasses": {},
+    "glasses": {
+      "playfulandfuturistic": [
+        "/inputs/designs/glasses/playfulandfuturistic/playfulandfuturistic1.webp"
+      ],
+      "boldandinnovative": [
+        "/inputs/designs/glasses/boldandinnovative/boldandinnovative1.webp",
+        "/inputs/designs/glasses/boldandinnovative/boldandinnovative2.webp"
+      ],
+      "luxuryelegance": [
+        "/inputs/designs/glasses/luxuryelegance/luxuryelegance1.webp"
+      ],
+      "ytwokmood": ["/inputs/designs/glasses/y2kmood/y2kmood1.webp"],
+      "retroglamour": [
+        "/inputs/designs/glasses/retroglamour/retroglamour1.webp",
+        "/inputs/designs/glasses/retroglamour/retroglamour2.webp"
+      ],
+      "glamcouture": ["/inputs/designs/glasses/glamcouture/glamcouture1.webp"],
+      "eclecticclassics": [
+        "/inputs/designs/glasses/eclecticclassics/eclecticclassics1.webp"
+      ],
+      "nostalgicglamour": [
+        "/inputs/designs/glasses/nostalgicglamour/nostalgicglamour1.webp"
+      ],
+      "understatedchic": [
+        "/inputs/designs/glasses/understatedchic/understatedchic1.webp"
+      ],
+      "ninetiesmetallic": [
+        "/inputs/designs/glasses/naturalelements/naturalelements1.webp"
+      ],
+      "futurevintage": [
+        "/inputs/designs/glasses/futurevintage/futurevintage1.webp"
+      ],
+      "minimalmetallic": [
+        "/inputs/designs/glasses/minimalmetallic/minimalmetallic1.webp"
+      ],
+      "masculinetouch": [
+        "/inputs/designs/glasses/masculinetouch/masculinetouch1.webp"
+      ]
+    },
     "watches": {
       "smartnewage": ["/inputs/designs/watches/smartnewage/smartnewage1.webp"],
       "classic": [
