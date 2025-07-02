@@ -9,6 +9,25 @@ import { getStorage } from "firebase-admin/storage";
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
 
+// 🔧 Utility function to get the correct base URL for both development and production
+function getBaseUrl(): string {
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  // In production, use custom domain first, then Vercel URL
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+  
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  // Fallback to your actual domain
+  return 'https://imai.studio';
+}
+
 // Initialize Firebase Admin if not already initialized
 if (!getApps().length) {
   initializeApp({
@@ -2993,7 +3012,7 @@ async function routeToAPI(
       const { POST: designPOST } = await import("../design/route");
 
       // Create a mock NextRequest object with the FormData
-      const mockRequest = new Request("http://localhost:3000/api/design", {
+      const mockRequest = new Request(`${getBaseUrl()}/api/design`, {
         method: "POST",
         body: formData,
       });
@@ -3026,7 +3045,7 @@ async function routeToAPI(
       const { POST: reframePOST } = await import("../reframe/route");
 
       // Create a mock NextRequest object with the FormData
-      const mockRequest = new Request("http://localhost:3000/api/reframe", {
+      const mockRequest = new Request(`${getBaseUrl()}/api/reframe`, {
         method: "POST",
         body: formData,
       });
@@ -3037,7 +3056,7 @@ async function routeToAPI(
       // Import and call the upscale API logic directly
       const { POST: upscalePOST } = await import("../upscale/route");
 
-      const mockRequest = new Request("http://localhost:3000/api/upscale", {
+      const mockRequest = new Request(`${getBaseUrl()}/api/upscale`, {
         method: "POST",
         body: formData,
       });
@@ -3049,7 +3068,7 @@ async function routeToAPI(
       const { POST: analyzeImagePOST } = await import("../analyzeimage/route");
 
       const mockRequest = new Request(
-        "http://localhost:3000/api/analyzeimage",
+        `${getBaseUrl()}/api/analyzeimage`,
         {
           method: "POST",
           body: formData,
@@ -3062,7 +3081,7 @@ async function routeToAPI(
       // Import and call the flowdesign API logic directly
       const { POST: flowDesignPOST } = await import("../flowdesign/route");
 
-      const mockRequest = new Request("http://localhost:3000/api/flowdesign", {
+      const mockRequest = new Request(`${getBaseUrl()}/api/flowdesign`, {
         method: "POST",
         body: formData,
       });
@@ -3073,7 +3092,7 @@ async function routeToAPI(
       // Import and call the kling API logic directly
       const { POST: klingPOST } = await import("../kling/route");
 
-      const mockRequest = new Request("http://localhost:3000/api/kling", {
+      const mockRequest = new Request(`${getBaseUrl()}/api/kling`, {
         method: "POST",
         body: formData,
       });
@@ -3084,7 +3103,7 @@ async function routeToAPI(
       // Import and call the mirrormagic API logic directly
       const { POST: mirrorMagicPOST } = await import("../mirrormagic/route");
 
-      const mockRequest = new Request("http://localhost:3000/api/mirrormagic", {
+      const mockRequest = new Request(`${getBaseUrl()}/api/mirrormagic`, {
         method: "POST",
         body: formData,
       });
@@ -3098,7 +3117,7 @@ async function routeToAPI(
       );
 
       const mockRequest = new Request(
-        "http://localhost:3000/api/promptenhancer",
+        `${getBaseUrl()}/api/promptenhancer`,
         {
           method: "POST",
           body: formData,
@@ -3112,7 +3131,7 @@ async function routeToAPI(
       const { POST: titleRenamerPOST } = await import("../titlerenamer/route");
 
       const mockRequest = new Request(
-        "http://localhost:3000/api/titlerenamer",
+        `${getBaseUrl()}/api/titlerenamer`,
         {
           method: "POST",
           body: formData,
@@ -3125,7 +3144,7 @@ async function routeToAPI(
       // Import and call the removebg API logic directly
       const { POST: removebgPOST } = await import("../removebg/route");
 
-      const mockRequest = new Request("http://localhost:3000/api/removebg", {
+      const mockRequest = new Request(`${getBaseUrl()}/api/removebg`, {
         method: "POST",
         body: formData,
       });
@@ -3534,11 +3553,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
             if (url.startsWith("/")) {
               // Local path - convert to full URL
-              // Use relative URLs in production to avoid authentication issues
-              const fullUrl =
-                process.env.NODE_ENV === "development"
-                  ? `http://localhost:3000${url}`
-                  : url; // Use relative URL in production
+              // Use dynamic base URL to work in both development and production
+              const fullUrl = `${getBaseUrl()}${url}`;
               console.log(`🔄 Converting local path to full URL: ${fullUrl}`);
 
               try {
@@ -4604,7 +4620,7 @@ async function callTitleRenamerWithPrompt(
     formData.append("userid", userid);
     formData.append("prompt", generatedPrompt);
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/api/titlerenamer`, {
       method: "POST",
       body: formData,

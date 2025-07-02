@@ -2250,7 +2250,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               path.includes(`/${presetDesignStyle}.webp`)
             );
             if (matchingPath) {
-              presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${matchingPath}`;
+                              presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://imai.studio")}${matchingPath}`;
               console.log(
                 `✅ Found preset ${presetDesignStyle} in category: ${matchingPath}`
               );
@@ -2266,7 +2266,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           );
           const baseStyle = presetDesignStyle.replace(/\d+$/, "");
           const presetImagePath = `/inputs/designs/general/${baseStyle}/${presetDesignStyle}.webp`;
-          presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${presetImagePath}`;
+                          presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://imai.studio")}${presetImagePath}`;
         }
 
         inputUrls.design = presetImageUrl;
@@ -2343,7 +2343,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         for (let i = 0; i < colorPalettes.length; i++) {
           const palette = colorPalettes[i];
           const presetColorImagePath = `/inputs/placeholders/colors/${palette}.webp`;
-          const presetColorImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}${presetColorImagePath}`;
+          const presetColorImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://imai.studio")}${presetColorImagePath}`;
 
           console.log(`🎨 Analyzing color preset ${i + 1}/${colorPalettes.length}: ${palette}`);
           console.log(`🎨 Using color preset URL: ${presetColorImageUrl}`);
