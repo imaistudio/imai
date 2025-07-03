@@ -5,7 +5,7 @@ import { firestore, auth } from "@/lib/firebase";
 import { doc, Timestamp, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
-import { Reply, ThumbsUp, ThumbsDown, RefreshCcw, Ratio, Sparkles, LetterText,  Search, Download, Share2 } from "lucide-react";
+import { Reply, ThumbsUp, ThumbsDown, RefreshCcw, UnfoldHorizontal, Sparkles, LetterText,  Search, Download, Share2 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
 
@@ -394,7 +394,7 @@ export default function ChatWindow({
                                       className="p-1 rounded-full "
                                       title="Landscape"
                                     >
-                                      <Ratio size={16} className="text-black dark:text-white" />
+                                      <UnfoldHorizontal size={16} className="text-black dark:text-white" />
                                     </button>
                                     <button
                                       onClick={() => console.log('Enhance:', img)}
