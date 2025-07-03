@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { firestore, auth } from "@/lib/firebase";
-import { doc, Timestamp, onSnapshot } from "firebase/firestore";
+import { doc, Timestamp, onSnapshot, collection, addDoc, setDoc, deleteDoc, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
-import { Reply } from "lucide-react";
+import { Reply, ThumbsUp, ThumbsDown, RefreshCcw, UnfoldHorizontal, Sparkles, LetterText,  Search, Download, Share2 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
 
@@ -66,6 +66,8 @@ export default function ChatWindow({
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
+  const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
+  const [dislikedImages, setDislikedImages] = useState<Set<string>>(new Set());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -132,6 +134,186 @@ export default function ChatWindow({
     [onReplyToMessage],
   );
 
+  // Load user preferences (likes and dislikes)
+  const loadUserPreferences = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      const preferencesRef = collection(firestore, `users/${userId}/preferences`);
+      const snapshot = await getDocs(preferencesRef);
+      
+      const liked = new Set<string>();
+      const disliked = new Set<string>();
+      
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.likedimageurl) {
+          liked.add(data.likedimageurl);
+        }
+        if (data.dislikedimageurl) {
+          disliked.add(data.dislikedimageurl);
+        }
+      });
+      
+      setLikedImages(liked);
+      setDislikedImages(disliked);
+    } catch (error) {
+      console.error("❌ Error loading user preferences:", error);
+    }
+  }, [userId]);
+
+  // Handle like action
+  const handleLike = useCallback(
+    async (imageUrl: string) => {
+      if (!userId) {
+        console.error("User not authenticated");
+        return;
+      }
+
+      try {
+        const isCurrentlyLiked = likedImages.has(imageUrl);
+        const isCurrentlyDisliked = dislikedImages.has(imageUrl);
+
+        if (isCurrentlyLiked) {
+          // Unlike the image - remove from Firestore
+          const preferencesRef = collection(firestore, `users/${userId}/preferences`);
+          const q = query(preferencesRef, where("likedimageurl", "==", imageUrl));
+          const querySnapshot = await getDocs(q);
+          
+          querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+          });
+          
+          // Update local state
+          const newLikedImages = new Set(likedImages);
+          newLikedImages.delete(imageUrl);
+          setLikedImages(newLikedImages);
+          
+          console.log("✅ Image unliked successfully");
+        } else {
+          // Like the image
+          if (isCurrentlyDisliked) {
+            // Remove from disliked first
+            const preferencesRef = collection(firestore, `users/${userId}/preferences`);
+            const q = query(preferencesRef, where("dislikedimageurl", "==", imageUrl));
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach(async (doc) => {
+              await deleteDoc(doc.ref);
+            });
+            
+            // Update local state
+            const newDislikedImages = new Set(dislikedImages);
+            newDislikedImages.delete(imageUrl);
+            setDislikedImages(newDislikedImages);
+          }
+
+          // Generate a unique ID for the like
+          const likeId = `like_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
+          // Create the like document
+          const likeData = {
+            id: likeId,
+            userId: userId,
+            imageId: imageUrl.split('/').pop() || imageUrl.substring(imageUrl.lastIndexOf('/') + 1),
+            likedimageurl: imageUrl,
+            likedAt: Timestamp.now(),
+          };
+
+          // Store in Firestore at users/{userId}/preferences/{likeId}
+          const preferencesRef = doc(firestore, `users/${userId}/preferences/${likeId}`);
+          await setDoc(preferencesRef, likeData);
+
+          // Update local state
+          const newLikedImages = new Set(likedImages);
+          newLikedImages.add(imageUrl);
+          setLikedImages(newLikedImages);
+          
+          console.log("✅ Image liked successfully:", likeId);
+        }
+      } catch (error) {
+        console.error("❌ Error handling like:", error);
+      }
+    },
+    [userId, likedImages, dislikedImages],
+  );
+
+  // Handle dislike action
+  const handleDislike = useCallback(
+    async (imageUrl: string) => {
+      if (!userId) {
+        console.error("User not authenticated");
+        return;
+      }
+
+      try {
+        const isCurrentlyDisliked = dislikedImages.has(imageUrl);
+        const isCurrentlyLiked = likedImages.has(imageUrl);
+
+        if (isCurrentlyDisliked) {
+          // Remove dislike - remove from Firestore
+          const preferencesRef = collection(firestore, `users/${userId}/preferences`);
+          const q = query(preferencesRef, where("dislikedimageurl", "==", imageUrl));
+          const querySnapshot = await getDocs(q);
+          
+          querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+          });
+          
+          // Update local state
+          const newDislikedImages = new Set(dislikedImages);
+          newDislikedImages.delete(imageUrl);
+          setDislikedImages(newDislikedImages);
+          
+          console.log("✅ Image undisliked successfully");
+        } else {
+          // Dislike the image
+          if (isCurrentlyLiked) {
+            // Remove from liked first
+            const preferencesRef = collection(firestore, `users/${userId}/preferences`);
+            const q = query(preferencesRef, where("likedimageurl", "==", imageUrl));
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach(async (doc) => {
+              await deleteDoc(doc.ref);
+            });
+            
+            // Update local state
+            const newLikedImages = new Set(likedImages);
+            newLikedImages.delete(imageUrl);
+            setLikedImages(newLikedImages);
+          }
+
+          // Generate a unique ID for the dislike
+          const dislikeId = `dislike_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
+          // Create the dislike document
+          const dislikeData = {
+            id: dislikeId,
+            userId: userId,
+            imageId: imageUrl.split('/').pop() || imageUrl.substring(imageUrl.lastIndexOf('/') + 1),
+            dislikedimageurl: imageUrl,
+            dislikedAt: Timestamp.now(),
+          };
+
+          // Store in Firestore at users/{userId}/preferences/{dislikeId}
+          const preferencesRef = doc(firestore, `users/${userId}/preferences/${dislikeId}`);
+          await setDoc(preferencesRef, dislikeData);
+
+          // Update local state
+          const newDislikedImages = new Set(dislikedImages);
+          newDislikedImages.add(imageUrl);
+          setDislikedImages(newDislikedImages);
+          
+          console.log("✅ Image disliked successfully:", dislikeId);
+        }
+      } catch (error) {
+        console.error("❌ Error handling dislike:", error);
+      }
+    },
+    [userId, likedImages, dislikedImages],
+  );
+
   // Initialize auth state
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user: User | null) => {
@@ -140,6 +322,17 @@ export default function ChatWindow({
     });
     return () => unsubscribeAuth();
   }, []);
+
+  // Load user preferences when userId changes
+  useEffect(() => {
+    if (userId) {
+      loadUserPreferences();
+    } else {
+      // Clear preferences when user logs out
+      setLikedImages(new Set());
+      setDislikedImages(new Set());
+    }
+  }, [userId, loadUserPreferences]);
 
   // Reset and load messages when chat changes
   useEffect(() => {
@@ -249,6 +442,7 @@ export default function ChatWindow({
     saveToCache,
     scrollToBottom,
     cacheKey,
+    messages.length,
   ]);
 
   // Cleanup on unmount
@@ -366,6 +560,80 @@ export default function ChatWindow({
                                   alt={`image-${i}`}
                                   className="w-auto h-36 md:h-96 object-cover rounded-lg"
                                 />
+                                                                  {/* Icon row below the image */}
+                                  <div className="flex items-start justify-start gap-2 mt-2">
+                                    <button
+                                      onClick={() => handleLike(img)}
+                                      className="p-1"
+                                      title={likedImages.has(img) ? "Unlike" : "Like"}
+                                    >
+                                      <ThumbsUp 
+                                        size={16} 
+                                        className={`${
+                                          likedImages.has(img) 
+                                            ? 'text-green-600 dark:text-green-400 ' 
+                                            : 'text-black dark:text-white'
+                                        }`} 
+                                      />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDislike(img)}
+                                      className="p-1"
+                                      title={dislikedImages.has(img) ? "Remove dislike" : "Dislike"}
+                                    >
+                                      <ThumbsDown 
+                                      
+                                        size={16} 
+                                        className={`${
+                                          dislikedImages.has(img) 
+                                            ? 'text-red-600 dark:text-red-400' 
+                                            : 'text-black dark:text-white'
+                                        }`} 
+                                      />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Refresh:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Retry"
+                                    >
+                                      <RefreshCcw size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Landscape:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Landscape"
+                                    >
+                                      <UnfoldHorizontal size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Enhance:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Enhance"
+                                    >
+                                      <Sparkles size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Analyze:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Image to Promot"
+                                    >
+                                      <LetterText size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Download:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Download"
+                                    >
+                                      <Download size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Share:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Share"
+                                    >
+                                      <Share2 size={16} className="text-black dark:text-white" />
+                                    </button>
+                                  </div>
                               </div>
                             ))}
                           </div>
@@ -392,3 +660,5 @@ export default function ChatWindow({
     </div>
   );
 }
+
+
