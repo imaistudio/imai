@@ -231,7 +231,22 @@
     "ninetiesmetallic": "90s metallic",
     "futurevintage": "future vintage",
     "minimalmetallic": "minimal<br>metallic",
-    "masculinetouch": "masculine<br>touch"
+    "masculinetouch": "masculine<br>touch",
+
+    "modernscandinavian": "modern<br>Scandinavian",
+    "minimalism": "minimalism",
+    "japaneseminimalism": "Japanese<br>minimalism",
+    "biomorphicmodernism": "biomorphic<br>modernism",
+    "bolddeluxe": "bold de luxe",
+    "playful": "playful",
+    "chubby": "chubby",
+    "memphispost": "memphis<br>post",
+    "bauhaus": "bauhaus",
+    "artsy": "artsy",
+    "ghostly": "ghostly",
+    "modernisttubular": "modernist<br>tubular",
+    "barocco": "barocco",
+    "seventies": "70's"
   },
   "colors": {
     "neutral": "Neutral",

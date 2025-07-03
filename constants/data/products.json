@@ -814,7 +814,68 @@
         "/inputs/designs/Jewelry/industrial/industrial2.webp"
       ]
     },
-    "sofa": {},
+    "sofa": {
+      "modernscandinavian": [
+        "/inputs/designs/furniture/modernisttubular/modernisttubular1.webp",
+        "/inputs/designs/furniture/modernisttubular/modernisttubular2.webp"
+      ],
+      "minimalism": [
+        "/inputs/designs/furniture/minimalism/minimalism1.webp",
+        "/inputs/designs/furniture/minimalism/minimalism2.webp",
+        "/inputs/designs/furniture/minimalism/minimalism3.webp"
+      ],
+      "japaneseminimalism": [
+        "/inputs/designs/furniture/japaneseminimalism/japaneseminimalism1.webp",
+        "/inputs/designs/furniture/japaneseminimalism/japaneseminimalism2.webp"
+      ],
+      "biomorphicmodernism": [
+        "/inputs/designs/furniture/biomorphicmodernism/biomorphicmodernism1.webp",
+        "/inputs/designs/furniture/biomorphicmodernism/biomorphicmodernism2.webp",
+        "/inputs/designs/furniture/biomorphicmodernism/biomorphicmodernism3.webp",
+        "/inputs/designs/furniture/biomorphicmodernism/biomorphicmodernism4.webp",
+        "/inputs/designs/furniture/biomorphicmodernism/biomorphicmodernism5.webp"
+      ],
+      "bolddeluxe": ["/inputs/designs/furniture/bolddeluxe/bolddeluxe1.webp"],
+      "playful": [
+        "/inputs/designs/furniture/playful/playful1.webp",
+        "/inputs/designs/furniture/playful/playful2.webp",
+        "/inputs/designs/furniture/playful/playful3.webp"
+      ],
+      "chubby": [
+        "/inputs/designs/furniture/chubby/chubby1.webp",
+        "/inputs/designs/furniture/chubby/chubby2.webp",
+        "/inputs/designs/furniture/chubby/chubby3.webp",
+        "/inputs/designs/furniture/chubby/chubby4.webp",
+        "/inputs/designs/furniture/chubby/chubby5.webp",
+        "/inputs/designs/furniture/chubby/chubby6.webp",
+        "/inputs/designs/furniture/chubby/chubby7.webp"
+      ],
+      "memphispost": [
+        "/inputs/designs/furniture/memphispostmodern/memphispostmodern1.webp",
+        "/inputs/designs/furniture/memphispostmodern/memphispostmodern2.webp"
+      ],
+      "bauhaus": ["/inputs/designs/furniture/bauhaus/bauhaus1.webp"],
+      "artsy": [
+        "/inputs/designs/furniture/artsy/artsy1.webp",
+        "/inputs/designs/furniture/artsy/artsy2.webp",
+        "/inputs/designs/furniture/artsy/artsy3.webp"
+      ],
+      "ghostly": [
+        "/inputs/designs/furniture/ghostly/ghostly1.webp",
+        "/inputs/designs/furniture/ghostly/ghostly2.webp",
+        "/inputs/designs/furniture/ghostly/ghostly3.webp"
+      ],
+      "modernisttubular": [
+        "/inputs/designs/furniture/modernisttubular/modernisttubular1.webp",
+        "/inputs/designs/furniture/modernisttubular/modernisttubular2.webp"
+      ],
+      "barocco": ["/inputs/designs/furniture/barocco/barocco1.webp"],
+      "seventies": [
+        "/inputs/designs/furniture/70s/70s1.webp",
+        "/inputs/designs/furniture/70s/70s2.webp",
+        "/inputs/designs/furniture/70s/70s3.webp"
+      ]
+    },
     "scarf": {
       "streetwear": [
         "/inputs/designs/fashions/streetwear/streetwear1.webp",
