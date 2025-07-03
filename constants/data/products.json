@@ -182,6 +182,10 @@
         "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
+      "colorpop": [
+      "/inputs/designs/general/colorpop/colorpop1.webp",
+      "/inputs/designs/general/colorpop/colorpop2.webp"
+      ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
       ],
@@ -196,6 +200,9 @@
       "nomadic": [
         "/inputs/designs/homedecor/nomadic/nomadic1.webp",
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "tropicaltimes": [
+      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
@@ -308,6 +315,10 @@
         "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
+      "colorpop": [
+      "/inputs/designs/general/colorpop/colorpop1.webp",
+      "/inputs/designs/general/colorpop/colorpop2.webp"
+      ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
       ],
@@ -322,6 +333,9 @@
       "nomadic": [
         "/inputs/designs/homedecor/nomadic/nomadic1.webp",
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "tropicaltimes": [
+      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
@@ -846,12 +860,16 @@
       "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
     },
     "lamp": {
-      "midcenturymodern": [
+     "midcenturymodern": [
         "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
       ],
       "organicshapes": [
         "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+      ],
+      "colorpop": [
+      "/inputs/designs/general/colorpop/colorpop1.webp",
+      "/inputs/designs/general/colorpop/colorpop2.webp"
       ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
@@ -867,6 +885,9 @@
       "nomadic": [
         "/inputs/designs/homedecor/nomadic/nomadic1.webp",
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "tropicaltimes": [
+      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
@@ -1255,6 +1276,10 @@
         "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
+      "colorpop": [
+      "/inputs/designs/general/colorpop/colorpop1.webp",
+      "/inputs/designs/general/colorpop/colorpop2.webp"
+      ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
       ],
@@ -1269,6 +1294,9 @@
       "nomadic": [
         "/inputs/designs/homedecor/nomadic/nomadic1.webp",
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
+      ],
+      "tropicaltimes": [
+      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
