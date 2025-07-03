@@ -780,7 +780,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   };
 
   return (
-    <div className="mt-2 md:mt-2 lg:mt-4 h-full overflow-y-auto hide-scrollbar">
+    <div className="h-full overflow-y-auto hide-scrollbar">
       {/* Create Folder Section */}
       <div className="mb-4">
         <div className="flex items-center justify-between p-2">
