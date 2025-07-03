@@ -199,13 +199,14 @@ function validateWorkflowInputs(
       break;
 
     case "product_design":
-      if (!hasProduct || !hasDesign || hasColor) {
+      if (!hasProduct || !hasDesign) {
         return {
           valid: false,
           error:
-            "product_design requires product and design images (no color image)",
+            "product_design requires product and design images",
         };
       }
+      // Color is optional for product_design (can use color presets or no color)
       break;
 
     case "color_design":
@@ -2167,31 +2168,58 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           console.log(`  - Claude suggests: reference as "${referenceRole}"`);
           console.log(`  - User intent: ${userIntent}`);
 
-          // Use Claude's semantic analysis to resolve the conflict intelligently
-          if (userIntent === "modification" && hasProductPreset) {
-            // User wants to modify existing result WITH their chosen product type
-            // Use reference as design inspiration, keep their product preset
+          // 🧠 CRITICAL FIX: Respect Claude's detailed input_roles analysis instead of overriding
+          const inputRoles = semanticAnalysis.input_roles || {};
+          const designSources = inputRoles.design_sources;
+          const colorSources = inputRoles.color_sources;
+
+          if (designSources === 'upload' && designImageUrl) {
+            // Claude says use uploaded image for design - RESPECT THIS!
+            console.log("🎯 RESPECTING CLAUDE'S ANALYSIS: Using uploaded image for DESIGN (Claude's detailed analysis)");
+            // Don't set useReferenceAsDesign - let uploaded image be used for design
+          } else if (designSources === 'reference') {
+            // Claude says use reference for design
             overrideInputs.useReferenceAsDesign = true;
-            overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
+            overrideInputs.skipDesignPreset = true;
+            console.log("🎯 CLAUDE'S SMART RESOLUTION: Using reference as DESIGN (Claude's detailed analysis)");
+          }
+
+          if (colorSources === 'reference') {
+            overrideInputs.useReferenceAsColor = true;
+            overrideInputs.skipColorPreset = true;
+            console.log("🎯 CLAUDE'S SMART RESOLUTION: Using reference as COLOR (Claude's detailed analysis)");
+          }
+          
+          // Always use preset for product when there's a conflict
+          console.log("🎯 USING PRESET PRODUCT: Preserving user's explicit product choice");
+        }
+        // 🔧 CRITICAL FIX: Only set overrides for auto-reference when there's no separate uploaded product
+        // If we have both productImageUrl (uploaded) AND designImageUrl (reference), 
+        // don't override - let each be processed in their respective slots
+        else if (!designImageUrl) {
+          // 🧠 ENHANCED: Check input_roles for dual-purpose scenarios
+          const inputRoles = semanticAnalysis.input_roles || {};
+          const useRefForDesign = inputRoles.design_sources === 'reference';
+          const useRefForColor = inputRoles.color_sources === 'reference';
+          
+          // Handle dual-purpose reference (both design + color from same image)
+          if (useRefForDesign && useRefForColor) {
+            overrideInputs.useReferenceAsDesign = true;
+            overrideInputs.useReferenceAsColor = true;
+            overrideInputs.skipDesignPreset = true;
+            overrideInputs.skipColorPreset = true;
             console.log(
-              "🎯 CLAUDE'S SMART RESOLUTION: Using reference as DESIGN (preserving user's explicit product choice)",
-            );
-          } else {
-            // Default to Claude's original suggestion
-            overrideInputs.useReferenceAsProduct = true;
-            console.log(
-              "🎯 CLAUDE'S CHOICE: Using reference as PRODUCT (Claude's semantic understanding)",
+              "🎯 CLAUDE'S DUAL-PURPOSE AUTO-REFERENCE: Using reference as DESIGN + COLOR (Claude's intelligent choice)",
             );
           }
-        } else {
-          // No conflict - follow Claude's analysis directly
-          if (referenceRole === "design") {
+          // Handle single-purpose reference based on primary role
+          else if (referenceRole === "design" || useRefForDesign) {
             overrideInputs.useReferenceAsDesign = true;
             overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
             console.log(
               "🎯 CLAUDE'S AUTO-REFERENCE: Using reference as DESIGN (Claude's intelligent choice)",
             );
-          } else if (referenceRole === "color") {
+          } else if (referenceRole === "color" || useRefForColor) {
             overrideInputs.useReferenceAsColor = true;
             overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
             console.log(
@@ -2203,6 +2231,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               "🎯 CLAUDE'S AUTO-REFERENCE: Using reference as PRODUCT (Claude's intelligent choice)",
             );
           }
+        } else {
+          // 🎯 COMPLEX SCENARIO: We have both uploaded product AND separate reference
+          // In this case, productImageUrl should ALWAYS be analyzed as product
+          // The reference is already handled separately via designImageUrl
+          console.log(
+            "🎯 CLAUDE'S COMPLEX SCENARIO: Uploaded product + separate reference detected - analyzing both independently"
+          );
+          console.log(
+            `  - Product image (will be analyzed): ${productImageUrl.slice(0, 50)}...`
+          );
+          console.log(
+            `  - Reference image (handled separately): ${designImageUrl.slice(0, 50)}...`
+          );
+          // Don't set any overrides - let both images be processed in their respective roles
         }
       }
       // 🔧 FALLBACK AUTO-REFERENCE: When no Claude analysis available
@@ -2465,10 +2507,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
 
       // Handle design image (file, URL, or preset) with semantic override
-      if (overrideInputs.useReferenceAsDesign && productImageUrl) {
+      // 🧠 CRITICAL FIX: Prioritize uploaded design images over reference overrides
+      if (designImage && firebaseInitialized) {
+        console.log("Processing uploaded design image file...");
+        const designBuffer = await fileToJpegBuffer(designImage);
+        const designPath = `${userid}/input/${uuidv4()}.jpg`;
+        const designUrl = await uploadBufferToFirebase(designBuffer, designPath);
+        inputUrls.design = designUrl;
+        analyses.design = await analyzeImageWithGPT4Vision(
+          designUrl,
+          "design reference",
+        );
+        console.log("✅ Uploaded design image file processed successfully");
+      } else if (designImageUrl && !overrideInputs.useReferenceAsDesign) {
+        // Use uploaded design image URL (only if not overridden by reference)
+        console.log("Using uploaded design image URL:", designImageUrl);
+        inputUrls.design = designImageUrl;
+        analyses.design = await analyzeImageWithGPT4Vision(
+          designImageUrl,
+          "design reference",
+        );
+        console.log("✅ Uploaded design image URL processed successfully");
+      } else if (overrideInputs.useReferenceAsDesign && productImageUrl) {
         // 🎯 CLAUDE'S SEMANTIC OVERRIDE: Use reference image as design source
         console.log(
-          "🧠 SEMANTIC OVERRIDE: Using reference image as DESIGN source instead of presets",
+          "🧠 SEMANTIC OVERRIDE: Using reference image (from productImageUrl) as DESIGN source instead of uploads/presets",
         );
         inputUrls.design = productImageUrl;
         console.log("🔍 Starting reference-as-design analysis...");
@@ -2477,36 +2540,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           "design reference",
         );
         console.log("✅ Reference image processed as DESIGN source");
-      } else if (designImage && firebaseInitialized) {
-        console.log("Processing design image file...");
-        const designBuffer = await fileToJpegBuffer(designImage);
-        const designPath = `${userid}/input/${uuidv4()}.jpg`;
-        const designUrl = await uploadBufferToFirebase(
-          designBuffer,
-          designPath,
+      } else if (overrideInputs.useReferenceAsDesign && designImageUrl) {
+        // 🎯 CLAUDE'S SEMANTIC OVERRIDE: Use reference image as design source
+        console.log(
+          "🧠 SEMANTIC OVERRIDE: Using reference image as DESIGN source instead of presets",
         );
-        inputUrls.design = designUrl;
-        analyses.design = await analyzeImageWithGPT4Vision(
-          designUrl,
-          "design reference",
-        );
-        console.log("Design image file processed successfully");
-      } else if (designImageUrl) {
-        console.log("Using design image URL:", designImageUrl);
         inputUrls.design = designImageUrl;
-        console.log("🔍 Starting design image analysis...");
+        console.log("🔍 Starting reference-as-design analysis...");
         analyses.design = await analyzeImageWithGPT4Vision(
           designImageUrl,
           "design reference",
         );
-        console.log(
-          "🔍 Design analysis result length:",
-          analyses.design?.length || 0,
-        );
-        if (!analyses.design || analyses.design.length === 0) {
-          console.log("⚠️ Design analysis returned empty result!");
-        }
-        console.log("Design image URL processed successfully");
+        console.log("✅ Reference image processed as DESIGN source");
+
       } else if (presetDesignStyle && !overrideInputs.skipDesignPreset) {
         console.log("Using preset design style:", presetDesignStyle);
         // Convert preset name to actual image URL using proper category detection
@@ -2575,10 +2621,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         overrideInputs.useReferenceAsColor ||
         inputUrls.color;
 
-      if ((designImage || designImageUrl) && !hasAnyColorInput) {
-        console.log(
-          "🧠 DESIGN IMAGE COLOR EXTRACTION: Extracting COLOR palette from uploaded design image (since no color input provided)",
-        );
+      if ((designImage || (designImageUrl && !overrideInputs.useReferenceAsDesign)) && !hasAnyColorInput) {
+        console.log("🧠 DESIGN IMAGE COLOR EXTRACTION: Extracting COLOR palette from uploaded design image (since no color input provided)");
         const designColorUrl = designImageUrl || inputUrls.design;
         if (designColorUrl) {
           if (!inputUrls.color) {
@@ -2622,18 +2666,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         productImageUrl: !!productImageUrl,
         colorImageUrlValue: colorImageUrl?.substring(0, 80) + "...",
       });
-
-      // Handle semantic overrides first
-      if (
-        overrideInputs.useReferenceAsDesign &&
-        productImageUrl &&
-        !colorImage &&
-        !colorImageUrl &&
-        !presetColorPalette
-      ) {
-        console.log(
-          "🧠 SEMANTIC OVERRIDE 1: Extracting COLOR palette from reference image (since no color input provided)",
-        );
+      
+      // 🧠 SEMANTIC OVERRIDES: Handle reference image color extraction based on Claude's analysis
+      // CRITICAL: Reference can serve DUAL PURPOSE (both design + color from same image)
+      if (overrideInputs.useReferenceAsColor && productImageUrl) {
+        // When Claude explicitly says reference should be color source
+        console.log("🧠 SEMANTIC OVERRIDE 2: Using reference image (from productImageUrl) as COLOR source");
         inputUrls.color = productImageUrl;
         const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
           productImageUrl,
@@ -2641,14 +2679,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         colorAnalysisParts.push(referenceColorAnalysis);
         console.log("✅ Reference image processed as COLOR source");
-      } else if (overrideInputs.useReferenceAsColor && productImageUrl) {
+      } else if (overrideInputs.useReferenceAsColor && colorImageUrl) {
         // When Claude explicitly says reference should be color source
-        console.log(
-          "🧠 SEMANTIC OVERRIDE 2: Using reference image as COLOR source instead of presets",
-        );
-        inputUrls.color = productImageUrl;
+        console.log("🧠 SEMANTIC OVERRIDE 2: Using reference image as COLOR source instead of presets");
+        inputUrls.color = colorImageUrl;
         const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
-          productImageUrl,
+          colorImageUrl,
           "color reference",
         );
         colorAnalysisParts.push(referenceColorAnalysis);
@@ -2679,6 +2715,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         colorAnalysisParts.push(uploadedColorAnalysis);
         console.log("Color image file processed successfully");
+      } 
+      // 🧠 CRITICAL FIX: DUAL-PURPOSE REFERENCE (design + color from same image)
+      // When Claude says reference should be used for BOTH design AND color extraction
+      else if (overrideInputs.useReferenceAsDesign && productImageUrl && 
+               semanticAnalysis?.input_roles?.design_sources === 'reference' && 
+               semanticAnalysis?.input_roles?.color_sources === 'reference') {
+        console.log("🧠 DUAL-PURPOSE REFERENCE: Analyzing same reference for COLOR extraction (already processed for design)");
+        inputUrls.color = productImageUrl;
+        const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
+          productImageUrl,
+          "color reference",
+        );
+        colorAnalysisParts.push(referenceColorAnalysis);
+        console.log("✅ Reference image processed as COLOR source (dual-purpose analysis complete)");
       } else {
         console.log("🔍 NO COLOR PROCESSING: No color inputs found to process");
       }
@@ -2818,7 +2868,7 @@ ${analysis}
       console.log(
         `🌈 Color: ${inputUrls.color || analyses.color ? "SET" : "NOT SET"} ${inputUrls.color ? "(from " + (overrideInputs.useReferenceAsColor || (overrideInputs.useReferenceAsDesign && !presetColorPalette) ? "reference image" : "preset/upload") + ")" : analyses.color ? "(from preset specification)" : ""}`,
       );
-      console.log("🧠 === END SEMANTIC ANALYSIS === 🧠\n");
+      console.log("🧠 === END SEMANTIC ANALYSIS === ��\n");
     }
 
     // 7) Build the enhanced prompt

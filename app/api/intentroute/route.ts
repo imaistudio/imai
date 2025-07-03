@@ -2007,6 +2007,9 @@ Reference + Product Preset ONLY (no design preset):
 ├─ Intent: Create product using reference as design inspiration
 ├─ Product Preset → PRODUCT role (base form)
 ├─ Reference → DESIGN role (style inspiration)
+├─ Reference → COLOR role (color extraction) [SAME REFERENCE, DUAL PURPOSE]
+├─ CRITICAL: reference_role should be "design" (primary purpose)
+├─ CRITICAL: input_roles = product_sources:"preset", design_sources:"reference", color_sources:"reference"
 └─ Workflow: preset_design
 
 Reference + Design Preset ONLY (no product preset):
@@ -2102,6 +2105,61 @@ Reference + Product Preset + Other Presets:
 - Reference should be PRODUCT role (base to modify)
 - Preset provides the modification (color change or design change)
 - NOT inspiration for creating something new
+
+🚨 ULTRA-CRITICAL PRESET + REFERENCE SCENARIOS:
+
+**SCENARIO 1: Product Preset + Reference** (MOST COMMON FAILING CASE)
+User: "Create a design composition using the uploaded images"
+Context: Has product preset (e.g. pillow) + reference image (e.g. sneaker)
+CORRECT Analysis:
+├─ Intent: CREATE NEW product (pillow) using reference as design inspiration
+├─ Product Preset → PRODUCT role (defines WHAT to create: pillow shape/form)
+├─ Reference → DESIGN role (defines HOW to style it: extract visual patterns from sneaker)
+├─ Reference → COLOR role (defines COLORS to use: extract color palette from sneaker)
+├─ reference_role: "design" (primary purpose is visual inspiration)
+├─ input_roles: {product_sources:"preset", design_sources:"reference", color_sources:"reference"}
+└─ Result: Pillow with sneaker-inspired patterns and colors
+
+**SCENARIO 2: Reference + Color Preset Only**
+User: "Apply these colors to this design"
+Context: Has reference image + color preset
+CORRECT Analysis:
+├─ Intent: MODIFY existing reference with new colors
+├─ Reference → PRODUCT role (base design to recolor)
+├─ Color Preset → COLOR role (new colors to apply)
+├─ reference_role: "product" (primary purpose is the base to modify)
+├─ input_roles: {product_sources:"reference", design_sources:"none", color_sources:"preset"}
+└─ Result: Same design composition with different colors
+
+**SCENARIO 3: Uploaded Product + Reference** (CRITICAL FIX - MOST COMMON USER SCENARIO)
+User: "Create a design composition using the uploaded images"
+Context: User uploaded product image + has reference available
+CORRECT Analysis:
+├─ Intent: MODIFY uploaded product using reference as design inspiration
+├─ Uploaded Product Image → PRODUCT role (ALWAYS the uploaded image - this is what user wants to modify)
+├─ Reference → DESIGN role (extract patterns/style from reference to apply to uploaded product)
+├─ Reference → COLOR role (extract color palette from reference to apply to uploaded product)
+├─ reference_role: "design" (primary purpose is visual inspiration for the uploaded product)
+├─ input_roles: {product_sources:"upload", design_sources:"reference", color_sources:"reference"}
+└─ Result: User's uploaded product with reference-inspired patterns and colors
+
+**SCENARIO 4: Uploaded Product + Reference + Color Preset** (CRITICAL FIX)
+User: "Create a design composition using the uploaded images"
+Context: User uploaded product image + has reference + selected color preset
+CORRECT Analysis:
+├─ Intent: MODIFY uploaded product using reference design + preset colors
+├─ Uploaded Product Image → PRODUCT role (ALWAYS the uploaded image - this is what user wants to modify)
+├─ Reference → DESIGN role (extract patterns/style from reference to apply to uploaded product)
+├─ Color Preset → COLOR role (apply preset color scheme to uploaded product)
+├─ reference_role: "design" (reference provides design elements only, colors from preset)
+├─ input_roles: {product_sources:"upload", design_sources:"reference", color_sources:"preset"}
+└─ Result: User's uploaded product with reference-inspired design + preset colors
+
+**ULTRA-CRITICAL RULE**: 
+- When user UPLOADS a product image, that uploaded image is ALWAYS the PRODUCT base to modify
+- Reference is NEVER the product when user has uploaded their own product image
+- Product preset present = CREATE new product, reference = design inspiration
+- No product preset = MODIFY existing reference OR uploaded product (uploaded takes priority)
 
 EDGE CASE EXAMPLES:
 - Reference + Product preset + Color preset = full_composition (reference as design inspiration)
@@ -4030,13 +4088,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       // 🎯 CRITICAL FIX: Check ALL possible image keys (including uploaded numbered versions)
       const allCurrentImageKeys = Object.keys(imageUrls);
-      const hasProductSlot = !!imageUrls.product_image;
-      const hasDesignSlot =
-        !!imageUrls.design_image ||
-        allCurrentImageKeys.some((key) => key.includes("design_image"));
-      const hasColorSlot =
-        !!imageUrls.color_image ||
-        allCurrentImageKeys.some((key) => key.includes("color_image"));
+      const hasProductSlot = !!imageUrls.product_image || allCurrentImageKeys.some(key => key.includes('product_image'));
+      const hasDesignSlot = !!imageUrls.design_image || allCurrentImageKeys.some(key => key.includes('design_image'));
+      const hasColorSlot = !!imageUrls.color_image || allCurrentImageKeys.some(key => key.includes('color_image'));
 
       console.log(
         `🔍 Slot availability: product=${hasProductSlot}, design=${hasDesignSlot}, color=${hasColorSlot}, workflow=${workflowType}`,
@@ -4251,7 +4305,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           `🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to product_prompt (reference only)`,
         );
       }
-
       const finalHasProduct = !!imageUrls.product_image;
       const finalHasDesign = allImageKeys.some(
         (key) => key.includes("design_image") || key === "design_image",
@@ -4520,7 +4573,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             `🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to product_prompt (reference only)`,
           );
         }
-
         const finalRefHasProduct = !!imageUrls.product_image;
         const finalRefHasDesign = allImageKeys.some(
           (key) => key.includes("design_image") || key === "design_image",
