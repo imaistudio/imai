@@ -80,6 +80,7 @@ interface ReferencedMessage {
   text?: string;
   images?: string[];
   timestamp: string;
+  referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode for contextual replies
 }
 
 interface UnifiedPromptContainerProps {
@@ -666,9 +667,14 @@ export default function UnifiedPromptContainer({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <Icon icon="lucide:reply" width={14} className="text-primary" />
-              <span className="text-xs font-medium text-default-600">
+              <span className="text-xs font-medium text-default-600 capitalize">
                 Replying to{" "}
                 {referencedMessage.sender === "user" ? "You" : "Assistant"}
+                {referencedMessage.referencemode && referencedMessage.sender === "agent" && (
+                  <span className="text-primary font-semibold capitalize">
+                    {" "}as {referencedMessage.referencemode}
+                  </span>
+                )}
               </span>
             </div>
             {referencedMessage.text && (

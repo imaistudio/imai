@@ -24,6 +24,7 @@ interface ReferencedMessage {
   images?: string[];
   timestamp: string;
   isLoading?: boolean; // 🔧 NEW: Loading state for API calls
+  referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode for contextual replies
 }
 
 export default function Home() {
@@ -392,6 +393,7 @@ export default function Home() {
           text: referencedMessage.text || "",
           images: referencedMessage.images || [],
           timestamp: referencedMessage.timestamp,
+          referencemode: referencedMessage.referencemode || "product", // 🔧 NEW: Include reference mode
         };
         formData.append("explicit_reference", JSON.stringify(reference));
 
