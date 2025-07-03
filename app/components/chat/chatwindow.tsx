@@ -564,11 +564,7 @@ export default function ChatWindow({
                                   <div className="flex items-start justify-start gap-2 mt-2">
                                     <button
                                       onClick={() => handleLike(img)}
-                                      className={`p-1 rounded-full transition-colors ${
-                                        likedImages.has(img) 
-                                          ? 'bg-green-100 dark:bg-green-900' 
-                                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                                      }`}
+                                      className="p-1"
                                       title={likedImages.has(img) ? "Unlike" : "Like"}
                                     >
                                       <ThumbsUp 
@@ -582,11 +578,7 @@ export default function ChatWindow({
                                     </button>
                                     <button
                                       onClick={() => handleDislike(img)}
-                                      className={`p-1 rounded-full transition-colors ${
-                                        dislikedImages.has(img) 
-                                          ? 'bg-red-100 dark:bg-red-900' 
-                                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                                      }`}
+                                      className="p-1"
                                       title={dislikedImages.has(img) ? "Remove dislike" : "Dislike"}
                                     >
                                       <ThumbsDown 
@@ -594,7 +586,7 @@ export default function ChatWindow({
                                         size={16} 
                                         className={`${
                                           dislikedImages.has(img) 
-                                            ? 'text-red-600 dark:text-red-400 fill-current' 
+                                            ? 'text-red-600 dark:text-red-400' 
                                             : 'text-black dark:text-white'
                                         }`} 
                                       />
