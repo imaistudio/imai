@@ -5,7 +5,7 @@ import { firestore, auth } from "@/lib/firebase";
 import { doc, Timestamp, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
-import { Reply } from "lucide-react";
+import { Reply, ThumbsUp, ThumbsDown, RefreshCcw, Ratio, Sparkles, LetterText,  Search, Download, Share2 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
 
@@ -366,6 +366,65 @@ export default function ChatWindow({
                                   alt={`image-${i}`}
                                   className="w-auto h-36 md:h-96 object-cover rounded-lg"
                                 />
+                                                                  {/* Icon row below the image */}
+                                  <div className="flex items-start justify-start gap-2 mt-2">
+                                    <button
+                                      onClick={() => console.log('Like:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Like"
+                                    >
+                                      <ThumbsUp size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Dislike:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Dislike"
+                                    >
+                                      <ThumbsDown size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Refresh:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Retry"
+                                    >
+                                      <RefreshCcw size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Landscape:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Landscape"
+                                    >
+                                      <Ratio size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Enhance:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Enhance"
+                                    >
+                                      <Sparkles size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Analyze:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Image to Promot"
+                                    >
+                                      <LetterText size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Download:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Download"
+                                    >
+                                      <Download size={16} className="text-black dark:text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => console.log('Share:', img)}
+                                      className="p-1 rounded-full "
+                                      title="Share"
+                                    >
+                                      <Share2 size={16} className="text-black dark:text-white" />
+                                    </button>
+                                  </div>
                               </div>
                             ))}
                           </div>
