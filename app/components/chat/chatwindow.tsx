@@ -44,7 +44,6 @@ interface ChatMessage {
   updatedAt?: Timestamp | { seconds: number; nanoseconds: number };
 }
 
-// 🔧 NEW: Interface for referenced message
 interface ReferencedMessage {
   id: string;
   sender: "user" | "agent";
@@ -57,14 +56,13 @@ interface ReferencedMessage {
 interface ChatWindowProps {
   chatId: string;
   onReplyToMessage?: (message: ReferencedMessage) => void;
-  onTitleRenamed?: (chatId: string, newTitle: string, category: string) => void; // For backward compatibility
+  onTitleRenamed?: (chatId: string, newTitle: string, category: string) => void; 
 }
 
 
 export default function ChatWindow({
   chatId,
   onReplyToMessage,
-  onTitleRenamed,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -564,6 +562,130 @@ export default function ChatWindow({
     }
   }, [userId, chatId]);
 
+  // Handle reframe image to landscape
+  const handleReframe = useCallback(async (imageUrl: string) => {
+    if (!userId || !chatId) {
+      console.error("User not authenticated or no chat ID");
+      return;
+    }
+
+    console.log("🖼️ Starting image reframe for:", imageUrl);
+
+    // Create loading message
+    const loadingMessage: ChatMessage = {
+      id: `reframe-${Date.now()}`,
+      sender: "agent",
+      type: "images",
+      text: "Reframing image to landscape...",
+      chatId: chatId,
+      createdAt: Timestamp.now(),
+      isLoading: true,
+    };
+
+    try {
+
+      // Add loading message to Firestore
+      const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+      await updateDoc(chatRef, {
+        messages: arrayUnion(loadingMessage),
+      });
+
+      // Call reframe API
+      const formData = new FormData();
+      formData.append("userid", userId);
+      formData.append("image_url", imageUrl);
+      formData.append("imageSize", "landscape");
+
+      const response = await fetch("/api/reframe", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.status === "success" && result.result && result.result.imageUrl) {
+        // Create reframed image message
+        const reframeMessage: ChatMessage = {
+          id: `reframe-result-${Date.now()}`,
+          sender: "agent",
+          type: "images",
+          text: "Here's your landscape reframed image:",
+          images: [result.result.imageUrl],
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with the reframed image
+        // First, get current messages to replace loading message
+        const chatDoc = await getDocs(query(collection(firestore, `chats/${userId}/prompts`), where("__name__", "==", chatId)));
+        
+        if (!chatDoc.empty) {
+          const chatData = chatDoc.docs[0].data();
+          const currentMessages = chatData.messages || [];
+          
+          // Replace loading message with reframe result
+          const updatedMessages = currentMessages.map((msg: ChatMessage) => 
+            msg.id === loadingMessage.id ? reframeMessage : msg
+          );
+
+          await updateDoc(chatRef, {
+            messages: updatedMessages,
+          });
+        }
+
+        console.log("✅ Reframed image saved to chat");
+      } else {
+        throw new Error("Invalid response from reframe API");
+      }
+
+    } catch (error) {
+      console.error("❌ Image reframe failed:", error);
+      
+      // Create error message
+      const errorMessage: ChatMessage = {
+        id: `reframe-error-${Date.now()}`,
+        sender: "agent",
+        type: "prompt",
+        text: "Sorry, I couldn't reframe the image. Please try again later.",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+      };
+
+      // Update Firestore with error message
+      try {
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        
+        // Get current messages to replace loading message
+        const chatDoc = await getDocs(query(collection(firestore, `chats/${userId}/prompts`), where("__name__", "==", chatId)));
+        
+        if (!chatDoc.empty) {
+          const chatData = chatDoc.docs[0].data();
+          const currentMessages = chatData.messages || [];
+          
+          // Replace loading message with error message
+          const updatedMessages = currentMessages.map((msg: ChatMessage) => 
+            msg.id === loadingMessage.id ? errorMessage : msg
+          );
+
+          await updateDoc(chatRef, {
+            messages: updatedMessages,
+          });
+        } else {
+          // If no chat found, just add the error message
+          await updateDoc(chatRef, {
+            messages: arrayUnion(errorMessage),
+          });
+        }
+      } catch (updateError) {
+        console.error("❌ Failed to save error message:", updateError);
+      }
+    }
+  }, [userId, chatId]);
+
   // Initialize auth state
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user: User | null) => {
@@ -857,9 +979,7 @@ export default function ChatWindow({
                                     />
                                   </button>
                                   <button
-                                    onClick={() =>
-                                      console.log("Landscape:", img)
-                                    }
+                                    onClick={() => handleReframe(img)}
                                     className="p-1 rounded-full "
                                     title="Landscape"
                                   >
