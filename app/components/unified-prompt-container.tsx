@@ -12,7 +12,6 @@ import {
   ProductImages,
   defaultProductImages,
   productSpecificDesigns,
-  defaultDesignImages,
   generalDesignImages,
   defaultColorImages,
   defaultPlaceholders,
