@@ -919,12 +919,12 @@ export default function ChatWindow({
                   {msg.text && !msg.isLoading && (
                     <div className="flex justify-start mb-2">
                       <div className="flex items-end gap-2">
-                        <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
+                        <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl py-2">
                           <div className="text-sm leading-relaxed">
                             <p className="text-black dark:text-white">
                               {msg.text}
                               {(msg as any).isStreaming && (
-                                <span className="animate-pulse ml-1">▊</span>
+                                <span className="animate-pulse">▊</span>
                               )}
                             </p>
                           </div>
