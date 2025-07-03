@@ -1062,52 +1062,63 @@ export default function ChatWindow({
                         </div>
 
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-1">
-                          {/* 🔧 NEW: Reference mode icons */}
-                          <div className="flex items-center space-x-1 mr-2">
+                          {/* Reply button with hover effect for icons */}
+                          <div className="group/reply relative flex items-center">
                             <button
-                              onClick={() => setReferenceMode("product")}
-                              className={`p-1 rounded-full transition-all duration-200 ${
-                                referenceMode === "product"
-                                  ? "bg-blue-500 text-white"
-                                  : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                              }`}
-                              title="Product reference"
+                              onClick={() => handleReply(msg, index)}
+                              className="flex items-center space-x-1 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                              title="Reply to this image"
                             >
-                              <Package size={14} />
+                              <Reply size={16} className="text-gray-500" />
+                              <span className="text-sm text-gray-500">Reply</span>
                             </button>
-                            <button
-                              onClick={() => setReferenceMode("design")}
-                              className={`p-1 rounded-full transition-all duration-200 ${
-                                referenceMode === "design"
-                                  ? "bg-blue-500 text-white"
-                                  : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                              }`}
-                              title="Design reference"
-                            >
-                              <Palette size={14} />
-                            </button>
-                            <button
-                              onClick={() => setReferenceMode("color")}
-                              className={`p-1 rounded-full transition-all duration-200 ${
-                                referenceMode === "color"
-                                  ? "bg-blue-500 text-white"
-                                  : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                              }`}
-                              title="Color reference"
-                            >
-                              <Droplets size={14} />
-                            </button>
+                            
+                            {/* Reference mode icons - show on reply hover */}
+                            <div className="opacity-0 group-hover/reply:opacity-100 transition-opacity duration-200 flex items-center space-x-1 ml-2">
+                              <button
+                                onClick={() => {
+                                  setReferenceMode("product");
+                                  handleReply(msg, index);
+                                }}
+                                className={`p-1 rounded-full transition-all duration-200 ${
+                                  referenceMode === "product"
+                                    ? "bg-blue-500 text-white"
+                                    : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                }`}
+                                title="Product reference"
+                              >
+                                <Package size={14} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setReferenceMode("design");
+                                  handleReply(msg, index);
+                                }}
+                                className={`p-1 rounded-full transition-all duration-200 ${
+                                  referenceMode === "design"
+                                    ? "bg-blue-500 text-white"
+                                    : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                }`}
+                                title="Design reference"
+                              >
+                                <Palette size={14} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setReferenceMode("color");
+                                  handleReply(msg, index);
+                                }}
+                                className={`p-1 rounded-full transition-all duration-200 ${
+                                  referenceMode === "color"
+                                    ? "bg-blue-500 text-white"
+                                    : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                }`}
+                                title="Color reference"
+                              >
+                                <Droplets size={14} />
+                              </button>
+                            </div>
                           </div>
-
-                          {/* Reply button */}
-                          <button
-                            onClick={() => handleReply(msg, index)}
-                            className="flex items-center space-x-1"
-                            title="Reply to this image"
-                          >
-                            <Reply size={16} className="text-gray-500" />
-                            <span className="text-sm text-gray-500">Reply</span>
-                          </button>
                         </div>
                       </div>
                     </div>
