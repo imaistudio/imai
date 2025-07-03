@@ -22,14 +22,17 @@ interface RemBGResponse {
 /**
  * Convert Buffer to base64 data URL
  */
-function bufferToBase64DataUrl(buffer: Buffer, mimeType: string = 'image/png'): string {
-  const base64 = buffer.toString('base64');
+function bufferToBase64DataUrl(
+  buffer: Buffer,
+  mimeType: string = "image/png",
+): string {
+  const base64 = buffer.toString("base64");
   return `data:${mimeType};base64,${base64}`;
 }
 
 async function removeBackground(
   imageUrl: string,
-  options: RemBGOptions = {}
+  options: RemBGOptions = {},
 ): Promise<string> {
   try {
     const { syncMode = false } = options;
@@ -41,7 +44,7 @@ async function removeBackground(
     const result = await fal.subscribe("fal-ai/bria/background/remove", {
       input: {
         image_url: imageUrl,
-        sync_mode: syncMode
+        sync_mode: syncMode,
       },
       logs: true,
       onQueueUpdate: (update) => {
@@ -75,7 +78,7 @@ async function removeBackground(
 
     if (!outputImageUrl) {
       throw new Error(
-        `No image URL found in result. Result structure: ${JSON.stringify(result)}`
+        `No image URL found in result. Result structure: ${JSON.stringify(result)}`,
       );
     }
 
@@ -95,7 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!userid) {
       return NextResponse.json(
         { status: "error", error: 'Missing "userid" parameter' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -105,16 +108,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(
         {
           status: "error",
-          error: 'Missing "image_url" parameter. This endpoint expects to be called through intentroute.',
+          error:
+            'Missing "image_url" parameter. This endpoint expects to be called through intentroute.',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    console.log("🔗 Using provided image URL for background removal:", imageUrl);
+    console.log(
+      "🔗 Using provided image URL for background removal:",
+      imageUrl,
+    );
 
     // Extract optional parameters
-    const syncMode = (formData.get("sync_mode") as string)?.toLowerCase() === "true";
+    const syncMode =
+      (formData.get("sync_mode") as string)?.toLowerCase() === "true";
 
     console.log("Starting background removal...");
     console.log(`Parameters: sync_mode=${syncMode}`);
@@ -130,14 +138,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Convert the output image to base64 for intentroute to handle
     let outputBase64: string;
 
-    if (processedImageUrl.startsWith('data:image')) {
+    if (processedImageUrl.startsWith("data:image")) {
       // Already base64
       outputBase64 = processedImageUrl;
     } else {
       // Download and convert URL to base64
       const response = await fetch(processedImageUrl);
       if (!response.ok) {
-        throw new Error(`Failed to fetch processed image: ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch processed image: ${response.statusText}`,
+        );
       }
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -151,7 +161,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(response);
   } catch (processingError) {
-    console.error("Error processing background removal request:", processingError);
+    console.error(
+      "Error processing background removal request:",
+      processingError,
+    );
 
     const response: RemBGResponse = {
       status: "error",
@@ -175,8 +188,10 @@ export async function GET(): Promise<NextResponse> {
         description: "Remove background from an image using FAL AI Bria",
         parameters: {
           userid: "string (required) - User ID from intentroute",
-          image_url: "string (required) - Image URL from intentroute (Cloudinary)",
-          sync_mode: "boolean (optional) - Wait for processing to complete (default: false)",
+          image_url:
+            "string (required) - Image URL from intentroute (Cloudinary)",
+          sync_mode:
+            "boolean (optional) - Wait for processing to complete (default: false)",
         },
       },
     },
@@ -193,4 +208,4 @@ export async function GET(): Promise<NextResponse> {
       ecommerce: "Create product mockups",
     },
   });
-} 
+}

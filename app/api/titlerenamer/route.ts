@@ -81,26 +81,28 @@ Respond with JSON only:
 
   try {
     let analysisContent: string;
-    
-    if (typeof input === 'string') {
+
+    if (typeof input === "string") {
       // New format: Complete Final Prompt
       console.log("🎯 Analyzing Complete Final Prompt for title generation");
-      
+
       // Extract key information from the generated prompt
       const prompt = input;
-      
+
       // Try to extract product type
       const productMatch = prompt.match(/TARGET PRODUCT:\s*([^-\n]+)/i);
-      const product = productMatch ? productMatch[1].trim() : '';
-      
+      const product = productMatch ? productMatch[1].trim() : "";
+
       // Try to extract color information
-      const colorMatches = prompt.match(/(?:color|colours?)[^:]*:\s*([^\.]+)/gi);
-      const colors = colorMatches ? colorMatches.slice(0, 2).join(', ') : '';
-      
+      const colorMatches = prompt.match(
+        /(?:color|colours?)[^:]*:\s*([^\.]+)/gi,
+      );
+      const colors = colorMatches ? colorMatches.slice(0, 2).join(", ") : "";
+
       // Try to extract user prompt
       const userPromptMatch = prompt.match(/USER PROMPT:\s*([^\n]+)/i);
-      const userIntent = userPromptMatch ? userPromptMatch[1].trim() : '';
-      
+      const userIntent = userPromptMatch ? userPromptMatch[1].trim() : "";
+
       analysisContent = `
 Generated Design Analysis:
 - Product: ${product}
@@ -110,7 +112,6 @@ Generated Design Analysis:
 Full Generated Prompt Context:
 ${prompt.substring(0, 800)}...
       `.trim();
-      
     } else {
       // Legacy format: Chat Messages
       console.log("📜 Analyzing chat messages for title generation");
@@ -162,14 +163,22 @@ Generate a short, descriptive title and category for this design/conversation.`;
     console.error("Error generating title:", error);
 
     // Fallback logic
-    const inputStr = typeof input === 'string' ? input : 
-      input.filter((m) => m.role === "user").pop()?.content || "";
+    const inputStr =
+      typeof input === "string"
+        ? input
+        : input.filter((m) => m.role === "user").pop()?.content || "";
     const content = inputStr.toLowerCase();
 
     if (content.includes("upscale") || content.includes("enhance")) {
       return { title: "Image Enhancement", category: "upscale" };
     }
-    if (content.includes("design") || content.includes("create") || content.includes("phone case") || content.includes("t-shirt") || content.includes("pillow")) {
+    if (
+      content.includes("design") ||
+      content.includes("create") ||
+      content.includes("phone case") ||
+      content.includes("t-shirt") ||
+      content.includes("pillow")
+    ) {
       return { title: "Design Creation", category: "design" };
     }
     if (content.includes("analyze") || content.includes("describe")) {
@@ -187,18 +196,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     console.log("📥 Titlerenamer API called");
     console.log("  - Firebase initialized:", firebaseInitialized);
-    console.log("  - Anthropic API key available:", !!process.env.ANTHROPIC_API_KEY);
+    console.log(
+      "  - Anthropic API key available:",
+      !!process.env.ANTHROPIC_API_KEY,
+    );
     console.log("  - Node environment:", process.env.NODE_ENV);
-    
+
     // Check if ANTHROPIC_API_KEY is available
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error("❌ ANTHROPIC_API_KEY environment variable is missing");
       return NextResponse.json(
-        { status: "error", error: "ANTHROPIC_API_KEY environment variable is not configured" },
+        {
+          status: "error",
+          error: "ANTHROPIC_API_KEY environment variable is not configured",
+        },
         { status: 500 },
       );
     }
-    
+
     const formData = await request.formData();
 
     const userid = (formData.get("userid") as string | null)?.trim();
@@ -213,14 +228,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (firebaseInitialized) {
       try {
         await getAuth().getUser(userid);
-        console.log("✅ Firebase user ID validated successfully for titlerenamer");
+        console.log(
+          "✅ Firebase user ID validated successfully for titlerenamer",
+        );
       } catch (error) {
-        console.warn("⚠️ Firebase user validation failed (continuing anyway):", error);
+        console.warn(
+          "⚠️ Firebase user validation failed (continuing anyway):",
+          error,
+        );
         // Don't return error - continue with title generation even if user validation fails
         // This prevents title renaming from failing due to Firebase auth issues
       }
     } else {
-      console.log("⚠️ Skipping Firebase user validation - Firebase not initialized");
+      console.log(
+        "⚠️ Skipping Firebase user validation - Firebase not initialized",
+      );
     }
 
     // Check for new format (Complete Final Prompt)
