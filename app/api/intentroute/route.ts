@@ -591,7 +591,9 @@ async function analyzeIntent(
     const hasAnyPresets = hasPresetProduct || hasPresetDesign || hasPresetColor;
 
     // 🔍 ENHANCED: Detect explicit references and previous results
-    const hasExplicitReference = formDataEntries.some(([key]) => key === "explicit_reference");
+    const hasExplicitReference = formDataEntries.some(
+      ([key]) => key === "explicit_reference",
+    );
     const hasPreviousResult = !!lastGeneratedResult?.imageUrl;
     const hasAnyImages = hasProductImage || hasDesignImage || hasColorImage;
 
@@ -724,7 +726,12 @@ async function analyzeIntent(
       ) && !hasDesignKeywords; // Only casual if no design keywords present
 
     // 🆕 Return casual conversation intent for local LLM
-    if (isCasualConversation && !hasAnyPresets && !hasExplicitReference && !hasPreviousResult) {
+    if (
+      isCasualConversation &&
+      !hasAnyPresets &&
+      !hasExplicitReference &&
+      !hasPreviousResult
+    ) {
       console.log(
         "🤖 Smart fallback detected casual conversation - routing to local LLM",
       );
@@ -756,9 +763,10 @@ async function analyzeIntent(
 
       // 🎯 SMART WORKFLOW DETECTION: Choose workflow based on combination of uploads + presets
       let workflowType = "preset_design"; // default for preset-only operations
-      
+
       // 🔧 ENHANCED: Better detection for complex reference + upload scenarios
-      const hasAnyActualImages = hasProductImage || hasDesignImage || hasColorImage;
+      const hasAnyActualImages =
+        hasProductImage || hasDesignImage || hasColorImage;
       const hasReferenceContext = hasExplicitReference || hasPreviousResult;
 
       if (hasAnyActualImages) {
@@ -775,38 +783,54 @@ async function analyzeIntent(
         // 🔧 PRIORITY 1: If ANY presets are involved with uploads or references, use preset_design workflow
         if (hasDesignPreset || hasColorPreset) {
           workflowType = "preset_design"; // Preset + upload/reference combinations
-          console.log("🎯 Presets detected with uploads/references - using preset_design workflow");
-        } 
+          console.log(
+            "🎯 Presets detected with uploads/references - using preset_design workflow",
+          );
+        }
         // 🔧 PRIORITY 2: Complex reference + upload scenarios (the failing cases!)
         else if (hasReferenceContext && hasAnyActualImages) {
           // These are the exact scenarios the user described as failing
           if (hasProductImage && hasDesignImage && hasColorImage) {
             workflowType = "full_composition"; // Product + design + color + reference
-            console.log("🎯 COMPLEX: Product + design + color images with reference - full_composition");
+            console.log(
+              "🎯 COMPLEX: Product + design + color images with reference - full_composition",
+            );
           } else if (hasProductImage && hasDesignImage) {
             workflowType = "product_design"; // Product + design + reference
-            console.log("🎯 COMPLEX: Product + design images with reference - product_design");
+            console.log(
+              "🎯 COMPLEX: Product + design images with reference - product_design",
+            );
           } else if (hasProductImage && hasColorImage) {
             workflowType = "product_color"; // Product + color + reference
-            console.log("🎯 COMPLEX: Product + color images with reference - product_color");
+            console.log(
+              "🎯 COMPLEX: Product + color images with reference - product_color",
+            );
           } else if (hasDesignImage && hasColorImage) {
             workflowType = "full_composition"; // Design + color + reference
-            console.log("🎯 COMPLEX: Design + color images with reference - full_composition");
+            console.log(
+              "🎯 COMPLEX: Design + color images with reference - full_composition",
+            );
           } else if (hasDesignImage) {
             workflowType = "product_design"; // Design + reference (reference becomes product)
-            console.log("🎯 COMPLEX: Design image with reference - product_design");
+            console.log(
+              "🎯 COMPLEX: Design image with reference - product_design",
+            );
           } else if (hasColorImage) {
             workflowType = "product_color"; // Color + reference (reference becomes product)
-            console.log("🎯 COMPLEX: Color image with reference - product_color");
+            console.log(
+              "🎯 COMPLEX: Color image with reference - product_color",
+            );
           } else if (hasProductImage) {
             workflowType = "product_prompt"; // Product + reference (for modification)
-            console.log("🎯 COMPLEX: Product image with reference - product_prompt");
+            console.log(
+              "🎯 COMPLEX: Product image with reference - product_prompt",
+            );
           } else {
             workflowType = "product_prompt"; // Reference only with prompt
             console.log("🎯 COMPLEX: Reference only - product_prompt");
           }
         }
-        // 🔧 PRIORITY 3: Only actual images, no presets, no references - use image-based workflows  
+        // 🔧 PRIORITY 3: Only actual images, no presets, no references - use image-based workflows
         else if (hasAnyActualImages && !hasReferenceContext) {
           if (hasProductImage && hasDesignImage && hasColorImage) {
             workflowType = "full_composition"; // All 3 actual images (no presets/references)
@@ -855,7 +879,10 @@ async function analyzeIntent(
     }
 
     // 🎯 ENHANCED: Direct routing for actual image uploads with comprehensive reference handling
-    if (((hasDesignImage || hasColorImage) && !hasAnyPresets) || (hasAnyImages && hasExplicitReference)) {
+    if (
+      ((hasDesignImage || hasColorImage) && !hasAnyPresets) ||
+      (hasAnyImages && hasExplicitReference)
+    ) {
       console.log(
         `Smart fallback routing directly to design endpoint - images detected (uploads: ${hasDesignImage || hasColorImage}, explicit ref: ${hasExplicitReference})`,
       );
@@ -865,7 +892,7 @@ async function analyzeIntent(
 
       // 🎯 ENHANCED WORKFLOW DETECTION: Handle all complex scenarios including explicit references
       let workflowType = "prompt_only"; // default
-      
+
       // Complex scenarios with explicit references (the failing cases!)
       if (hasExplicitReference) {
         if (hasProductImage && hasDesignImage && hasColorImage) {
@@ -893,7 +920,7 @@ async function analyzeIntent(
         workflowType = "product_design"; // Previous result + design only
       } else if (hasPreviousResult && !hasDesignImage && hasColorImage) {
         workflowType = "product_color"; // Previous result + color only
-      } 
+      }
       // Fresh upload scenarios (no references)
       else if (hasProductImage && hasDesignImage && hasColorImage) {
         workflowType = "full_composition"; // Fresh product + design + color (all 3 images)
@@ -917,14 +944,16 @@ async function analyzeIntent(
           workflow_type: workflowType,
           quality: "auto",
           clear_context: shouldClearContext,
-          ...(hasPreviousResult && !hasExplicitReference ? { reference_image_url: lastGeneratedResult.imageUrl } : {}),
+          ...(hasPreviousResult && !hasExplicitReference
+            ? { reference_image_url: lastGeneratedResult.imageUrl }
+            : {}),
         },
         requiresFiles: true,
         explanation: hasExplicitReference
           ? `Complex reference scenario detected: ${workflowType} with explicit reference - preserving context`
           : hasPreviousResult
-          ? `User uploaded images with auto-reference to previous result: ${workflowType} - preserving context`
-          : `Fresh image upload: ${workflowType} - new design request`,
+            ? `User uploaded images with auto-reference to previous result: ${workflowType} - preserving context`
+            : `Fresh image upload: ${workflowType} - new design request`,
       };
     }
 
@@ -3949,28 +3978,34 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 🔍 ENHANCED DEBUGGING: Add comprehensive logging for complex reference scenarios
     console.log(`🔍 COMPLEX SCENARIO DEBUGGING - Input Analysis:`);
-    console.log(`📋 Form data entries:`, Array.from(formData.entries()).map(([key, value]: [string, any]) => ({
-      key,
-      valueType: typeof value,
-      isFile: value instanceof File,
-      fileName: value instanceof File ? value.name : 'N/A'
-    })));
-    console.log(`📋 Current imageUrls:`, Object.keys(imageUrls).map(key => ({
-      key, 
-      url: imageUrls[key]?.substring(0, 50) + '...'
-    })));
+    console.log(
+      `📋 Form data entries:`,
+      Array.from(formData.entries()).map(([key, value]: [string, any]) => ({
+        key,
+        valueType: typeof value,
+        isFile: value instanceof File,
+        fileName: value instanceof File ? value.name : "N/A",
+      })),
+    );
+    console.log(
+      `📋 Current imageUrls:`,
+      Object.keys(imageUrls).map((key) => ({
+        key,
+        url: imageUrls[key]?.substring(0, 50) + "...",
+      })),
+    );
     console.log(`📋 Reference result:`, {
       hasExplicitReference: !!explicitReference,
       hasLastGeneratedResult: !!lastGeneratedResult,
-      referenceUrl: referenceResult?.imageUrl?.substring(0, 50) + '...',
-      inheritedPresets: explicitReference?.inheritedPresets
+      referenceUrl: referenceResult?.imageUrl?.substring(0, 50) + "...",
+      inheritedPresets: explicitReference?.inheritedPresets,
     });
     console.log(`📋 Intent analysis:`, {
       intent: intentAnalysis.intent,
       endpoint: intentAnalysis.endpoint,
       workflowType: intentAnalysis.parameters?.workflow_type,
       shouldClearContext,
-      explanation: intentAnalysis.explanation?.substring(0, 100) + '...'
+      explanation: intentAnalysis.explanation?.substring(0, 100) + "...",
     });
 
     // 🚨 NEW: Check if this is a fresh design request that should ignore context
@@ -3979,9 +4014,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         `🆕 Skipping context reference for fresh design request - clear_context=true`,
       );
     }
-    // 🎯 ENHANCED: Handle complex scenarios with both new uploads AND references  
+    // 🎯 ENHANCED: Handle complex scenarios with both new uploads AND references
     else if (referenceResult?.imageUrl && Object.keys(imageUrls).length > 0) {
-      const sourceType = explicitReference ? "explicit reference" : "previous result";
+      const sourceType = explicitReference
+        ? "explicit reference"
+        : "previous result";
       console.log(
         `🎯 COMPLEX SCENARIO: New images uploaded AND ${sourceType} available - combining both!`,
       );
@@ -3990,166 +4027,244 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       // 🔧 COMPLEX REFERENCE HANDLING: Intelligently assign reference based on what's missing
       const workflowType = intentAnalysis.parameters.workflow_type;
-      
+
       // 🎯 CRITICAL FIX: Check ALL possible image keys (including uploaded numbered versions)
       const allCurrentImageKeys = Object.keys(imageUrls);
       const hasProductSlot = !!imageUrls.product_image;
-      const hasDesignSlot = !!imageUrls.design_image || allCurrentImageKeys.some(key => key.includes('design_image'));
-      const hasColorSlot = !!imageUrls.color_image || allCurrentImageKeys.some(key => key.includes('color_image'));
+      const hasDesignSlot =
+        !!imageUrls.design_image ||
+        allCurrentImageKeys.some((key) => key.includes("design_image"));
+      const hasColorSlot =
+        !!imageUrls.color_image ||
+        allCurrentImageKeys.some((key) => key.includes("color_image"));
 
-      console.log(`🔍 Slot availability: product=${hasProductSlot}, design=${hasDesignSlot}, color=${hasColorSlot}, workflow=${workflowType}`);
-      console.log(`🔍 Current image keys detected: [${allCurrentImageKeys.join(', ')}]`);
+      console.log(
+        `🔍 Slot availability: product=${hasProductSlot}, design=${hasDesignSlot}, color=${hasColorSlot}, workflow=${workflowType}`,
+      );
+      console.log(
+        `🔍 Current image keys detected: [${allCurrentImageKeys.join(", ")}]`,
+      );
 
       // 🎯 CRITICAL: Check if user selected a different product preset than the reference
-      const currentProductPreset = formData.get("preset_product_type") as string;
-      const inheritedProductPreset = explicitReference?.inheritedPresets?.preset_product_type;
-      const isDifferentProductPreset = currentProductPreset && 
+      const currentProductPreset = formData.get(
+        "preset_product_type",
+      ) as string;
+      const inheritedProductPreset =
+        explicitReference?.inheritedPresets?.preset_product_type;
+      const isDifferentProductPreset =
+        currentProductPreset &&
         inheritedProductPreset &&
         currentProductPreset !== inheritedProductPreset &&
         !currentProductPreset.includes("undefined") &&
         !currentProductPreset.includes("null");
-      
-      console.log(`🔍 Product preset conflict check: current="${currentProductPreset}", inherited="${inheritedProductPreset}", isDifferent=${isDifferentProductPreset}`);
-      
+
+      console.log(
+        `🔍 Product preset conflict check: current="${currentProductPreset}", inherited="${inheritedProductPreset}", isDifferent=${isDifferentProductPreset}`,
+      );
+
       if (isDifferentProductPreset) {
-        console.log(`🎯 USER CHOICE PRIORITY: User selected different product preset "${currentProductPreset}" - using preset instead of reference image`);
+        console.log(
+          `🎯 USER CHOICE PRIORITY: User selected different product preset "${currentProductPreset}" - using preset instead of reference image`,
+        );
         // Don't add reference as product_image - let the new preset be used instead
         intentAnalysis.parameters.use_new_product_preset = true;
         intentAnalysis.parameters.reference_for_inspiration_only = true;
-        
+
         // Add reference only for design/color slots, never as product
         if (workflowType === "full_composition" && !hasDesignSlot) {
           imageUrls.design_image = referenceResult.imageUrl;
-          console.log(`✅ Added ${sourceType} as design_image for inspiration (user chose different product)`);
+          console.log(
+            `✅ Added ${sourceType} as design_image for inspiration (user chose different product)`,
+          );
         } else if (workflowType === "full_composition" && !hasColorSlot) {
           imageUrls.color_image = referenceResult.imageUrl;
-          console.log(`✅ Added ${sourceType} as color_image for inspiration (user chose different product)`);
+          console.log(
+            `✅ Added ${sourceType} as color_image for inspiration (user chose different product)`,
+          );
         } else if (workflowType === "product_design" && !hasDesignSlot) {
           imageUrls.design_image = referenceResult.imageUrl;
-          console.log(`✅ Added ${sourceType} as design_image for inspiration (user chose different product)`);
+          console.log(
+            `✅ Added ${sourceType} as design_image for inspiration (user chose different product)`,
+          );
         } else if (workflowType === "product_color" && !hasColorSlot) {
           imageUrls.color_image = referenceResult.imageUrl;
-          console.log(`✅ Added ${sourceType} as color_image for inspiration (user chose different product)`);
+          console.log(
+            `✅ Added ${sourceType} as color_image for inspiration (user chose different product)`,
+          );
         } else if (workflowType === "preset_design") {
           // 🎯 CRITICAL FIX: preset_design workflow with product conflict - use reference for missing design/color
           if (!hasDesignSlot && !hasColorSlot) {
             // If both missing, prioritize design
             imageUrls.design_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as design_image for preset_design (user chose different product, missing both)`);
+            console.log(
+              `✅ Added ${sourceType} as design_image for preset_design (user chose different product, missing both)`,
+            );
           } else if (!hasDesignSlot) {
             imageUrls.design_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as design_image for preset_design (user chose different product, missing design)`);
+            console.log(
+              `✅ Added ${sourceType} as design_image for preset_design (user chose different product, missing design)`,
+            );
           } else if (!hasColorSlot) {
             imageUrls.color_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as color_image for preset_design (user chose different product, missing color)`);
+            console.log(
+              `✅ Added ${sourceType} as color_image for preset_design (user chose different product, missing color)`,
+            );
           } else {
-            console.log(`ℹ️ User chose different product - keeping reference for context only (preset_design has all slots)`);
+            console.log(
+              `ℹ️ User chose different product - keeping reference for context only (preset_design has all slots)`,
+            );
           }
         } else {
-          console.log(`ℹ️ User chose different product - keeping reference for context only (no slot assignment)`);
+          console.log(
+            `ℹ️ User chose different product - keeping reference for context only (no slot assignment)`,
+          );
         }
       } else {
-        console.log(`🔍 No product preset conflict - proceeding with normal slot assignment`);
+        console.log(
+          `🔍 No product preset conflict - proceeding with normal slot assignment`,
+        );
         // 🎯 ASSIGN REFERENCE TO MISSING SLOT based on workflow needs
         if (workflowType === "full_composition") {
           // Full composition needs product + design + color
           if (!hasProductSlot) {
             imageUrls.product_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as product_image for full_composition (missing product)`);
+            console.log(
+              `✅ Added ${sourceType} as product_image for full_composition (missing product)`,
+            );
           } else if (!hasDesignSlot) {
             imageUrls.design_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as design_image for full_composition (missing design)`);
+            console.log(
+              `✅ Added ${sourceType} as design_image for full_composition (missing design)`,
+            );
           } else if (!hasColorSlot) {
             imageUrls.color_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as color_image for full_composition (missing color)`);
+            console.log(
+              `✅ Added ${sourceType} as color_image for full_composition (missing color)`,
+            );
           } else {
-            console.log(`⚠️ Full composition already has all slots - using reference as product_image (override)`);
+            console.log(
+              `⚠️ Full composition already has all slots - using reference as product_image (override)`,
+            );
             imageUrls.product_image = referenceResult.imageUrl;
           }
         } else if (workflowType === "product_design") {
           // Product + design workflow
           if (!hasProductSlot) {
             imageUrls.product_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as product_image for product_design (missing product)`);
+            console.log(
+              `✅ Added ${sourceType} as product_image for product_design (missing product)`,
+            );
           } else if (!hasDesignSlot) {
             imageUrls.design_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as design_image for product_design (missing design)`);
+            console.log(
+              `✅ Added ${sourceType} as design_image for product_design (missing design)`,
+            );
           } else {
-            console.log(`⚠️ Product_design already has both slots - using reference as product_image (override)`);
+            console.log(
+              `⚠️ Product_design already has both slots - using reference as product_image (override)`,
+            );
             imageUrls.product_image = referenceResult.imageUrl;
           }
         } else if (workflowType === "product_color") {
           // Product + color workflow
           if (!hasProductSlot) {
             imageUrls.product_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as product_image for product_color (missing product)`);
+            console.log(
+              `✅ Added ${sourceType} as product_image for product_color (missing product)`,
+            );
           } else if (!hasColorSlot) {
             imageUrls.color_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as color_image for product_color (missing color)`);
+            console.log(
+              `✅ Added ${sourceType} as color_image for product_color (missing color)`,
+            );
           } else {
-            console.log(`⚠️ Product_color already has both slots - using reference as product_image (override)`);
+            console.log(
+              `⚠️ Product_color already has both slots - using reference as product_image (override)`,
+            );
             imageUrls.product_image = referenceResult.imageUrl;
           }
         } else {
           // Default: use reference as product_image if not present, otherwise as design_image
           if (!hasProductSlot) {
             imageUrls.product_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as product_image (default - missing product)`);
+            console.log(
+              `✅ Added ${sourceType} as product_image (default - missing product)`,
+            );
           } else if (!hasDesignSlot) {
             imageUrls.design_image = referenceResult.imageUrl;
-            console.log(`✅ Added ${sourceType} as design_image (default - missing design)`);
+            console.log(
+              `✅ Added ${sourceType} as design_image (default - missing design)`,
+            );
           } else {
-            console.log(`ℹ️ All slots filled - keeping reference for context only`);
+            console.log(
+              `ℹ️ All slots filled - keeping reference for context only`,
+            );
           }
         }
       }
 
       // 🎯 CRITICAL: Also add reference_image_url parameter for the design API
       if (!intentAnalysis.parameters.reference_image_url) {
-        intentAnalysis.parameters.reference_image_url = referenceResult.imageUrl;
-        console.log(`✅ Added reference_image_url parameter for complex scenario`);
+        intentAnalysis.parameters.reference_image_url =
+          referenceResult.imageUrl;
+        console.log(
+          `✅ Added reference_image_url parameter for complex scenario`,
+        );
       }
 
       // 🎯 CRITICAL FIX: Override Claude's workflow choice for complex reference scenarios
       // Claude doesn't always understand the complexity when references are involved
       const hasReferenceAsProduct = !!imageUrls.product_image;
-      
+
       // 🔧 FIX: Check ALL possible design/color image keys (including numbered versions)
       const allImageKeys = Object.keys(imageUrls);
-      const hasUploadedDesign = allImageKeys.some(key => 
-        key.includes('design_image') || key === 'design_image'
+      const hasUploadedDesign = allImageKeys.some(
+        (key) => key.includes("design_image") || key === "design_image",
       );
-      const hasUploadedColor = allImageKeys.some(key => 
-        key.includes('color_image') || key === 'color_image'
+      const hasUploadedColor = allImageKeys.some(
+        (key) => key.includes("color_image") || key === "color_image",
       );
       const originalWorkflow = intentAnalysis.parameters.workflow_type;
-      
-      console.log(`🔍 Image key detection: allKeys=[${allImageKeys.join(', ')}], hasDesign=${hasUploadedDesign}, hasColor=${hasUploadedColor}`);
-      
+
+      console.log(
+        `🔍 Image key detection: allKeys=[${allImageKeys.join(", ")}], hasDesign=${hasUploadedDesign}, hasColor=${hasUploadedColor}`,
+      );
+
       if (hasReferenceAsProduct && hasUploadedDesign && hasUploadedColor) {
         intentAnalysis.parameters.workflow_type = "full_composition";
-        console.log(`🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to full_composition (reference + design + color)`);
+        console.log(
+          `🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to full_composition (reference + design + color)`,
+        );
       } else if (hasReferenceAsProduct && hasUploadedDesign) {
         intentAnalysis.parameters.workflow_type = "product_design";
-        console.log(`🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to product_design (reference + design)`);
+        console.log(
+          `🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to product_design (reference + design)`,
+        );
       } else if (hasReferenceAsProduct && hasUploadedColor) {
         intentAnalysis.parameters.workflow_type = "product_color";
-        console.log(`🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to product_color (reference + color)`);
+        console.log(
+          `🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to product_color (reference + color)`,
+        );
       } else if (hasReferenceAsProduct) {
         intentAnalysis.parameters.workflow_type = "product_prompt";
-        console.log(`🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to product_prompt (reference only)`);
+        console.log(
+          `🔧 OVERRIDE: Changed workflow from ${originalWorkflow} to product_prompt (reference only)`,
+        );
       }
-      
+
       const finalHasProduct = !!imageUrls.product_image;
-      const finalHasDesign = allImageKeys.some(key => key.includes('design_image') || key === 'design_image');
-      const finalHasColor = allImageKeys.some(key => key.includes('color_image') || key === 'color_image');
-      console.log(`🎯 FINAL WORKFLOW: ${intentAnalysis.parameters.workflow_type} with slots: product=${finalHasProduct}, design=${finalHasDesign}, color=${finalHasColor}`);
+      const finalHasDesign = allImageKeys.some(
+        (key) => key.includes("design_image") || key === "design_image",
+      );
+      const finalHasColor = allImageKeys.some(
+        (key) => key.includes("color_image") || key === "color_image",
+      );
+      console.log(
+        `🎯 FINAL WORKFLOW: ${intentAnalysis.parameters.workflow_type} with slots: product=${finalHasProduct}, design=${finalHasDesign}, color=${finalHasColor}`,
+      );
     }
     // 🔧 ORIGINAL: Handle scenarios with ONLY references (no new uploads)
-    else if (
-      referenceResult?.imageUrl &&
-      Object.keys(imageUrls).length === 0
-    ) {
+    else if (referenceResult?.imageUrl && Object.keys(imageUrls).length === 0) {
       const sourceType = explicitReference
         ? "explicit reference"
         : "previous result";
@@ -4357,44 +4472,65 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // 🎯 CRITICAL FIX: Override Claude's workflow choice for ALL reference scenarios
         // This happens after imageUrls assignment so we know what slots are filled
         const hasReferenceAsProduct = !!imageUrls.product_image;
-        
+
         // 🔧 FIX: Check ALL possible design/color image keys (including numbered versions)
         const allImageKeys = Object.keys(imageUrls);
-        const hasActualDesign = allImageKeys.some(key => 
-          key.includes('design_image') || key === 'design_image'
+        const hasActualDesign = allImageKeys.some(
+          (key) => key.includes("design_image") || key === "design_image",
         );
-        const hasActualColor = allImageKeys.some(key => 
-          key.includes('color_image') || key === 'color_image'
+        const hasActualColor = allImageKeys.some(
+          (key) => key.includes("color_image") || key === "color_image",
         );
-        
+
         // 🔧 CRITICAL: Check if user has actual presets selected (not just inherited)
-        const hasCurrentPresets = formData.get("preset_design_style") || 
-                                 formData.get("preset_color_palette") ||
-                                 formData.get("preset_product_type");
-        
+        const hasCurrentPresets =
+          formData.get("preset_design_style") ||
+          formData.get("preset_color_palette") ||
+          formData.get("preset_product_type");
+
         const originalWorkflow = intentAnalysis.parameters.workflow_type;
-        
-        // 🔧 CRITICAL: Don't override if user has explicit presets - keep original workflow  
+
+        // 🔧 CRITICAL: Don't override if user has explicit presets - keep original workflow
         if (hasCurrentPresets) {
-          console.log(`🎯 PRESET PRIORITY: User has explicit presets - keeping original workflow ${originalWorkflow} (no reference override)`);
+          console.log(
+            `🎯 PRESET PRIORITY: User has explicit presets - keeping original workflow ${originalWorkflow} (no reference override)`,
+          );
         } else if (hasReferenceAsProduct && hasActualDesign && hasActualColor) {
           intentAnalysis.parameters.workflow_type = "full_composition";
-          console.log(`🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to full_composition (reference + design + color)`);
+          console.log(
+            `🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to full_composition (reference + design + color)`,
+          );
         } else if (hasReferenceAsProduct && hasActualDesign) {
           intentAnalysis.parameters.workflow_type = "product_design";
-          console.log(`🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to product_design (reference + design)`);
+          console.log(
+            `🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to product_design (reference + design)`,
+          );
         } else if (hasReferenceAsProduct && hasActualColor) {
           intentAnalysis.parameters.workflow_type = "product_color";
-          console.log(`🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to product_color (reference + color)`);
-        } else if (hasReferenceAsProduct && !hasActualDesign && !hasActualColor) {
+          console.log(
+            `🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to product_color (reference + color)`,
+          );
+        } else if (
+          hasReferenceAsProduct &&
+          !hasActualDesign &&
+          !hasActualColor
+        ) {
           intentAnalysis.parameters.workflow_type = "product_prompt";
-          console.log(`🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to product_prompt (reference only)`);
+          console.log(
+            `🔧 REFERENCE OVERRIDE: Changed workflow from ${originalWorkflow} to product_prompt (reference only)`,
+          );
         }
-        
+
         const finalRefHasProduct = !!imageUrls.product_image;
-        const finalRefHasDesign = allImageKeys.some(key => key.includes('design_image') || key === 'design_image');
-        const finalRefHasColor = allImageKeys.some(key => key.includes('color_image') || key === 'color_image');
-        console.log(`🎯 FINAL REFERENCE WORKFLOW: ${intentAnalysis.parameters.workflow_type} with slots: product=${finalRefHasProduct}, design=${finalRefHasDesign}, color=${finalRefHasColor}, hasPresets=${!!hasCurrentPresets}`);
+        const finalRefHasDesign = allImageKeys.some(
+          (key) => key.includes("design_image") || key === "design_image",
+        );
+        const finalRefHasColor = allImageKeys.some(
+          (key) => key.includes("color_image") || key === "color_image",
+        );
+        console.log(
+          `🎯 FINAL REFERENCE WORKFLOW: ${intentAnalysis.parameters.workflow_type} with slots: product=${finalRefHasProduct}, design=${finalRefHasDesign}, color=${finalRefHasColor}, hasPresets=${!!hasCurrentPresets}`,
+        );
       }
 
       // Also add to intent parameters if not already set and NOT a fresh request
