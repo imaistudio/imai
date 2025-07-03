@@ -872,13 +872,6 @@ export default function ChatWindow({
                         </div>
                       )}
                     </div>
-                    <button
-                      onClick={() => handleReply(msg, index)}
-                      className="hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                      title="Reply to this message"
-                    >
-                      <Reply size={16} className="text-gray-500" />
-                    </button>
                   </div>
                 </div>
               ) : (
