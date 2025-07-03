@@ -3,10 +3,9 @@ Todo
 1. New Chat Show Default Promot With horizontal Scrooling 
 2. Pagination to Explore Page and firestore database 
 3. Stripe Payment Gateway 
-4. add icons in the chatimages call api routes 
-5. add sharing system model | public link | shareable chat window 
-6. fix all the mobile views pixel Perfect
-7. copy paste drag and drop system in chat window 
+4. add sharing system model | public link | shareable chat window 
+5. fix all the mobile views pixel Perfect
+6. copy paste drag and drop system in chat window 
 
 Extras 
 

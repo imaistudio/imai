@@ -1003,6 +1003,7 @@ export default function ChatWindow({
                                   >
                                     <UnfoldHorizontal
                                       size={16}
+                                      onClick={() => handleReframe(img)}
                                       className="text-black dark:text-white"
                                     />
                                   </button>
