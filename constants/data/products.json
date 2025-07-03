@@ -1275,9 +1275,18 @@
       "inthemoodforcolor": [
         "/inputs/designs/officesupplies/inthemoodforcolor/inthemoodforcolor1.webp"
       ],
+      "understatedelegance": [
+        "/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
+      ],
+
       "artfulelegance": [
         "/inputs/designs/officesupplies/artfulelegance/artfulelegance1.webp",
         "/inputs/designs/officesupplies/artfulelegance/artfulelegance2.webp"
+      ],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
       ],
       "preppyclassic": [
         "/inputs/designs/officesupplies/preppyclassic/preppyclassic1.webp",
@@ -1297,6 +1306,18 @@
       ],
       "retroencounters": [
         "/inputs/designs/officesupplies/retroencounters/retroencounters1.webp"
+      ],
+      "eclectictraveler": [
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves1.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves2.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves3.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves4.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves5.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves6.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves7.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves8.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves9.webp",
+        "/inputs/designs/general/eclectictravellerscarves/eclectictravellerscarves10.webp"
       ],
       "mediterraneanfeel": [
         "/inputs/designs/officesupplies/mediteraneanfeel/mediteraneanfeel1.webp"
