@@ -57,13 +57,11 @@ interface ReferencedMessage {
   referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode for contextual replies
 }
 
-
 interface ChatWindowProps {
   chatId: string;
   onReplyToMessage?: (message: ReferencedMessage) => void;
   onTitleRenamed?: (chatId: string, newTitle: string, category: string) => void; // For backward compatibility
 }
-
 
 export default function ChatWindow({
   chatId,
@@ -76,9 +74,11 @@ export default function ChatWindow({
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
   const [dislikedImages, setDislikedImages] = useState<Set<string>>(new Set());
-  
+
   // 🔧 NEW: State for reference mode selection
-  const [referenceMode, setReferenceMode] = useState<"product" | "color" | "design">("product");
+  const [referenceMode, setReferenceMode] = useState<
+    "product" | "color" | "design"
+  >("product");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -425,17 +425,17 @@ export default function ChatWindow({
   // Format analysis object into readable text
   const formatAnalysisObject = (analysisObj: any): string => {
     let formattedText = "";
-    
+
     Object.entries(analysisObj).forEach(([category, details]) => {
       // Capitalize category name
       const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
       formattedText += `🎨 **${categoryName}:**\n`;
-      
+
       if (typeof details === "object" && details !== null) {
         // Handle nested objects
         Object.entries(details).forEach(([key, value]) => {
           const keyName = key.charAt(0).toUpperCase() + key.slice(1);
-          
+
           if (Array.isArray(value)) {
             formattedText += `• ${keyName}: ${value.join(", ")}\n`;
           } else {
@@ -446,255 +446,277 @@ export default function ChatWindow({
         // Handle simple values
         formattedText += `• ${details}\n`;
       }
-      
+
       formattedText += "\n";
     });
-    
+
     return formattedText;
   };
 
   // Handle analyze image action
-  const handleAnalyzeImage = useCallback(async (imageUrl: string) => {
-    if (!userId || !chatId) {
-      console.error("User not authenticated or no chat ID");
-      return;
-    }
+  const handleAnalyzeImage = useCallback(
+    async (imageUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
 
-    console.log("🔍 Starting image analysis for:", imageUrl);
+      console.log("🔍 Starting image analysis for:", imageUrl);
 
-    try {
+      try {
+        // Create loading message
+        const loadingMessage: ChatMessage = {
+          id: `analysis-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Analyzing image...",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+          isLoading: true,
+        };
+
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Call analyze image API
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("image_url", imageUrl);
+
+        const response = await fetch("/api/analyzeimage", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        // Format the analysis result
+        let analysisText = "Image Analysis:\n\n";
+
+        if (result.status === "success" && result.result) {
+          if (result.result.raw_analysis) {
+            // Try to parse JSON from raw_analysis
+            try {
+              const parsedAnalysis = JSON.parse(result.result.raw_analysis);
+              analysisText += formatAnalysisObject(parsedAnalysis);
+            } catch {
+              // If not JSON, use as is
+              analysisText += result.result.raw_analysis;
+            }
+          } else {
+            // Format structured analysis
+            analysisText += formatAnalysisObject(result.result);
+          }
+        } else {
+          analysisText += "Unable to analyze the image at this time.";
+        }
+
+        // Create analysis result message
+        const analysisMessage: ChatMessage = {
+          id: `analysis-result-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: analysisText,
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with the analysis result
+        // First, get current messages to replace loading message
+        const chatDoc = await getDocs(
+          query(
+            collection(firestore, `chats/${userId}/prompts`),
+            where("__name__", "==", chatId),
+          ),
+        );
+
+        if (!chatDoc.empty) {
+          const chatData = chatDoc.docs[0].data();
+          const currentMessages = chatData.messages || [];
+
+          // Replace loading message with analysis result
+          const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+            msg.id === loadingMessage.id ? analysisMessage : msg,
+          );
+
+          await updateDoc(chatRef, {
+            messages: updatedMessages,
+          });
+        }
+
+        console.log("✅ Analysis message saved to chat");
+      } catch (error) {
+        console.error("❌ Image analysis failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `analysis-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't analyze the image. Please try again later.",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+          await updateDoc(chatRef, {
+            messages: arrayUnion(errorMessage),
+          });
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
+  // Handle reframe image to landscape
+  const handleReframe = useCallback(
+    async (imageUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log("🖼️ Starting image reframe for:", imageUrl);
+
       // Create loading message
       const loadingMessage: ChatMessage = {
-        id: `analysis-${Date.now()}`,
+        id: `reframe-${Date.now()}`,
         sender: "agent",
-        type: "prompt",
-        text: "Analyzing image...",
+        type: "images",
+        text: "Reframing image to landscape...",
         chatId: chatId,
         createdAt: Timestamp.now(),
         isLoading: true,
       };
 
-      // Add loading message to Firestore
-      const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-      await updateDoc(chatRef, {
-        messages: arrayUnion(loadingMessage),
-      });
-
-      // Call analyze image API
-      const formData = new FormData();
-      formData.append("userid", userId);
-      formData.append("image_url", imageUrl);
-
-      const response = await fetch("/api/analyzeimage", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-
-      // Format the analysis result
-      let analysisText = "Image Analysis:\n\n";
-      
-      if (result.status === "success" && result.result) {
-        if (result.result.raw_analysis) {
-          // Try to parse JSON from raw_analysis
-          try {
-            const parsedAnalysis = JSON.parse(result.result.raw_analysis);
-            analysisText += formatAnalysisObject(parsedAnalysis);
-          } catch {
-            // If not JSON, use as is
-            analysisText += result.result.raw_analysis;
-          }
-        } else {
-          // Format structured analysis
-          analysisText += formatAnalysisObject(result.result);
-        }
-      } else {
-        analysisText += "Unable to analyze the image at this time.";
-      }
-
-      // Create analysis result message
-      const analysisMessage: ChatMessage = {
-        id: `analysis-result-${Date.now()}`,
-        sender: "agent",
-        type: "prompt",
-        text: analysisText,
-        chatId: chatId,
-        createdAt: Timestamp.now(),
-      };
-
-      // Update Firestore with the analysis result
-      // First, get current messages to replace loading message
-      const chatDoc = await getDocs(query(collection(firestore, `chats/${userId}/prompts`), where("__name__", "==", chatId)));
-      
-      if (!chatDoc.empty) {
-        const chatData = chatDoc.docs[0].data();
-        const currentMessages = chatData.messages || [];
-        
-        // Replace loading message with analysis result
-        const updatedMessages = currentMessages.map((msg: ChatMessage) => 
-          msg.id === loadingMessage.id ? analysisMessage : msg
-        );
-
-        await updateDoc(chatRef, {
-          messages: updatedMessages,
-        });
-      }
-
-      console.log("✅ Analysis message saved to chat");
-
-    } catch (error) {
-      console.error("❌ Image analysis failed:", error);
-      
-      // Create error message
-      const errorMessage: ChatMessage = {
-        id: `analysis-error-${Date.now()}`,
-        sender: "agent",
-        type: "prompt",
-        text: "Sorry, I couldn't analyze the image. Please try again later.",
-        chatId: chatId,
-        createdAt: Timestamp.now(),
-      };
-
-      // Update Firestore with error message
       try {
+        // Add loading message to Firestore
         const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
         await updateDoc(chatRef, {
-          messages: arrayUnion(errorMessage),
+          messages: arrayUnion(loadingMessage),
         });
-      } catch (updateError) {
-        console.error("❌ Failed to save error message:", updateError);
-      }
-    }
-  }, [userId, chatId]);
 
-  // Handle reframe image to landscape
-  const handleReframe = useCallback(async (imageUrl: string) => {
-    if (!userId || !chatId) {
-      console.error("User not authenticated or no chat ID");
-      return;
-    }
+        // Call reframe API
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("image_url", imageUrl);
+        formData.append("imageSize", "landscape");
 
-    console.log("🖼️ Starting image reframe for:", imageUrl);
+        const response = await fetch("/api/reframe", {
+          method: "POST",
+          body: formData,
+        });
 
-    // Create loading message
-    const loadingMessage: ChatMessage = {
-      id: `reframe-${Date.now()}`,
-      sender: "agent",
-      type: "images",
-      text: "Reframing image to landscape...",
-      chatId: chatId,
-      createdAt: Timestamp.now(),
-      isLoading: true,
-    };
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
 
-    try {
+        const result = await response.json();
 
-      // Add loading message to Firestore
-      const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-      await updateDoc(chatRef, {
-        messages: arrayUnion(loadingMessage),
-      });
+        if (
+          result.status === "success" &&
+          result.result &&
+          result.result.imageUrl
+        ) {
+          // Create reframed image message
+          const reframeMessage: ChatMessage = {
+            id: `reframe-result-${Date.now()}`,
+            sender: "agent",
+            type: "images",
+            text: "Here's your landscape reframed image:",
+            images: [result.result.imageUrl],
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
 
-      // Call reframe API
-      const formData = new FormData();
-      formData.append("userid", userId);
-      formData.append("image_url", imageUrl);
-      formData.append("imageSize", "landscape");
+          // Update Firestore with the reframed image
+          // First, get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
 
-      const response = await fetch("/api/reframe", {
-        method: "POST",
-        body: formData,
-      });
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
+            // Replace loading message with reframe result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? reframeMessage : msg,
+            );
 
-      const result = await response.json();
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
 
-      if (result.status === "success" && result.result && result.result.imageUrl) {
-        // Create reframed image message
-        const reframeMessage: ChatMessage = {
-          id: `reframe-result-${Date.now()}`,
+          console.log("✅ Reframed image saved to chat");
+        } else {
+          throw new Error("Invalid response from reframe API");
+        }
+      } catch (error) {
+        console.error("❌ Image reframe failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `reframe-error-${Date.now()}`,
           sender: "agent",
-          type: "images",
-          text: "Here's your landscape reframed image:",
-          images: [result.result.imageUrl],
+          type: "prompt",
+          text: "Sorry, I couldn't reframe the image. Please try again later.",
           chatId: chatId,
           createdAt: Timestamp.now(),
         };
 
-        // Update Firestore with the reframed image
-        // First, get current messages to replace loading message
-        const chatDoc = await getDocs(query(collection(firestore, `chats/${userId}/prompts`), where("__name__", "==", chatId)));
-        
-        if (!chatDoc.empty) {
-          const chatData = chatDoc.docs[0].data();
-          const currentMessages = chatData.messages || [];
-          
-          // Replace loading message with reframe result
-          const updatedMessages = currentMessages.map((msg: ChatMessage) => 
-            msg.id === loadingMessage.id ? reframeMessage : msg
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+
+          // Get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
           );
 
-          await updateDoc(chatRef, {
-            messages: updatedMessages,
-          });
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with error message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          } else {
+            // If no chat found, just add the error message
+            await updateDoc(chatRef, {
+              messages: arrayUnion(errorMessage),
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
         }
-
-        console.log("✅ Reframed image saved to chat");
-      } else {
-        throw new Error("Invalid response from reframe API");
       }
-
-    } catch (error) {
-      console.error("❌ Image reframe failed:", error);
-      
-      // Create error message
-      const errorMessage: ChatMessage = {
-        id: `reframe-error-${Date.now()}`,
-        sender: "agent",
-        type: "prompt",
-        text: "Sorry, I couldn't reframe the image. Please try again later.",
-        chatId: chatId,
-        createdAt: Timestamp.now(),
-      };
-
-      // Update Firestore with error message
-      try {
-        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-        
-        // Get current messages to replace loading message
-        const chatDoc = await getDocs(query(collection(firestore, `chats/${userId}/prompts`), where("__name__", "==", chatId)));
-        
-        if (!chatDoc.empty) {
-          const chatData = chatDoc.docs[0].data();
-          const currentMessages = chatData.messages || [];
-          
-          // Replace loading message with error message
-          const updatedMessages = currentMessages.map((msg: ChatMessage) => 
-            msg.id === loadingMessage.id ? errorMessage : msg
-          );
-
-          await updateDoc(chatRef, {
-            messages: updatedMessages,
-          });
-        } else {
-          // If no chat found, just add the error message
-          await updateDoc(chatRef, {
-            messages: arrayUnion(errorMessage),
-          });
-        }
-      } catch (updateError) {
-        console.error("❌ Failed to save error message:", updateError);
-      }
-    }
-  }, [userId, chatId]);
+    },
+    [userId, chatId],
+  );
 
   // Initialize auth state
   useEffect(() => {
@@ -1076,7 +1098,7 @@ export default function ChatWindow({
                               <Droplets size={14} />
                             </button>
                           </div>
-                          
+
                           {/* Reply button */}
                           <button
                             onClick={() => handleReply(msg, index)}

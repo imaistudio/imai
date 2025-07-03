@@ -670,11 +670,13 @@ export default function UnifiedPromptContainer({
               <span className="text-xs font-medium text-default-600 capitalize">
                 Replying to{" "}
                 {referencedMessage.sender === "user" ? "You" : "Assistant"}
-                {referencedMessage.referencemode && referencedMessage.sender === "agent" && (
-                  <span className="text-primary font-semibold capitalize">
-                    {" "}as {referencedMessage.referencemode}
-                  </span>
-                )}
+                {referencedMessage.referencemode &&
+                  referencedMessage.sender === "agent" && (
+                    <span className="text-primary font-semibold capitalize">
+                      {" "}
+                      as {referencedMessage.referencemode}
+                    </span>
+                  )}
               </span>
             </div>
             {referencedMessage.text && (

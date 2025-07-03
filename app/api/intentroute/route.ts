@@ -4088,9 +4088,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       // 🎯 CRITICAL FIX: Check ALL possible image keys (including uploaded numbered versions)
       const allCurrentImageKeys = Object.keys(imageUrls);
-      const hasProductSlot = !!imageUrls.product_image || allCurrentImageKeys.some(key => key.includes('product_image'));
-      const hasDesignSlot = !!imageUrls.design_image || allCurrentImageKeys.some(key => key.includes('design_image'));
-      const hasColorSlot = !!imageUrls.color_image || allCurrentImageKeys.some(key => key.includes('color_image'));
+      const hasProductSlot =
+        !!imageUrls.product_image ||
+        allCurrentImageKeys.some((key) => key.includes("product_image"));
+      const hasDesignSlot =
+        !!imageUrls.design_image ||
+        allCurrentImageKeys.some((key) => key.includes("design_image"));
+      const hasColorSlot =
+        !!imageUrls.color_image ||
+        allCurrentImageKeys.some((key) => key.includes("color_image"));
 
       console.log(
         `🔍 Slot availability: product=${hasProductSlot}, design=${hasDesignSlot}, color=${hasColorSlot}, workflow=${workflowType}`,
