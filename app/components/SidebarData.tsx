@@ -72,7 +72,9 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   const [editingValue, setEditingValue] = useState<string>("");
   const [editingFolder, setEditingFolder] = useState<string | null>(null);
   const [editingFolderValue, setEditingFolderValue] = useState<string>("");
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
+    new Set(),
+  );
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [movingChat, setMovingChat] = useState<string | null>(null);
@@ -91,7 +93,9 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     const filteredFolders = searchTerm.trim()
       ? folders.filter(
           (folder) =>
-            folder.foldername?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            folder.foldername
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
             folder.chatssummary?.some((summary) =>
               summary.toLowerCase().includes(searchTerm.toLowerCase()),
             ),
@@ -208,7 +212,10 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
     if (!currentUser || !newFolderName.trim()) return;
 
     try {
-      const foldersRef = collection(firestore, `users/${currentUser.uid}/folders`);
+      const foldersRef = collection(
+        firestore,
+        `users/${currentUser.uid}/folders`,
+      );
       await addDoc(foldersRef, {
         folderid: `folder_${Date.now()}`,
         foldername: newFolderName.trim(),
@@ -255,7 +262,12 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         foldername: newName.trim(),
         updatedAt: serverTimestamp(),
       });
-      console.log("✏️ Renamed folder:", folder.foldername, "to:", newName.trim());
+      console.log(
+        "✏️ Renamed folder:",
+        folder.foldername,
+        "to:",
+        newName.trim(),
+      );
     } catch (error) {
       console.error("❌ Error renaming folder:", error);
     }
@@ -332,7 +344,10 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   };
 
   const saveFolderRename = async (folder: FolderItem) => {
-    if (editingFolderValue.trim() && editingFolderValue.trim() !== folder.foldername) {
+    if (
+      editingFolderValue.trim() &&
+      editingFolderValue.trim() !== folder.foldername
+    ) {
       await renameFolder(folder, editingFolderValue.trim());
     }
     setEditingFolder(null);
@@ -620,9 +635,11 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                     {foldersFiltered.length > 0 && !inFolder ? (
                       <>
                         {foldersFiltered.map((folderItem) => (
-                          <DropdownItem 
+                          <DropdownItem
                             key={`move-${folderItem.id}`}
-                            onClick={() => moveChatsToFolder(folderItem, [item.chatId])}
+                            onClick={() =>
+                              moveChatsToFolder(folderItem, [item.chatId])
+                            }
                           >
                             <div className="flex items-center gap-2">
                               <Move size={16} />
@@ -635,7 +652,9 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                     {inFolder && folder ? (
                       <DropdownItem
                         key="remove-from-folder"
-                        onClick={() => removeChatFromFolder(folder, item.chatId)}
+                        onClick={() =>
+                          removeChatFromFolder(folder, item.chatId)
+                        }
                       >
                         <div className="flex items-center gap-2">
                           <Move size={16} />
@@ -771,7 +790,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         {isExpanded && folderChats.length > 0 && (
           <div className="space-y-1 p-2">
             {folderChats.map((chat) =>
-              renderChatItem(chat, false, true, folder)
+              renderChatItem(chat, false, true, folder),
             )}
           </div>
         )}
@@ -793,7 +812,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
             <FolderPlus size={16} />
           </button>
         </div>
-        
+
         {/* Create Folder Input */}
         {creatingFolder && (
           <div className="p-2">
@@ -830,7 +849,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
             />
           </div>
         )}
-        
+
         {/* Folders List */}
         {foldersFiltered.length > 0 && (
           <div className="space-y-1 p-2">
