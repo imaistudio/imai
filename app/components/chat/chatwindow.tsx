@@ -7,15 +7,15 @@ import {
   Timestamp,
   onSnapshot,
   collection,
-  addDoc,
   setDoc,
   deleteDoc,
   query,
   where,
   getDocs,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 import {
   Reply,
@@ -25,7 +25,6 @@ import {
   UnfoldHorizontal,
   Sparkles,
   LetterText,
-  Search,
   Download,
   Share2,
 } from "lucide-react";
@@ -54,31 +53,13 @@ interface ReferencedMessage {
   timestamp: string;
 }
 
-// 🔧 NEW: Interface for title renaming callback
-interface TitleRenameResult {
-  success: boolean;
-  title?: string;
-  category?: string;
-  error?: string;
-}
 
-/**
- * ChatWindow component for displaying chat messages
- *
- * Features:
- * - Displays chat messages with real-time updates
- * - Reply-to-message functionality
- * - Image zoom modal
- * - Loading states and animations
- * - Automatic title generation (handled server-side)
- */
 interface ChatWindowProps {
   chatId: string;
   onReplyToMessage?: (message: ReferencedMessage) => void;
   onTitleRenamed?: (chatId: string, newTitle: string, category: string) => void; // For backward compatibility
 }
 
-const MESSAGES_PER_PAGE = 20;
 
 export default function ChatWindow({
   chatId,
@@ -433,6 +414,156 @@ export default function ChatWindow({
     }
   }, []);
 
+  // Format analysis object into readable text
+  const formatAnalysisObject = (analysisObj: any): string => {
+    let formattedText = "";
+    
+    Object.entries(analysisObj).forEach(([category, details]) => {
+      // Capitalize category name
+      const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+      formattedText += `🎨 **${categoryName}:**\n`;
+      
+      if (typeof details === "object" && details !== null) {
+        // Handle nested objects
+        Object.entries(details).forEach(([key, value]) => {
+          const keyName = key.charAt(0).toUpperCase() + key.slice(1);
+          
+          if (Array.isArray(value)) {
+            formattedText += `• ${keyName}: ${value.join(", ")}\n`;
+          } else {
+            formattedText += `• ${keyName}: ${value}\n`;
+          }
+        });
+      } else {
+        // Handle simple values
+        formattedText += `• ${details}\n`;
+      }
+      
+      formattedText += "\n";
+    });
+    
+    return formattedText;
+  };
+
+  // Handle analyze image action
+  const handleAnalyzeImage = useCallback(async (imageUrl: string) => {
+    if (!userId || !chatId) {
+      console.error("User not authenticated or no chat ID");
+      return;
+    }
+
+    console.log("🔍 Starting image analysis for:", imageUrl);
+
+    try {
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `analysis-${Date.now()}`,
+        sender: "agent",
+        type: "prompt",
+        text: "Analyzing image...",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      // Add loading message to Firestore
+      const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+      await updateDoc(chatRef, {
+        messages: arrayUnion(loadingMessage),
+      });
+
+      // Call analyze image API
+      const formData = new FormData();
+      formData.append("userid", userId);
+      formData.append("image_url", imageUrl);
+
+      const response = await fetch("/api/analyzeimage", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      // Format the analysis result
+      let analysisText = "Image Analysis:\n\n";
+      
+      if (result.status === "success" && result.result) {
+        if (result.result.raw_analysis) {
+          // Try to parse JSON from raw_analysis
+          try {
+            const parsedAnalysis = JSON.parse(result.result.raw_analysis);
+            analysisText += formatAnalysisObject(parsedAnalysis);
+          } catch {
+            // If not JSON, use as is
+            analysisText += result.result.raw_analysis;
+          }
+        } else {
+          // Format structured analysis
+          analysisText += formatAnalysisObject(result.result);
+        }
+      } else {
+        analysisText += "Unable to analyze the image at this time.";
+      }
+
+      // Create analysis result message
+      const analysisMessage: ChatMessage = {
+        id: `analysis-result-${Date.now()}`,
+        sender: "agent",
+        type: "prompt",
+        text: analysisText,
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+      };
+
+      // Update Firestore with the analysis result
+      // First, get current messages to replace loading message
+      const chatDoc = await getDocs(query(collection(firestore, `chats/${userId}/prompts`), where("__name__", "==", chatId)));
+      
+      if (!chatDoc.empty) {
+        const chatData = chatDoc.docs[0].data();
+        const currentMessages = chatData.messages || [];
+        
+        // Replace loading message with analysis result
+        const updatedMessages = currentMessages.map((msg: ChatMessage) => 
+          msg.id === loadingMessage.id ? analysisMessage : msg
+        );
+
+        await updateDoc(chatRef, {
+          messages: updatedMessages,
+        });
+      }
+
+      console.log("✅ Analysis message saved to chat");
+
+    } catch (error) {
+      console.error("❌ Image analysis failed:", error);
+      
+      // Create error message
+      const errorMessage: ChatMessage = {
+        id: `analysis-error-${Date.now()}`,
+        sender: "agent",
+        type: "prompt",
+        text: "Sorry, I couldn't analyze the image. Please try again later.",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+      };
+
+      // Update Firestore with error message
+      try {
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(errorMessage),
+        });
+      } catch (updateError) {
+        console.error("❌ Failed to save error message:", updateError);
+      }
+    }
+  }, [userId, chatId]);
+
   // Initialize auth state
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user: User | null) => {
@@ -748,9 +879,9 @@ export default function ChatWindow({
                                     />
                                   </button>
                                   <button
-                                    onClick={() => console.log("Analyze:", img)}
+                                    onClick={() => handleAnalyzeImage(img)}
                                     className="p-1 rounded-full "
-                                    title="Image to Promot"
+                                    title="Image to Prompt"
                                   >
                                     <LetterText
                                       size={16}
@@ -768,7 +899,7 @@ export default function ChatWindow({
                                         button.style.transform = "scale(1)";
                                       }, 150);
                                     }}
-                                    className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-150"
+                                    className="p-1 rounded-full"
                                     title="Download Image"
                                   >
                                     <Download
