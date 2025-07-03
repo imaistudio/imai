@@ -820,7 +820,7 @@
         "/inputs/designs/furniture/modernisttubular/modernisttubular2.webp"
       ],
       "midcenturymodern": [
-      "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
+        "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
       ],
       "minimalism": [
         "/inputs/designs/furniture/minimalism/minimalism1.webp",
@@ -832,8 +832,8 @@
         "/inputs/designs/furniture/japaneseminimalism/japaneseminimalism2.webp"
       ],
       "organicshapes": [
-      "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
-      "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+        "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+        "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
 
       "biomorphicmodernism": [
@@ -843,9 +843,9 @@
         "/inputs/designs/furniture/biomorphicmodernism/biomorphicmodernism4.webp",
         "/inputs/designs/furniture/biomorphicmodernism/biomorphicmodernism5.webp"
       ],
-       "industrial": [
-      "/inputs/designs/Jewelry/industrial/industrial1.webp",
-      "/inputs/designs/Jewelry/industrial/industrial2.webp"
+      "industrial": [
+        "/inputs/designs/Jewelry/industrial/industrial1.webp",
+        "/inputs/designs/Jewelry/industrial/industrial2.webp"
       ],
 
       "bolddeluxe": ["/inputs/designs/furniture/bolddeluxe/bolddeluxe1.webp"],
@@ -864,9 +864,9 @@
         "/inputs/designs/furniture/chubby/chubby7.webp"
       ],
       "artisanal": [
-      "/inputs/designs/bags/artisan/artisan1.webp",
-      "/inputs/designs/bags/artisan/artisan2.webp",
-      "/inputs/designs/bags/artisan/artisan3.webp"
+        "/inputs/designs/bags/artisan/artisan1.webp",
+        "/inputs/designs/bags/artisan/artisan2.webp",
+        "/inputs/designs/bags/artisan/artisan3.webp"
       ],
       "memphispost": [
         "/inputs/designs/furniture/memphispostmodern/memphispostmodern1.webp",
@@ -883,10 +883,10 @@
         "/inputs/designs/furniture/ghostly/ghostly2.webp",
         "/inputs/designs/furniture/ghostly/ghostly3.webp"
       ],
-       "chromelook": [
-      "/inputs/designs/homedecor/chromelook/chromelook1.webp",
-      "/inputs/designs/homedecor/chromelook/chromelook2.webp",
-      "/inputs/designs/homedecor/chromelook/chromelook3.webp"
+      "chromelook": [
+        "/inputs/designs/homedecor/chromelook/chromelook1.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook2.webp",
+        "/inputs/designs/homedecor/chromelook/chromelook3.webp"
       ],
       "modernisttubular": [
         "/inputs/designs/furniture/modernisttubular/modernisttubular1.webp",
@@ -1783,12 +1783,18 @@
     },
     "watches": {
       "smartnewage": ["/inputs/designs/watches/smartnewage/smartnewage1.webp"],
+      "luxury": [
+        "/inputs/designs/fashions/luxury/luxury1.webp",
+        "/inputs/designs/fashions/luxury/luxury2.webp",
+        "/inputs/designs/fashions/luxury/luxury3.webp"
+      ],
       "classic": [
         "/inputs/designs/watches/classic/classic1.webp",
         "/inputs/designs/watches/classic/classic2.webp",
         "/inputs/designs/watches/classic/classic3.webp",
         "/inputs/designs/watches/classic/classic4.webp"
       ],
+      "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
       "vintagestyle": [
         "/inputs/designs/watches/vintagestyle/vintagestyle1.webp",
         "/inputs/designs/watches/vintagestyle/vintagestyle2.webp",
@@ -1828,6 +1834,14 @@
       "naturalwonders": [
         "/inputs/designs/watches/naturalwonders/naturalwonders1.webp",
         "/inputs/designs/watches/naturalwonders/naturalwonders2.webp"
+      ],
+      "organicshapes": [
+        "/inputs/designs/homedecor/organicshapes/organicshapes1.webp",
+        "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
+      ],
+      "animalworld": [
+        "/inputs/designs/officesupplies/animalworld/animalworld1.webp",
+        "/inputs/designs/officesupplies/animalworld/animalworld2.webp"
       ],
       "necklacewatch": [
         "/inputs/designs/watches/necklacewatch/necklacewatch1.webp"
