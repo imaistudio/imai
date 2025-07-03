@@ -613,7 +613,7 @@ export default function ChatWindow({
           id: `reframe-result-${Date.now()}`,
           sender: "agent",
           type: "images",
-          text: "Here's your landscape reframed image:",
+          text: "",
           images: [result.result.imageUrl],
           chatId: chatId,
           createdAt: Timestamp.now(),
