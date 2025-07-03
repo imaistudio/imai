@@ -801,7 +801,7 @@ export default function Home() {
       <div className="absolute bottom-0 left-0 w-full pb-4 pl-4 pr-4 flex flex-col gap-2 bg-background text-center">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
-          placeholder="Reimagine Artwork"
+          placeholder="Design starts here.."
           maxLength={500}
           referencedMessage={referencedMessage}
           onClearReference={clearReference}

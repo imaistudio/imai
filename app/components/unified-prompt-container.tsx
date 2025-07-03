@@ -94,7 +94,7 @@ interface UnifiedPromptContainerProps {
 
 export default function UnifiedPromptContainer({
   onSubmit,
-  placeholder = "Reimagine ArtWork",
+  placeholder = "Design Starts Here...",
   maxLength = 1000,
   referencedMessage, // 🔧 NEW: Referenced message prop
   onClearReference, // 🔧 NEW: Clear reference callback
