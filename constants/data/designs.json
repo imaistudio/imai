@@ -367,6 +367,8 @@
       "/inputs/designs/Jewelry/natureinspired/natureinspired1.webp",
       "/inputs/designs/Jewelry/natureinspired/natureinspired2.webp"
     ],
+    "vintage": ["/inputs/designs/Jewelry/vintage/vintage1.webp"],
+
     "bohemian": [
       "/inputs/designs/Jewelry/bohemian/bohemian1.webp",
       "/inputs/designs/Jewelry/bohemian/bohemian2.webp"
@@ -825,6 +827,7 @@
     "celestial": "/inputs/placeholders/jewelry/celestial.webp",
     "modernelements": "/inputs/placeholders/jewelry/modernelementsgeometrical.webp",
     "natureinspired": "/inputs/placeholders/jewelry/natureinspired.webp",
+    "vintage": "/inputs/placeholders/jewelry/vintage.webp",
     "bohemian": "/inputs/placeholders/jewelry/bohemian.webp",
     "artfulsculptural": "/inputs/placeholders/jewelry/artfulsculptural.webp",
     "retrotouch": "/inputs/placeholders/jewelry/retrotouch.webp",

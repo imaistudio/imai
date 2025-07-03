@@ -713,6 +713,13 @@
       "alphabetnamejewelry": [
         "/inputs/designs/Jewelry/alphabetnamejewelry/alphabetnamejewelry1.webp"
       ],
+      "timeless": [
+        "/inputs/designs/general/timeless/timeless1.webp",
+        "/inputs/designs/general/timeless/timeless2.webp",
+        "/inputs/designs/general/timeless/timeless3.webp",
+        "/inputs/designs/general/timeless/timeless4.webp",
+        "/inputs/designs/general/timeless/timeless5.webp"
+      ],
       "statementboldandelegant": [
         "/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized1.webp",
         "/inputs/designs/Jewelry/statementboldandoversized/statementboldandoversized2.webp"
@@ -727,6 +734,14 @@
         "/inputs/designs/Jewelry/natureinspired/natureinspired1.webp",
         "/inputs/designs/Jewelry/natureinspired/natureinspired2.webp"
       ],
+      "vintage": ["/inputs/designs/Jewelry/vintage/vintage1.webp"],
+      "romantic": [
+        "/inputs/designs/general/romantic/romantic1.webp",
+        "/inputs/designs/general/romantic/romantic2.webp",
+        "/inputs/designs/general/romantic/romantic3.webp",
+        "/inputs/designs/general/romantic/romantic4.webp",
+        "/inputs/designs/general/romantic/romantic5.webp"
+      ],
       "bohemian": [
         "/inputs/designs/Jewelry/bohemian/bohemian1.webp",
         "/inputs/designs/Jewelry/bohemian/bohemian2.webp"
@@ -736,6 +751,7 @@
         "/inputs/designs/Jewelry/artfulsculptural/artfulsculptural2.webp",
         "/inputs/designs/Jewelry/artfulsculptural/artfulsculptural3.webp"
       ],
+      "mystical": ["/inputs/designs/general/mystical/mystical1.webp"],
       "retrotouch": [
         "/inputs/designs/Jewelry/retrotouch/retrotouch1.webp",
         "/inputs/designs/Jewelry/retrotouch/retrotouch2.webp"
