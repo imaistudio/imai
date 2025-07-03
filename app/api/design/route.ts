@@ -2280,9 +2280,52 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // Handle color image (file, URL, and/or preset) with semantic override - support multiple color inputs
       let colorAnalysisParts = [];
 
-      // 🎯 SEMANTIC OVERRIDE: When reference is used as design AND no color inputs, extract colors from reference
+      // 🎯 CRITICAL FIX: When design image is uploaded but no color input, extract colors from design image
+      // 🚨 IMPORTANT: Only do this if there's NO existing color source (including from references)
+      const hasAnyColorInput = colorImage || colorImageUrl || presetColorPalette || overrideInputs.useReferenceAsColor || inputUrls.color;
+      
+      if ((designImage || designImageUrl) && !hasAnyColorInput) {
+        console.log("🧠 DESIGN IMAGE COLOR EXTRACTION: Extracting COLOR palette from uploaded design image (since no color input provided)");
+        const designColorUrl = designImageUrl || inputUrls.design;
+        if (designColorUrl) {
+          if (!inputUrls.color) {
+            inputUrls.color = designColorUrl;
+          }
+          const designColorAnalysis = await analyzeImageWithGPT4Vision(
+            designColorUrl,
+            "color reference"
+          );
+          colorAnalysisParts.push(designColorAnalysis);
+          console.log("✅ Design image processed as COLOR source (in addition to design patterns)");
+        }
+      } else if (hasAnyColorInput) {
+        console.log("🚫 SKIPPING design image color extraction - color source already provided:", {
+          colorImage: !!colorImage,
+          colorImageUrl: !!colorImageUrl, 
+          presetColorPalette: !!presetColorPalette,
+          inputUrlsColor: !!inputUrls.color,
+          useReferenceAsColor: !!overrideInputs.useReferenceAsColor
+        });
+        console.log("🎯 Will process the provided color source in the main color processing section below...");
+      }
+
+      // 🎯 MAIN COLOR PROCESSING: Always process actual color inputs (moved outside else chain)
+      // 🔧 CRITICAL FIX: This was trapped in unreachable else block - now runs independently
+      
+      // 🔍 DEBUG: Check what color inputs we have
+      console.log("🔍 COLOR PROCESSING DEBUG:", {
+        colorImage: !!colorImage,
+        colorImageUrl: !!colorImageUrl,
+        presetColorPalette: !!presetColorPalette,
+        useReferenceAsDesign: !!overrideInputs.useReferenceAsDesign,
+        useReferenceAsColor: !!overrideInputs.useReferenceAsColor,
+        productImageUrl: !!productImageUrl,
+        colorImageUrlValue: colorImageUrl?.substring(0, 80) + "..."
+      });
+      
+      // Handle semantic overrides first
       if (overrideInputs.useReferenceAsDesign && productImageUrl && !colorImage && !colorImageUrl && !presetColorPalette) {
-        console.log("🧠 SEMANTIC OVERRIDE: Extracting COLOR palette from reference image (since no color input provided)");
+        console.log("🧠 SEMANTIC OVERRIDE 1: Extracting COLOR palette from reference image (since no color input provided)");
         inputUrls.color = productImageUrl;
         const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
           productImageUrl,
@@ -2292,7 +2335,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log("✅ Reference image processed as COLOR source");
       } else if (overrideInputs.useReferenceAsColor && productImageUrl) {
         // When Claude explicitly says reference should be color source
-        console.log("🧠 SEMANTIC OVERRIDE: Using reference image as COLOR source instead of presets");
+        console.log("🧠 SEMANTIC OVERRIDE 2: Using reference image as COLOR source instead of presets");
         inputUrls.color = productImageUrl;
         const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
           productImageUrl,
@@ -2300,32 +2343,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         colorAnalysisParts.push(referenceColorAnalysis);
         console.log("✅ Reference image processed as COLOR source");
+      } 
+      // Handle standard color inputs (colorImageUrl from references, color files)
+      else if (colorImageUrl) {
+        console.log("🎯 MAIN COLOR PROCESSING: Using color image URL (likely from reference):", colorImageUrl.substring(0, 80) + "...");
+        inputUrls.color = colorImageUrl;
+        const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
+          colorImageUrl,
+          "color reference"
+        );
+        colorAnalysisParts.push(referenceColorAnalysis);
+        console.log("✅ Reference color image processed successfully");
+      } else if (colorImage && firebaseInitialized) {
+        console.log("🎯 MAIN COLOR PROCESSING: Processing color image file...");
+        const colorBuffer = await fileToJpegBuffer(colorImage);
+        const colorPath = `${userid}/input/${uuidv4()}.jpg`;
+        const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
+        inputUrls.color = colorUrl;
+        const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
+          colorUrl,
+          "color reference"
+        );
+        colorAnalysisParts.push(uploadedColorAnalysis);
+        console.log("Color image file processed successfully");
       } else {
-        // Standard color processing when no semantic override
-        
-        // First, handle uploaded color image/URL
-        if (colorImage && firebaseInitialized) {
-          console.log("Processing color image file...");
-          const colorBuffer = await fileToJpegBuffer(colorImage);
-          const colorPath = `${userid}/input/${uuidv4()}.jpg`;
-          const colorUrl = await uploadBufferToFirebase(colorBuffer, colorPath);
-          inputUrls.color = colorUrl;
-          const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
-            colorUrl,
-            "color reference"
-          );
-          colorAnalysisParts.push(uploadedColorAnalysis);
-          console.log("Color image file processed successfully");
-        } else if (colorImageUrl) {
-          console.log("Using color image URL:", colorImageUrl);
-          inputUrls.color = colorImageUrl;
-          const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
-            colorImageUrl,
-            "color reference"
-          );
-          colorAnalysisParts.push(uploadedColorAnalysis);
-          console.log("Color image URL processed successfully");
-        }
+        console.log("🔍 NO COLOR PROCESSING: No color inputs found to process");
       }
 
       // Then, handle preset color palette (can be in addition to uploaded) - unless overridden
