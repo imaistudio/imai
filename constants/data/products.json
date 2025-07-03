@@ -92,36 +92,36 @@
       "essentail": ["/inputs/designs/general/essential/essential1.webp"],
       "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-       "vintagefeel": [
-      "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
-      "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
+      "vintagefeel": [
+        "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
+        "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
       ],
       "prints": [""],
       "sportysleek": [
-      "/inputs/designs/general/sportysleek/sportysleek1.webp",
-      "/inputs/designs/general/sportysleek/sportysleek2.webp",
-      "/inputs/designs/general/sportysleek/sportysleek3.webp",
-      "/inputs/designs/general/sportysleek/sportysleek5.webp",
-      "/inputs/designs/general/sportysleek/sportysleek6.webp",
-      "/inputs/designs/general/sportysleek/sportysleek7.webp",
-      "/inputs/designs/general/sportysleek/sportysleek8.webp",
-      "/inputs/designs/general/sportysleek/sportysleek4.webp"
+        "/inputs/designs/general/sportysleek/sportysleek1.webp",
+        "/inputs/designs/general/sportysleek/sportysleek2.webp",
+        "/inputs/designs/general/sportysleek/sportysleek3.webp",
+        "/inputs/designs/general/sportysleek/sportysleek5.webp",
+        "/inputs/designs/general/sportysleek/sportysleek6.webp",
+        "/inputs/designs/general/sportysleek/sportysleek7.webp",
+        "/inputs/designs/general/sportysleek/sportysleek8.webp",
+        "/inputs/designs/general/sportysleek/sportysleek4.webp"
       ],
       "fashionforward": [
         "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
       ],
       "quiteluxury": [
-      "/inputs/designs/general/quietluxury/quietluxury1.webp",
-      "/inputs/designs/general/quietluxury/quietluxury2.webp",
-      "/inputs/designs/general/quietluxury/quietluxury3.webp",
-      "/inputs/designs/general/quietluxury/quietluxury4.webp"
+        "/inputs/designs/general/quietluxury/quietluxury1.webp",
+        "/inputs/designs/general/quietluxury/quietluxury2.webp",
+        "/inputs/designs/general/quietluxury/quietluxury3.webp",
+        "/inputs/designs/general/quietluxury/quietluxury4.webp"
       ],
       "boldstructured": [
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
       ],
       "funcoolquriky": [
-      "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
+        "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
       ],
       "luxury": [
         "/inputs/designs/fashions/luxury/luxury1.webp",
@@ -129,15 +129,15 @@
         "/inputs/designs/fashions/luxury/luxury3.webp"
       ],
       "futuristic": [
-      "/inputs/designs/general/futuristic/futuristic1.webp",
-      "/inputs/designs/general/futuristic/futuristic2.webp",
-      "/inputs/designs/general/futuristic/futuristic3.webp",
-      "/inputs/designs/general/futuristic/futuristic4.webp",
-      "/inputs/designs/general/futuristic/futuristic5.webp",
-      "/inputs/designs/general/futuristic/futuristic6.webp",
-      "/inputs/designs/general/futuristic/futuristic7.webp",
-      "/inputs/designs/general/futuristic/futuristic8.webp",
-      "/inputs/designs/general/futuristic/futuristic9.webp"
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
       ],
       "powerfullfeminity": [
         "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
@@ -183,8 +183,8 @@
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
       "colorpop": [
-      "/inputs/designs/general/colorpop/colorpop1.webp",
-      "/inputs/designs/general/colorpop/colorpop2.webp"
+        "/inputs/designs/general/colorpop/colorpop1.webp",
+        "/inputs/designs/general/colorpop/colorpop2.webp"
       ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
@@ -202,7 +202,7 @@
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
       ],
       "tropicaltimes": [
-      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
+        "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
@@ -316,8 +316,8 @@
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
       "colorpop": [
-      "/inputs/designs/general/colorpop/colorpop1.webp",
-      "/inputs/designs/general/colorpop/colorpop2.webp"
+        "/inputs/designs/general/colorpop/colorpop1.webp",
+        "/inputs/designs/general/colorpop/colorpop2.webp"
       ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
@@ -335,7 +335,7 @@
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
       ],
       "tropicaltimes": [
-      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
+        "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
@@ -388,36 +388,36 @@
       "essentail": ["/inputs/designs/general/essential/essential1.webp"],
       "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-       "vintagefeel": [
-      "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
-      "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
+      "vintagefeel": [
+        "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
+        "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
       ],
       "prints": [""],
       "sportysleek": [
-      "/inputs/designs/general/sportysleek/sportysleek1.webp",
-      "/inputs/designs/general/sportysleek/sportysleek2.webp",
-      "/inputs/designs/general/sportysleek/sportysleek3.webp",
-      "/inputs/designs/general/sportysleek/sportysleek5.webp",
-      "/inputs/designs/general/sportysleek/sportysleek6.webp",
-      "/inputs/designs/general/sportysleek/sportysleek7.webp",
-      "/inputs/designs/general/sportysleek/sportysleek8.webp",
-      "/inputs/designs/general/sportysleek/sportysleek4.webp"
+        "/inputs/designs/general/sportysleek/sportysleek1.webp",
+        "/inputs/designs/general/sportysleek/sportysleek2.webp",
+        "/inputs/designs/general/sportysleek/sportysleek3.webp",
+        "/inputs/designs/general/sportysleek/sportysleek5.webp",
+        "/inputs/designs/general/sportysleek/sportysleek6.webp",
+        "/inputs/designs/general/sportysleek/sportysleek7.webp",
+        "/inputs/designs/general/sportysleek/sportysleek8.webp",
+        "/inputs/designs/general/sportysleek/sportysleek4.webp"
       ],
       "fashionforward": [
         "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
       ],
       "quiteluxury": [
-      "/inputs/designs/general/quietluxury/quietluxury1.webp",
-      "/inputs/designs/general/quietluxury/quietluxury2.webp",
-      "/inputs/designs/general/quietluxury/quietluxury3.webp",
-      "/inputs/designs/general/quietluxury/quietluxury4.webp"
+        "/inputs/designs/general/quietluxury/quietluxury1.webp",
+        "/inputs/designs/general/quietluxury/quietluxury2.webp",
+        "/inputs/designs/general/quietluxury/quietluxury3.webp",
+        "/inputs/designs/general/quietluxury/quietluxury4.webp"
       ],
       "boldstructured": [
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
       ],
       "funcoolquriky": [
-      "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
+        "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
       ],
       "luxury": [
         "/inputs/designs/fashions/luxury/luxury1.webp",
@@ -425,15 +425,15 @@
         "/inputs/designs/fashions/luxury/luxury3.webp"
       ],
       "futuristic": [
-      "/inputs/designs/general/futuristic/futuristic1.webp",
-      "/inputs/designs/general/futuristic/futuristic2.webp",
-      "/inputs/designs/general/futuristic/futuristic3.webp",
-      "/inputs/designs/general/futuristic/futuristic4.webp",
-      "/inputs/designs/general/futuristic/futuristic5.webp",
-      "/inputs/designs/general/futuristic/futuristic6.webp",
-      "/inputs/designs/general/futuristic/futuristic7.webp",
-      "/inputs/designs/general/futuristic/futuristic8.webp",
-      "/inputs/designs/general/futuristic/futuristic9.webp"
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
       ],
       "powerfullfeminity": [
         "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
@@ -469,7 +469,6 @@
       "effortlesschicinnovative": [
         "/inputs/designs/fashions/effortlesschicinnovativesiliconesprayedlacetrimings/effortlesschicinnovativesiliconesprayedlacetrimings1.webp"
       ]
-      
     },
     "coffecup": {
       "colorfulglass": [
@@ -527,6 +526,10 @@
     },
     "totebag": {
       "quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+      "minimalsleek": [
+        "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp",
+        "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"
+      ],
       "understatedelegance": [
         "/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
       ],
@@ -544,6 +547,10 @@
       "romanticandsoft": [
         "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
       ],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
       "funchicpieces": [
         "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
         "/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
@@ -554,20 +561,50 @@
         "/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
         "/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
       ],
+      "colorpop": [
+        "/inputs/designs/general/colorpop/colorpop1.webp",
+        "/inputs/designs/general/colorpop/colorpop2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "opposingelements": [
         "/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
+      ],
+      "bold": [
+        "/inputs/designs/general/bold/bold1.webp",
+        "/inputs/designs/general/bold/bold2.webp",
+        "/inputs/designs/general/bold/bold3.webp",
+        "/inputs/designs/general/bold/bold4.webp",
+        "/inputs/designs/general/bold/bold5.webp"
       ],
       "artisanal": [
         "/inputs/designs/bags/artisan/artisan1.webp",
         "/inputs/designs/bags/artisan/artisan2.webp",
         "/inputs/designs/bags/artisan/artisan3.webp"
       ],
+      "animalprint": [
+        "/inputs/designs/general/animalprint/animalprint1.webp",
+        "/inputs/designs/general/animalprint/animalprint2.webp",
+        "/inputs/designs/general/animalprint/animalprint3.webp",
+        "/inputs/designs/general/animalprint/animalprint4.webp",
+        "/inputs/designs/general/animalprint/animalprint5.webp"
+      ],
       "whimsical": [
         "/inputs/designs/bags/whimsical/whimsical1.webp",
         "/inputs/designs/bags/whimsical/whimsical2.webp",
         "/inputs/designs/bags/whimsical/whimsical3.webp"
       ],
-      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
+      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"],
+      "futuristic": [
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
+      ]
     },
     "blanket": {
       "streetwear": [
@@ -583,36 +620,36 @@
       "essentail": ["/inputs/designs/general/essential/essential1.webp"],
       "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-       "vintagefeel": [
-      "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
-      "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
+      "vintagefeel": [
+        "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
+        "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
       ],
       "prints": [""],
       "sportysleek": [
-      "/inputs/designs/general/sportysleek/sportysleek1.webp",
-      "/inputs/designs/general/sportysleek/sportysleek2.webp",
-      "/inputs/designs/general/sportysleek/sportysleek3.webp",
-      "/inputs/designs/general/sportysleek/sportysleek5.webp",
-      "/inputs/designs/general/sportysleek/sportysleek6.webp",
-      "/inputs/designs/general/sportysleek/sportysleek7.webp",
-      "/inputs/designs/general/sportysleek/sportysleek8.webp",
-      "/inputs/designs/general/sportysleek/sportysleek4.webp"
+        "/inputs/designs/general/sportysleek/sportysleek1.webp",
+        "/inputs/designs/general/sportysleek/sportysleek2.webp",
+        "/inputs/designs/general/sportysleek/sportysleek3.webp",
+        "/inputs/designs/general/sportysleek/sportysleek5.webp",
+        "/inputs/designs/general/sportysleek/sportysleek6.webp",
+        "/inputs/designs/general/sportysleek/sportysleek7.webp",
+        "/inputs/designs/general/sportysleek/sportysleek8.webp",
+        "/inputs/designs/general/sportysleek/sportysleek4.webp"
       ],
       "fashionforward": [
         "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
       ],
       "quiteluxury": [
-      "/inputs/designs/general/quietluxury/quietluxury1.webp",
-      "/inputs/designs/general/quietluxury/quietluxury2.webp",
-      "/inputs/designs/general/quietluxury/quietluxury3.webp",
-      "/inputs/designs/general/quietluxury/quietluxury4.webp"
+        "/inputs/designs/general/quietluxury/quietluxury1.webp",
+        "/inputs/designs/general/quietluxury/quietluxury2.webp",
+        "/inputs/designs/general/quietluxury/quietluxury3.webp",
+        "/inputs/designs/general/quietluxury/quietluxury4.webp"
       ],
       "boldstructured": [
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
       ],
       "funcoolquriky": [
-      "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
+        "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
       ],
       "luxury": [
         "/inputs/designs/fashions/luxury/luxury1.webp",
@@ -620,15 +657,15 @@
         "/inputs/designs/fashions/luxury/luxury3.webp"
       ],
       "futuristic": [
-      "/inputs/designs/general/futuristic/futuristic1.webp",
-      "/inputs/designs/general/futuristic/futuristic2.webp",
-      "/inputs/designs/general/futuristic/futuristic3.webp",
-      "/inputs/designs/general/futuristic/futuristic4.webp",
-      "/inputs/designs/general/futuristic/futuristic5.webp",
-      "/inputs/designs/general/futuristic/futuristic6.webp",
-      "/inputs/designs/general/futuristic/futuristic7.webp",
-      "/inputs/designs/general/futuristic/futuristic8.webp",
-      "/inputs/designs/general/futuristic/futuristic9.webp"
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
       ],
       "powerfullfeminity": [
         "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
@@ -733,36 +770,36 @@
       "essentail": ["/inputs/designs/general/essential/essential1.webp"],
       "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-       "vintagefeel": [
-      "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
-      "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
+      "vintagefeel": [
+        "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
+        "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
       ],
       "prints": [""],
       "sportysleek": [
-      "/inputs/designs/general/sportysleek/sportysleek1.webp",
-      "/inputs/designs/general/sportysleek/sportysleek2.webp",
-      "/inputs/designs/general/sportysleek/sportysleek3.webp",
-      "/inputs/designs/general/sportysleek/sportysleek5.webp",
-      "/inputs/designs/general/sportysleek/sportysleek6.webp",
-      "/inputs/designs/general/sportysleek/sportysleek7.webp",
-      "/inputs/designs/general/sportysleek/sportysleek8.webp",
-      "/inputs/designs/general/sportysleek/sportysleek4.webp"
+        "/inputs/designs/general/sportysleek/sportysleek1.webp",
+        "/inputs/designs/general/sportysleek/sportysleek2.webp",
+        "/inputs/designs/general/sportysleek/sportysleek3.webp",
+        "/inputs/designs/general/sportysleek/sportysleek5.webp",
+        "/inputs/designs/general/sportysleek/sportysleek6.webp",
+        "/inputs/designs/general/sportysleek/sportysleek7.webp",
+        "/inputs/designs/general/sportysleek/sportysleek8.webp",
+        "/inputs/designs/general/sportysleek/sportysleek4.webp"
       ],
       "fashionforward": [
         "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
       ],
       "quiteluxury": [
-      "/inputs/designs/general/quietluxury/quietluxury1.webp",
-      "/inputs/designs/general/quietluxury/quietluxury2.webp",
-      "/inputs/designs/general/quietluxury/quietluxury3.webp",
-      "/inputs/designs/general/quietluxury/quietluxury4.webp"
+        "/inputs/designs/general/quietluxury/quietluxury1.webp",
+        "/inputs/designs/general/quietluxury/quietluxury2.webp",
+        "/inputs/designs/general/quietluxury/quietluxury3.webp",
+        "/inputs/designs/general/quietluxury/quietluxury4.webp"
       ],
       "boldstructured": [
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
       ],
       "funcoolquriky": [
-      "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
+        "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
       ],
       "luxury": [
         "/inputs/designs/fashions/luxury/luxury1.webp",
@@ -770,15 +807,15 @@
         "/inputs/designs/fashions/luxury/luxury3.webp"
       ],
       "futuristic": [
-      "/inputs/designs/general/futuristic/futuristic1.webp",
-      "/inputs/designs/general/futuristic/futuristic2.webp",
-      "/inputs/designs/general/futuristic/futuristic3.webp",
-      "/inputs/designs/general/futuristic/futuristic4.webp",
-      "/inputs/designs/general/futuristic/futuristic5.webp",
-      "/inputs/designs/general/futuristic/futuristic6.webp",
-      "/inputs/designs/general/futuristic/futuristic7.webp",
-      "/inputs/designs/general/futuristic/futuristic8.webp",
-      "/inputs/designs/general/futuristic/futuristic9.webp"
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
       ],
       "powerfullfeminity": [
         "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
@@ -817,6 +854,10 @@
     },
     "backpack": {
       "quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+      "minimalsleek": [
+        "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp",
+        "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"
+      ],
       "understatedelegance": [
         "/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
       ],
@@ -834,6 +875,10 @@
       "romanticandsoft": [
         "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
       ],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
       "funchicpieces": [
         "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
         "/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
@@ -844,23 +889,53 @@
         "/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
         "/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
       ],
+      "colorpop": [
+        "/inputs/designs/general/colorpop/colorpop1.webp",
+        "/inputs/designs/general/colorpop/colorpop2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "opposingelements": [
         "/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
+      ],
+      "bold": [
+        "/inputs/designs/general/bold/bold1.webp",
+        "/inputs/designs/general/bold/bold2.webp",
+        "/inputs/designs/general/bold/bold3.webp",
+        "/inputs/designs/general/bold/bold4.webp",
+        "/inputs/designs/general/bold/bold5.webp"
       ],
       "artisanal": [
         "/inputs/designs/bags/artisan/artisan1.webp",
         "/inputs/designs/bags/artisan/artisan2.webp",
         "/inputs/designs/bags/artisan/artisan3.webp"
       ],
+      "animalprint": [
+        "/inputs/designs/general/animalprint/animalprint1.webp",
+        "/inputs/designs/general/animalprint/animalprint2.webp",
+        "/inputs/designs/general/animalprint/animalprint3.webp",
+        "/inputs/designs/general/animalprint/animalprint4.webp",
+        "/inputs/designs/general/animalprint/animalprint5.webp"
+      ],
       "whimsical": [
         "/inputs/designs/bags/whimsical/whimsical1.webp",
         "/inputs/designs/bags/whimsical/whimsical2.webp",
         "/inputs/designs/bags/whimsical/whimsical3.webp"
       ],
-      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
+      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"],
+      "futuristic": [
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
+      ]
     },
     "lamp": {
-     "midcenturymodern": [
+      "midcenturymodern": [
         "/inputs/designs/homedecor/midcenturymodern/midcenturymodern1.webp"
       ],
       "organicshapes": [
@@ -868,8 +943,8 @@
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
       "colorpop": [
-      "/inputs/designs/general/colorpop/colorpop1.webp",
-      "/inputs/designs/general/colorpop/colorpop2.webp"
+        "/inputs/designs/general/colorpop/colorpop1.webp",
+        "/inputs/designs/general/colorpop/colorpop2.webp"
       ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
@@ -887,7 +962,7 @@
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
       ],
       "tropicaltimes": [
-      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
+        "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
@@ -940,36 +1015,36 @@
       "essentail": ["/inputs/designs/general/essential/essential1.webp"],
       "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-       "vintagefeel": [
-      "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
-      "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
+      "vintagefeel": [
+        "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
+        "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
       ],
       "prints": [""],
       "sportysleek": [
-      "/inputs/designs/general/sportysleek/sportysleek1.webp",
-      "/inputs/designs/general/sportysleek/sportysleek2.webp",
-      "/inputs/designs/general/sportysleek/sportysleek3.webp",
-      "/inputs/designs/general/sportysleek/sportysleek5.webp",
-      "/inputs/designs/general/sportysleek/sportysleek6.webp",
-      "/inputs/designs/general/sportysleek/sportysleek7.webp",
-      "/inputs/designs/general/sportysleek/sportysleek8.webp",
-      "/inputs/designs/general/sportysleek/sportysleek4.webp"
+        "/inputs/designs/general/sportysleek/sportysleek1.webp",
+        "/inputs/designs/general/sportysleek/sportysleek2.webp",
+        "/inputs/designs/general/sportysleek/sportysleek3.webp",
+        "/inputs/designs/general/sportysleek/sportysleek5.webp",
+        "/inputs/designs/general/sportysleek/sportysleek6.webp",
+        "/inputs/designs/general/sportysleek/sportysleek7.webp",
+        "/inputs/designs/general/sportysleek/sportysleek8.webp",
+        "/inputs/designs/general/sportysleek/sportysleek4.webp"
       ],
       "fashionforward": [
         "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
       ],
       "quiteluxury": [
-      "/inputs/designs/general/quietluxury/quietluxury1.webp",
-      "/inputs/designs/general/quietluxury/quietluxury2.webp",
-      "/inputs/designs/general/quietluxury/quietluxury3.webp",
-      "/inputs/designs/general/quietluxury/quietluxury4.webp"
+        "/inputs/designs/general/quietluxury/quietluxury1.webp",
+        "/inputs/designs/general/quietluxury/quietluxury2.webp",
+        "/inputs/designs/general/quietluxury/quietluxury3.webp",
+        "/inputs/designs/general/quietluxury/quietluxury4.webp"
       ],
       "boldstructured": [
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
       ],
       "funcoolquriky": [
-      "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
+        "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
       ],
       "luxury": [
         "/inputs/designs/fashions/luxury/luxury1.webp",
@@ -977,15 +1052,15 @@
         "/inputs/designs/fashions/luxury/luxury3.webp"
       ],
       "futuristic": [
-      "/inputs/designs/general/futuristic/futuristic1.webp",
-      "/inputs/designs/general/futuristic/futuristic2.webp",
-      "/inputs/designs/general/futuristic/futuristic3.webp",
-      "/inputs/designs/general/futuristic/futuristic4.webp",
-      "/inputs/designs/general/futuristic/futuristic5.webp",
-      "/inputs/designs/general/futuristic/futuristic6.webp",
-      "/inputs/designs/general/futuristic/futuristic7.webp",
-      "/inputs/designs/general/futuristic/futuristic8.webp",
-      "/inputs/designs/general/futuristic/futuristic9.webp"
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
       ],
       "powerfullfeminity": [
         "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
@@ -1036,36 +1111,36 @@
       "essentail": ["/inputs/designs/general/essential/essential1.webp"],
       "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "minimalist": ["/inputs/designs/fashions/minimalist/minimalist1.webp"],
-       "vintagefeel": [
-      "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
-      "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
+      "vintagefeel": [
+        "/inputs/designs/general/vintagefeel/vintagefeel1.webp",
+        "/inputs/designs/general/vintagefeel/vintagefeel2.webp"
       ],
       "prints": [""],
       "sportysleek": [
-      "/inputs/designs/general/sportysleek/sportysleek1.webp",
-      "/inputs/designs/general/sportysleek/sportysleek2.webp",
-      "/inputs/designs/general/sportysleek/sportysleek3.webp",
-      "/inputs/designs/general/sportysleek/sportysleek5.webp",
-      "/inputs/designs/general/sportysleek/sportysleek6.webp",
-      "/inputs/designs/general/sportysleek/sportysleek7.webp",
-      "/inputs/designs/general/sportysleek/sportysleek8.webp",
-      "/inputs/designs/general/sportysleek/sportysleek4.webp"
+        "/inputs/designs/general/sportysleek/sportysleek1.webp",
+        "/inputs/designs/general/sportysleek/sportysleek2.webp",
+        "/inputs/designs/general/sportysleek/sportysleek3.webp",
+        "/inputs/designs/general/sportysleek/sportysleek5.webp",
+        "/inputs/designs/general/sportysleek/sportysleek6.webp",
+        "/inputs/designs/general/sportysleek/sportysleek7.webp",
+        "/inputs/designs/general/sportysleek/sportysleek8.webp",
+        "/inputs/designs/general/sportysleek/sportysleek4.webp"
       ],
       "fashionforward": [
         "/inputs/designs/fashions/fashionforwarddenimfloralprint/fashionforwarddenimfloralprint1.webp"
       ],
       "quiteluxury": [
-      "/inputs/designs/general/quietluxury/quietluxury1.webp",
-      "/inputs/designs/general/quietluxury/quietluxury2.webp",
-      "/inputs/designs/general/quietluxury/quietluxury3.webp",
-      "/inputs/designs/general/quietluxury/quietluxury4.webp"
+        "/inputs/designs/general/quietluxury/quietluxury1.webp",
+        "/inputs/designs/general/quietluxury/quietluxury2.webp",
+        "/inputs/designs/general/quietluxury/quietluxury3.webp",
+        "/inputs/designs/general/quietluxury/quietluxury4.webp"
       ],
       "boldstructured": [
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic1.webp",
         "/inputs/designs/fashions/boldstructuredgraphic/boldstructuredgraphic2.webp"
       ],
       "funcoolquriky": [
-      "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
+        "/inputs/designs/general/funcool&quirky/funcool&quirky1.webp"
       ],
       "luxury": [
         "/inputs/designs/fashions/luxury/luxury1.webp",
@@ -1073,15 +1148,15 @@
         "/inputs/designs/fashions/luxury/luxury3.webp"
       ],
       "futuristic": [
-      "/inputs/designs/general/futuristic/futuristic1.webp",
-      "/inputs/designs/general/futuristic/futuristic2.webp",
-      "/inputs/designs/general/futuristic/futuristic3.webp",
-      "/inputs/designs/general/futuristic/futuristic4.webp",
-      "/inputs/designs/general/futuristic/futuristic5.webp",
-      "/inputs/designs/general/futuristic/futuristic6.webp",
-      "/inputs/designs/general/futuristic/futuristic7.webp",
-      "/inputs/designs/general/futuristic/futuristic8.webp",
-      "/inputs/designs/general/futuristic/futuristic9.webp"
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
       ],
       "powerfullfeminity": [
         "/inputs/designs/fashions/powerfulfeminity/powerfulfeminity1.webp"
@@ -1226,6 +1301,10 @@
     },
     "shoulderbag": {
       "quietluxury": ["/inputs/designs/bags/quietluxury/quietluxury1.webp"],
+      "minimalsleek": [
+        "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp",
+        "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"
+      ],
       "understatedelegance": [
         "/inputs/designs/bags/understatedelegance/understatedelegance1.webp"
       ],
@@ -1243,6 +1322,10 @@
       "romanticandsoft": [
         "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
       ],
+      "youthful": [
+        "/inputs/designs/fashions/youthful/youthful1.webp",
+        "/inputs/designs/fashions/youthful/youthful2.webp"
+      ],
       "funchicpieces": [
         "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
         "/inputs/designs/bags/funchicpieces/funchicpieces2.webp",
@@ -1253,20 +1336,50 @@
         "/inputs/designs/bags/girlyandfun/girlyandfun2.webp",
         "/inputs/designs/bags/girlyandfun/girlyandfun3.webp"
       ],
+      "colorpop": [
+        "/inputs/designs/general/colorpop/colorpop1.webp",
+        "/inputs/designs/general/colorpop/colorpop2.webp"
+      ],
+      "edgy": ["/inputs/designs/fashions/edgy/edgy1.webp"],
       "opposingelements": [
         "/inputs/designs/bags/opposingelementsrockchic/opposingelementsrockchic1.webp"
+      ],
+      "bold": [
+        "/inputs/designs/general/bold/bold1.webp",
+        "/inputs/designs/general/bold/bold2.webp",
+        "/inputs/designs/general/bold/bold3.webp",
+        "/inputs/designs/general/bold/bold4.webp",
+        "/inputs/designs/general/bold/bold5.webp"
       ],
       "artisanal": [
         "/inputs/designs/bags/artisan/artisan1.webp",
         "/inputs/designs/bags/artisan/artisan2.webp",
         "/inputs/designs/bags/artisan/artisan3.webp"
       ],
+      "animalprint": [
+        "/inputs/designs/general/animalprint/animalprint1.webp",
+        "/inputs/designs/general/animalprint/animalprint2.webp",
+        "/inputs/designs/general/animalprint/animalprint3.webp",
+        "/inputs/designs/general/animalprint/animalprint4.webp",
+        "/inputs/designs/general/animalprint/animalprint5.webp"
+      ],
       "whimsical": [
         "/inputs/designs/bags/whimsical/whimsical1.webp",
         "/inputs/designs/bags/whimsical/whimsical2.webp",
         "/inputs/designs/bags/whimsical/whimsical3.webp"
       ],
-      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"]
+      "sporty": ["/inputs/designs/bags/sporty/sporty1.webp"],
+      "futuristic": [
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
+      ]
     },
     "vase": {
       "midcenturymodern": [
@@ -1277,8 +1390,8 @@
         "/inputs/designs/homedecor/organicshapes/organicshapes2.webp"
       ],
       "colorpop": [
-      "/inputs/designs/general/colorpop/colorpop1.webp",
-      "/inputs/designs/general/colorpop/colorpop2.webp"
+        "/inputs/designs/general/colorpop/colorpop1.webp",
+        "/inputs/designs/general/colorpop/colorpop2.webp"
       ],
       "rawexposedmaterials": [
         "/inputs/designs/homedecor/rawexposedmaterials/rawexposedmaterials1.webp"
@@ -1296,7 +1409,7 @@
         "/inputs/designs/homedecor/nomadic/nomadic2.webp"
       ],
       "tropicaltimes": [
-      "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
+        "/inputs/designs/general/tropicaltimes/tropicaltimes1.webp"
       ],
       "popcraft": [
         "/inputs/designs/homedecor/popcraft/popcraft1.webp",
