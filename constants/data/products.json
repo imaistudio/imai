@@ -258,7 +258,19 @@
       "boldandcolorful": [
         "/inputs/designs/footwear/boldandcoloful/boldandcoloful1.webp"
       ],
+      "animalprint": [
+        "/inputs/designs/general/animalprint/animalprint1.webp",
+        "/inputs/designs/general/animalprint/animalprint2.webp",
+        "/inputs/designs/general/animalprint/animalprint3.webp",
+        "/inputs/designs/general/animalprint/animalprint4.webp",
+        "/inputs/designs/general/animalprint/animalprint5.webp"
+      ],
+
       "sculptural": ["/inputs/designs/footwear/sculptural/sculptural1.webp"],
+      "artfulelegance": [
+        "/inputs/designs/officesupplies/artfulelegance/artfulelegance1.webp",
+        "/inputs/designs/officesupplies/artfulelegance/artfulelegance2.webp"
+      ],
       "girlyromanticsporty": [
         "/inputs/designs/footwear/girlyromanticsporty/girlyromanticsporty1.webp"
       ],
@@ -283,6 +295,10 @@
         "/inputs/designs/footwear/printedmatter/printedmatter8.webp",
         "/inputs/designs/footwear/printedmatter/printedmatter9.webp",
         "/inputs/designs/footwear/printedmatter/printedmatter10.webp"
+      ],
+      "preppystyle": [
+        "/inputs/designs/toys/preppystyle/preppystyle1.webp",
+        "/inputs/designs/toys/preppystyle/preppystyle2.webp"
       ],
       "retrodancehall": [
         "/inputs/designs/footwear/retrodancehall/retrodancehall1.webp"
