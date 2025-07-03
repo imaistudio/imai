@@ -487,6 +487,14 @@
       ]
     },
     "coffecup": {
+      "minimal": [
+        "/inputs/designs/kitchenware/minimal/minimal1.webp",
+        "/inputs/designs/kitchenware/minimal/minimal1.webp"
+      ],
+      "naturalelements": [
+        "/inputs/designs/footwear/naturalelements/naturalelements1.webp"
+      ],
+
       "colorfulglass": [
         "/inputs/designs/kitchenware/colorfulglass/colorfulglass1.webp",
         "/inputs/designs/kitchenware/colorfulglass/colorfulglass2.webp",
@@ -502,6 +510,11 @@
         "/inputs/designs/kitchenware/vintagetouch/vintagetouch1.webp",
         "/inputs/designs/kitchenware/vintagetouch/vintagetouch2.webp",
         "/inputs/designs/kitchenware/vintagetouch/vintagetouch3.webp"
+      ],
+      "retro": [
+        "/inputs/designs/kitchenware/retro/retro1.webp",
+        "/inputs/designs/kitchenware/retro/retro2.webp",
+        "/inputs/designs/kitchenware/retro/retro3.webp"
       ],
       "boiddetails": [
         "/inputs/designs/kitchenware/bolddetails/bolddetails1.webp"
@@ -528,6 +541,20 @@
         "/inputs/designs/kitchenware/rippleglass/rippleglass1.webp"
       ],
       "confetti": ["/inputs/designs/kitchenware/confetti/confetti1.webp"],
+      "contemporaryart": [
+        "/inputs/designs/footwear/contemporaryart/contemporaryart1.webp"
+      ],
+      "futuristic": [
+        "/inputs/designs/general/futuristic/futuristic1.webp",
+        "/inputs/designs/general/futuristic/futuristic2.webp",
+        "/inputs/designs/general/futuristic/futuristic3.webp",
+        "/inputs/designs/general/futuristic/futuristic4.webp",
+        "/inputs/designs/general/futuristic/futuristic5.webp",
+        "/inputs/designs/general/futuristic/futuristic6.webp",
+        "/inputs/designs/general/futuristic/futuristic7.webp",
+        "/inputs/designs/general/futuristic/futuristic8.webp",
+        "/inputs/designs/general/futuristic/futuristic9.webp"
+      ],
       "fullchrome": ["/inputs/designs/kitchenware/fullchrome/fullchrome1.webp"],
       "veggieforms": [
         "/inputs/designs/kitchenware/veggieforms/veggieforms1.webp",

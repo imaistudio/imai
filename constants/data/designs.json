@@ -512,6 +512,11 @@
       "/inputs/designs/footwear/homeyfeel/homeyfeel2.webp"
     ],
 
+    "minimal": [
+      "/inputs/designs/kitchenware/minimal/minimal1.webp",
+      "/inputs/designs/kitchenware/minimal/minimal1.webp"
+    ],
+
     "colorfulglass": [
       "/inputs/designs/kitchenware/colorfulglass/colorfulglass1.webp",
       "/inputs/designs/kitchenware/colorfulglass/colorfulglass2.webp",
@@ -528,6 +533,12 @@
       "/inputs/designs/kitchenware/vintagetouch/vintagetouch2.webp",
       "/inputs/designs/kitchenware/vintagetouch/vintagetouch3.webp"
     ],
+    "retro": [
+      "/inputs/designs/kitchenware/retro/retro1.webp",
+      "/inputs/designs/kitchenware/retro/retro2.webp",
+      "/inputs/designs/kitchenware/retro/retro3.webp"
+    ],
+
     "boiddetails": [
       "/inputs/designs/kitchenware/bolddetails/bolddetails1.webp"
     ],
@@ -872,9 +883,11 @@
     "wovensportymules": "/inputs/placeholders/footware/wovensportymules.webp",
     "homeyfeel": "/inputs/placeholders/footware/homeyfeel.webp",
 
+    "minimal": "/inputs/placeholders/kitchenware/minimal.webp",
     "colorfulglass": "/inputs/placeholders/kitchenware/70's.webp",
     "artfulchic": "/inputs/placeholders/kitchenware/artfulchic.webp",
     "vintagetouch": "/inputs/placeholders/kitchenware/vintagetouch.webp",
+    "retro": "/inputs/placeholders/kitchenware/retro.webp",
     "boiddetails": "/inputs/placeholders/kitchenware/bolddetails.webp",
     "colorfulbistrostylrcutlery": "/inputs/placeholders/kitchenware/colorfulbistrostylecutlery.webp",
     "boldcutlery": "/inputs/placeholders/kitchenware/boldcutlery.webp",
