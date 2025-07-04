@@ -71,6 +71,7 @@ interface SubmissionData {
   productplaceholder: string;
   designplaceholder: string[];
   colorplaceholder: string[];
+  referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode
 }
 
 // 🔧 NEW: Interface for referenced message
@@ -312,6 +313,7 @@ export default function UnifiedPromptContainer({
       productplaceholder: productImage ? getImagePlaceholder(productImage) : "",
       designplaceholder: designImages.map((img) => getImagePlaceholder(img)),
       colorplaceholder: colorImages.map((img) => getImagePlaceholder(img)),
+      referencemode: referencedMessage?.referencemode, // 🔧 NEW: Include reference mode from referenced message
     };
 
     if (onSubmit) onSubmit(submissionData);

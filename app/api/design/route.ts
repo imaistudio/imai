@@ -345,6 +345,7 @@ FINAL PHOTOREALISM REQUIREMENTS (MANDATORY):
 🎨 DESIGN REFERENCE EXTRACTION (CRITICAL):
 - **IF the design reference shows a product**: IGNORE the product shape/structure completely
 - **EXTRACT ONLY**: Visual patterns, stitching styles, surface textures, material treatments, and decorative elements
+- **PATTERN ADAPTATION**: If reference shows geometric patterns (grids, blocks, stripes), adapt the CONCEPT to fit the base product's surface areas intelligently
 - **APPLY TO BASE PRODUCT**: Use extracted design elements as surface treatments on the base product
 - **NEVER CHANGE**: Base product's shape, silhouette, or structural form to match design reference product
 
@@ -389,8 +390,16 @@ VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
     case "product_color": {
       const basePrompt = `Apply only the color palette and color scheme from the color reference image to the PRODUCT ONLY while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette.
 
+🚨 PRODUCT PRESERVATION REQUIREMENTS (ABSOLUTELY CRITICAL - HIGHEST PRIORITY):
+- YOU MUST PRESERVE THE EXACT SAME PRODUCT STRUCTURE, SHAPE, AND DESIGN AS THE INPUT
+- DO NOT CHANGE the product's form, silhouette, proportions, or geometry AT ALL
+- DO NOT CHANGE the product's materials, textures, or construction details
+- DO NOT CHANGE the product's style, category, or design elements
+- ONLY CHANGE THE COLORS - nothing else about the product should be different
+- The output must be the SAME EXACT PRODUCT with different colors applied
+- This is a COLOR RECOLORING task, NOT a design modification task
+
 🚨 PHOTOREALISM REQUIREMENTS (CRITICAL - HIGHEST PRIORITY):
-- Strictly retain the original product's shape, structure, proportions, and geometry — do not alter its form, dimensions, or silhouette
 - Render as REALISTIC PRODUCT PHOTOGRAPHY with professional studio lighting
 - Maintain actual product materials, textures, and physical properties
 - NO artistic rendering, NO cartoon style, NO illustration style, NO anime style
@@ -406,6 +415,15 @@ VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
 - Do NOT change background color, lighting, or environmental elements
 - Maintain the exact same photo composition and setting
 - Colors should look like real fabric dyes, paints, or materials - not digital overlays
+
+🔧 SPECIFIC PRODUCT PRESERVATION INSTRUCTIONS:
+- Look at the input product image and MEMORIZE its exact shape, structure, and design
+- Your job is to create the SAME EXACT PRODUCT but with different colors
+- Do NOT interpret this as "create a similar product" - it must be IDENTICAL except for colors
+- If the input is a high-top sneaker, the output must be the same high-top sneaker
+- If the input has specific design elements (stripes, logos, patterns), preserve them exactly
+- If the input has specific proportions, maintain those exact proportions
+- Think of this as digitally recoloring the existing product, not creating a new one
 
 ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
@@ -557,6 +575,8 @@ USER PROMPT: ${userPrompt ?? "N/A"}${commonSuffix}`;
 
 🎨 SURFACE DESIGN APPLICATION (CRITICAL - REPLACE EXISTING DESIGNS):
 - **COMPLETELY REPLACE** any existing decorative elements from the base product with new design elements
+- **ADAPT GEOMETRIC PATTERNS**: If design reference shows grids, blocks, or geometric patterns, adapt them to the base product's surface areas (e.g., 4-quadrant grid on t-shirt becomes color-blocked panels on shoes)
+- **MAINTAIN PATTERN LOGIC**: Preserve the core visual concept (color blocks, stripes, geometric divisions) but fit them to the product's shape
 - Apply design reference elements as SURFACE PATTERNS, PRINTS, or TEXTURES only
 - Use design elements as printed graphics, embossed patterns, or applied decorations
 - Design motifs should appear as if they were manufactured onto the base product
@@ -2116,14 +2136,82 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 🔧 NEW: Extract explicit reference flag to distinguish auto vs manual referencing
     const explicitReferenceStr = formData.get("explicit_reference") as string;
-    const isManualReference = explicitReferenceStr === "true";
-    const isAutoReference = !!productImageUrl && !isManualReference;
+    // 🔧 NEW: Extract reference mode for contextual processing
+    const referenceMode = formData.get("referencemode") as string;
+    // 🔧 CRITICAL: Extract actual reference image URL (separate from product image)
+    const referenceImageUrl = formData.get("reference_image_url") as string;
+    // 🔧 FALLBACK: Also check design_image_url (used by intentroute for references)
+    const designImageUrlFromReference = formData.get("design_image_url") as string;
+    
+    // 🔍 DEBUG: Log exactly what reference URLs we received
+    console.log("🔍 REFERENCE URL DEBUG:");
+    console.log(`  - reference_image_url: ${referenceImageUrl || "NOT PROVIDED"}`);
+    console.log(`  - design_image_url: ${designImageUrlFromReference || "NOT PROVIDED"}`);
+    console.log(`  - product_image_url: ${productImageUrl || "NOT PROVIDED"}`);
+    console.log(`  - All form data keys: ${Array.from(formData.keys()).filter(k => k.includes('image')).join(', ')}`);
+    
+    // 🔧 IMPROVED DETECTION: Multiple ways to detect manual vs auto references
+    const isExplicitManualReference = explicitReferenceStr === "true";
+    const hasSpecificReferenceMode = referenceMode && ["product", "design", "color"].includes(referenceMode);
+    
+    // 🔧 SMART FALLBACK: Multiple ways to detect manual reference
+    const claudeDetectedDesignOrColor = semanticAnalysis?.input_roles?.design_sources === "reference" || 
+                                       semanticAnalysis?.input_roles?.color_sources === "reference";
+    const hasExplicitPresets = !!presetProductType || !!presetDesignStyle || !!presetColorPalette;
+    
+    // 🔧 CRITICAL FIX: Determine actual reference URL (manual reference takes priority over auto reference)
+    // ⚠️ IMPORTANT: Only use productImageUrl as reference when there's NO separate product input
+    // In "product image + design reference" scenarios, we need the actual reference URL, not the product URL
+    const hasActualProductInput = !!productImage || !!productImageUrl;
+    const actualReferenceUrl = referenceImageUrl || designImageUrlFromReference || (!hasActualProductInput ? productImageUrl : null);
+    
+    console.log("🔍 REFERENCE URL DETERMINATION:");
+    console.log(`  - Has actual product input: ${hasActualProductInput}`);
+    console.log(`  - Final reference URL: ${actualReferenceUrl || "NONE"}`);
+    if (actualReferenceUrl) {
+      console.log(`  - Reference URL source: ${referenceImageUrl ? "reference_image_url" : designImageUrlFromReference ? "design_image_url" : "product_image_url (fallback)"}`);
+    }
+    
+    // 🔧 ENHANCED DETECTION: Reference + multiple presets = likely manual reference
+    const hasMultiplePresets = [presetProductType, presetDesignStyle, presetColorPalette].filter(Boolean).length >= 2;
+    const referenceWithMultiplePresets = !!actualReferenceUrl && hasMultiplePresets;
+    
+    // 🔧 CRITICAL FIX: If all 3 slots are filled with actual uploads, SKIP all reference processing
+    const hasUploadedDesignImage = !!designImageUrl;
+    const hasUploadedColorImage = !!colorImageUrl;
+    const hasUploadedProductImage = !!productImageUrl;
+    const hasAllThreeUploads = hasUploadedProductImage && hasUploadedDesignImage && hasUploadedColorImage;
+    
+    // 🔧 NEW: Detect manual reference when user uploads product + reference (common manual reference scenario)
+    // BUT NOT when all 3 slots are filled with uploads (that's just 3 direct uploads, not reference scenario)
+    const manualReferenceWithUploads = !!actualReferenceUrl && hasUploadedProductImage && !hasAllThreeUploads;
+    
+    const isLikelyManualReference = claudeDetectedDesignOrColor && hasExplicitPresets || referenceWithMultiplePresets || manualReferenceWithUploads;
+    
+    const isManualReference = isExplicitManualReference || hasSpecificReferenceMode || isLikelyManualReference;
+    const isAutoReference = !!actualReferenceUrl && !isManualReference && !hasAllThreeUploads;
 
     console.log(`🔍 REFERENCE TYPE DETECTION:`);
     console.log(`  - Has product image URL: ${!!productImageUrl}`);
+    console.log(`  - Has design image URL: ${!!designImageUrl}`);
+    console.log(`  - Has color image URL: ${!!colorImageUrl}`);
+    console.log(`  - Has ALL THREE uploads: ${hasAllThreeUploads}`);
+    console.log(`  - Has reference image URL: ${!!referenceImageUrl}`);
+    console.log(`  - Has design image URL (from reference): ${!!designImageUrlFromReference}`);
     console.log(`  - Explicit reference flag: ${explicitReferenceStr}`);
-    console.log(`  - Is manual reference: ${isManualReference}`);
-    console.log(`  - Is auto reference: ${isAutoReference}`);
+    console.log(`  - Reference mode: ${referenceMode || "not specified"}`);
+    console.log(`  - Explicit manual reference: ${isExplicitManualReference}`);
+    console.log(`  - Has specific reference mode: ${hasSpecificReferenceMode}`);
+    console.log(`  - Claude detected design/color reference: ${claudeDetectedDesignOrColor}`);
+    console.log(`  - Has explicit presets: ${hasExplicitPresets}`);
+    console.log(`  - Has multiple presets: ${hasMultiplePresets}`);
+    console.log(`  - Reference with multiple presets: ${referenceWithMultiplePresets}`);
+    console.log(`  - Has uploaded color image: ${hasUploadedColorImage}`);
+    console.log(`  - Has uploaded product image: ${hasUploadedProductImage}`);
+    console.log(`  - Manual reference with uploads: ${manualReferenceWithUploads}`);
+    console.log(`  - Smart fallback triggered: ${isLikelyManualReference}`);
+    console.log(`  - FINAL: Is manual reference: ${isManualReference}`);
+    console.log(`  - FINAL: Is auto reference: ${isAutoReference}`);
 
     // 🧠 INTELLIGENT REFERENCE LOGIC: Claude's semantic analysis + explicit rules as fallback
     // Prioritize Claude's intelligent understanding, fallback to explicit preset logic
@@ -2135,236 +2223,162 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       skipProductPreset: false,
       skipDesignPreset: false,
       skipColorPreset: false,
+      skipProductImageProcessing: false,
     };
 
-    if (productImageUrl) {
+    // 🔧 CRITICAL FIX: Skip ALL reference processing when user uploads all 3 images directly
+    if (hasAllThreeUploads) {
+      console.log("🎯 ALL THREE UPLOADS DETECTED - Skipping reference processing completely");
+      console.log("  - Using uploaded product image directly");
+      console.log("  - Using uploaded design image directly");  
+      console.log("  - Using uploaded color image directly");
+      console.log("  - NO reference processing needed");
+    }
+    // 🔧 CLEAN SEPARATION: Handle reference logic based on type
+    else if (actualReferenceUrl) {
       const hasProductPreset = !!presetProductType;
       const hasDesignPreset = !!presetDesignStyle;
       const hasColorPreset = !!presetColorPalette;
 
-      console.log(`🧠 INTELLIGENT REFERENCE ANALYSIS:`);
+      console.log(`🔍 REFERENCE PROCESSING:`);
+      console.log(`  - Reference type: ${isAutoReference ? "AUTO" : isManualReference ? "MANUAL" : "UNKNOWN"}`);
       console.log(`  - Has product preset: ${hasProductPreset}`);
       console.log(`  - Has design preset: ${hasDesignPreset}`);
       console.log(`  - Has color preset: ${hasColorPreset}`);
-      console.log(
-        `  - Reference type: ${isAutoReference ? "AUTO" : isManualReference ? "MANUAL" : "UNKNOWN"}`,
-      );
-      console.log(`  - Reference image: ${productImageUrl.slice(0, 50)}...`);
+      console.log(`  - Product image URL: ${productImageUrl?.slice(0, 50)}...`);
+      console.log(`  - Reference image URL: ${referenceImageUrl?.slice(0, 50)}...`);
+      console.log(`  - Design image URL (from reference): ${designImageUrlFromReference?.slice(0, 50)}...`);
+      console.log(`  - Using reference URL: ${actualReferenceUrl.slice(0, 50)}...`);
 
-      // 🔧 SMART AUTO-REFERENCING: Let Claude's analysis override when there are explicit preset conflicts
-      if (isAutoReference && semanticAnalysis) {
-        const referenceRole = semanticAnalysis.reference_role;
-        const userIntent = semanticAnalysis.user_intent;
-
-        // 🧠 CONFLICT DETECTION: When user selects product preset but auto-references image
-        if (hasProductPreset && referenceRole === "product") {
-          // User explicitly selected a product type BUT auto-referenced an image
-          // Trust Claude's understanding and user's explicit preset selection
-          console.log("🤔 SMART AUTO-REFERENCE CONFLICT DETECTED:");
-          console.log(
-            `  - User selected: ${presetProductType} (explicit product choice)`,
-          );
-          console.log(`  - Claude suggests: reference as "${referenceRole}"`);
-          console.log(`  - User intent: ${userIntent}`);
-
-          // 🧠 CRITICAL FIX: Respect Claude's detailed input_roles analysis instead of overriding
-          const inputRoles = semanticAnalysis.input_roles || {};
-          const designSources = inputRoles.design_sources;
-          const colorSources = inputRoles.color_sources;
-
-          if (designSources === "upload" && designImageUrl) {
-            // Claude says use uploaded image for design - RESPECT THIS!
-            console.log(
-              "🎯 RESPECTING CLAUDE'S ANALYSIS: Using uploaded image for DESIGN (Claude's detailed analysis)",
-            );
-            // Don't set useReferenceAsDesign - let uploaded image be used for design
-          } else if (designSources === "reference") {
-            // Claude says use reference for design
-            overrideInputs.useReferenceAsDesign = true;
-            overrideInputs.skipDesignPreset = true;
-            console.log(
-              "🎯 CLAUDE'S SMART RESOLUTION: Using reference as DESIGN (Claude's detailed analysis)",
-            );
-          }
-
-          if (colorSources === "reference") {
-            overrideInputs.useReferenceAsColor = true;
-            overrideInputs.skipColorPreset = true;
-            console.log(
-              "🎯 CLAUDE'S SMART RESOLUTION: Using reference as COLOR (Claude's detailed analysis)",
-            );
-          }
-
-          // Always use preset for product when there's a conflict
-          console.log(
-            "🎯 USING PRESET PRODUCT: Preserving user's explicit product choice",
-          );
+      // ========================================
+      // 🤖 AUTO-REFERENCE LOGIC (Reply to previous generation)
+      // ========================================
+      if (isAutoReference) {
+        console.log("🤖 AUTO-REFERENCE PROCESSING:");
+        
+        if (!hasProductPreset) {
+          // No product preset = use reference as product (default auto-reference behavior)
+          overrideInputs.useReferenceAsProduct = true;
+          console.log("  🎯 Using reference as PRODUCT (no explicit product choice)");
+        } else {
+          // Has product preset = ignore reference for product, use preset instead
+          overrideInputs.skipProductImageProcessing = true;
+          console.log("  🎯 Using preset as PRODUCT, skipping reference for product role");
+          console.log(`    - Preset: ${presetProductType}`);
+          
+          // 🚫 AUTO-REFERENCE RULE: NEVER use for design/color (only for product)
+          console.log("  🚫 AUTO-REFERENCE: NOT using for design/color (by design)");
+          console.log("     - Auto-reference is ONLY for product role");
+          console.log("     - Manual reference can be used for any role");
         }
-        // 🔧 CRITICAL FIX: Only set overrides for auto-reference when there's no separate uploaded product
-        // If we have both productImageUrl (uploaded) AND designImageUrl (reference),
-        // don't override - let each be processed in their respective slots
-        else if (!designImageUrl) {
-          // 🧠 ENHANCED: Check input_roles for dual-purpose scenarios
-          const inputRoles = semanticAnalysis.input_roles || {};
-          const useRefForDesign = inputRoles.design_sources === "reference";
-          const useRefForColor = inputRoles.color_sources === "reference";
-
-          // Handle dual-purpose reference (both design + color from same image)
-          if (useRefForDesign && useRefForColor) {
+      }
+      // ========================================
+      // 👤 MANUAL REFERENCE LOGIC (User deliberately uploaded reference)
+      // ========================================
+      else if (isManualReference) {
+        console.log("👤 MANUAL REFERENCE PROCESSING:");
+        
+        if (!semanticAnalysis || !semanticAnalysis.input_roles) {
+          console.log("  ⚠️ No Claude analysis available, using smart fallback");
+          
+          // 🔧 SMART FALLBACK: When user uploads product + reference + color, likely want reference for design
+          if (manualReferenceWithUploads) {
+            console.log("  🎯 Smart Fallback: Product + Reference + Color uploads detected");
+            console.log("    - Using uploaded product as PRODUCT");
+            console.log("    - Using reference as DESIGN");
+            console.log("    - Using uploaded color as COLOR");
             overrideInputs.useReferenceAsDesign = true;
-            overrideInputs.useReferenceAsColor = true;
+            overrideInputs.useReferenceAsProduct = false; // CRITICAL: Don't use reference as product
             overrideInputs.skipDesignPreset = true;
-            overrideInputs.skipColorPreset = true;
-            console.log(
-              "🎯 CLAUDE'S DUAL-PURPOSE AUTO-REFERENCE: Using reference as DESIGN + COLOR (Claude's intelligent choice)",
-            );
-          }
-          // Handle single-purpose reference based on primary role
-          else if (referenceRole === "design" || useRefForDesign) {
-            overrideInputs.useReferenceAsDesign = true;
-            overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
-            console.log(
-              "🎯 CLAUDE'S AUTO-REFERENCE: Using reference as DESIGN (Claude's intelligent choice)",
-            );
-          } else if (referenceRole === "color" || useRefForColor) {
-            overrideInputs.useReferenceAsColor = true;
-            overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
-            console.log(
-              "🎯 CLAUDE'S AUTO-REFERENCE: Using reference as COLOR (Claude's intelligent choice)",
-            );
           } else {
             overrideInputs.useReferenceAsProduct = true;
-            console.log(
-              "🎯 CLAUDE'S AUTO-REFERENCE: Using reference as PRODUCT (Claude's intelligent choice)",
-            );
+            console.log("  🎯 Default Fallback: Using reference as PRODUCT");
           }
         } else {
-          // 🎯 COMPLEX SCENARIO: We have both uploaded product AND separate reference
-          // In this case, productImageUrl should ALWAYS be analyzed as product
-          // The reference is already handled separately via designImageUrl
-          console.log(
-            "🎯 CLAUDE'S COMPLEX SCENARIO: Uploaded product + separate reference detected - analyzing both independently",
-          );
-          console.log(
-            `  - Product image (will be analyzed): ${productImageUrl.slice(0, 50)}...`,
-          );
-          console.log(
-            `  - Reference image (handled separately): ${designImageUrl.slice(0, 50)}...`,
-          );
-          // Don't set any overrides - let both images be processed in their respective roles
-        }
-      }
-      // 🔧 FALLBACK AUTO-REFERENCE: When no Claude analysis available
-      else if (isAutoReference) {
-        overrideInputs.useReferenceAsProduct = true;
-        console.log(
-          "🔄 FALLBACK AUTO-REFERENCE: Using reference as PRODUCT (no Claude analysis available)",
-        );
-      }
-      // 🧠 CLAUDE'S SEMANTIC ANALYSIS: Use Claude's intelligent interpretation for manual references
-      else if (semanticAnalysis && isManualReference) {
-        const referenceRole = semanticAnalysis.reference_role;
-        const userIntent = semanticAnalysis.user_intent;
-
-        console.log(
-          `🧠 CLAUDE'S SEMANTIC ANALYSIS: intent="${userIntent}", reference_role="${referenceRole}"`,
-        );
-
-        // 🔧 ENHANCED LOGIC: Respect explicit preset selections while using Claude's semantic understanding
-        if (hasProductPreset && referenceRole === "design") {
-          // User has product preset + Claude says reference is design → Perfect match!
-          overrideInputs.useReferenceAsDesign = true;
-          overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
-          console.log(
-            "🎯 CLAUDE + PRESET HARMONY: Product preset + Reference as DESIGN (Claude's intelligent choice)",
-          );
-        } else if (hasProductPreset && referenceRole === "color") {
-          // User has product preset + Claude says reference is color → Perfect match!
-          overrideInputs.useReferenceAsColor = true;
-          overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
-          console.log(
-            "🎯 CLAUDE + PRESET HARMONY: Product preset + Reference as COLOR (Claude's intelligent choice)",
-          );
-        } else if (referenceRole === "product") {
-          // Claude says reference should be the product
-          overrideInputs.useReferenceAsProduct = true;
-          console.log(
-            "🎯 CLAUDE'S CHOICE: Using reference as PRODUCT (Claude's semantic understanding)",
-          );
-        }
-        // 🔧 FALLBACK: When Claude's analysis doesn't align perfectly, use explicit preset logic
-        else {
-          console.log(
-            "🤔 Claude's analysis unclear, falling back to explicit preset logic...",
-          );
-          // Apply explicit rules as fallback
-          if (hasProductPreset && !hasDesignPreset && !hasColorPreset) {
-            overrideInputs.useReferenceAsDesign = true;
-            overrideInputs.useReferenceAsColor = true;
-            overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
-            overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
-            console.log(
-              "🎯 FALLBACK RULE 1: Product preset only → Reference as DESIGN + COLOR",
-            );
-          } else if (hasProductPreset && hasDesignPreset && !hasColorPreset) {
-            overrideInputs.useReferenceAsColor = true;
-            overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
-            console.log(
-              "🎯 FALLBACK RULE 2: Product + Design presets → Reference as COLOR",
-            );
-          } else if (hasProductPreset && !hasDesignPreset && hasColorPreset) {
-            overrideInputs.useReferenceAsDesign = true;
-            // Keep color preset, only skip design preset
-            console.log(
-              "🎯 FALLBACK RULE 3: Product + Color presets → Reference as DESIGN",
-            );
-          } else if (hasProductPreset && hasDesignPreset && hasColorPreset) {
-            overrideInputs.useReferenceAsProduct = true;
-            console.log(
-              "🎯 FALLBACK RULE 4: All presets → Reference as PRODUCT (override preset)",
-            );
+          console.log("  🧠 Using Claude's semantic analysis to determine roles");
+          
+          // 🔧 Explicit reference mode override
+          if (referenceMode && ["product", "design", "color"].includes(referenceMode)) {
+            console.log(`  🎯 Reference mode override: "${referenceMode}"`);
+            
+            if (referenceMode === "design") {
+              overrideInputs.useReferenceAsDesign = true;
+              overrideInputs.skipDesignPreset = true;
+              console.log("    ✅ Using reference as DESIGN (explicit user choice)");
+            } else if (referenceMode === "color") {
+              overrideInputs.useReferenceAsColor = true;
+              overrideInputs.skipColorPreset = true;
+              console.log("    ✅ Using reference as COLOR (explicit user choice)");
+            } else if (referenceMode === "product") {
+              overrideInputs.useReferenceAsProduct = true;
+              console.log("    ✅ Using reference as PRODUCT (explicit user choice)");
+            }
           } else {
-            overrideInputs.useReferenceAsProduct = true;
-            console.log("🎯 FALLBACK: Default → Reference as PRODUCT");
+            // 🧠 Use Claude's detailed input_roles analysis
+            const inputRoles = semanticAnalysis.input_roles;
+            console.log(`  📋 Claude's role assignments:`, inputRoles);
+            
+            // 🔧 SMART OVERRIDE: If user has product preset + reference, don't use reference as product
+            const hasProductPreset = !!presetProductType;
+            const claudeWantsReferenceAsProduct = inputRoles.product_sources === "reference";
+            
+            if (claudeWantsReferenceAsProduct && hasProductPreset) {
+              console.log("    🔧 OVERRIDE: User has product preset - using reference as DESIGN instead of product");
+              overrideInputs.useReferenceAsDesign = true;
+              overrideInputs.skipDesignPreset = true;
+              console.log("    ✅ OVERRIDE: Using reference as DESIGN (Claude wanted product)");
+            } else if (inputRoles.product_sources === "reference") {
+              overrideInputs.useReferenceAsProduct = true;
+              console.log("    ✅ Claude: Using reference as PRODUCT");
+            }
+            
+            if (inputRoles.design_sources === "reference") {
+              overrideInputs.useReferenceAsDesign = true;
+              overrideInputs.skipDesignPreset = true;
+              console.log("    ✅ Claude: Using reference as DESIGN");
+            }
+            
+            if (inputRoles.color_sources === "reference") {
+              overrideInputs.useReferenceAsColor = true;
+              overrideInputs.skipColorPreset = true;
+              console.log("    ✅ Claude: Using reference as COLOR");
+            }
+            
+            // 🔧 Fallback to reference_role if input_roles is empty
+            if (!inputRoles.product_sources && !inputRoles.design_sources && !inputRoles.color_sources) {
+              const referenceRole = semanticAnalysis.reference_role;
+              console.log(`  🔄 Fallback to reference_role: "${referenceRole}"`);
+              
+              if (referenceRole === "design") {
+                overrideInputs.useReferenceAsDesign = true;
+                overrideInputs.skipDesignPreset = true;
+                console.log("    ✅ Fallback: Using reference as DESIGN");
+              } else if (referenceRole === "color") {
+                overrideInputs.useReferenceAsColor = true;
+                overrideInputs.skipColorPreset = true;
+                console.log("    ✅ Fallback: Using reference as COLOR");
+              } else {
+                overrideInputs.useReferenceAsProduct = true;
+                console.log("    ✅ Fallback: Using reference as PRODUCT");
+              }
+            }
           }
         }
       }
-      // 🔧 EXPLICIT PRESET LOGIC: When no Claude analysis available (legacy support)
+      // ========================================
+      // ❓ UNKNOWN REFERENCE TYPE
+      // ========================================
       else {
-        console.log(
-          "🔧 No Claude semantic analysis available, using explicit preset logic...",
-        );
-
-        if (hasProductPreset && !hasDesignPreset && !hasColorPreset) {
-          overrideInputs.useReferenceAsDesign = true;
-          overrideInputs.useReferenceAsColor = true;
-          overrideInputs.skipDesignPreset = true; // Don't use design preset, use reference as design
-          overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
-          console.log(
-            "🎯 EXPLICIT RULE 1: Product preset only → Reference as DESIGN + COLOR",
-          );
-        } else if (hasProductPreset && hasDesignPreset && !hasColorPreset) {
-          overrideInputs.useReferenceAsColor = true;
-          overrideInputs.skipColorPreset = true; // Don't use color preset, use reference as color
-          console.log(
-            "🎯 EXPLICIT RULE 2: Product + Design presets → Reference as COLOR",
-          );
-        } else if (hasProductPreset && !hasDesignPreset && hasColorPreset) {
-          overrideInputs.useReferenceAsDesign = true;
-          // Keep color preset, only skip design preset
-          console.log(
-            "🎯 EXPLICIT RULE 3: Product + Color presets → Reference as DESIGN",
-          );
-        } else if (hasProductPreset && hasDesignPreset && hasColorPreset) {
-          overrideInputs.useReferenceAsProduct = true;
-          console.log(
-            "🎯 EXPLICIT RULE 4: All presets → Reference as PRODUCT (override preset)",
-          );
-        } else {
-          overrideInputs.useReferenceAsProduct = true;
-          console.log("🎯 EXPLICIT DEFAULT: Reference as PRODUCT");
-        }
+        console.log("❓ UNKNOWN REFERENCE TYPE - using default product reference");
+        overrideInputs.useReferenceAsProduct = true;
       }
+      
+      // 📊 LOG FINAL REFERENCE DECISIONS
+      console.log("🎯 FINAL REFERENCE DECISIONS:");
+      console.log(`  - Use as Product: ${overrideInputs.useReferenceAsProduct}`);
+      console.log(`  - Use as Design: ${overrideInputs.useReferenceAsDesign}`);
+      console.log(`  - Use as Color: ${overrideInputs.useReferenceAsColor}`);
+      console.log(`  - Skip product processing: ${overrideInputs.skipProductImageProcessing}`);
     }
 
     // 5) Validate that this inferred workflow is valid
@@ -2380,12 +2394,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       "full_composition",
     ].includes(workflow_type);
 
+    // 🔧 CRITICAL FIX: Account for reference-as-design scenarios in validation
+    const hasDesignFromReference = overrideInputs.useReferenceAsDesign && !!actualReferenceUrl;
+    const hasColorFromReference = overrideInputs.useReferenceAsColor && !!actualReferenceUrl;
+
     const validation = isModificationWorkflow
       ? validateWorkflowInputs(
           workflow_type,
           hasActualProduct || !!presetProductType, // Product: actual input OR preset OK
-          hasActualDesign, // Design: only actual input for validation
-          hasActualColor || !!presetColorPalette, // Color: actual input OR preset OK
+          hasActualDesign || hasDesignFromReference, // Design: actual input OR reference OR preset OK
+          hasActualColor || hasColorFromReference || !!presetColorPalette, // Color: actual input OR reference OR preset OK
           !!prompt,
         )
       : validateWorkflowInputs(
@@ -2413,7 +2431,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     try {
       // Handle product image (file, URL, or preset)
-      if (productImage && firebaseInitialized) {
+      // 🎯 PRIORITY: When all 3 uploads are present, process them directly without reference logic
+      if (hasAllThreeUploads && productImageUrl) {
+        console.log("🎯 ALL THREE UPLOADS: Processing product image directly");
+        inputUrls.product = productImageUrl;
+        analyses.product = await analyzeImageWithGPT4Vision(
+          productImageUrl,
+          "product",
+        );
+        console.log("✅ Product image processed successfully (direct upload)");
+      } else if (productImage && firebaseInitialized) {
         console.log("Processing product image file...");
         const productBuffer = await fileToJpegBuffer(productImage);
         const productPath = `${userid}/input/${uuidv4()}.jpg`;
@@ -2426,13 +2453,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           productUrl,
           "product",
         );
-        console.log("Product image file processed successfully");
+                console.log("Product image file processed successfully");
       } else if (
         productImageUrl &&
         !overrideInputs.useReferenceAsDesign &&
-        !overrideInputs.useReferenceAsColor
+        !overrideInputs.useReferenceAsColor &&
+        overrideInputs.useReferenceAsProduct &&
+        !overrideInputs.skipProductImageProcessing
       ) {
-        // Only use productImageUrl as product if it's not being used as design/color source
+        // Only use productImageUrl as product if it's not being used as design/color source AND we're using it as product AND not explicitly skipped
         console.log("Using product image URL:", productImageUrl);
         inputUrls.product = productImageUrl;
         console.log("🔍 Starting product image analysis...");
@@ -2448,8 +2477,40 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           console.log("⚠️ Product analysis returned empty result!");
         }
         console.log("Product image URL processed successfully");
-      } else if (presetProductType) {
-        // 🎯 SEMANTIC OVERRIDE: When reference is used as design/color, use preset for product
+      } else if (
+        productImageUrl &&
+        semanticAnalysis?.input_roles?.product_sources === "upload"
+      ) {
+        // 🔧 CRITICAL FIX: When Claude says to use upload for product, process the uploaded product image
+        console.log("🧠 CLAUDE OVERRIDE: Using uploaded product image (Claude said product_sources: upload)");
+        console.log("Using product image URL:", productImageUrl);
+        inputUrls.product = productImageUrl;
+        console.log("🔍 Starting uploaded product image analysis...");
+        analyses.product = await analyzeImageWithGPT4Vision(
+          productImageUrl,
+          "product",
+        );
+        console.log("✅ Uploaded product image processed successfully");
+      } else if (
+        productImageUrl &&
+        !overrideInputs.useReferenceAsProduct &&
+        overrideInputs.useReferenceAsDesign &&
+        !overrideInputs.skipProductImageProcessing &&
+        !presetProductType
+      ) {
+        // 🎯 SMART FALLBACK: Process uploaded product when reference is used as design (manual reference scenario)
+        // BUT ONLY when there's no product preset (preset takes priority)
+        console.log("🎯 SMART FALLBACK: Using uploaded product image (reference used as design)");
+        console.log("Using product image URL:", productImageUrl);
+        inputUrls.product = productImageUrl;
+        console.log("🔍 Starting uploaded product image analysis...");
+        analyses.product = await analyzeImageWithGPT4Vision(
+          productImageUrl,
+          "product",
+        );
+        console.log("✅ Uploaded product image processed successfully (smart fallback)");
+      } else if (presetProductType && (semanticAnalysis?.input_roles?.product_sources !== "upload" || overrideInputs.useReferenceAsDesign || overrideInputs.useReferenceAsColor)) {
+        // 🎯 SEMANTIC OVERRIDE: Use preset when Claude didn't say to use upload OR when reference is used for design/color
         if (
           overrideInputs.useReferenceAsDesign ||
           overrideInputs.useReferenceAsColor
@@ -2459,6 +2520,62 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           );
         }
         console.log("Using preset product type:", presetProductType);
+
+        // 🔧 CRITICAL FIX: Process the preset product type into analysis
+        // Extract actual product name from path (e.g., "inputs/placeholders/t-shirt.svg" -> "tshirt")
+        let productName = presetProductType;
+        if (presetProductType.includes("/")) {
+          // Extract filename and remove extension
+          const filename =
+            presetProductType.split("/").pop() || presetProductType;
+          productName = filename.replace(/\.(svg|png|jpg|jpeg|webp)$/i, "");
+          // Convert "t-shirt" to "tshirt" for lookup
+          productName = productName.replace(/[-\s]/g, "");
+        }
+
+        console.log(
+          `Extracted product name: "${productName}" from "${presetProductType}"`,
+        );
+
+        // Create detailed product specification based on type
+        const productSpecs: Record<string, string> = {
+          tshirt:
+            "T-shirt - Cotton/cotton blend fabric garment with short sleeves, crew or V-neck, standard fit. Key features: front chest area for designs, back panel for large graphics, sleeve space for accent designs. Maintain classic t-shirt silhouette and proportions.",
+          totebag:
+            "Tote bag - Large rectangular canvas or fabric bag with two parallel handles. Key features: spacious main compartment, flat front and back panels ideal for designs, sturdy construction. Maintain practical tote bag structure and proportions.",
+          hoodie:
+            "Hoodie - Pullover sweatshirt with attached hood and front pocket. Key features: hood area, front chest space, sleeve areas, back panel for large designs. Maintain casual hoodie silhouette and proportions.",
+          shoes:
+            "Shoes - Footwear with sole, upper, and closure system. Key features: toe box, side panels, heel area, tongue, and sole. Maintain functional shoe structure while allowing surface design application.",
+          pillow:
+            "Decorative pillow - Square or rectangular cushion with removable cover. Key features: flat front surface ideal for patterns/designs, maintain standard pillow dimensions and soft fabric appearance.",
+          backpack:
+            "Backpack - Multi-compartment bag with shoulder straps. Key features: main body panel, front pocket areas, side panels, adjustable straps. Maintain functional backpack structure and proportions.",
+          phonecase:
+            "Phone case - Protective cover for smartphone. Key features: camera cutout area, port access, flat back surface for designs. Maintain precise fit and protective functionality.",
+          coffecup:
+            "Coffee mug - Cylindrical ceramic drinking vessel with handle. Key features: wrap-around surface area for designs, handle attachment, maintain standard mug proportions and functionality.",
+          blanket:
+            "Throw blanket - Rectangular textile covering. Key features: large flat surface ideal for patterns, soft fabric texture, maintain cozy blanket appearance and drape.",
+          dress:
+            "Dress - One-piece garment for upper and lower body. Key features: bodice area, skirt section, sleeve/shoulder areas. Maintain feminine dress silhouette and flowing fabric characteristics.",
+        };
+
+        const productSpec =
+          productSpecs[productName] ||
+          `${productName} - Product type to be generated with characteristic shape, structure, and design surfaces appropriate for the product category.`;
+
+        analyses.product = `TARGET PRODUCT: ${productSpec} This product ready for design application will serve as the base for the design composition. IMPORTANT: Generate specifically a ${productName}, not any other product type.`;
+        console.log("Preset product type processed successfully");
+      } else if (presetProductType && semanticAnalysis?.input_roles?.product_sources === "upload") {
+        console.log(
+          "🔧 SKIPPING preset product type - Claude said to use uploaded product instead:",
+          {
+            claudeProductSources: semanticAnalysis?.input_roles?.product_sources,
+            hasProductImageUrl: !!productImageUrl,
+            presetProductType,
+          },
+        );
 
         // Extract actual product name from path (e.g., "inputs/placeholders/t-shirt.svg" -> "tshirt")
         let productName = presetProductType;
@@ -2515,7 +2632,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       // Handle design image (file, URL, or preset) with semantic override
       // 🧠 CRITICAL FIX: Prioritize uploaded design images over reference overrides
-      if (designImage && firebaseInitialized) {
+      // 🎯 PRIORITY: When all 3 uploads are present, process them directly without reference logic
+      if (hasAllThreeUploads && designImageUrl) {
+        console.log("🎯 ALL THREE UPLOADS: Processing design image directly");
+        inputUrls.design = designImageUrl;
+        analyses.design = await analyzeImageWithGPT4Vision(
+          designImageUrl,
+          "design reference",
+        );
+        console.log("✅ Design image processed successfully (direct upload)");
+      } else if (designImage && firebaseInitialized) {
         console.log("Processing uploaded design image file...");
         const designBuffer = await fileToJpegBuffer(designImage);
         const designPath = `${userid}/input/${uuidv4()}.jpg`;
@@ -2538,15 +2664,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           "design reference",
         );
         console.log("✅ Uploaded design image URL processed successfully");
-      } else if (overrideInputs.useReferenceAsDesign && productImageUrl) {
+      } else if (overrideInputs.useReferenceAsDesign && actualReferenceUrl) {
         // 🎯 CLAUDE'S SEMANTIC OVERRIDE: Use reference image as design source
         console.log(
-          "🧠 SEMANTIC OVERRIDE: Using reference image (from productImageUrl) as DESIGN source instead of uploads/presets",
+          "🧠 SEMANTIC OVERRIDE: Using reference image as DESIGN source instead of uploads/presets",
         );
-        inputUrls.design = productImageUrl;
+        inputUrls.design = actualReferenceUrl;
         console.log("🔍 Starting reference-as-design analysis...");
         analyses.design = await analyzeImageWithGPT4Vision(
-          productImageUrl,
+          actualReferenceUrl,
           "design reference",
         );
         console.log("✅ Reference image processed as DESIGN source");
@@ -2682,16 +2808,39 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         colorImageUrlValue: colorImageUrl?.substring(0, 80) + "...",
       });
 
+      // 🔧 CRITICAL FIX: Determine if we should use preset for color instead of reference
+      const shouldUsePresetForColor = 
+        semanticAnalysis?.input_roles?.color_sources === "preset" && 
+        !!presetColorPalette && 
+        !overrideInputs.useReferenceAsColor;
+      
+      console.log("🔧 COLOR SOURCE DECISION:", {
+        claudeColorSources: semanticAnalysis?.input_roles?.color_sources,
+        hasPreset: !!presetColorPalette,
+        useReferenceAsColor: !!overrideInputs.useReferenceAsColor,
+        shouldUsePresetForColor,
+      });
+
       // 🧠 SEMANTIC OVERRIDES: Handle reference image color extraction based on Claude's analysis
       // CRITICAL: Reference can serve DUAL PURPOSE (both design + color from same image)
-      if (overrideInputs.useReferenceAsColor && productImageUrl) {
+      // 🎯 PRIORITY: When all 3 uploads are present, process them directly without reference logic
+      if (hasAllThreeUploads && colorImageUrl) {
+        console.log("🎯 ALL THREE UPLOADS: Processing color image directly");
+        inputUrls.color = colorImageUrl;
+        const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
+          colorImageUrl,
+          "color reference",
+        );
+        colorAnalysisParts.push(uploadedColorAnalysis);
+        console.log("✅ Color image processed successfully (direct upload)");
+      } else if (overrideInputs.useReferenceAsColor && actualReferenceUrl) {
         // When Claude explicitly says reference should be color source
         console.log(
-          "🧠 SEMANTIC OVERRIDE 2: Using reference image (from productImageUrl) as COLOR source",
+          "🧠 SEMANTIC OVERRIDE 2: Using reference image as COLOR source",
         );
-        inputUrls.color = productImageUrl;
+        inputUrls.color = actualReferenceUrl;
         const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
-          productImageUrl,
+          actualReferenceUrl,
           "color reference",
         );
         colorAnalysisParts.push(referenceColorAnalysis);
@@ -2710,7 +2859,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log("✅ Reference image processed as COLOR source");
       }
       // Handle standard color inputs (colorImageUrl from references, color files)
-      else if (colorImageUrl) {
+      // 🔧 CRITICAL FIX: Don't process colorImageUrl when Claude said to use preset instead
+      else if (colorImageUrl && !shouldUsePresetForColor) {
         console.log(
           "🎯 MAIN COLOR PROCESSING: Using color image URL (likely from reference):",
           colorImageUrl.substring(0, 80) + "...",
@@ -2722,6 +2872,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         colorAnalysisParts.push(referenceColorAnalysis);
         console.log("✅ Reference color image processed successfully");
+      } else if (colorImageUrl && shouldUsePresetForColor) {
+        console.log(
+          "🔧 SKIPPING color image URL processing - Claude said to use preset instead:",
+          {
+            colorImageUrl: colorImageUrl.substring(0, 50) + "...",
+            claudeColorSources: semanticAnalysis?.input_roles?.color_sources,
+            hasPreset: !!presetColorPalette,
+          },
+        );
       } else if (colorImage && firebaseInitialized) {
         console.log("🎯 MAIN COLOR PROCESSING: Processing color image file...");
         const colorBuffer = await fileToJpegBuffer(colorImage);
@@ -2739,16 +2898,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // When Claude says reference should be used for BOTH design AND color extraction
       else if (
         overrideInputs.useReferenceAsDesign &&
-        productImageUrl &&
+        actualReferenceUrl &&
         semanticAnalysis?.input_roles?.design_sources === "reference" &&
         semanticAnalysis?.input_roles?.color_sources === "reference"
       ) {
         console.log(
           "🧠 DUAL-PURPOSE REFERENCE: Analyzing same reference for COLOR extraction (already processed for design)",
         );
-        inputUrls.color = productImageUrl;
+        inputUrls.color = actualReferenceUrl;
         const referenceColorAnalysis = await analyzeImageWithGPT4Vision(
-          productImageUrl,
+          actualReferenceUrl,
           "color reference",
         );
         colorAnalysisParts.push(referenceColorAnalysis);
