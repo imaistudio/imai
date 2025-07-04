@@ -396,8 +396,20 @@ export default function Home() {
           referencemode: referencedMessage.referencemode || "product", // 🔧 NEW: Include reference mode
         };
         formData.append("explicit_reference", JSON.stringify(reference));
+        
+        // 🔧 CRITICAL FIX: Add referencemode as separate FormData field for API detection
+        if (referencedMessage.referencemode) {
+          formData.append("referencemode", referencedMessage.referencemode);
+        }
+      }
+      
+      // 🔧 NEW: Add referencemode from submission data if present (fallback)
+      if (data.referencemode) {
+        formData.append("referencemode", data.referencemode);
+      }
 
-        // Clear the reference after sending
+      // Clear the reference after sending (moved outside)
+      if (referencedMessage) {
         clearReference();
       }
 
