@@ -16,17 +16,17 @@ export default function GlobalModal() {
       onOpenChange={(open) => {
         if (!open) closeModal();
       }}
-      className="p-0 max-w-md rounded-2xl overflow-hidden bg-white dark:bg-black"
+      className="m-4 md:m-0 lg:p-0 max-w-md rounded-2xl overflow-hidden bg-white dark:bg-black"
     >
       <ModalContent>
         <>
           {/* Image Collage Header */}
-          <div className="relative w-full h-auto  pb-12  overflow-hidden">
+          <div className="relative w-full h-auto  pb-4  overflow-hidden">
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 p-2  z-10"
             >
-              <X className="w-8 h-8" />
+              <X className="w-8 h-8 text-white dark:text-black" />
             </button>
             <img
               src="/popup.jpg" // Replace with your image path
@@ -71,7 +71,7 @@ export default function GlobalModal() {
             <a
               href="/explore"
               onClick={closeModal}
-              className="text-sm py-4 hover:underline text-center cursor-pointer"
+              className="text-sm py-4 text-gray-500 dark:text-gray-400 underline text-center cursor-pointer"
             >
               Explore
             </a>
