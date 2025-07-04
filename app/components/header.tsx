@@ -71,8 +71,9 @@ export default function App() {
   };
 
   return (
+    <>
     <Navbar
-      className="bg-white dark:bg-black"
+      className="hidden md:flex bg-white dark:bg-black"
       position="sticky"
       onMenuOpenChange={setIsMenuOpen}
     >
@@ -199,5 +200,6 @@ export default function App() {
         ))}
       </NavbarMenu>
     </Navbar>
+    </>
   );
 }
