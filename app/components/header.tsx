@@ -16,6 +16,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
 import { useRouter } from "next/navigation";
+import MobileNav from "./MobileNav";
 
 // Define the type for menu items
 type MenuItem = {
@@ -72,6 +73,7 @@ export default function App() {
 
   return (
     <>
+    <MobileNav />
     <Navbar
       className="hidden md:flex bg-white dark:bg-black"
       position="sticky"
