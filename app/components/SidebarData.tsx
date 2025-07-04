@@ -77,6 +77,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   );
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [creatingFolderLoading, setCreatingFolderLoading] = useState(false);
   const [movingChat, setMovingChat] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -209,9 +210,10 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
 
   // Folder operations
   const createFolder = async () => {
-    if (!currentUser || !newFolderName.trim()) return;
+    if (!currentUser || !newFolderName.trim() || creatingFolderLoading) return;
 
     try {
+      setCreatingFolderLoading(true);
       const foldersRef = collection(
         firestore,
         `users/${currentUser.uid}/folders`,
@@ -225,12 +227,18 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         updatedAt: serverTimestamp(),
       });
 
-      setCreatingFolder(false);
-      setNewFolderName("");
       console.log("📁 Created folder:", newFolderName.trim());
+      resetFolderCreation();
     } catch (error) {
       console.error("❌ Error creating folder:", error);
+      setCreatingFolderLoading(false);
     }
+  };
+
+  const resetFolderCreation = () => {
+    setCreatingFolder(false);
+    setNewFolderName("");
+    setCreatingFolderLoading(false);
   };
 
   const deleteFolder = async (folder: FolderItem) => {
@@ -805,9 +813,12 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         <div className="flex items-center justify-between p-2">
           <p className="ml-2 p-0 opacity-50">Folders</p>
           <button
-            onClick={() => setCreatingFolder(true)}
-            className="p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors"
+            onClick={() => !creatingFolder && !creatingFolderLoading && setCreatingFolder(true)}
+            className={`p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors ${
+              creatingFolder || creatingFolderLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             title="Create Folder"
+            disabled={creatingFolder || creatingFolderLoading}
           >
             <FolderPlus size={16} />
           </button>
@@ -815,38 +826,50 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
 
         {/* Create Folder Input */}
         {creatingFolder && (
-          <div className="p-2">
-            <input
-              ref={newFolderInputRef}
-              type="text"
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-              onBlur={() => {
-                if (newFolderName.trim()) {
-                  createFolder();
-                } else {
-                  setCreatingFolder(false);
-                  setNewFolderName("");
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  if (newFolderName.trim()) {
-                    createFolder();
+          <div className="p-2 animate-in slide-in-from-top-2 duration-200">
+            <div className="relative">
+              <input
+                ref={newFolderInputRef}
+                type="text"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                onBlur={() => {
+                  if (!creatingFolderLoading) {
+                    if (newFolderName.trim()) {
+                      createFolder();
+                    } else {
+                      resetFolderCreation();
+                    }
                   }
-                } else if (e.key === "Escape") {
-                  e.preventDefault();
-                  setCreatingFolder(false);
-                  setNewFolderName("");
-                }
-              }}
-              placeholder="Enter folder name..."
-              className="w-full px-2 py-1 text-sm bg-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-              maxLength={50}
-              autoComplete="off"
-              spellCheck={false}
-            />
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (newFolderName.trim() && !creatingFolderLoading) {
+                      createFolder();
+                    }
+                  } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    if (!creatingFolderLoading) {
+                      resetFolderCreation();
+                    }
+                  }
+                }}
+                placeholder="Enter folder name..."
+                className={`w-full px-2 py-1 text-sm bg-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary pr-8 transition-all duration-200 ${
+                  creatingFolderLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                maxLength={50}
+                autoComplete="off"
+                spellCheck={false}
+                disabled={creatingFolderLoading}
+              />
+              {creatingFolderLoading && (
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  <div className="w-4 h-4 border border-current border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
