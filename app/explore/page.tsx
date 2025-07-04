@@ -29,17 +29,17 @@ export default function Masonry() {
   return (
     <>
       <Header></Header>
-      <main className="dark:bg-black bg-white min-h-screen p-6">
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+      <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
+        <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 gap-2 space-y-4">
           {images.map((src, index) => (
             <div
               key={index}
-              className="w-full break-inside-avoid overflow-hidden rounded-2xl shadow-md"
+              className="w-full break-inside-avoid overflow-hidden rounded-lg lg:rounded-2xl"
             >
               <ImageZoomModal
                 src={src}
                 alt={`Masonry ${index + 1}`}
-                className="w-full h-auto rounded-2xl object-cover"
+                className="w-full h-auto rounded-lg lg:rounded-2xl object-cover"
               />
             </div>
           ))}
