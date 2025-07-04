@@ -718,6 +718,146 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
+  // Handle upscale image
+  const handleUpscale = useCallback(
+    async (imageUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log("✨ Starting image upscale for:", imageUrl);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `upscale-${Date.now()}`,
+        sender: "agent",
+        type: "images",
+        text: "Upscaling image to higher resolution...",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      try {
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Call upscale API
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("image_url", imageUrl);
+        formData.append("upscaling_factor", "4");
+        formData.append("overlapping_tiles", "false");
+        formData.append("checkpoint", "v1");
+
+        const response = await fetch("/api/upscale", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (
+          result.status === "success" &&
+          result.imageUrl
+        ) {
+          // Create upscaled image message
+          const upscaleMessage: ChatMessage = {
+            id: `upscale-result-${Date.now()}`,
+            sender: "agent",
+            type: "images",
+            text: "Here's your upscaled image:",
+            images: [result.imageUrl],
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Update Firestore with the upscaled image
+          // First, get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with upscale result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? upscaleMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+
+          console.log("✅ Upscaled image saved to chat");
+        } else {
+          throw new Error("Invalid response from upscale API");
+        }
+      } catch (error) {
+        console.error("❌ Image upscale failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `upscale-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't upscale the image. Please try again later.",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+
+          // Get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with error message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          } else {
+            // If no chat found, just add the error message
+            await updateDoc(chatRef, {
+              messages: arrayUnion(errorMessage),
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
   // Initialize auth state
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user: User | null) => {
@@ -1008,9 +1148,9 @@ export default function ChatWindow({
                                     />
                                   </button>
                                   <button
-                                    onClick={() => console.log("Enhance:", img)}
+                                    onClick={() => handleUpscale(img)}
                                     className="p-1 rounded-full "
-                                    title="Enhance"
+                                    title="Upscale Image"
                                   >
                                     <Sparkles
                                       size={16}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as fal from "@fal-ai/serverless-client";
+import { fal } from "@fal-ai/client";
 import { v4 as uuidv4 } from "uuid";
 
 // Set maximum function duration to 300 seconds (5 minutes)
@@ -10,9 +10,9 @@ fal.config({
 });
 
 interface UpscaleOptions {
-  scale?: number;
-  enhance_face?: boolean;
-  enhance_details?: boolean;
+  upscaling_factor?: 4;
+  overlapping_tiles?: boolean;
+  checkpoint?: "v1" | "v2";
 }
 
 interface UpscaleResponse {
@@ -37,24 +37,40 @@ async function upscaleImage(
   options: UpscaleOptions,
 ): Promise<string> {
   try {
-    const { scale = 4, enhance_face = true, enhance_details = true } = options;
+    const { 
+      upscaling_factor = 4, 
+      overlapping_tiles = false, 
+      checkpoint = "v1" 
+    } = options;
 
-    console.log("Submitting request to FAL AI...");
+    console.log("Submitting request to FAL AI Aura SR...");
     console.log(
-      `Arguments: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`,
+      `Arguments: upscaling_factor=${upscaling_factor}, overlapping_tiles=${overlapping_tiles}, checkpoint=${checkpoint}`,
     );
+    
+    // Check if image URL is accessible
+    try {
+      console.log("🔍 Testing image URL accessibility...");
+      const testResponse = await fetch(imageUrl, { method: 'HEAD' });
+      console.log(`📡 Image URL test: ${testResponse.status} ${testResponse.statusText}`);
+      console.log(`📄 Content-Type: ${testResponse.headers.get('content-type')}`);
+      console.log(`📏 Content-Length: ${testResponse.headers.get('content-length')}`);
+    } catch (urlError) {
+      console.error("⚠️ Image URL accessibility test failed:", urlError);
+    }
 
     const result = await fal.subscribe("fal-ai/aura-sr", {
       input: {
         image_url: imageUrl,
-        scale,
-        enhance_face,
-        enhance_details,
+        upscaling_factor: upscaling_factor as any,
+        overlapping_tiles,
+        checkpoint,
       },
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
           console.log("Processing in progress...");
+          update.logs.map((log) => log.message).forEach(console.log);
         }
       },
     });
@@ -62,37 +78,22 @@ async function upscaleImage(
     console.log("Processing completed successfully!");
     console.log("Raw result:", result);
 
-    let outputImageUrl = null;
-    const resultData = result as any;
-
-    if (
-      resultData.image &&
-      typeof resultData.image === "object" &&
-      "url" in resultData.image
-    ) {
-      outputImageUrl = resultData.image.url;
-    } else if (resultData.data && typeof resultData.data === "object") {
-      if (
-        "image" in resultData.data &&
-        resultData.data.image &&
-        typeof resultData.data.image === "object" &&
-        "url" in resultData.data.image
-      ) {
-        outputImageUrl = resultData.data.image.url;
-      } else if ("url" in resultData.data) {
-        outputImageUrl = resultData.data.url;
-      }
-    }
-
-    if (!outputImageUrl) {
+    // According to FAL AI documentation, result structure is: result.data.image.url
+    if (!result.data || !result.data.image || !result.data.image.url) {
       throw new Error(
-        `No image URL found in result. Result structure: ${JSON.stringify(result)}`,
+        `No image URL found in result. Expected result.data.image.url. Result structure: ${JSON.stringify(result)}`,
       );
     }
 
-    return outputImageUrl;
+    return result.data.image.url;
   } catch (error) {
     console.error("Error in upscaleImage:", error);
+    
+    // Log detailed error information for debugging
+    if (error && typeof error === 'object' && 'body' in error) {
+      console.error("FAL AI Error Details:", JSON.stringify(error.body, null, 2));
+    }
+    
     throw error;
   }
 }
@@ -124,23 +125,48 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     console.log("🔗 Using provided image URL for upscaling:", imageUrl);
+    
+    // Check FAL_KEY configuration
+    console.log("🔑 FAL_KEY status:", process.env.FAL_KEY ? "Set" : "Not Set");
+    if (!process.env.FAL_KEY) {
+      return NextResponse.json(
+        { status: "error", error: "FAL_KEY environment variable not set" },
+        { status: 500 },
+      );
+    }
 
-    const scale = parseInt(formData.get("scale") as string) || 2;
-    const enhance_face =
-      (formData.get("enhance_face") as string)?.toLowerCase() !== "false";
-    const enhance_details =
-      (formData.get("enhance_details") as string)?.toLowerCase() !== "false";
+    // Extract proper FAL AI parameters
+    const upscaling_factor_param = (formData.get("upscaling_factor") as string) || "4";
+    const upscaling_factor = parseInt(upscaling_factor_param, 10);
+    const overlapping_tiles = (formData.get("overlapping_tiles") as string)?.toLowerCase() === "true";
+    const checkpoint = (formData.get("checkpoint") as string) || "v1";
+
+    // Validate upscaling_factor
+    if (upscaling_factor !== 4) {
+      return NextResponse.json(
+        { status: "error", error: 'upscaling_factor must be 4' },
+        { status: 400 },
+      );
+    }
+
+    // Validate checkpoint
+    if (checkpoint !== "v1" && checkpoint !== "v2") {
+      return NextResponse.json(
+        { status: "error", error: 'checkpoint must be "v1" or "v2"' },
+        { status: 400 },
+      );
+    }
 
     console.log("Starting image upscaling...");
     console.log(
-      `Parameters: scale=${scale}, enhance_face=${enhance_face}, enhance_details=${enhance_details}`,
+      `Parameters: upscaling_factor=${upscaling_factor}, overlapping_tiles=${overlapping_tiles}, checkpoint=${checkpoint}`,
     );
     console.log(`Image to process: ${imageUrl}`);
 
     const upscaledImageUrl = await upscaleImage(imageUrl, {
-      scale,
-      enhance_face,
-      enhance_details,
+      upscaling_factor: upscaling_factor as 4,
+      overlapping_tiles,
+      checkpoint: checkpoint as "v1" | "v2",
     });
 
     console.log("Upscaling completed!");
@@ -197,11 +223,10 @@ export async function GET(): Promise<NextResponse> {
         parameters: {
           userid: "string (required) - User ID from intentroute",
           image_url:
-            "string (required) - Image URL from intentroute (Cloudinary)",
-          scale: "number (optional) - Upscale factor (default: 2)",
-          enhance_face: "boolean (optional) - Enhance faces (default: true)",
-          enhance_details:
-            "boolean (optional) - Enhance details (default: true)",
+            "string (required) - Image URL from intentroute (Firebase Storage)",
+          upscaling_factor: 'number (optional) - Upscaling factor, must be 4 (default: 4)',
+          overlapping_tiles: "boolean (optional) - Use overlapping tiles, removes seams but doubles inference time (default: false)",
+          checkpoint: 'string (optional) - Checkpoint to use, "v1" or "v2" (default: "v1")',
         },
       },
     },
