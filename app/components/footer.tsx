@@ -78,6 +78,16 @@ const socialItems = [
 export default function Footer() {
   return (
     <>
+    <footer className="md:hidden flex justify-center items-center py-4 text-sm text-blue-600">
+      <a href="/terms">
+        Terms of Use
+      </a>
+      <span className="mx-2 text-gray-400">|</span>
+      <a href="/privacy">
+        Privacy Policy
+      </a>
+    </footer>
+    
     <footer className="hidden md:flex w-full flex-col bg-white text-black dark:bg-black dark:text-white">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-6 py-12 lg:px-8">
         <div className="flex items-center justify-center">
