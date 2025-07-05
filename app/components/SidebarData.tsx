@@ -22,6 +22,7 @@ import {
   Trash2,
   MoreHorizontal,
   Folder,
+  Plus,
   FolderPlus,
   ChevronRight,
   ChevronDown,
@@ -811,16 +812,16 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
       {/* Create Folder Section */}
       <div className="mb-4">
         <div className="flex items-center justify-between p-2">
-          <p className="ml-2 p-0 opacity-50">Folders</p>
+          <p className="ml-2 p-0 opacity-50">Projects</p>
           <button
             onClick={() => !creatingFolder && !creatingFolderLoading && setCreatingFolder(true)}
             className={`p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors ${
               creatingFolder || creatingFolderLoading ? "opacity-50 cursor-not-allowed" : ""
             }`}
-            title="Create Folder"
+            title="Create Projects"
             disabled={creatingFolder || creatingFolderLoading}
           >
-            <FolderPlus size={16} />
+            <Plus size={16} />
           </button>
         </div>
 
@@ -855,7 +856,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                     }
                   }
                 }}
-                placeholder="Enter folder name..."
+                placeholder="Project Name"
                 className={`w-full px-2 py-1 text-sm bg-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary pr-8 transition-all duration-200 ${
                   creatingFolderLoading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
@@ -890,7 +891,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
               className="p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors"
               title="Pin"
             >
-              <Pin size={16} />
+              {/* <Pin size={16} /> */}
             </button>
           </div>
           <div className="space-y-1 p-2 mb-4">
@@ -908,7 +909,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
               className="p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors"
               title="Chat"
             >
-              <MessageCircle size={16} />
+              {/* <MessageCircle size={16} /> */}
             </button>
           </div>
           <div className="space-y-1 p-2">
