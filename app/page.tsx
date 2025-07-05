@@ -795,7 +795,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full ">
+    <div className="flex flex-col h-screen w-full overflow-hidden">
       {/* Sticky MobileNav at the top */}
       <div className="sticky top-0 z-50 ">
         <MobileNav />

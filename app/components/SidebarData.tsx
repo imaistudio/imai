@@ -23,11 +23,9 @@ import {
   MoreHorizontal,
   Folder,
   Plus,
-  FolderPlus,
   ChevronRight,
   ChevronDown,
   Move,
-  MessageCircle,
 } from "lucide-react";
 import {
   Dropdown,
