@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import { IMAIIcon } from "./imai";
 import { SearchForm } from "./search-form";
 import SidebarData from "./SidebarData";
+import { NavUser } from "./nav-user";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,12 +52,17 @@ export default function MobileNav() {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`md:hidden fixed bg-white dark:bg-black top-0 left-0 z-50 h-full w-3/4  py-2 transition-transform duration-300 ${
+        className={`md:hidden fixed bg-white dark:bg-black top-0 left-0 z-50 h-full w-3/4 py-2 transition-transform duration-300 flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <SearchForm onSearchChange={setSearchTerm} />
-        <SidebarData searchTerm={searchTerm} />
+        <div className="flex-1 overflow-y-auto">
+          <SidebarData searchTerm={searchTerm} />
+        </div>
+        <div className="sticky bottom-0 z-50 bg-white dark:bg-black">
+          <NavUser />
+        </div>
       </div>
     </>
   );
