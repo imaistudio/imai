@@ -802,7 +802,7 @@ export default function Home() {
       </div>
 
       {/* ChatWindow grows to fill remaining space, scrolls behind sticky footer */}
-      <div className="flex-1 overflow-y-auto px-4 hide-scrollbar">
+      <div className="flex-1 overflow-y-auto px-2 hide-scrollbar">
         <ChatWindow
           chatId={currentChatId}
           onReplyToMessage={handleReplyToMessage}
@@ -811,7 +811,7 @@ export default function Home() {
       </div>
 
       {/* Sticky Prompt Input at the bottom */}
-      <div className="sticky bottom-0 z-10  px-4 pb-4 pt-2">
+      <div className="sticky bottom-0 z-10  px-2 pb-4 pt-2">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
           placeholder="Design starts here.."

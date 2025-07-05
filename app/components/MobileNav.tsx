@@ -36,7 +36,7 @@ export default function MobileNav() {
 
   return (
     <>
-      <nav className="md:hidden flex items-center justify-between px-4 py-2">
+      <nav className="md:hidden flex items-center justify-between px-4 py-2 bg-white dark:bg-black">
         <button onClick={() => setIsOpen(true)} className="p-2">
           <Menu size={24} />
         </button>
@@ -51,7 +51,7 @@ export default function MobileNav() {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`md:hidden fixed top-0 left-0 z-50 h-full w-64  py-2 transition-transform duration-300 ${
+        className={`md:hidden fixed bg-white dark:bg-black top-0 left-0 z-50 h-full w-64  py-2 transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
