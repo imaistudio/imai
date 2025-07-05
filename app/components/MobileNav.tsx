@@ -1,13 +1,16 @@
 'use client';
 
+import * as React from "react";
 import { useState, useRef, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { IMAIIcon } from './imai';
-import { AppSidebar } from './app-sidebar';
+import { SearchForm } from "./search-form";
+import SidebarData from "./SidebarData";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const [searchTerm, setSearchTerm] = React.useState("");
 
   // Close on outside click
   useEffect(() => {
@@ -47,11 +50,12 @@ export default function MobileNav() {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-white p-4 transition-transform duration-300 ${
+        className={`md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-white py-2 transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        
+        <SearchForm onSearchChange={setSearchTerm} />
+        <SidebarData searchTerm={searchTerm} />
       </div>
     </>
   );
