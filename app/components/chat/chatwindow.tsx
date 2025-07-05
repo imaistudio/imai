@@ -765,10 +765,7 @@ export default function ChatWindow({
 
         const result = await response.json();
 
-        if (
-          result.status === "success" &&
-          result.imageUrl
-        ) {
+        if (result.status === "success" && result.imageUrl) {
           // Create upscaled image message
           const upscaleMessage: ChatMessage = {
             id: `upscale-result-${Date.now()}`,
@@ -1211,9 +1208,11 @@ export default function ChatWindow({
                               title="Reply to this image"
                             >
                               <Reply size={16} className="text-gray-500" />
-                              <span className="text-sm text-gray-500">Reply</span>
+                              <span className="text-sm text-gray-500">
+                                Reply
+                              </span>
                             </button>
-                            
+
                             {/* Reference mode icons - show on reply hover */}
                             <div className="opacity-0 group-hover/reply:opacity-100 transition-opacity duration-200 flex items-center space-x-1 ml-2">
                               <button

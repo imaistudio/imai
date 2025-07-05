@@ -78,57 +78,53 @@ const socialItems = [
 export default function Footer() {
   return (
     <>
-    <footer className="md:hidden flex justify-center items-center py-4 text-sm text-blue-600">
-      <a href="/terms">
-        Terms of Use
-      </a>
-      <span className="mx-2 text-gray-400">|</span>
-      <a href="/privacy">
-        Privacy Policy
-      </a>
-    </footer>
-    
-    <footer className="hidden md:flex w-full flex-col bg-white text-black dark:bg-black dark:text-white">
-      <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-6 py-12 lg:px-8">
-        <div className="flex items-center justify-center">
-          <IMAIIcon size={32} />
-          <span className="m-2 text-medium font-medium">IMAI</span>
-        </div>
-        <Spacer y={4} />
-        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-          {navLinks.map((item) => (
-            <Link
-              key={item.name}
-              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
-              href={item.href}
-              size="sm"
-            >
-              {item.name}
-            </Link>
-          ))}
-        </div>
-        <Spacer y={6} />
-        <div className="flex justify-center gap-x-4">
-          {socialItems.map((item) => (
-            <Link
-              key={item.name}
-              isExternal
-              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
-              href={item.href}
-            >
-              <span className="sr-only text-black dark:text-white hover:scale-110 hover:font-semibold">
+      <footer className="md:hidden flex justify-center items-center py-4 text-sm text-blue-600">
+        <a href="/terms">Terms of Use</a>
+        <span className="mx-2 text-gray-400">|</span>
+        <a href="/privacy">Privacy Policy</a>
+      </footer>
+
+      <footer className="hidden md:flex w-full flex-col bg-white text-black dark:bg-black dark:text-white">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-6 py-12 lg:px-8">
+          <div className="flex items-center justify-center">
+            <IMAIIcon size={32} />
+            <span className="m-2 text-medium font-medium">IMAI</span>
+          </div>
+          <Spacer y={4} />
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+            {navLinks.map((item) => (
+              <Link
+                key={item.name}
+                className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+                href={item.href}
+                size="sm"
+              >
                 {item.name}
-              </span>
-              <item.icon aria-hidden="true" className="w-5" />
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
+          <Spacer y={6} />
+          <div className="flex justify-center gap-x-4">
+            {socialItems.map((item) => (
+              <Link
+                key={item.name}
+                isExternal
+                className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+                href={item.href}
+              >
+                <span className="sr-only text-black dark:text-white hover:scale-110 hover:font-semibold">
+                  {item.name}
+                </span>
+                <item.icon aria-hidden="true" className="w-5" />
+              </Link>
+            ))}
+          </div>
+          <Spacer y={4} />
+          <p className="mt-1 text-center text-small text-default-400">
+            &copy; 2025 IMAI.Studio Inc. All rights reserved.
+          </p>
         </div>
-        <Spacer y={4} />
-        <p className="mt-1 text-center text-small text-default-400">
-          &copy; 2025 IMAI.Studio Inc. All rights reserved.
-        </p>
-      </div>
-    </footer>
+      </footer>
     </>
   );
 }

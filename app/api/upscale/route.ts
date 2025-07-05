@@ -37,24 +37,30 @@ async function upscaleImage(
   options: UpscaleOptions,
 ): Promise<string> {
   try {
-    const { 
-      upscaling_factor = 4, 
-      overlapping_tiles = false, 
-      checkpoint = "v1" 
+    const {
+      upscaling_factor = 4,
+      overlapping_tiles = false,
+      checkpoint = "v1",
     } = options;
 
     console.log("Submitting request to FAL AI Aura SR...");
     console.log(
       `Arguments: upscaling_factor=${upscaling_factor}, overlapping_tiles=${overlapping_tiles}, checkpoint=${checkpoint}`,
     );
-    
+
     // Check if image URL is accessible
     try {
       console.log("🔍 Testing image URL accessibility...");
-      const testResponse = await fetch(imageUrl, { method: 'HEAD' });
-      console.log(`📡 Image URL test: ${testResponse.status} ${testResponse.statusText}`);
-      console.log(`📄 Content-Type: ${testResponse.headers.get('content-type')}`);
-      console.log(`📏 Content-Length: ${testResponse.headers.get('content-length')}`);
+      const testResponse = await fetch(imageUrl, { method: "HEAD" });
+      console.log(
+        `📡 Image URL test: ${testResponse.status} ${testResponse.statusText}`,
+      );
+      console.log(
+        `📄 Content-Type: ${testResponse.headers.get("content-type")}`,
+      );
+      console.log(
+        `📏 Content-Length: ${testResponse.headers.get("content-length")}`,
+      );
     } catch (urlError) {
       console.error("⚠️ Image URL accessibility test failed:", urlError);
     }
@@ -88,12 +94,15 @@ async function upscaleImage(
     return result.data.image.url;
   } catch (error) {
     console.error("Error in upscaleImage:", error);
-    
+
     // Log detailed error information for debugging
-    if (error && typeof error === 'object' && 'body' in error) {
-      console.error("FAL AI Error Details:", JSON.stringify(error.body, null, 2));
+    if (error && typeof error === "object" && "body" in error) {
+      console.error(
+        "FAL AI Error Details:",
+        JSON.stringify(error.body, null, 2),
+      );
     }
-    
+
     throw error;
   }
 }
@@ -125,7 +134,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     console.log("🔗 Using provided image URL for upscaling:", imageUrl);
-    
+
     // Check FAL_KEY configuration
     console.log("🔑 FAL_KEY status:", process.env.FAL_KEY ? "Set" : "Not Set");
     if (!process.env.FAL_KEY) {
@@ -136,15 +145,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Extract proper FAL AI parameters
-    const upscaling_factor_param = (formData.get("upscaling_factor") as string) || "4";
+    const upscaling_factor_param =
+      (formData.get("upscaling_factor") as string) || "4";
     const upscaling_factor = parseInt(upscaling_factor_param, 10);
-    const overlapping_tiles = (formData.get("overlapping_tiles") as string)?.toLowerCase() === "true";
+    const overlapping_tiles =
+      (formData.get("overlapping_tiles") as string)?.toLowerCase() === "true";
     const checkpoint = (formData.get("checkpoint") as string) || "v1";
 
     // Validate upscaling_factor
     if (upscaling_factor !== 4) {
       return NextResponse.json(
-        { status: "error", error: 'upscaling_factor must be 4' },
+        { status: "error", error: "upscaling_factor must be 4" },
         { status: 400 },
       );
     }
@@ -224,9 +235,12 @@ export async function GET(): Promise<NextResponse> {
           userid: "string (required) - User ID from intentroute",
           image_url:
             "string (required) - Image URL from intentroute (Firebase Storage)",
-          upscaling_factor: 'number (optional) - Upscaling factor, must be 4 (default: 4)',
-          overlapping_tiles: "boolean (optional) - Use overlapping tiles, removes seams but doubles inference time (default: false)",
-          checkpoint: 'string (optional) - Checkpoint to use, "v1" or "v2" (default: "v1")',
+          upscaling_factor:
+            "number (optional) - Upscaling factor, must be 4 (default: 4)",
+          overlapping_tiles:
+            "boolean (optional) - Use overlapping tiles, removes seams but doubles inference time (default: false)",
+          checkpoint:
+            'string (optional) - Checkpoint to use, "v1" or "v2" (default: "v1")',
         },
       },
     },

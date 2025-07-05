@@ -5,16 +5,10 @@ import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import { useChat } from "@/contexts/ChatContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
 import ChatWindow from "./components/chat/chatwindow";
-import {
-  doc,
-  setDoc,
-  Timestamp,
-  getDoc,
-  collection,
-  addDoc,
-} from "firebase/firestore";
+import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
+import MobileNav from "./components/MobileNav";
 
 // 🔧 NEW: Interface for reply/reference functionality
 interface ReferencedMessage {
@@ -396,13 +390,13 @@ export default function Home() {
           referencemode: referencedMessage.referencemode || "product", // 🔧 NEW: Include reference mode
         };
         formData.append("explicit_reference", JSON.stringify(reference));
-        
+
         // 🔧 CRITICAL FIX: Add referencemode as separate FormData field for API detection
         if (referencedMessage.referencemode) {
           formData.append("referencemode", referencedMessage.referencemode);
         }
       }
-      
+
       // 🔧 NEW: Add referencemode from submission data if present (fallback)
       if (data.referencemode) {
         formData.append("referencemode", data.referencemode);
@@ -801,9 +795,14 @@ export default function Home() {
   };
 
   return (
-    <div className="relative h-screen w-full overflow-hidden hide-scrollbar">
-      {/* ChatWindow fills the screen */}
-      <div className="absolute inset-0 overflow-y-auto hide-scrollbar">
+    <div className="flex flex-col h-screen w-full ">
+      {/* Sticky MobileNav at the top */}
+      <div className="sticky top-0 z-50 ">
+        <MobileNav />
+      </div>
+
+      {/* ChatWindow grows to fill remaining space, scrolls behind sticky footer */}
+      <div className="flex-1 overflow-y-auto px-4 hide-scrollbar">
         <ChatWindow
           chatId={currentChatId}
           onReplyToMessage={handleReplyToMessage}
@@ -811,8 +810,8 @@ export default function Home() {
         />
       </div>
 
-      {/* Sticky prompt at the bottom */}
-      <div className="absolute bottom-0 left-0 w-full pb-4 pl-4 pr-4 flex flex-col gap-2 bg-background text-center">
+      {/* Sticky Prompt Input at the bottom */}
+      <div className="sticky bottom-0 z-50  px-4 pb-4 pt-2">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
           placeholder="Design starts here.."
@@ -821,9 +820,9 @@ export default function Home() {
           onClearReference={clearReference}
           isSubmitting={isSubmitting}
         />
-        <small className="hidden md:block text-xs">
+        <small className="hidden md:block text-xs text-center mt-2">
           AI-generated content may not be perfect. Review{" "}
-          <a href="/terms" className="text-primary hover:underline">
+          <a href="/terms" className="text-blue-600 hover:underline">
             Terms & Conditions
           </a>
           .

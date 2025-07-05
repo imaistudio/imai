@@ -16,7 +16,6 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
 import { useRouter } from "next/navigation";
-import MobileNav from "./MobileNav";
 
 // Define the type for menu items
 type MenuItem = {
@@ -73,89 +72,88 @@ export default function App() {
 
   return (
     <>
-    <MobileNav />
-    <Navbar
-      className="hidden md:flex bg-white dark:bg-black"
-      position="sticky"
-      onMenuOpenChange={setIsMenuOpen}
-    >
-      <NavbarContent>
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="sm:hidden"
-        />
-        <NavbarBrand as={Link} href="/">
-          <IMAIIcon className="text-black dark:text-white" size={32} />
-          <p className="hidden md:flex pl-2 font-bold text-black dark:text-white">
-            IMAI
-          </p>
-        </NavbarBrand>
-      </NavbarContent>
-
-      <NavbarContent
-        className="hidden sm:flex gap-4 text-black dark:text-white"
-        justify="center"
+      <Navbar
+        className="hidden md:flex bg-white dark:bg-black"
+        position="sticky"
+        onMenuOpenChange={setIsMenuOpen}
       >
-        <NavbarItem>
-          <Link
-            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
-            href="/explore"
-          >
-            Explore
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link
-            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
-            href="/about"
-          >
-            About
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link
-            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
-            href="/pricing"
-          >
-            Pricing
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link
-            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
-            href="/contact"
-          >
-            Contact
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link
-            className="text-black dark:text-white hover:scale-110 hover:font-semibold"
-            href="/terms"
-          >
-            Terms
-          </Link>
-        </NavbarItem>
-      </NavbarContent>
+        <NavbarContent>
+          <NavbarMenuToggle
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            className="sm:hidden"
+          />
+          <NavbarBrand as={Link} href="/">
+            <IMAIIcon className="text-black dark:text-white" size={32} />
+            <p className="hidden md:flex pl-2 font-bold text-black dark:text-white">
+              IMAI
+            </p>
+          </NavbarBrand>
+        </NavbarContent>
 
-      <NavbarContent justify="end">
-        {!loading && (
-          <>
-            {user ? (
-              // Show when user is authenticated
-              <>
-                <InteractiveHoverButton
-                  onClick={() => router.push("/")}
-                  className="hidden lg:flex"
-                >
-                  Start Generating
-                </InteractiveHoverButton>
-                <ThemeSwitch className="hidden lg:flex" />
-              </>
-            ) : (
-              // Show when user is not authenticated
-              <>
-                {/* <NavbarItem className="hidden lg:flex text-black dark:text-white">
+        <NavbarContent
+          className="hidden sm:flex gap-4 text-black dark:text-white"
+          justify="center"
+        >
+          <NavbarItem>
+            <Link
+              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+              href="/explore"
+            >
+              Explore
+            </Link>
+          </NavbarItem>
+          <NavbarItem>
+            <Link
+              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+              href="/about"
+            >
+              About
+            </Link>
+          </NavbarItem>
+          <NavbarItem>
+            <Link
+              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+              href="/pricing"
+            >
+              Pricing
+            </Link>
+          </NavbarItem>
+          <NavbarItem>
+            <Link
+              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+              href="/contact"
+            >
+              Contact
+            </Link>
+          </NavbarItem>
+          <NavbarItem>
+            <Link
+              className="text-black dark:text-white hover:scale-110 hover:font-semibold"
+              href="/terms"
+            >
+              Terms
+            </Link>
+          </NavbarItem>
+        </NavbarContent>
+
+        <NavbarContent justify="end">
+          {!loading && (
+            <>
+              {user ? (
+                // Show when user is authenticated
+                <>
+                  <InteractiveHoverButton
+                    onClick={() => router.push("/")}
+                    className="hidden lg:flex"
+                  >
+                    Start Generating
+                  </InteractiveHoverButton>
+                  <ThemeSwitch className="hidden lg:flex" />
+                </>
+              ) : (
+                // Show when user is not authenticated
+                <>
+                  {/* <NavbarItem className="hidden lg:flex text-black dark:text-white">
                   <Link
                     className="text-black dark:text-white hover:scale-110 hover:font-semibold"
                     href="/login"
@@ -163,45 +161,45 @@ export default function App() {
                     Login
                   </Link>
                 </NavbarItem> */}
-                <NavbarItem>
-                  <Button
-                    as={Link}
-                    href="/invite"
-                    className="rounded-full bg-primary text-white"
-                  >
-                    Request Early Access
-                  </Button>
-                </NavbarItem>
-                <ThemeSwitch className="hidden lg:flex" />
-              </>
-            )}
-          </>
-        )}
-      </NavbarContent>
-      <NavbarMenu className="bg-black text-white">
-        {getMenuItems().map((item, index) => (
-          <NavbarMenuItem key={`${item.label}-${index}`}>
-            {item.action === "logout" ? (
-              <button
-                className="w-full text-left text-lg text-red-400 hover:text-red-300"
-                onClick={() => handleMenuItemClick(item)}
-              >
-                {item.label}
-              </button>
-            ) : (
-              <Link
-                className="w-full"
-                href={item.href}
-                size="lg"
-                onClick={() => handleMenuItemClick(item)}
-              >
-                {item.label}
-              </Link>
-            )}
-          </NavbarMenuItem>
-        ))}
-      </NavbarMenu>
-    </Navbar>
+                  <NavbarItem>
+                    <Button
+                      as={Link}
+                      href="/invite"
+                      className="rounded-full bg-primary text-white"
+                    >
+                      Request Early Access
+                    </Button>
+                  </NavbarItem>
+                  <ThemeSwitch className="hidden lg:flex" />
+                </>
+              )}
+            </>
+          )}
+        </NavbarContent>
+        <NavbarMenu className="bg-black text-white">
+          {getMenuItems().map((item, index) => (
+            <NavbarMenuItem key={`${item.label}-${index}`}>
+              {item.action === "logout" ? (
+                <button
+                  className="w-full text-left text-lg text-red-400 hover:text-red-300"
+                  onClick={() => handleMenuItemClick(item)}
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  className="w-full"
+                  href={item.href}
+                  size="lg"
+                  onClick={() => handleMenuItemClick(item)}
+                >
+                  {item.label}
+                </Link>
+              )}
+            </NavbarMenuItem>
+          ))}
+        </NavbarMenu>
+      </Navbar>
     </>
   );
 }

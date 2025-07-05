@@ -814,9 +814,15 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
         <div className="flex items-center justify-between p-2">
           <p className="ml-2 p-0 opacity-50">Projects</p>
           <button
-            onClick={() => !creatingFolder && !creatingFolderLoading && setCreatingFolder(true)}
+            onClick={() =>
+              !creatingFolder &&
+              !creatingFolderLoading &&
+              setCreatingFolder(true)
+            }
             className={`p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors ${
-              creatingFolder || creatingFolderLoading ? "opacity-50 cursor-not-allowed" : ""
+              creatingFolder || creatingFolderLoading
+                ? "opacity-50 cursor-not-allowed"
+                : ""
             }`}
             title="Create Projects"
             disabled={creatingFolder || creatingFolderLoading}
