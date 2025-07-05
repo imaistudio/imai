@@ -51,7 +51,7 @@ export default function MobileNav() {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-white py-2 transition-transform duration-300 ${
+        className={`md:hidden fixed top-0 left-0 z-50 h-full w-64  py-2 transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
