@@ -811,7 +811,7 @@ export default function Home() {
       </div>
 
       {/* Sticky Prompt Input at the bottom */}
-      <div className="sticky bottom-0 z-50  px-4 pb-4 pt-2">
+      <div className="sticky bottom-0 z-10  px-4 pb-4 pt-2">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
           placeholder="Design starts here.."
