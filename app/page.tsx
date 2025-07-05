@@ -821,7 +821,7 @@ export default function Home() {
           onClearReference={clearReference}
           isSubmitting={isSubmitting}
         />
-        <small className="text-xs">
+        <small className="hidden md:block text-xs">
           AI-generated content may not be perfect. Review{" "}
           <a href="/terms" className="text-primary hover:underline">
             Terms & Conditions
