@@ -179,14 +179,6 @@
       height: calc(-webkit-fill-available - env(keyboard-inset-height, 0px));
     }
   }
-  
-  /* Disable all scrolling on mobile */
-  html, body {
-    overflow: hidden;
-    position: fixed;
-    height: 100%;
-    width: 100%;
-  }
 }
 
 /* iOS safe area support */
