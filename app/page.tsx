@@ -795,14 +795,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] w-full">
+    <div className="flex flex-col h-[100dvh] w-full min-h-0">
       {/* Fixed MobileNav at the top */}
       <div className="flex-shrink-0">
         <MobileNav />
       </div>
 
       {/* ChatWindow takes remaining space, scrolls internally */}
-      <div className="flex-1 overflow-hidden px-2">
+      <div className="flex-1 overflow-hidden px-2 min-h-0">
         <div className="h-full overflow-y-auto hide-scrollbar">
           <ChatWindow
             chatId={currentChatId}
@@ -813,7 +813,7 @@ export default function Home() {
       </div>
 
       {/* Fixed Prompt Input at the bottom */}
-      <div className="flex-shrink-0 px-2 pb-4 pt-2">
+      <div className="flex-shrink-0 px-2 pb-safe pt-2">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
           placeholder="Design starts here.."
