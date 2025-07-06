@@ -37,9 +37,10 @@ import catLoadingAnimation from "@/public/lottie/catloading.json";
 interface ChatMessage {
   id?: string;
   sender: "user" | "agent";
-  type: "prompt" | "images";
+  type: "prompt" | "images" | "videos";
   text?: string;
   images?: string[];
+  videos?: string[];
   createdAt: Timestamp | { seconds: number; nanoseconds: number };
   chatId: string;
   isStreaming?: boolean;
@@ -53,6 +54,7 @@ interface ReferencedMessage {
   sender: "user" | "agent";
   text?: string;
   images?: string[];
+  videos?: string[];
   timestamp: string;
   referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode for contextual replies
 }
@@ -132,6 +134,7 @@ export default function ChatWindow({
         sender: msg.sender,
         text: msg.text,
         images: msg.images || [],
+        videos: msg.videos || [],
         timestamp:
           msg.createdAt && typeof msg.createdAt === "object"
             ? new Date(
@@ -1258,6 +1261,73 @@ export default function ChatWindow({
                                 <Droplets size={14} />
                               </button>
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 🔧 NEW: Video rendering section */}
+                  {msg.videos && msg.videos.length > 0 && !msg.isLoading && (
+                    <div className="flex justify-start">
+                      <div className="flex items-end gap-2">
+                        <div className="max-w-[75%]">
+                          <div className="flex flex-wrap gap-2">
+                            {msg.videos.map((video, i) => (
+                              <div
+                                key={`${index}-video-${i}`}
+                                className="relative group/video"
+                              >
+                                <video
+                                  src={video}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  className="w-auto h-auto rounded-lg"
+                                  onError={(e) => {
+                                    console.error("Video failed to load:", video);
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                                {/* Icon row below the video */}
+                                <div className="flex items-start justify-start gap-1 mt-2">
+                                  <button
+                                    onClick={() => handleLike(video)}
+                                    className="p-1"
+                                    title={
+                                      likedImages.has(video) ? "Unlike" : "Like"
+                                    }
+                                  >
+                                    <ThumbsUp
+                                      size={16}
+                                      className={`${
+                                        likedImages.has(video)
+                                          ? "text-green-600 dark:text-green-400 "
+                                          : "text-black dark:text-white"
+                                      }`}
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDislike(video)}
+                                    className="p-1"
+                                    title={
+                                      dislikedImages.has(video)
+                                        ? "Remove dislike"
+                                        : "Dislike"
+                                    }
+                                  >
+                                    <ThumbsDown
+                                      size={16}
+                                      className={`${
+                                        dislikedImages.has(video)
+                                          ? "text-red-600 dark:text-red-400"
+                                          : "text-black dark:text-white"
+                                      }`}
+                                    />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>

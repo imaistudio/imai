@@ -16,6 +16,7 @@ interface ReferencedMessage {
   sender: "user" | "agent";
   text?: string;
   images?: string[];
+  videos?: string[]; // 🔧 NEW: Added videos array
   timestamp: string;
   isLoading?: boolean; // 🔧 NEW: Loading state for API calls
   referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode for contextual replies
@@ -386,6 +387,7 @@ export default function Home() {
           sender: referencedMessage.sender,
           text: referencedMessage.text || "",
           images: referencedMessage.images || [],
+          videos: referencedMessage.videos || [], // 🔧 NEW: Include videos in reference
           timestamp: referencedMessage.timestamp,
           referencemode: referencedMessage.referencemode || "product", // 🔧 NEW: Include reference mode
         };
@@ -529,19 +531,21 @@ export default function Home() {
           type: "prompt", // Default to prompt
           text: result.message || "",
           images: [] as string[],
+          videos: [] as string[], // 🔧 NEW: Added videos array
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           userId: currentUser.uid,
           chatId: currentChatId,
         };
 
-        // Check for image outputs in the API result
+        // Check for image and video outputs in the API result
         if (apiResult) {
           console.log(
             "API Result structure:",
             JSON.stringify(apiResult, null, 2),
           );
 
+          // Extract image URL
           const imageUrl =
             apiResult.firebaseOutputUrl ||
             apiResult.data_url ||
@@ -556,14 +560,32 @@ export default function Home() {
             // Handle other possible nested structures
             (apiResult.result && apiResult.result.firebaseOutputUrl);
 
+          // 🔧 NEW: Extract video URL
+          const videoUrl =
+            apiResult.videoUrl ||
+            apiResult.video_url ||
+            apiResult.firebaseVideoUrl ||
+            apiResult.output_video ||
+            apiResult.video ||
+            // Handle nested result structure for videos
+            (apiResult.result && apiResult.result.videoUrl) ||
+            (apiResult.result && apiResult.result.video_url) ||
+            (apiResult.result && apiResult.result.firebaseVideoUrl);
+
           console.log("Extracted image URL:", imageUrl);
+          console.log("Extracted video URL:", videoUrl);
 
           if (imageUrl) {
             agentMessage.type = "images";
             agentMessage.images = [imageUrl];
             console.log("✅ Agent message will include image:", imageUrl);
+          } else if (videoUrl) {
+            // 🔧 NEW: Set type to videos if video URL is found
+            agentMessage.type = "videos";
+            agentMessage.videos = [videoUrl];
+            console.log("✅ Agent message will include video:", videoUrl);
           } else {
-            console.log("❌ No image URL found in API result");
+            console.log("❌ No image or video URL found in API result");
           }
 
           // If there's a generated prompt or description, include it
@@ -592,11 +614,14 @@ export default function Home() {
           // Create a completely safe agent message for Firestore
           const safeAgentMessage = {
             sender: "agent",
-            type: agentMessage.images.length > 0 ? "images" : "prompt",
+            type: agentMessage.videos.length > 0 ? "videos" : (agentMessage.images.length > 0 ? "images" : "prompt"),
             text: String(result.message || ""),
             images: agentMessage.images.filter(
               (img) => typeof img === "string" && img.length > 0,
             ),
+            videos: agentMessage.videos.filter(
+              (video) => typeof video === "string" && video.length > 0,
+            ), // 🔧 NEW: Added videos array
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
             userId: String(currentUser.uid),
@@ -610,6 +635,8 @@ export default function Home() {
           console.log("  - Text:", safeAgentMessage.text);
           console.log("  - Images array:", safeAgentMessage.images);
           console.log("  - Images count:", safeAgentMessage.images.length);
+          console.log("  - Videos array:", safeAgentMessage.videos);
+          console.log("  - Videos count:", safeAgentMessage.videos.length);
 
           await setDoc(
             chatRef,
@@ -636,6 +663,9 @@ export default function Home() {
             const minimalAgentMessage = {
               sender: "agent",
               text: String(result.message || ""),
+              videos: agentMessage.videos.filter(
+                (video) => typeof video === "string" && video.length > 0,
+              ), // 🔧 NEW: Include videos in fallback
               timestamp: Timestamp.now(),
               userId: String(currentUser.uid),
               isLoading: false, // 🔧 NEW: Ensure loading is false in fallback too
