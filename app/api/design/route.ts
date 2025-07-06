@@ -2309,13 +2309,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
        semanticAnalysis?.input_roles?.design_sources !== "reference" &&
        semanticAnalysis?.input_roles?.color_sources === "upload");
 
+    // 🔧 CRITICAL FIX: Detect smart fallback auto-reference scenario
+    // When smart fallback handles auto-reference, product_image_url and reference_image_url are the same
+    const isSmartFallbackAutoReference = 
+      !!actualReferenceUrl && 
+      !!productImageUrl && 
+      productImageUrl === referenceImageUrl && 
+      !semanticAnalysis && // Smart fallback was used (no Claude analysis)
+      !hasMultiplePresets; // Only one preset involved (typical auto-reference scenario)
+
     // 🔧 NEW: Detect manual reference when user uploads product + reference (common manual reference scenario)
     // BUT NOT when all 3 slots are filled with uploads (that's just 3 direct uploads, not reference scenario)
     // AND NOT when Claude violates auto-reference rules (should be fresh generation instead)
     // AND NOT when Claude explicitly says to ignore reference completely
+    // AND NOT when it's smart fallback auto-reference (same URL for product and reference)
     const manualReferenceWithUploads =
       !!actualReferenceUrl && hasUploadedProductImage && !hasAllThreeUploads && 
-      !claudeViolatesAutoReferenceRules && !claudeWantsNoReference;
+      !claudeViolatesAutoReferenceRules && !claudeWantsNoReference &&
+      !isSmartFallbackAutoReference;
 
     const isLikelyManualReference =
       (claudeDetectedDesignOrColor && hasExplicitPresets) ||
@@ -2327,13 +2338,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       hasSpecificReferenceMode ||
       isLikelyManualReference;
     
-    // 🔧 AUTO-REFERENCE STRICT RULES: Only valid if Claude wants it for product role
+    // 🔧 AUTO-REFERENCE STRICT RULES: Only valid if Claude wants it for product role OR smart fallback detected it
     const isValidAutoReference = 
       !!actualReferenceUrl && 
       !isManualReference && 
       !hasAllThreeUploads &&
       !claudeViolatesAutoReferenceRules &&
-      semanticAnalysis?.input_roles?.product_sources === "reference";
+      (semanticAnalysis?.input_roles?.product_sources === "reference" || isSmartFallbackAutoReference);
       
     const isAutoReference = isValidAutoReference;
 
@@ -2366,6 +2377,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       `  - Manual reference with uploads: ${manualReferenceWithUploads}`,
     );
     console.log(`  - Smart fallback triggered: ${isLikelyManualReference}`);
+    console.log(`  - 🔧 Smart fallback auto-reference: ${isSmartFallbackAutoReference}`);
     console.log(`  - 🔧 Valid auto-reference: ${isValidAutoReference}`);
     console.log(`  - FINAL: Is manual reference: ${isManualReference}`);
     console.log(`  - FINAL: Is auto reference: ${isAutoReference}`);
