@@ -768,8 +768,7 @@ export default function ChatWindow({
 
         if (
           result.status === "success" &&
-          result.result &&
-          result.result.videoUrl
+          result.videoUrl
         ) {
           // Create video message
           const videoMessage: ChatMessage = {
@@ -777,7 +776,7 @@ export default function ChatWindow({
             sender: "agent",
             type: "videos",
             text: "Here's your generated video:",
-            videos: [result.result.videoUrl],
+            videos: [result.videoUrl],
             chatId: chatId,
             createdAt: Timestamp.now(),
           };
