@@ -996,7 +996,7 @@ export default function ChatWindow({
   }, []);
 
   return (
-    <div className="w-full flex flex-col min-h-screen hide-scrollbar pb-6 md:pb-32 lg:pb-44">
+    <div className="w-full flex flex-col h-full hide-scrollbar">
       <div
         ref={chatContainerRef}
         className="flex-1 w-full md:pl-6 md:pr-6 p-4 overflow-y-auto hide-scrollbar"
