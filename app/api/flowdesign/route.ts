@@ -69,7 +69,7 @@ if (getApps().length === 0) {
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: formatFirebasePrivateKey(privateKey),
     }),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    storageBucket: "imai-studio-fae1b.firebasestorage.app", // 🔧 FIX: Use hardcoded bucket name
   });
 }
 
@@ -81,7 +81,7 @@ async function uploadImageToFirebaseStorage(
 ): Promise<string> {
   try {
     const storage = getStorage();
-    const bucket = storage.bucket();
+    const bucket = storage.bucket("imai-studio-fae1b.firebasestorage.app"); // 🔧 FIX: Explicit bucket name
 
     const folder = isOutput ? "output" : "input";
     const filePath = `${userid}/${folder}/${filename}`;
@@ -428,48 +428,70 @@ export async function POST(
       }
     }
 
-    console.log("Flow Design: Concatenating images");
+    console.log("Flow Design: Analyzing each image separately for inspiration");
+    const imageAnalyses: string[] = [];
+    
+    // Analyze each image individually to extract inspiration elements
+    for (let i = 0; i < imageBuffers.length; i++) {
+      console.log(`Flow Design: Analyzing image ${i + 1} for design inspiration`);
+      const response = await openai.chat.completions.create({
+        model: "gpt-4.1",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Extract design inspiration from this image. Focus ONLY on: 1) Color palette (specific colors, hex codes if possible), 2) Visual themes and mood, 3) Style elements (patterns, textures, shapes), 4) Design principles used. DO NOT describe what the object is - only extract the design DNA that could inspire a completely new creation.",
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/png;base64,${imageBuffers[i].toString("base64")}`,
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 200,
+      });
+      
+      const analysis = response.choices[0]?.message?.content || "No analysis available";
+      imageAnalyses.push(analysis);
+      console.log(`Flow Design: Image ${i + 1} inspiration analysis:`, analysis);
+    }
+
+    console.log("Flow Design: Combining inspiration elements");
+    const combinedAnalysis = imageAnalyses.join("\n\n---\n\n");
+    
+    // For backward compatibility, still create concatenated image
+    console.log("Flow Design: Creating concatenated image for reference");
     const concatenatedImage = await concatenateImages(
       imageBuffers,
       "horizontal",
     );
-
-    console.log("Flow Design: Saving concatenated image locally");
     const concatenatedImageUrl = await saveImageLocally(
       concatenatedImage,
       `concatenated_${Date.now()}.png`,
     );
 
-    console.log("Flow Design: Getting design analysis from OpenAI");
-    const response = await openai.chat.completions.create({
-      model: "gpt-4.1",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Analyze the following design elements and provide a detailed description of the visual composition, color scheme, and overall aesthetic. Focus on the design principles and elements present, without mentioning specific objects or types.",
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:image/png;base64,${concatenatedImage.toString("base64")}`,
-              },
-            },
-          ],
-        },
-      ],
-      max_tokens: 300,
-    });
-
-    const analysis =
-      response.choices[0]?.message?.content || "No analysis available";
-    console.log("Flow Design: OpenAI Design Analysis:", analysis);
-
     console.log("Flow Design: Creating enhanced prompt");
     const basePrompt = prompt || "Create a professional design composition";
-    const enhancedPrompt = `i am a designer, and i create professional designs. Create a professional design based on these elements: ${analysis}. The design should be innovative and unique, incorporating the described color palette and design principles. No text, no logo, no symbol. Create a design palette.`;
+    const enhancedPrompt = `I am a designer creating innovative new designs. Create a completely NEW and UNIQUE design that draws inspiration from these three sources:
+
+${combinedAnalysis}
+
+CRITICAL REQUIREMENTS:
+- Create something BRAND NEW, not a copy or collage of the inputs
+- Combine the best color palettes from all three sources
+- Merge the visual themes and moods into one cohesive design
+- Incorporate style elements (patterns, textures, shapes) from all sources
+- Apply the design principles identified across all three
+- The result should be a single, unified design that feels inspired by all three but is completely original
+- No text, no logos, no symbols - pure design elements only
+- Focus on creating a design pattern/composition that could be used for products, backgrounds, or other applications
+
+Generate one unified design that synthesizes all these inspiration elements into something completely new and unique.`;
 
     console.log("Flow Design: Generating final image with Flux");
 
@@ -509,7 +531,7 @@ export async function POST(
       imageUrl: finalImageUrl,
       inputImages: uploadedImageUrls,
       concatenatedImage: concatenatedImageUrl,
-      designAnalysis: analysis,
+      designAnalysis: combinedAnalysis,
       enhancedPrompt: enhancedPrompt,
       basePrompt: basePrompt,
     };

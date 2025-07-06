@@ -198,7 +198,7 @@ async function uploadImageToFirebaseStorage(
     const buffer = Buffer.from(bytes);
 
     // Get Firebase Storage bucket
-    const bucket = getStorage().bucket();
+    const bucket = getStorage().bucket("imai-studio-fae1b.firebasestorage.app"); // 🔧 FIX: Explicit bucket name
 
     // Create storage path: userid/input or userid/output
     const folder = isOutput ? "output" : "input";
@@ -262,24 +262,59 @@ async function saveOutputImageToFirebase(
       `💾 Saving output image to Firebase Storage for user ${userid}...`,
     );
 
-    // Fetch the image from the URL
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    // Add timeout for large files (2 minutes)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes
+
+    try {
+      // Fetch the image from the URL with timeout
+      const response = await fetch(imageUrl, { 
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; IMAI/1.0)'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+
+      // Check content length before processing
+      const contentLength = response.headers.get('content-length');
+      if (contentLength) {
+        const sizeInMB = parseInt(contentLength) / (1024 * 1024);
+        console.log(`📏 Image size: ${sizeInMB.toFixed(2)}MB`);
+        
+        // For very large files (>15MB), skip Firebase upload and use original URL
+        if (sizeInMB > 15) {
+          console.log(`⚠️ Image too large (${sizeInMB.toFixed(2)}MB) - using original URL`);
+          return imageUrl;
+        }
+      }
+
+      const blob = await response.blob();
+      const fileName = `${endpoint.replace("/api/", "")}_output_${Date.now()}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
+
+      // Upload to Firebase Storage in the output folder
+      const firebaseUrl = await uploadImageToFirebaseStorage(file, userid, true);
+
+      console.log(`✅ Output image saved to Firebase Storage: ${firebaseUrl}`);
+      return firebaseUrl;
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        console.log(`⏰ Download timeout for large image - using original URL`);
+        return imageUrl;
+      }
+      throw fetchError;
     }
-
-    const blob = await response.blob();
-    const fileName = `${endpoint.replace("/api/", "")}_output_${Date.now()}.png`;
-    const file = new File([blob], fileName, { type: "image/png" });
-
-    // Upload to Firebase Storage in the output folder
-    const firebaseUrl = await uploadImageToFirebaseStorage(file, userid, true);
-
-    console.log(`✅ Output image saved to Firebase Storage: ${firebaseUrl}`);
-    return firebaseUrl;
   } catch (error) {
     console.error("❌ Failed to save output image to Firebase:", error);
     // Return original URL as fallback
+    console.log(`🔄 Using original URL as fallback: ${imageUrl}`);
     return imageUrl;
   }
 }
@@ -372,6 +407,7 @@ interface ChatResponse {
   conversation_id?: string;
   error?: string;
   allStepResults?: any[]; // For multi-step operations
+  images?: string[]; // For multi-image operations like chainofzoom
 }
 
 async function parseClaudeIntent(response: any): Promise<IntentAnalysis> {
@@ -912,6 +948,95 @@ async function analyzeIntent(
       };
     }
 
+    // 🎯 HIGHEST PRIORITY: Check for elemental design patterns FIRST (before flowdesign)
+    if (
+      hasAnyImages &&
+      (message.includes("elemental design") ||
+        message.includes("elemental pattern") ||
+        message.includes("element pattern") ||
+        message.includes("elements pattern") ||
+        message.includes("pattern with elements") ||
+        message.includes("pattern from elements") ||
+        message.includes("repeating pattern") ||
+        message.includes("repeating elements") ||
+        (message.includes("pattern") && message.includes("element")) ||
+        (message.includes("use") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("create") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("make") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("actual") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("literal") && message.includes("element")) ||
+        (message.includes("main") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("object") && message.includes("pattern")) ||
+        (message.includes("element") && message.includes("repeating")) ||
+        (message.includes("textile") && message.includes("pattern")) ||
+        (message.includes("wallpaper") && message.includes("pattern")) ||
+        (message.includes("seamless") && message.includes("pattern")))
+    ) {
+      console.log(
+        "🎯 HIGHEST PRIORITY: Smart fallback routing to elemental design endpoint for elemental pattern creation",
+      );
+      return {
+        intent: "elemental_design",
+        confidence: 0.99, // Highest confidence to override flowdesign
+        endpoint: "/api/elementaldesign",
+        parameters: {
+          workflow_type: "elemental_pattern",
+          size: "1024x1024",
+          quality: "auto",
+        },
+        requiresFiles: true,
+        explanation:
+          "User explicitly wants to create an elemental pattern using actual elements from multiple images - HIGHEST PRIORITY routing",
+      };
+    }
+
+    // 🎯 PRIORITY: Check for flowdesign patterns BEFORE general image routing (but after elemental)
+    if (
+      hasAnyImages &&
+      (message.includes("create a new design") ||
+        message.includes("new design") ||
+        (message.includes("create a design using") &&
+          (message.includes("these") || message.includes("this"))) ||
+        message.includes("make a new design") ||
+        message.includes("design a new") ||
+        message.includes("flow design") ||
+        message.includes("create a flow design") ||
+        message.includes("flow pattern") ||
+        message.includes("make a flow") ||
+        (message.includes("pattern") &&
+          (message.includes("from these") || message.includes("using these") || message.includes("out of these") || message.includes("with these") ||
+           message.includes("from this") || message.includes("using this") || message.includes("out of this") || message.includes("with this")) &&
+          !message.includes("element")) || // Exclude if contains "element" (already handled above)
+        message.includes("create pattern") ||
+        message.includes("make pattern") ||
+        message.includes("design pattern") ||
+        message.includes("combine these") ||
+        message.includes("merge these") ||
+        message.includes("blend these") ||
+        message.includes("combine this") ||
+        message.includes("merge this") ||
+        message.includes("blend this") ||
+        (message.includes("create") && message.includes("composition")) ||
+        (message.includes("make") && message.includes("composition")))
+    ) {
+      console.log(
+        "🎯 PRIORITY: Smart fallback routing to flowdesign endpoint for explicit flow/pattern design creation",
+      );
+      return {
+        intent: "create_design",
+        confidence: 0.98, // Higher confidence to override other routing
+        endpoint: "/api/flowdesign",
+        parameters: {
+          workflow_type: "multi_image_design",
+          size: "1024x1024",
+          quality: "auto",
+        },
+        requiresFiles: true,
+        explanation:
+          "User explicitly wants to create a NEW flow design/pattern using multiple images - PRIORITY routing",
+      };
+    }
+
     // 🎯 ENHANCED: Direct routing for actual image uploads with comprehensive reference handling
     if (
       ((hasDesignImage || hasColorImage) && !hasAnyPresets) ||
@@ -1048,13 +1173,187 @@ async function analyzeIntent(
       !hasDesignImage &&
       !hasColorImage
     ) {
+      // 🔧 ENHANCED: Check for complex multi-step operations with time of day, reframe, and upscale
+      const timeOfDayKeywords = [
+        "sunrise", "sunset", "dawn", "dusk", "morning", "afternoon", "evening", "night",
+        "noon", "midnight", "golden hour", "blue hour", "daylight", "nighttime",
+        // Common typos and variations
+        "aunset", "sunser", "sunst", "sunet", "at aunset", "at sunser"
+      ];
+      const reframeKeywords = ["landscape", "portrait", "reframe", "crop"];
+      
+      const hasTimeOfDayRequest = timeOfDayKeywords.some(keyword => message.includes(keyword));
+      const hasReframeRequest = reframeKeywords.some(keyword => message.includes(keyword));
+
+      // Scene composition detection - flexible for typos
+      const sceneKeywords = [
+        "place it in", "place it at", "put it in", "put it at", "set it in", "set it at",
+        "location", "background", "scene", "environment", "setting", "place",
+        "bridge", "tower", "beach", "mountain", "forest", "city", "street",
+        "new background", "different setting", "change scene", "in the",
+        // Common landmarks with typo flexibility
+        "london", "londoen", "paris", "tokyo", "new york", "bridge",
+        "place in", "put in", "set in", "move to", "relocate to"
+      ];
+      const hasSceneRequest = sceneKeywords.some(keyword => message.includes(keyword));
+
+      // 🔍 DEBUG: Log detection results
+      console.log("🔍 Multi-step detection debug:", {
+        message: message,
+        hasSceneRequest,
+        hasTimeOfDayRequest,
+        hasReframeRequest,
+        hasUpscaleRequest: message.includes("upscale"),
+        sceneMatches: sceneKeywords.filter(keyword => message.includes(keyword)),
+        timeMatches: timeOfDayKeywords.filter(keyword => message.includes(keyword)),
+        reframeMatches: reframeKeywords.filter(keyword => message.includes(keyword))
+      });
+
+      // 🎯 FOUR-STEP OPERATION: Scene composition + time of day + reframe + upscale
+      if (hasSceneRequest && hasTimeOfDayRequest && hasReframeRequest) {
+        console.log(
+          "Smart fallback detected multi-step scene + timeofday + reframe + upscale operation",
+        );
+        
+        const orientation = message.includes("landscape")
+          ? "landscape"
+          : message.includes("portrait")
+            ? "portrait"
+            : "auto";
+
+        // Detect time of day
+        let timeOfDay = "morning"; // default
+        if (message.includes("sunrise") || message.includes("dawn")) {
+          timeOfDay = "sunrise";
+        } else if (message.includes("sunset") || message.includes("dusk") || message.includes("aunset")) {
+          timeOfDay = "sunset";
+        } else if (message.includes("night") || message.includes("midnight")) {
+          timeOfDay = "night";
+        } else if (message.includes("noon") || message.includes("afternoon")) {
+          timeOfDay = "afternoon";
+        }
+
+        return {
+          intent: "scene_composition",
+          confidence: 0.95,
+          endpoint: "/api/scenecomposition",
+          parameters: { composition_style: "realistic" },
+          requiresFiles: true,
+          explanation: "First step of scene + timeofday + reframe + upscale operation",
+          isMultiStep: true,
+          multiStepPlan: {
+            steps: [
+              {
+                intent: "scene_composition",
+                confidence: 0.95,
+                endpoint: "/api/scenecomposition",
+                parameters: { composition_style: "realistic" },
+                requiresFiles: true,
+                explanation: "Step 1: Change scene/background composition",
+                isMultiStep: true,
+              },
+              {
+                intent: "change_time_of_day",
+                confidence: 0.95,
+                endpoint: "/api/timeofday",
+                parameters: { time_of_day: timeOfDay },
+                requiresFiles: true,
+                explanation: `Step 2: Change time of day to ${timeOfDay}`,
+                isMultiStep: true,
+              },
+              {
+                intent: "reframe_image",
+                confidence: 0.95,
+                endpoint: "/api/reframe",
+                parameters: { imageSize: orientation },
+                requiresFiles: true,
+                explanation: "Step 3: Reframe to " + orientation,
+                isMultiStep: true,
+              },
+              {
+                intent: "upscale_image",
+                confidence: 0.95,
+                endpoint: "/api/upscale",
+                parameters: { quality: "auto" },
+                requiresFiles: true,
+                explanation: "Step 4: Upscale image",
+                isMultiStep: true,
+              },
+            ],
+            executionPlan: "sequential",
+            contextChain: true,
+          },
+        };
+      }
+      // 🎯 THREE-STEP OPERATION: Time of day + reframe + upscale
+      else if (hasTimeOfDayRequest && hasReframeRequest) {
+        console.log(
+          "Smart fallback detected multi-step timeofday + reframe + upscale operation",
+        );
+        
+        const orientation = message.includes("landscape")
+          ? "landscape"
+          : message.includes("portrait")
+            ? "portrait"
+            : "auto";
+
+        // Detect time of day
+        let timeOfDay = "morning"; // default
+        if (message.includes("sunrise") || message.includes("dawn")) {
+          timeOfDay = "sunrise";
+        } else if (message.includes("sunset") || message.includes("dusk")) {
+          timeOfDay = "sunset";
+        } else if (message.includes("night") || message.includes("midnight")) {
+          timeOfDay = "night";
+        } else if (message.includes("noon") || message.includes("afternoon")) {
+          timeOfDay = "afternoon";
+        }
+
+        return {
+          intent: "change_time_of_day",
+          confidence: 0.95,
+          endpoint: "/api/timeofday",
+          parameters: { time_of_day: timeOfDay },
+          requiresFiles: true,
+          explanation: "First step of timeofday + reframe + upscale operation",
+          isMultiStep: true,
+          multiStepPlan: {
+            steps: [
+              {
+                intent: "change_time_of_day",
+                confidence: 0.95,
+                endpoint: "/api/timeofday",
+                parameters: { time_of_day: timeOfDay },
+                requiresFiles: true,
+                explanation: `Step 1: Change time of day to ${timeOfDay}`,
+                isMultiStep: true,
+              },
+              {
+                intent: "reframe_image",
+                confidence: 0.95,
+                endpoint: "/api/reframe",
+                parameters: { imageSize: orientation },
+                requiresFiles: true,
+                explanation: "Step 2: Reframe to " + orientation,
+                isMultiStep: true,
+              },
+              {
+                intent: "upscale_image",
+                confidence: 0.95,
+                endpoint: "/api/upscale",
+                parameters: { quality: "auto" },
+                requiresFiles: true,
+                explanation: "Step 3: Upscale image",
+                isMultiStep: true,
+              },
+            ],
+            executionPlan: "sequential",
+            contextChain: true,
+          },
+        };
+      }
       // Check if this is actually a multi-step operation that wasn't caught earlier
-      if (
-        message.includes("landscape") ||
-        message.includes("portrait") ||
-        message.includes("reframe") ||
-        message.includes("crop")
-      ) {
+      else if (hasReframeRequest) {
         console.log(
           "Smart fallback detected multi-step upscale + reframe operation",
         );
@@ -1489,7 +1788,7 @@ async function analyzeIntent(
         message.includes("flow pattern") ||
         message.includes("make a flow") ||
         (message.includes("pattern") &&
-          (message.includes("from these") || message.includes("using these")))
+          (message.includes("from these") || message.includes("using these") || message.includes("out of these")))
       ) {
         console.log(
           "Smart fallback routing to flowdesign endpoint for explicit flow/pattern design creation",
@@ -1572,12 +1871,12 @@ async function analyzeIntent(
           message.includes("movie"))
       ) {
         console.log(
-          "Smart fallback routing to kling endpoint for image-to-video",
+          "Smart fallback routing to seedancevideo endpoint for image-to-video",
         );
         return {
           intent: "create_video",
           confidence: 0.9,
-          endpoint: "/api/kling",
+          endpoint: "/api/seedancevideo",
           parameters: { duration: "5", cfg_scale: 0.5 },
           requiresFiles: true,
           explanation:
@@ -1769,10 +2068,23 @@ MODIFICATION WITH NEW UPLOADS (previous result + new images):
       - "crop this picture"
       - "make it landscape/portrait"
 
-   F. VIDEO CREATION → /api/kling
+   F. VIDEO CREATION → /api/seedancevideo
       - "animate this image"
       - "create a video"
       - "make it move"
+      - "make this into a video"
+      - "animate this"
+      - "turn this into animation"
+      - "create animation"
+      - "video from image"
+      - "make it animated"
+      - "animate the image"
+      - "create video clip"
+      - "make video"
+      - "video generation"
+      - "image to video"
+      - "turn into video"
+      - "video creation"
 
    G. IMAGE ANALYSIS → /api/analyzeimage
       - "analyze this photo/image"
@@ -1814,6 +2126,64 @@ MODIFICATION WITH NEW UPLOADS (previous result + new images):
       - "without background"
       - "isolate"
       - "extract"
+
+   L. TIME OF DAY CHANGE → /api/timeofday
+      - "change time of day"
+      - "make it night"
+      - "make it day"
+      - "sunset lighting"
+      - "sunrise lighting"
+      - "evening lighting"
+      - "morning lighting"
+      - "golden hour"
+      - "blue hour"
+      - "different lighting"
+
+   M. SCENE COMPOSITION → /api/scenecomposition
+      - "change scene"
+      - "new background"
+      - "different setting"
+      - "compose scene"
+      - "scene composition"
+      - "change environment"
+      - "new setting"
+      - "different background"
+      - "compose with background"
+
+   N. DANCE VIDEO CREATION → /api/seedancevideo
+      - "make it dance"
+      - "create dance video"
+      - "animate dancing"
+      - "dance animation"
+      - "dancing video"
+      - "make dance"
+      - "animate person"
+      - "person dancing"
+      - "dance movement"
+
+   O. OBJECT REMOVAL → /api/objectremoval
+      - "remove object"
+      - "remove person"
+      - "remove item"
+      - "delete object"
+      - "erase object"
+      - "remove that"
+      - "take out"
+      - "get rid of"
+      - "eliminate"
+      - "object removal"
+
+   P. CHAIN OF ZOOM → /api/chainofzoom
+      - "zoom in"
+      - "zoom into"
+      - "zoom deeper"
+      - "zoom sequence"
+      - "chain of zoom"
+      - "progressive zoom"
+      - "zoom levels"
+      - "zoom steps"
+      - "zoom progression"
+      - "zoom into this"
 
 CRITICAL RULES:
 1. ALWAYS route to "none" for: greetings ONLY (without design requests), general questions about the platform, vague help requests
@@ -1955,9 +2325,9 @@ For multi-step operations:
 
 For single operations:
 {
-  "intent": "casual_conversation|create_design|design|upscale_image|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background",
+  "intent": "casual_conversation|create_design|design|upscale_image|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background|change_time_of_day|scene_composition|create_dance_video|remove_object|chain_of_zoom",
   "confidence": 0.8-0.95,
-  "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/kling|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg",
+  "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/seedancevideo|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg|/api/timeofday|/api/scenecomposition|/api/objectremoval|/api/chainofzoom",
   "parameters": {
     "workflow_type": "prompt_only|product_prompt|design_prompt|color_prompt|product_design|product_color|color_design|full_composition|preset_design",
     "size": "1024x1024|1536x1024|1024x1536", // AUTO-SELECT: portrait (1024x1536) for tall items/clothing, landscape (1536x1024) for wide scenes/pants, square (1024x1024) for products/general
@@ -2233,6 +2603,10 @@ EDGE CASE EXAMPLES:
     // Only bypass Claude for these super obvious patterns:
     (smartResult.intent === "upscale_image" ||
       smartResult.intent === "reframe_image" ||
+      smartResult.intent === "elemental_design" || // ✅ NEW: Always bypass Claude for elemental design
+      // ✅ NEW: Always bypass Claude for multi-step operations
+      // Smart fallback is excellent at detecting these complex workflows
+      (smartResult.isMultiStep && smartResult.multiStepPlan?.steps && smartResult.multiStepPlan.steps.length >= 2) ||
       (smartResult.intent === "design" &&
         userMessage.toLowerCase().includes("generate") &&
         userMessage.toLowerCase().includes("image")) ||
@@ -3039,26 +3413,110 @@ async function routeToAPI(
       if (parameters.quality) {
         formData.append("quality", parameters.quality);
       }
+      
+      // 🔍 DEBUG: Show all available image keys for troubleshooting
+      console.log("🔍 Available image keys for flowdesign:", Object.keys(imageUrls));
 
-      if (imageUrls.product_image) {
-        formData.append("product_image_url", imageUrls.product_image);
+      // 🔧 CRITICAL FIX: Handle actual image key names from intentroute
+      const actualImageKeys = Object.keys(imageUrls);
+      
+      // Find product image (can be product_image, product_image_image, etc.)
+      const productKey = actualImageKeys.find(key => key.includes("product_image"));
+      if (productKey && imageUrls[productKey]) {
+        formData.append("product_image_url", imageUrls[productKey]);
         console.log(
           "🔗 Added product_image_url for flow design:",
-          imageUrls.product_image,
+          imageUrls[productKey],
         );
       }
-      if (imageUrls.design_image) {
-        formData.append("design_image_url", imageUrls.design_image);
+      
+      // Find design image (can be design_image, design_image_0_image, etc.)
+      const designKey = actualImageKeys.find(key => key.includes("design_image"));
+      if (designKey && imageUrls[designKey]) {
+        formData.append("design_image_url", imageUrls[designKey]);
         console.log(
           "🔗 Added design_image_url for flow design:",
-          imageUrls.design_image,
+          imageUrls[designKey],
         );
       }
-      if (imageUrls.color_image) {
-        formData.append("color_image_url", imageUrls.color_image);
+      
+      // Find color image (can be color_image, color_image_0_image, etc.)
+      const colorKey = actualImageKeys.find(key => key.includes("color_image"));
+      if (colorKey && imageUrls[colorKey]) {
+        formData.append("color_image_url", imageUrls[colorKey]);
         console.log(
           "🔗 Added color_image_url for flow design:",
-          imageUrls.color_image,
+          imageUrls[colorKey],
+        );
+      }
+    } else if (endpoint === "/api/elementaldesign") {
+      formData.append("userMessage", originalMessage);
+      formData.append("userId", userid);
+
+      if (parameters.workflow_type) {
+        formData.append("workflow_type", parameters.workflow_type);
+      }
+      if (parameters.size) {
+        formData.append("size", parameters.size);
+      }
+      if (parameters.quality) {
+        formData.append("quality", parameters.quality);
+      }
+      
+      // 🔍 DEBUG: Show all available image keys for elemental design
+      console.log("🔍 Available image keys for elemental design:", Object.keys(imageUrls));
+
+      // 🔧 Handle actual image key names from intentroute
+      const actualImageKeys = Object.keys(imageUrls);
+      
+      // Find product image (can be product_image, product_image_image, etc.)
+      const productKey = actualImageKeys.find(key => key.includes("product_image"));
+      if (productKey && imageUrls[productKey]) {
+        // Download and add as file for elemental design
+        const imageResponse = await fetch(imageUrls[productKey]);
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
+        formData.append("product_image", imageBlob, "product_image.png");
+        console.log(
+          "🔗 Added product_image for elemental design:",
+          imageUrls[productKey],
+        );
+      }
+      
+      // Find design image (can be design_image, design_image_0_image, etc.)
+      const designKey = actualImageKeys.find(key => key.includes("design_image"));
+      if (designKey && imageUrls[designKey]) {
+        // Download and add as file for elemental design
+        const imageResponse = await fetch(imageUrls[designKey]);
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
+        formData.append("design_image", imageBlob, "design_image.png");
+        console.log(
+          "🔗 Added design_image for elemental design:",
+          imageUrls[designKey],
+        );
+      }
+      
+      // Find color image (can be color_image, color_image_0_image, etc.)
+      const colorKey = actualImageKeys.find(key => key.includes("color_image"));
+      if (colorKey && imageUrls[colorKey]) {
+        // Download and add as file for elemental design
+        const imageResponse = await fetch(imageUrls[colorKey]);
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
+        formData.append("color_image", imageBlob, "color_image.png");
+        console.log(
+          "🔗 Added color_image for elemental design:",
+          imageUrls[colorKey],
+        );
+      }
+      
+      // 🔧 REFERENCE SUPPORT: Pass reference_image_url if provided
+      if (parameters.reference_image_url) {
+        formData.append("reference_image_url", parameters.reference_image_url);
+        console.log(
+          "🔗 Added reference_image_url for flow design:",
+          parameters.reference_image_url,
         );
       }
     } else if (endpoint === "/api/analyzeimage") {
@@ -3154,37 +3612,52 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
-        const clarityPayload = {
-          imageUrl: imageUrl,
-          prompt:
-            parameters.prompt ||
-            originalMessage ||
-            "masterpiece, best quality, highres",
-          upscaleFactor: parameters.upscaleFactor || 2,
-          creativity: parameters.creativity || 0.35,
-          resemblance: parameters.resemblance || 0.6,
-          guidanceScale: parameters.guidanceScale || 4,
-          numInferenceSteps: parameters.numInferenceSteps || 18,
-          enableSafetyChecker: true,
-        };
-
-        console.log("🔗 Added clarity upscaler payload:", clarityPayload);
-
-        // ✅ For clarityupscaler, we'll need to implement direct import or handle separately
-        throw new Error(
-          `Direct import not implemented for ${endpoint}. HTTP calls not supported in production.`,
-        );
+        formData.append("image_url", imageUrl);
+        console.log("🔗 Added image_url for clarity upscaler:", imageUrl);
       } else {
         throw new Error("No image URL found for clarity upscaling");
+      }
+
+      // Add clarity upscaler specific parameters
+      if (parameters.upscaleFactor) {
+        formData.append("upscaleFactor", String(parameters.upscaleFactor));
+      }
+      if (parameters.creativity) {
+        formData.append("creativity", String(parameters.creativity));
+      }
+      if (parameters.resemblance) {
+        formData.append("resemblance", String(parameters.resemblance));
+      }
+      if (parameters.guidanceScale) {
+        formData.append("guidanceScale", String(parameters.guidanceScale));
+      }
+      if (parameters.numInferenceSteps) {
+        formData.append("numInferenceSteps", String(parameters.numInferenceSteps));
+      }
+      if (parameters.enableSafetyChecker !== undefined) {
+        formData.append("enableSafetyChecker", String(parameters.enableSafetyChecker));
+      }
+
+      // Add prompt if provided
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+      } else if (parameters.prompt) {
+        formData.append("prompt", parameters.prompt);
       }
     } else if (endpoint === "/api/kling") {
       const imageUrl =
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -3214,6 +3687,9 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -3285,6 +3761,9 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -3300,6 +3779,166 @@ async function routeToAPI(
       }
 
       console.log("🔗 Added removebg parameters");
+    } else if (endpoint === "/api/timeofday") {
+      const imageUrl =
+        imageUrls.product_image ||
+        imageUrls.design_image ||
+        imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
+        parameters.reference_image_url;
+
+      if (imageUrl) {
+        formData.append("image_url", imageUrl);
+        console.log("🔗 Added image_url for time of day change:", imageUrl);
+      } else {
+        throw new Error("No image URL found for time of day transformation");
+      }
+
+      // Add time of day specific parameters
+      if (parameters.time_of_day) {
+        formData.append("time_of_day", parameters.time_of_day);
+      }
+      if (parameters.lighting_style) {
+        formData.append("lighting_style", parameters.lighting_style);
+      }
+
+      // 🔧 CRITICAL FIX: Pass user message as prompt parameter
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+        console.log("🔗 Added user message as prompt for time of day:", originalMessage);
+      }
+
+      console.log("🔗 Added timeofday parameters");
+    } else if (endpoint === "/api/scenecomposition") {
+      const imageUrl =
+        imageUrls.product_image ||
+        imageUrls.design_image ||
+        imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
+        parameters.reference_image_url;
+
+      if (imageUrl) {
+        formData.append("image_url", imageUrl);
+        console.log("🔗 Added image_url for scene composition:", imageUrl);
+      } else {
+        throw new Error("No image URL found for scene composition");
+      }
+
+      // Add scene composition specific parameters
+      if (parameters.composition_style) {
+        formData.append("composition_style", parameters.composition_style);
+      }
+      if (parameters.scene_type) {
+        formData.append("scene_type", parameters.scene_type);
+      }
+
+      // 🔧 CRITICAL FIX: Pass user message as prompt parameter
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+        console.log("🔗 Added user message as prompt for scene composition:", originalMessage);
+      }
+
+      console.log("🔗 Added scenecomposition parameters");
+    } else if (endpoint === "/api/seedancevideo") {
+      const imageUrl =
+        imageUrls.product_image ||
+        imageUrls.design_image ||
+        imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
+        parameters.reference_image_url;
+
+      if (imageUrl) {
+        formData.append("image_url", imageUrl);
+        console.log("🔗 Added image_url for dance video:", imageUrl);
+      } else {
+        throw new Error("No image URL found for dance video creation");
+      }
+
+      // Add dance video specific parameters
+      if (parameters.dance_style) {
+        formData.append("dance_style", parameters.dance_style);
+      }
+      if (parameters.video_duration) {
+        formData.append("video_duration", parameters.video_duration);
+      }
+
+      // 🔧 CRITICAL FIX: Pass user message as prompt parameter
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+        console.log("🔗 Added user message as prompt for dance video:", originalMessage);
+      }
+
+      console.log("🔗 Added seedancevideo parameters");
+    } else if (endpoint === "/api/objectremoval") {
+      const imageUrl =
+        imageUrls.product_image ||
+        imageUrls.design_image ||
+        imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
+        parameters.reference_image_url;
+
+      if (imageUrl) {
+        formData.append("image_url", imageUrl);
+        console.log("🔗 Added image_url for object removal:", imageUrl);
+      } else {
+        throw new Error("No image URL found for object removal");
+      }
+
+      // Add object removal specific parameters
+      if (parameters.object_to_remove) {
+        formData.append("object_to_remove", parameters.object_to_remove);
+      }
+      if (parameters.removal_precision) {
+        formData.append("removal_precision", parameters.removal_precision);
+      }
+
+      // 🔧 CRITICAL FIX: Pass user message as prompt parameter
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+        console.log("🔗 Added user message as prompt for object removal:", originalMessage);
+      }
+
+      console.log("🔗 Added objectremoval parameters");
+    } else if (endpoint === "/api/chainofzoom") {
+      const imageUrl =
+        imageUrls.product_image ||
+        imageUrls.design_image ||
+        imageUrls.color_image ||
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
+        parameters.reference_image_url;
+
+      if (imageUrl) {
+        formData.append("image_url", imageUrl);
+        console.log("🔗 Added image_url for chain of zoom:", imageUrl);
+      } else {
+        throw new Error("No image URL found for chain of zoom");
+      }
+
+      // Add chain of zoom specific parameters
+      if (parameters.zoom_levels) {
+        formData.append("zoom_levels", parameters.zoom_levels);
+      }
+      if (parameters.zoom_direction) {
+        formData.append("zoom_direction", parameters.zoom_direction);
+      }
+
+      // 🔧 CRITICAL FIX: Pass user message as prompt parameter
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+        console.log("🔗 Added user message as prompt for chain of zoom:", originalMessage);
+      }
+
+      console.log("🔗 Added chainofzoom parameters");
     } else {
       Object.entries(parameters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -3409,6 +4048,17 @@ async function routeToAPI(
 
       const response = await flowDesignPOST(mockRequest as any);
       return await response.json();
+    } else if (endpoint === "/api/elementaldesign") {
+      // Import and call the elemental design API logic directly
+      const { POST: elementalDesignPOST } = await import("../elementaldesign/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/elementaldesign`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await elementalDesignPOST(mockRequest as any);
+      return await response.json();
     } else if (endpoint === "/api/kling") {
       // Import and call the kling API logic directly
       const { POST: klingPOST } = await import("../kling/route");
@@ -3465,6 +4115,72 @@ async function routeToAPI(
       });
 
       const response = await removebgPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/timeofday") {
+      // Import and call the timeofday API logic directly
+      const { POST: timeofdayPOST } = await import("../timeofday/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/timeofday`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await timeofdayPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/scenecomposition") {
+      // Import and call the scenecomposition API logic directly
+      const { POST: scenecompositionPOST } = await import("../scenecomposition/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/scenecomposition`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await scenecompositionPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/seedancevideo") {
+      // Import and call the seedancevideo API logic directly
+      const { POST: seedancevideoPOST } = await import("../seedancevideo/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/seedancevideo`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await seedancevideoPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/objectremoval") {
+      // Import and call the objectremoval API logic directly
+      const { POST: objectremovalPOST } = await import("../objectremoval/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/objectremoval`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await objectremovalPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/chainofzoom") {
+      // Import and call the chainofzoom API logic directly
+      const { POST: chainofzoomPOST } = await import("../chainofzoom/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/chainofzoom`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await chainofzoomPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/clarityupscaler") {
+      // Import and call the clarityupscaler API logic directly
+      const { POST: clarityupscalerPOST } = await import("../clarityupscaler/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/clarityupscaler`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await clarityupscalerPOST(mockRequest as any);
       return await response.json();
     } else {
       // For endpoints not yet implemented with direct imports
@@ -4928,17 +5644,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     } // Close the else if (Object.keys(imageUrls).length > 0) block
 
-    // 🎯 INTELLIGENT: Handle Claude-detected multi-step operations
+    // 🎯 INTELLIGENT: Handle both Claude-detected and smart fallback multi-step operations
     if (
-      intentAnalysis.intent === "multi_step" &&
-      intentAnalysis.parameters?.steps
+      (intentAnalysis.intent === "multi_step" && intentAnalysis.parameters?.steps) ||
+      (intentAnalysis.isMultiStep && intentAnalysis.multiStepPlan)
     ) {
-      const steps = intentAnalysis.parameters.steps;
+      // Handle both formats: Claude uses parameters.steps, smart fallback uses multiStepPlan.steps
+      const steps = intentAnalysis.parameters?.steps || intentAnalysis.multiStepPlan?.steps;
       console.log(
-        `🧠 Executing Claude-detected multi-step operation: ${steps.length} steps`,
+        `🧠 Executing multi-step operation: ${steps.length} steps`,
       );
       let currentResult = null;
       let allResults: any[] = [];
+
+      // 🔧 CRITICAL FIX: Add reference image URL to imageUrls for multi-step operations
+      if (intentAnalysis.parameters?.reference_image_url && !imageUrls.product_image && !imageUrls.design_image && !imageUrls.color_image) {
+        imageUrls.product_image = intentAnalysis.parameters.reference_image_url;
+        console.log(`🔧 Added reference image URL to imageUrls for multi-step: ${intentAnalysis.parameters.reference_image_url}`);
+      }
 
       for (let i = 0; i < steps.length; i++) {
         const step = steps[i];
@@ -4946,7 +5669,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // For steps after the first, use the output of the previous step if context_chain is enabled
         let stepImageUrls = { ...imageUrls };
-        if (i > 0 && intentAnalysis.parameters.context_chain) {
+        const contextChain = intentAnalysis.parameters?.context_chain || intentAnalysis.multiStepPlan?.contextChain;
+        if (i > 0 && contextChain) {
           // Check if previous step succeeded and has a valid output URL
           const previousOutputUrl =
             currentResult?.firebaseOutputUrl ||
@@ -5112,11 +5836,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                   `🔄 Downloading step ${i + 1} external output to Firebase Storage...`,
                 );
                 try {
-                  const firebaseUrl = await saveOutputImageToFirebase(
+                  // Add timeout for Firebase save (don't let it hang the entire operation)
+                  const savePromise = saveOutputImageToFirebase(
                     outputUrl,
                     userid,
                     `step_${i + 1}`,
                   );
+                  
+                  // Race between saving and timeout (30 seconds)
+                  const firebaseUrl = await Promise.race([
+                    savePromise,
+                    new Promise<string>((_, reject) => 
+                      setTimeout(() => reject(new Error('Firebase save timeout')), 30000)
+                    )
+                  ]);
 
                   // Update current result with Firebase URL
                   currentResult = {
@@ -5132,15 +5865,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     `✅ Step ${i + 1} external output saved to Firebase:`,
                     firebaseUrl,
                   );
-                } catch (error) {
+                } catch (error: any) {
                   console.error(
                     `❌ Failed to save step ${i + 1} external output:`,
                     error,
                   );
-                  // Don't fail the step - external URL can still be used for chaining
+                  // Don't fail the step - use external URL and continue
                   console.log(
                     `⚠️ Continuing with external URL for chaining: ${outputUrl}`,
                   );
+                  
+                  // Update current result with external URL (don't lose the step result)
+                  currentResult = {
+                    ...stepResult,
+                    firebaseOutputUrl: outputUrl,
+                    data_url: outputUrl,
+                    outputUrl: outputUrl,
+                    output_image: outputUrl,
+                    imageUrl: outputUrl,
+                  };
                 }
               }
             }
@@ -5193,8 +5936,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         message: detailedMessage.trim(),
         intent: intentAnalysis,
         result: finalResult,
-        // 🆕 Include all step results for frontend access
-        allStepResults: allResults,
+              // 🆕 Include all step results for frontend access
+      allStepResults: allResults,
         conversation_id: `${userid}_${Date.now()}`,
       };
 
@@ -5393,13 +6136,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           apiResult,
         );
 
+        // 🔧 Extract all images for chainofzoom and other multi-image operations
+        let allImages: string[] = [];
+        if (apiResult?.images && Array.isArray(apiResult.images)) {
+          allImages = apiResult.images;
+          console.log(`✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`);
+        } else if (apiResult?.imageUrl) {
+          allImages = [apiResult.imageUrl];
+        }
+
         const chatResponse: ChatResponse = {
           status: "success",
           message: proactiveResponse,
           intent: intentAnalysis,
           result: apiResult,
           conversation_id: `${userid}_${Date.now()}`,
+          images: allImages.length > 0 ? allImages : undefined,
         };
+
+        // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)
+        if (apiResult?.allStepResults && apiResult.allStepResults.length > 0) {
+          chatResponse.allStepResults = apiResult.allStepResults;
+        }
 
         return NextResponse.json(chatResponse);
       }
@@ -5422,13 +6180,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       apiResult,
     );
 
+    // 🔧 Extract all images for chainofzoom and other multi-image operations
+    let allImages: string[] = [];
+    if (apiResult?.images && Array.isArray(apiResult.images)) {
+      allImages = apiResult.images;
+      console.log(`✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`);
+    } else if (apiResult?.imageUrl) {
+      allImages = [apiResult.imageUrl];
+    }
+
     const chatResponse: ChatResponse = {
       status: "success",
       message: responseMessage,
       intent: intentAnalysis,
       result: apiResult,
       conversation_id: `${userid}_${Date.now()}`,
+      images: allImages.length > 0 ? allImages : undefined,
     };
+
+    // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)
+    if (apiResult?.allStepResults && apiResult.allStepResults.length > 0) {
+      chatResponse.allStepResults = apiResult.allStepResults;
+    }
 
     return NextResponse.json(chatResponse);
   } catch (error: any) {

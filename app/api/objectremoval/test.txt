@@ -1,0 +1,222 @@
+# Object Removal API Test Guide
+
+## Overview
+The Object Removal API removes unwanted objects from images using FAL AI technology. It allows you to specify which objects to remove via text prompts, making it perfect for cleaning up images by removing background people, unwanted objects, or distracting elements.
+
+## Base URL
+```
+POST http://localhost:3000/api/objectremoval
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Image URL to process (provided by IntentRoute)
+
+## Optional Parameters
+- `prompt` (string): Objects to remove (default: "background people")
+- `guidance_scale` (number): CFG scale (default: 3.5)
+- `num_inference_steps` (number): Inference steps (default: 30)
+- `safety_tolerance` (string): Safety level 1-6 (default: "2")
+- `output_format` (string): "jpeg" or "png" (default: "jpeg")
+- `aspect_ratio` (string): Optional aspect ratio
+- `seed` (number): For reproducible results
+- `sync_mode` (boolean): Wait for completion (default: false)
+
+## Response Format
+```json
+{
+  "status": "success",
+  "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD...",
+  "seed": 1234567890
+}
+```
+
+## CURL Test Examples
+
+### Basic Object Removal
+```bash
+curl -X POST "http://localhost:3000/api/objectremoval" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=remove people"
+```
+
+### Remove Background People
+```bash
+curl -X POST "http://localhost:3000/api/objectremoval" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=background people" \
+  -F "guidance_scale=4.0" \
+  -F "num_inference_steps=35"
+```
+
+### Remove Specific Objects
+```bash
+curl -X POST "http://localhost:3000/api/objectremoval" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=cars and traffic signs" \
+  -F "output_format=png" \
+  -F "safety_tolerance=3"
+```
+
+### Remove with High Quality Settings
+```bash
+curl -X POST "http://localhost:3000/api/objectremoval" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=unwanted objects" \
+  -F "guidance_scale=4.5" \
+  -F "num_inference_steps=40" \
+  -F "output_format=png" \
+  -F "seed=12345"
+```
+
+## Postman Collection
+
+### Request Setup
+- Method: POST
+- URL: `http://localhost:3000/api/objectremoval`
+- Body: form-data
+
+### Form Data Parameters
+| Key | Value | Description |
+|-----|-------|-------------|
+| userid | test_user_123 | User identifier |
+| image_url | https://example.com/image.jpg | Image to process |
+| prompt | background people | Objects to remove |
+| guidance_scale | 3.5 | CFG scale (1.0-7.0) |
+| num_inference_steps | 30 | Processing steps |
+| safety_tolerance | 2 | Safety level (1-6) |
+| output_format | jpeg | Output format |
+
+## Object Removal Prompt Examples
+
+### People Removal
+- "background people"
+- "people in the background"
+- "crowd of people"
+- "person walking"
+- "tourists"
+- "bystanders"
+
+### Object Removal
+- "cars and vehicles"
+- "traffic signs"
+- "power lines"
+- "trash cans"
+- "unwanted objects"
+- "distracting elements"
+
+### Nature/Landscape
+- "dead branches"
+- "fallen leaves"
+- "weeds"
+- "litter"
+- "unwanted vegetation"
+
+### Architecture/Buildings
+- "scaffolding"
+- "construction equipment"
+- "temporary structures"
+- "graffiti"
+- "signs and banners"
+
+### Advanced Removal
+- "reflections in water"
+- "shadows"
+- "dust and dirt"
+- "scratches and marks"
+- "unwanted text"
+
+## Parameter Guidelines
+
+### Guidance Scale (1.0-7.0)
+- **1.0-2.0**: Very creative, loose interpretation
+- **2.0-4.0**: Balanced approach (recommended)
+- **4.0-6.0**: Strict adherence to prompt
+- **6.0-7.0**: Very strict, may over-process
+
+### Inference Steps
+- **20-25**: Fast processing, lower quality
+- **30-35**: Good balance (recommended)
+- **40-50**: Higher quality, slower processing
+- **50+**: Diminishing returns
+
+### Safety Tolerance
+- **1-2**: Most restrictive (recommended)
+- **3-4**: Moderate filtering
+- **5-6**: More permissive
+
+## Integration with IntentRoute
+
+The Object Removal API integrates with the IntentRoute system for natural language processing:
+
+### Natural Language Examples
+- "remove the people in the background"
+- "can you take out the cars from this image"
+- "remove unwanted objects"
+- "clean up this photo"
+- "delete the background people"
+- "take out the distracting elements"
+
+### IntentRoute Flow
+1. User uploads image and provides removal request
+2. IntentRoute analyzes intent and extracts parameters
+3. Routes to `/api/objectremoval` with proper parameters
+4. Returns cleaned image with objects removed
+
+## Error Handling
+
+### Common Errors
+- Missing `image_url`: 400 Bad Request
+- Invalid image URL: 400 Bad Request
+- FAL_KEY not configured: 500 Internal Server Error
+- Processing timeout: 500 Internal Server Error
+
+### Success Response
+```json
+{
+  "status": "success",
+  "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD...",
+  "seed": 1234567890
+}
+```
+
+### Error Response
+```json
+{
+  "error": "Error message",
+  "status": "error"
+}
+```
+
+## Tips for Best Results
+
+1. **Be Specific**: Use detailed prompts for better removal accuracy
+2. **Multiple Objects**: List multiple objects separated by "and"
+3. **Quality Settings**: Use higher inference steps for complex removals
+4. **Aspect Ratio**: Maintain original aspect ratio for best results
+5. **Seed**: Use same seed for consistent results across similar images
+
+## Testing Checklist
+
+- [ ] Basic object removal works
+- [ ] People removal functions correctly
+- [ ] Multiple object removal works
+- [ ] Different output formats (jpeg/png)
+- [ ] Various guidance scales
+- [ ] Error handling for invalid URLs
+- [ ] IntentRoute integration
+- [ ] Response format validation
+- [ ] Performance with large images
+- [ ] Seed reproducibility
+
+## Performance Notes
+
+- Processing time: 15-45 seconds depending on image size and complexity
+- Timeout: 5 minutes maximum
+- Supported formats: JPEG, PNG, WebP input
+- Output: Base64 encoded image data
+- Maximum image size: 10MB recommended 

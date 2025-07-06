@@ -1,0 +1,72 @@
+Example Request:
+POST /api/chainofzoom
+Content-Type: multipart/form-data
+
+Form Data:
+{
+  "image_url": "https://example.com/image.jpg",
+  "userid": "user123",
+  "scale": "5",
+  "center_x": "0.5",
+  "center_y": "0.5",
+  "user_prompt": "enhance details",
+  "sync_mode": "true"
+}
+
+Successful Response:
+{
+  "status": "success",
+  "images": [
+    "data:image/jpeg;base64,/9j/4AAQSkZJRg...", // Base64 encoded image data for each zoom step
+    "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+    "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+  ],
+  "scale": 5,
+  "zoom_center": [0.5, 0.5]
+}
+
+Error Response (Missing Parameters):
+{
+  "error": "Missing image_url parameter",
+  "status": 400
+}
+
+Error Response (Missing userid):
+{
+  "error": "Missing userid parameter",
+  "status": 400
+}
+
+Error Response (Invalid Image URL):
+{
+  "error": "Image URL is not accessible",
+  "status": 400
+}
+
+Error Response (FAL AI Error):
+{
+  "error": "Error message from FAL AI",
+  "status": "error"
+}
+
+Notes:
+1. The API performs extreme zoom into an image region
+2. Each zoom step:
+   - Crops the center 1/4 area (1/2 width, 1/2 height)
+   - Upscales it back to original size (4x zoom)
+   - Applies AI super-resolution with context-aware prompts
+3. Parameters:
+   - image_url (required): URL of the input image
+   - userid (required): User ID for tracking
+   - scale (optional): Zoom scale in powers of 2 (default: 5)
+   - center_x (optional): X coordinate of zoom center (0-1) (default: 0.5)
+   - center_y (optional): Y coordinate of zoom center (0-1) (default: 0.5)
+   - user_prompt (optional): Additional prompt text to guide the zoom enhancement (default: "")
+   - sync_mode (optional): Wait for image generation and upload before response (default: false)
+4. The response includes:
+   - Array of base64-encoded images for each zoom step
+   - Actual linear zoom scale applied
+   - Center coordinates used for zoom
+5. The API uses FAL AI's chain-of-zoom model
+6. Maximum function duration is set to 300 seconds (5 minutes)
+7. All images are converted to base64 format in the response 

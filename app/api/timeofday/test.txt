@@ -1,0 +1,406 @@
+# Time of Day API Test Guide
+
+## Overview
+The Time of Day API transforms the lighting and time of day in images using FAL AI technology. It allows you to change scenes from day to night, morning to evening, or any other time-based lighting transformation.
+
+## Base URL
+```
+POST http://localhost:3000/api/timeofday
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Image URL to transform (provided by IntentRoute)
+
+## Optional Parameters
+- `prompt` (string): Time of day description (default: "golden hour")
+- `guidance_scale` (number): CFG scale (default: 3.5)
+- `num_inference_steps` (number): Inference steps (default: 30)
+- `safety_tolerance` (string): Safety level 1-6 (default: "2")
+- `output_format` (string): jpeg or png (default: "jpeg")
+- `aspect_ratio` (string): Aspect ratio like 16:9, 1:1 (optional)
+- `seed` (number): Seed for reproducibility (optional)
+- `sync_mode` (boolean): Wait for completion (default: false)
+
+---
+
+## CURL Examples
+
+### 1. Basic Time of Day Change (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=make this golden hour" \
+  -F "product_image=@landscape.jpg"
+```
+
+### 2. Direct API Call with URL - Golden Hour
+```bash
+curl -X POST http://localhost:3000/api/timeofday \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/landscape.jpg" \
+  -F "prompt=golden hour" \
+  -F "guidance_scale=3.5" \
+  -F "num_inference_steps=30"
+```
+
+### 3. Night Scene Transformation
+```bash
+curl -X POST http://localhost:3000/api/timeofday \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/cityscape.jpg" \
+  -F "prompt=night time with city lights" \
+  -F "guidance_scale=4.0" \
+  -F "num_inference_steps=40" \
+  -F "output_format=png"
+```
+
+### 4. Sunrise Scene with High Quality
+```bash
+curl -X POST http://localhost:3000/api/timeofday \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/mountain.jpg" \
+  -F "prompt=sunrise with warm orange light" \
+  -F "guidance_scale=5.0" \
+  -F "num_inference_steps=50" \
+  -F "aspect_ratio=16:9" \
+  -F "safety_tolerance=1"
+```
+
+### 5. Blue Hour Transformation
+```bash
+curl -X POST http://localhost:3000/api/timeofday \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/street.jpg" \
+  -F "prompt=blue hour twilight" \
+  -F "guidance_scale=3.5" \
+  -F "num_inference_steps=30" \
+  -F "seed=12345" \
+  -F "output_format=jpeg"
+```
+
+### 6. Midday Bright Lighting
+```bash
+curl -X POST http://localhost:3000/api/timeofday \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/garden.jpg" \
+  -F "prompt=bright midday sunlight" \
+  -F "guidance_scale=4.5" \
+  -F "num_inference_steps=40" \
+  -F "aspect_ratio=1:1" \
+  -F "safety_tolerance=3"
+```
+
+### 7. Stormy Evening Scene
+```bash
+curl -X POST http://localhost:3000/api/timeofday \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/landscape.jpg" \
+  -F "prompt=stormy evening with dramatic clouds" \
+  -F "guidance_scale=2.5" \
+  -F "num_inference_steps=25" \
+  -F "aspect_ratio=21:9" \
+  -F "output_format=png"
+```
+
+### 8. Fast Processing Mode
+```bash
+curl -X POST http://localhost:3000/api/timeofday \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/portrait.jpg" \
+  -F "prompt=soft morning light" \
+  -F "guidance_scale=2.0" \
+  -F "num_inference_steps=20" \
+  -F "sync_mode=true"
+```
+
+### 9. API Status Check
+```bash
+curl -X GET http://localhost:3000/api/timeofday
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Time of Day API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: change this to golden hour lighting
+- product_image: [file] landscape.jpg
+```
+
+### 2. Golden Hour Transformation
+```
+POST {{baseUrl}}/api/timeofday
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/scene.jpg
+- prompt: golden hour with warm sunset light
+- guidance_scale: 4.0
+- num_inference_steps: 35
+- output_format: png
+```
+
+### 3. Night Scene with City Lights
+```
+POST {{baseUrl}}/api/timeofday
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/cityscape.jpg
+- prompt: night time with glowing streetlights and neon signs
+- guidance_scale: 3.0
+- num_inference_steps: 30
+- aspect_ratio: 16:9
+- safety_tolerance: 1
+```
+
+### 4. Early Morning Mist
+```
+POST {{baseUrl}}/api/timeofday
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/forest.jpg
+- prompt: early morning with soft mist and gentle sunbeams
+- guidance_scale: 3.5
+- num_inference_steps: 40
+- aspect_ratio: 3:4
+- output_format: jpeg
+```
+
+### 5. Dramatic Storm Lighting
+```
+POST {{baseUrl}}/api/timeofday
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/landscape.jpg
+- prompt: dramatic storm with dark clouds and lightning
+- guidance_scale: 4.5
+- num_inference_steps: 45
+- aspect_ratio: 21:9
+- seed: 54321
+```
+
+### 6. Reproducible Lighting (Fixed Seed)
+```
+POST {{baseUrl}}/api/timeofday
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/building.jpg
+- prompt: blue hour with purple sky
+- guidance_scale: 3.5
+- num_inference_steps: 30
+- seed: 12345
+- output_format: png
+```
+
+### 7. High Contrast Noon Light
+```
+POST {{baseUrl}}/api/timeofday
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/street.jpg
+- prompt: harsh midday sunlight with strong shadows
+- guidance_scale: 5.0
+- num_inference_steps: 50
+- safety_tolerance: 5
+- aspect_ratio: 1:1
+```
+
+### 8. API Health Check
+```
+GET {{baseUrl}}/api/timeofday
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+  "seed": 42
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing image_url parameter. This endpoint expects to be called through intentroute."
+}
+```
+
+### API Info Response (GET)
+```json
+{
+  "message": "Time of Day API",
+  "model": "fal-ai/image-editing/time-of-day",
+  "description": "Change the time of day in the image",
+  "parameters": {
+    "image_url": "Image URL to process (required)",
+    "guidance_scale": "CFG scale (default: 3.5)",
+    "num_inference_steps": "Number of inference steps (default: 30)",
+    "safety_tolerance": "Safety level 1-6 (default: 2)",
+    "output_format": "jpeg or png (default: jpeg)",
+    "aspect_ratio": "Optional aspect ratio (e.g., 16:9, 1:1)",
+    "seed": "Optional seed for reproducibility",
+    "sync_mode": "Wait for completion (default: false)",
+    "prompt": "Time of day description (default: 'golden hour')"
+  }
+}
+```
+
+---
+
+## Common Time of Day Prompts
+
+### Golden Hour & Sunset
+- "golden hour with warm orange light"
+- "sunset with dramatic orange and pink sky"
+- "late afternoon with long golden shadows"
+- "warm evening light with soft glow"
+- "golden hour backlight with lens flares"
+
+### Night & Evening
+- "night time with city lights and neon signs"
+- "dark evening with street lamps"
+- "night scene with stars and moonlight"
+- "evening with warm indoor lighting"
+- "late night with cool blue ambient light"
+
+### Morning & Dawn
+- "early morning with soft mist and gentle sunbeams"
+- "sunrise with warm orange horizon"
+- "dawn with cool morning light"
+- "fresh morning light with dew"
+- "bright morning sunlight"
+
+### Blue Hour & Twilight
+- "blue hour twilight with purple sky"
+- "dusk with deep blue sky"
+- "twilight with city lights starting to glow"
+- "evening blue hour with silhouettes"
+- "magic hour with gradient sky"
+
+### Midday & Bright Light
+- "bright midday sunlight with clear shadows"
+- "harsh noon light with strong contrast"
+- "overcast midday with soft diffused light"
+- "bright daylight with vivid colors"
+- "clear sunny day with blue sky"
+
+### Dramatic & Atmospheric
+- "dramatic storm with dark clouds and lightning"
+- "moody overcast sky with heavy clouds"
+- "foggy morning with mysterious atmosphere"
+- "cinematic lighting with dramatic shadows"
+- "atmospheric haze with soft light"
+
+---
+
+## Parameter Guidelines
+
+### Guidance Scale (1.0 - 10.0)
+- 1.0-2.0: Very loose interpretation, more creative freedom
+- 2.5-3.5: Balanced approach (recommended for most use cases)
+- 4.0-6.0: Stronger adherence to prompt
+- 7.0+: Very strict adherence (may reduce creativity)
+
+### Inference Steps
+- 20-25: Fast processing, lower quality
+- 30-35: Balanced quality/speed (recommended)
+- 40-50: Higher quality, slower processing
+- 50+: Diminishing returns, very slow
+
+### Safety Tolerance
+- 1: Very strict content filtering
+- 2: Standard filtering (default)
+- 3-4: Moderate filtering
+- 5-6: More permissive (use with caution)
+
+### Aspect Ratios
+- 1:1: Square (social media)
+- 3:4: Portrait (vertical photos)
+- 4:3: Standard photo
+- 16:9: Widescreen (landscape)
+- 21:9: Ultra-wide (cinematic)
+
+---
+
+## Use Cases by Scene Type
+
+### Landscape Photography
+- Golden hour transformations
+- Sunrise/sunset scenes
+- Storm and dramatic weather
+- Seasonal lighting changes
+
+### Urban/Cityscape
+- Night city lights
+- Blue hour skyscrapers
+- Street lamp ambiance
+- Neon sign reflections
+
+### Portrait Photography
+- Soft morning light
+- Golden hour portraits
+- Studio lighting effects
+- Dramatic mood lighting
+
+### Architecture
+- Building facade lighting
+- Interior/exterior transitions
+- Shadow play and highlights
+- Time-based architectural photography
+
+### Nature Scenes
+- Forest morning mist
+- Ocean sunset/sunrise
+- Mountain lighting
+- Seasonal atmosphere changes
+
+---
+
+## Integration with IntentRoute
+
+The Time of Day API is designed to work seamlessly with the IntentRoute system:
+
+1. **User uploads image** via IntentRoute
+2. **IntentRoute processes** the file and stores it
+3. **IntentRoute calls** time of day API with image URL
+4. **Time of day** transforms lighting and returns base64 result
+5. **IntentRoute handles** Firebase storage and chat response
+
+### Recommended Flow
+```bash
+# User uploads image with time of day request
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=user123" \
+  -F "message=make this golden hour" \
+  -F "product_image=@landscape.jpg"
+```
+
+This approach ensures proper file handling, storage, and chat integration. 

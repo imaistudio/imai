@@ -183,28 +183,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.log("Upscaling completed!");
     console.log("Upscaled image URL:", upscaledImageUrl);
 
-    // Convert the output image to base64 for intentroute to handle
-    let outputBase64: string;
-
-    if (upscaledImageUrl.startsWith("data:image")) {
-      // Already base64
-      outputBase64 = upscaledImageUrl;
-    } else {
-      // Download and convert URL to base64
-      const response = await fetch(upscaledImageUrl);
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch upscaled image: ${response.statusText}`,
-        );
-      }
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      outputBase64 = bufferToBase64DataUrl(buffer);
-    }
+    // ✅ Return FAL AI URL directly (following reframe pattern for large files)
+    console.log("✅ Using FAL AI URL directly (following reframe pattern)");
 
     const response: UpscaleResponse = {
       status: "success",
-      imageUrl: outputBase64, // Base64 data URL for intentroute to handle
+      imageUrl: upscaledImageUrl, // FAL AI URL directly - no base64 conversion for large files
     };
 
     return NextResponse.json(response);

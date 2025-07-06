@@ -1,0 +1,252 @@
+# Seedance Video Generation API Test Guide
+
+## Overview
+The Seedance Video API generates videos from images using Bytedance's Seedance 1.0 Pro model. It animates static images based on text prompts, creating dynamic video content with natural motion and camera movements.
+
+## Base URL
+```
+POST http://localhost:3000/api/seedancevideo
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Image URL to animate (provided by IntentRoute)
+
+## Optional Parameters
+- `prompt` (string): Animation description (default: "Dynamic motion and natural animation")
+- `resolution` (string): Always "1080p" (highest quality)
+- `duration` (string): Always "10" seconds (longer sequences)
+- `camera_fixed` (boolean): Whether to fix camera position (default: false)
+- `seed` (number): For reproducible results (optional)
+
+## Response Format
+```json
+{
+  "status": "success",
+  "videoUrl": "data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDE...",
+  "seed": 1234567890
+}
+```
+
+## CURL Test Examples
+
+### Basic Video Generation
+```bash
+curl -X POST "http://localhost:3000/api/seedancevideo" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=gentle swaying motion"
+```
+
+### Dynamic Camera Movement
+```bash
+curl -X POST "http://localhost:3000/api/seedancevideo" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=dynamic movement with camera panning"
+```
+
+### Subtle Animation Effects
+```bash
+curl -X POST "http://localhost:3000/api/seedancevideo" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=subtle animation effects"
+```
+
+### Fixed Camera Position
+```bash
+curl -X POST "http://localhost:3000/api/seedancevideo" \
+  -F "userid=test_user_123" \
+  -F "image_url=https://example.com/image.jpg" \
+  -F "prompt=object movement without camera motion" \
+  -F "camera_fixed=true" \
+  -F "seed=12345"
+```
+
+## Postman Collection
+
+### Request Setup
+- Method: POST
+- URL: `http://localhost:3000/api/seedancevideo`
+- Body: form-data
+
+### Form Data Parameters
+| Key | Value | Description |
+|-----|-------|-------------|
+| userid | test_user_123 | User identifier |
+| image_url | https://example.com/image.jpg | Image to animate |
+| prompt | Dynamic motion and natural animation | Animation description |
+| resolution | 1080p | Always highest quality (fixed) |
+| duration | 10 | Always 10 seconds (fixed) |
+| camera_fixed | false | Fix camera position |
+| seed | 12345 | Reproducible generation |
+
+## Video Animation Prompt Examples
+
+### Natural Motion
+- "gentle swaying motion with natural breathing"
+- "subtle wind effects causing gentle movement"
+- "natural hair and clothing movement"
+- "organic motion like leaves rustling"
+- "breathing and micro-movements"
+
+### Dynamic Action
+- "energetic dancing with rhythm"
+- "dynamic sports movement"
+- "active gestures and expressions"
+- "powerful action sequences"
+- "dramatic motion with intensity"
+
+### Camera Movement
+- "smooth camera pan from left to right"
+- "gentle zoom in on the subject"
+- "cinematic camera movement"
+- "tracking shot following the subject"
+- "dramatic camera angles"
+
+### Nature Animation
+- "water flowing and waves moving"
+- "clouds drifting across the sky"
+- "fire dancing and flickering"
+- "plants swaying in the breeze"
+- "snow falling gently"
+
+### Character Animation
+- "person walking naturally"
+- "facial expressions changing"
+- "hand gestures and movements"
+- "eyes blinking and looking around"
+- "natural human locomotion"
+
+### Object Animation
+- "fabric flowing in the wind"
+- "mechanical parts moving smoothly"
+- "liquid pouring and splashing"
+- "objects floating weightlessly"
+- "rotating and spinning motion"
+
+### Artistic Effects
+- "surreal morphing transformations"
+- "abstract pattern movements"
+- "color gradients shifting"
+- "geometric shapes evolving"
+- "artistic visual effects"
+
+## Parameter Guidelines
+
+### Resolution
+- **1080p**: Always uses highest quality (4-6 minutes processing), large file size, professional output
+
+### Duration
+- **10 seconds**: Always uses longer duration for detailed storytelling, complex motion, and comprehensive sequences
+
+### Camera Fixed
+- **false**: Dynamic camera movement, cinematic effects, more engaging
+- **true**: Static camera, focus on object motion, consistent framing
+
+### Seed
+- Use same seed for consistent results across similar prompts
+- Leave undefined for random variations
+- Useful for A/B testing different prompts
+
+## Integration with IntentRoute
+
+The Seedance Video API integrates with the IntentRoute system for natural language processing:
+
+### Natural Language Examples
+- "animate this image"
+- "make this move"
+- "create a video from this"
+- "bring this image to life"
+- "make it dance"
+- "add motion to this picture"
+- "generate video animation"
+
+### IntentRoute Flow
+1. User uploads image and provides animation request
+2. IntentRoute analyzes intent and extracts parameters
+3. Routes to `/api/seedancevideo` with proper parameters
+4. Returns animated video with motion
+
+## Error Handling
+
+### Common Errors
+- Missing `image_url`: 400 Bad Request
+- Invalid image URL: 400 Bad Request
+- FAL_KEY not configured: 500 Internal Server Error
+- Video generation timeout: 500 Internal Server Error
+
+### Success Response
+```json
+{
+  "status": "success",
+  "videoUrl": "data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDE...",
+  "seed": 1234567890
+}
+```
+
+### Error Response
+```json
+{
+  "error": "Error message",
+  "status": "error"
+}
+```
+
+## Performance Notes
+
+- Processing time: 4-6 minutes (always 1080p, 10 seconds)
+- Timeout: 10 minutes maximum
+- Supported input formats: JPEG, PNG, WebP
+- Output: Base64 encoded MP4 video data (high quality)
+- Maximum file size: 50MB recommended for input images
+
+## Quality Optimization Tips
+
+1. **Image Quality**: Use high-resolution input images (1080p+) for best results
+2. **Clear Subjects**: Images with clear, well-defined subjects animate better
+3. **Good Lighting**: Well-lit images produce more natural motion
+4. **Composition**: Center-framed subjects work best for animation
+5. **Prompt Specificity**: Detailed prompts yield more accurate animations
+
+## Testing Checklist
+
+- [ ] Basic video generation works (1080p, 10s)
+- [ ] Camera fixed vs dynamic modes
+- [ ] Various prompt types and styles
+- [ ] Error handling for invalid URLs
+- [ ] IntentRoute integration
+- [ ] Response format validation
+- [ ] Performance with large images
+- [ ] Seed reproducibility
+- [ ] High quality output validation
+
+## Use Cases
+
+### Content Creation
+- Social media animations
+- Marketing video content
+- Product demonstrations
+- Character animations
+
+### Creative Projects
+- Artistic video loops
+- Animated portraits
+- Dynamic presentations
+- Visual storytelling
+
+### Professional Applications
+- Architectural walkthroughs
+- Product showcases
+- Educational content
+- Brand animations
+
+## Technical Notes
+
+- Uses Bytedance Seedance 1.0 Pro model
+- Supports image-to-video transformation
+- Natural motion generation with AI
+- Compatible with various image formats
+- Returns MP4 video format
+- Base64 encoding for seamless integration 

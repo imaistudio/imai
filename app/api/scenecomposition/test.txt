@@ -1,0 +1,365 @@
+# Scene Composition API Test Guide
+
+## Overview
+The Scene Composition API creates new scenes around subjects using FAL AI scene composition technology. It places an existing subject into a new environment or scene based on text prompts.
+
+## Base URL
+```
+POST http://localhost:3000/api/scenecomposition
+```
+
+## Required Parameters
+- `userid` (string): User identifier
+- `image_url` (string): Subject image URL to place in new scene (provided by IntentRoute)
+
+## Optional Parameters
+- `prompt` (string): Scene description (default: "enchanted forest")
+- `guidance_scale` (number): CFG scale (default: 3.5)
+- `num_inference_steps` (number): Inference steps (default: 30)
+- `safety_tolerance` (string): Safety level 1-6 (default: "2")
+- `output_format` (string): jpeg or png (default: "jpeg")
+- `aspect_ratio` (string): Aspect ratio like 16:9, 1:1 (optional)
+- `seed` (number): Seed for reproducibility (optional)
+- `sync_mode` (boolean): Wait for completion (default: false)
+
+---
+
+## CURL Examples
+
+### 1. Basic Scene Composition (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=place this subject in a magical forest" \
+  -F "product_image=@subject.jpg"
+```
+
+### 2. Direct API Call with URL - Enchanted Forest
+```bash
+curl -X POST http://localhost:3000/api/scenecomposition \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/subject.jpg" \
+  -F "prompt=enchanted forest with glowing fireflies" \
+  -F "guidance_scale=3.5" \
+  -F "num_inference_steps=30"
+```
+
+### 3. Urban Scene Composition
+```bash
+curl -X POST http://localhost:3000/api/scenecomposition \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/subject.jpg" \
+  -F "prompt=futuristic cyberpunk city at night with neon lights" \
+  -F "guidance_scale=4.0" \
+  -F "num_inference_steps=40" \
+  -F "output_format=png"
+```
+
+### 4. Beach Scene with High Quality
+```bash
+curl -X POST http://localhost:3000/api/scenecomposition \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/subject.jpg" \
+  -F "prompt=tropical beach with crystal clear water and palm trees" \
+  -F "guidance_scale=5.0" \
+  -F "num_inference_steps=50" \
+  -F "aspect_ratio=16:9" \
+  -F "safety_tolerance=1"
+```
+
+### 5. Medieval Castle Scene
+```bash
+curl -X POST http://localhost:3000/api/scenecomposition \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/subject.jpg" \
+  -F "prompt=ancient medieval castle with dramatic sky and mountains" \
+  -F "guidance_scale=3.5" \
+  -F "num_inference_steps=30" \
+  -F "seed=12345" \
+  -F "output_format=jpeg"
+```
+
+### 6. Space Scene Composition
+```bash
+curl -X POST http://localhost:3000/api/scenecomposition \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/subject.jpg" \
+  -F "prompt=outer space with distant galaxies and nebula" \
+  -F "guidance_scale=4.5" \
+  -F "num_inference_steps=40" \
+  -F "aspect_ratio=21:9" \
+  -F "safety_tolerance=3"
+```
+
+### 7. Studio Portrait Scene
+```bash
+curl -X POST http://localhost:3000/api/scenecomposition \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/subject.jpg" \
+  -F "prompt=professional photography studio with soft lighting" \
+  -F "guidance_scale=2.5" \
+  -F "num_inference_steps=25" \
+  -F "aspect_ratio=3:4" \
+  -F "output_format=png"
+```
+
+### 8. Fast Processing Mode
+```bash
+curl -X POST http://localhost:3000/api/scenecomposition \
+  -F "userid=test-user-123" \
+  -F "image_url=https://storage.googleapis.com/example/subject.jpg" \
+  -F "prompt=cozy coffee shop interior" \
+  -F "guidance_scale=2.0" \
+  -F "num_inference_steps=20" \
+  -F "sync_mode=true"
+```
+
+### 9. API Status Check
+```bash
+curl -X GET http://localhost:3000/api/scenecomposition
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Scene Composition API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: place this person in a magical forest scene
+- product_image: [file] person.jpg
+```
+
+### 2. Fantasy Scene Composition
+```
+POST {{baseUrl}}/api/scenecomposition
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/subject.jpg
+- prompt: mystical fantasy forest with floating islands and waterfalls
+- guidance_scale: 4.0
+- num_inference_steps: 35
+- output_format: png
+```
+
+### 3. Professional Portrait Scene
+```
+POST {{baseUrl}}/api/scenecomposition
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/portrait.jpg
+- prompt: elegant office environment with modern design
+- guidance_scale: 3.0
+- num_inference_steps: 30
+- aspect_ratio: 3:4
+- safety_tolerance: 1
+```
+
+### 4. Product in Lifestyle Scene
+```
+POST {{baseUrl}}/api/scenecomposition
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/product.jpg
+- prompt: luxury home interior with natural lighting
+- guidance_scale: 3.5
+- num_inference_steps: 40
+- aspect_ratio: 16:9
+- output_format: jpeg
+```
+
+### 5. Outdoor Adventure Scene
+```
+POST {{baseUrl}}/api/scenecomposition
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/subject.jpg
+- prompt: mountain peak with sunrise and dramatic clouds
+- guidance_scale: 4.5
+- num_inference_steps: 45
+- aspect_ratio: 21:9
+- seed: 54321
+```
+
+### 6. Reproducible Scene (Fixed Seed)
+```
+POST {{baseUrl}}/api/scenecomposition
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/subject.jpg
+- prompt: serene japanese garden with cherry blossoms
+- guidance_scale: 3.5
+- num_inference_steps: 30
+- seed: 12345
+- output_format: png
+```
+
+### 7. High Safety Tolerance Scene
+```
+POST {{baseUrl}}/api/scenecomposition
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- image_url: https://storage.googleapis.com/example/subject.jpg
+- prompt: vibrant street art scene with colorful graffiti
+- guidance_scale: 5.0
+- num_inference_steps: 50
+- safety_tolerance: 5
+- aspect_ratio: 1:1
+```
+
+### 8. API Health Check
+```
+GET {{baseUrl}}/api/scenecomposition
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+  "seed": 42
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing image_url parameter. This endpoint expects to be called through intentroute."
+}
+```
+
+### API Info Response (GET)
+```json
+{
+  "message": "Scene Composition API",
+  "model": "fal-ai/image-editing/scene-composition",
+  "description": "Compose a new scene around the subject",
+  "parameters": {
+    "image_url": "Image URL to process (required)",
+    "guidance_scale": "CFG scale (default: 3.5)",
+    "num_inference_steps": "Number of inference steps (default: 30)",
+    "safety_tolerance": "Safety level 1-6 (default: 2)",
+    "output_format": "jpeg or png (default: jpeg)",
+    "aspect_ratio": "Optional aspect ratio (e.g., 16:9, 1:1)",
+    "seed": "Optional seed for reproducibility",
+    "sync_mode": "Wait for completion (default: false)",
+    "prompt": "Scene description (default: 'enchanted forest')"
+  }
+}
+```
+
+---
+
+## Common Scene Prompts
+
+### Nature Scenes
+- "enchanted forest with glowing fireflies and mystical fog"
+- "tropical beach with crystal clear water and palm trees"
+- "mountain peak with sunrise and dramatic clouds"
+- "serene japanese garden with cherry blossoms"
+- "autumn forest with golden leaves and sunbeams"
+
+### Urban Scenes
+- "futuristic cyberpunk city at night with neon lights"
+- "cozy coffee shop interior with warm lighting"
+- "modern luxury apartment with city view"
+- "bustling street market with colorful vendors"
+- "elegant office environment with modern design"
+
+### Fantasy Scenes
+- "mystical fantasy forest with floating islands and waterfalls"
+- "ancient medieval castle with dramatic sky and mountains"
+- "magical library with floating books and glowing orbs"
+- "underwater palace with coral reefs and sea creatures"
+- "steampunk workshop with gears and vintage machinery"
+
+### Space/Sci-Fi Scenes
+- "outer space with distant galaxies and nebula"
+- "alien planet with purple sky and twin moons"
+- "space station interior with futuristic technology"
+- "desert planet with red sand and rocky formations"
+- "cosmic void with swirling energy and stars"
+
+### Professional Scenes
+- "professional photography studio with soft lighting"
+- "luxury home interior with natural lighting"
+- "corporate boardroom with glass walls and city view"
+- "art gallery with white walls and spotlights"
+- "modern kitchen with marble counters and natural light"
+
+---
+
+## Parameter Guidelines
+
+### Guidance Scale (1.0 - 10.0)
+- 1.0-2.0: Very loose interpretation, more creative freedom
+- 2.5-3.5: Balanced approach (recommended for most use cases)
+- 4.0-6.0: Stronger adherence to prompt
+- 7.0+: Very strict adherence (may reduce creativity)
+
+### Inference Steps
+- 20-25: Fast processing, lower quality
+- 30-35: Balanced quality/speed (recommended)
+- 40-50: Higher quality, slower processing
+- 50+: Diminishing returns, very slow
+
+### Safety Tolerance
+- 1: Very strict content filtering
+- 2: Standard filtering (default)
+- 3-4: Moderate filtering
+- 5-6: More permissive (use with caution)
+
+### Aspect Ratios
+- 1:1: Square (social media)
+- 3:4: Portrait (profile pictures)
+- 4:3: Standard photo
+- 16:9: Widescreen (presentations)
+- 21:9: Ultra-wide (cinematic)
+
+---
+
+## Integration with IntentRoute
+
+The Scene Composition API is designed to work seamlessly with the IntentRoute system:
+
+1. **User uploads image** via IntentRoute
+2. **IntentRoute processes** the file and stores it
+3. **IntentRoute calls** scene composition with image URL
+4. **Scene composition** processes and returns base64 result
+5. **IntentRoute handles** Firebase storage and chat response
+
+### Recommended Flow
+```bash
+# User uploads subject image with scene request
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=user123" \
+  -F "message=place this person in a magical forest" \
+  -F "product_image=@person.jpg"
+```
+
+This approach ensures proper file handling, storage, and chat integration. 

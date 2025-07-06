@@ -1,0 +1,190 @@
+# Elemental Design API Test Guide
+
+## Overview
+The Elemental Design API creates professional repeating patterns using the actual elements from 2-3 input images. Unlike flowdesign (which extracts design DNA), elemental design uses the literal objects/elements from the images.
+
+## Base URL
+```
+POST http://localhost:3000/api/elementaldesign
+```
+
+## Required Parameters
+- `userId` (string): User identifier
+- `userMessage` (string): User's request message
+- At least 2 of the following image files:
+  - `product_image` (file): First element image
+  - `design_image` (file): Second element image  
+  - `color_image` (file): Third element image
+
+## Optional Parameters
+- `workflow_type` (string): Type of pattern workflow (default: "elemental_pattern")
+- `size` (string): Output size (default: "1024x1024")
+- `quality` (string): Generation quality (default: "auto")
+
+---
+
+## CURL Examples
+
+### 1. Via IntentRoute (Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=create an elemental pattern using these elements" \
+  -F "product_image=@flower.jpg" \
+  -F "design_image=@rocket.jpg" \
+  -F "color_image=@shoe.jpg"
+```
+
+### 2. Via IntentRoute - Alternative Triggers
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=make a repeating pattern with these elements" \
+  -F "product_image=@element1.jpg" \
+  -F "design_image=@element2.jpg"
+```
+
+### 3. Direct API Call
+```bash
+curl -X POST http://localhost:3000/api/elementaldesign \
+  -F "userId=test-user-123" \
+  -F "userMessage=Create an elemental pattern design using the uploaded elements" \
+  -F "product_image=@flower.jpg" \
+  -F "design_image=@rocket.jpg" \
+  -F "color_image=@shoe.jpg"
+```
+
+### 4. Two Elements Pattern
+```bash
+curl -X POST http://localhost:3000/api/elementaldesign \
+  -F "userId=test-user-123" \
+  -F "userMessage=Create a repeating pattern with these two elements" \
+  -F "product_image=@butterfly.jpg" \
+  -F "design_image=@gear.jpg"
+```
+
+---
+
+## Intent Trigger Keywords
+
+The following keywords will trigger elemental design routing:
+
+**Primary Keywords:**
+- "elemental design"
+- "elemental pattern"
+- "element pattern"
+- "elements pattern"
+- "repeating pattern"
+- "repeating elements"
+
+**Secondary Keywords:**
+- "pattern with elements"
+- "pattern from elements"
+- "actual element pattern"
+- "literal element"
+- "main element pattern"
+- "object pattern"
+- "textile pattern"
+- "wallpaper pattern"
+- "seamless pattern"
+
+**Combined Keywords:**
+- "use element pattern"
+- "create element pattern"
+- "make element pattern"
+- "element repeating"
+
+---
+
+## Example Usage Scenarios
+
+### 1. Textile Design
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=designer-123" \
+  -F "message=create a textile pattern using these elements" \
+  -F "product_image=@leaf.jpg" \
+  -F "design_image=@bird.jpg"
+```
+
+### 2. Wallpaper Pattern  
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=designer-123" \
+  -F "message=make a wallpaper pattern with these objects" \
+  -F "product_image=@star.jpg" \
+  -F "design_image=@moon.jpg" \
+  -F "color_image=@cloud.jpg"
+```
+
+### 3. Surface Design
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=designer-123" \
+  -F "message=create a seamless pattern using these elements" \
+  -F "product_image=@geometric.jpg" \
+  -F "design_image=@organic.jpg"
+```
+
+---
+
+## Expected Response Format
+
+```json
+{
+  "status": "success",
+  "firebaseInputUrls": {
+    "product_image": "https://storage.googleapis.com/...",
+    "design_image": "https://storage.googleapis.com/...",
+    "color_image": "https://storage.googleapis.com/..."
+  },
+  "firebaseOutputUrl": "https://storage.googleapis.com/...",
+  "workflow_type": "elemental_pattern",
+  "generated_prompt": "🎨 ELEMENTAL PATTERN DESIGN BRIEF: ...",
+  "revised_prompt": "A seamless repeating pattern featuring...",
+  "element_analyses": [
+    "Analysis of element 1...",
+    "Analysis of element 2...",
+    "Analysis of element 3..."
+  ],
+  "model_used": "dall-e-3",
+  "generation_method": "elemental_design",
+  "streaming_supported": false
+}
+```
+
+---
+
+## Key Differences from FlowDesign
+
+| Feature | FlowDesign | Elemental Design |
+|---------|------------|------------------|
+| **Approach** | Extracts design DNA (colors, themes) | Uses actual elements/objects |
+| **Output** | Brand new designs inspired by inputs | Repeating patterns with literal elements |
+| **Use Case** | Creative inspiration | Pattern design for textiles/surfaces |
+| **Elements** | Abstract inspiration | Recognizable objects in pattern |
+
+---
+
+## Testing Notes
+
+1. **Minimum Images**: Requires at least 2 input images
+2. **Element Recognition**: Works best with clear, identifiable objects
+3. **Pattern Quality**: Generates professional, seamless repeating patterns
+4. **Processing Time**: May take 30-60 seconds due to image analysis + generation
+5. **File Formats**: Accepts common image formats (jpg, png, webp)
+
+---
+
+## Troubleshooting
+
+### Common Issues:
+1. **"Elemental design requires at least 2 input images"** - Upload at least 2 images
+2. **Analysis fails** - Ensure images contain clear, identifiable elements
+3. **Pattern generation fails** - Check OpenAI API key and quota
+4. **Firebase upload fails** - Verify Firebase configuration
+
+### Debug Logs:
+- Look for "🎨 ELEMENTAL DESIGN ROUTE:" logs
+- Check "🔍 Analyzing [field] for main elements..." logs
+- Monitor Firebase upload success logs 
