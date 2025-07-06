@@ -151,3 +151,16 @@
     height: -webkit-fill-available;
   }
 }
+
+/* Modern viewport units with fallbacks */
+.h-\[100dvh\] {
+  height: 100vh; /* Fallback for browsers that don't support dvh */
+  height: 100dvh; /* Dynamic viewport height */
+}
+
+/* Safari-specific override for dynamic viewport height */
+@supports (-webkit-touch-callout: none) {
+  .h-\[100dvh\] {
+    height: -webkit-fill-available;
+  }
+}

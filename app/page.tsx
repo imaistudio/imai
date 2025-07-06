@@ -795,14 +795,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden">
-      {/* Sticky MobileNav at the top */}
-      <div className="sticky top-0 z-50 ">
+    <div className="flex flex-col h-[100dvh] w-full overflow-hidden">
+      {/* Fixed MobileNav at the top */}
+      <div className="flex-shrink-0">
         <MobileNav />
       </div>
 
-      {/* ChatWindow grows to fill remaining space, scrolls behind sticky footer */}
-      <div className="flex-1 overflow-y-auto px-2 hide-scrollbar">
+      {/* ChatWindow grows to fill remaining space, scrolls internally */}
+      <div className="flex-1 overflow-y-auto px-2 hide-scrollbar min-h-0">
         <ChatWindow
           chatId={currentChatId}
           onReplyToMessage={handleReplyToMessage}
@@ -810,8 +810,8 @@ export default function Home() {
         />
       </div>
 
-      {/* Sticky Prompt Input at the bottom */}
-      <div className="sticky bottom-0 z-10  px-2 pb-4 pt-2">
+      {/* Fixed Prompt Input at the bottom */}
+      <div className="flex-shrink-0 px-2 pb-4 pt-2">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}
           placeholder="Design starts here.."
