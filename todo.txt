@@ -1,5 +1,4 @@
 Current Task 
-1. Fix Scrooling on Mobile Browsers
 2. Only Five Projects Can Be Created More then that Hide the Create Icon or drop down betterment
 3. Fix Sidebar New Chat Always on top 
 

@@ -179,6 +179,14 @@
       height: calc(-webkit-fill-available - env(keyboard-inset-height, 0px));
     }
   }
+  
+  /* Disable all scrolling on mobile */
+  html, body {
+    overflow: hidden;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+  }
 }
 
 /* iOS safe area support */
@@ -197,6 +205,11 @@
     "chat"
     "input";
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .mobile-nav-area {
@@ -221,5 +234,17 @@
 @supports (padding: max(0px)) {
   .mobile-input-area {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Additional mobile scroll prevention */
+@media (max-width: 768px) {
+  .mobile-layout-grid {
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+  
+  .mobile-nav-area, .mobile-input-area {
+    touch-action: manipulation;
   }
 }
