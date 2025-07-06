@@ -795,19 +795,21 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] w-full overflow-hidden">
+    <div className="flex flex-col h-[100dvh] w-full">
       {/* Fixed MobileNav at the top */}
       <div className="flex-shrink-0">
         <MobileNav />
       </div>
 
-      {/* ChatWindow grows to fill remaining space, scrolls internally */}
-      <div className="flex-1 overflow-y-auto px-2 hide-scrollbar min-h-0">
-        <ChatWindow
-          chatId={currentChatId}
-          onReplyToMessage={handleReplyToMessage}
-          onTitleRenamed={handleTitleRenamed}
-        />
+      {/* ChatWindow takes remaining space, scrolls internally */}
+      <div className="flex-1 overflow-hidden px-2">
+        <div className="h-full overflow-y-auto hide-scrollbar">
+          <ChatWindow
+            chatId={currentChatId}
+            onReplyToMessage={handleReplyToMessage}
+            onTitleRenamed={handleTitleRenamed}
+          />
+        </div>
       </div>
 
       {/* Fixed Prompt Input at the bottom */}
