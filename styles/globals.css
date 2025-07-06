@@ -144,3 +144,10 @@
 .dark {
   --icon-color: #fff; /* White in dark mode */
 }
+
+/* Safari h-screen fix for iOS viewport issues */
+@supports (-webkit-touch-callout: none) {
+  .h-screen {
+    height: -webkit-fill-available;
+  }
+}
