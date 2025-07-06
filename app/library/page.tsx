@@ -8,16 +8,23 @@ import { Spinner } from "@heroui/react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
-const IMAGES_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 50;
+
+interface MediaFile {
+  url: string;
+  name: string;
+  type: 'image' | 'video';
+  createdAt: number;
+}
 
 export default function Reset() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  // All image URLs fetched from Firebase (sorted: newest first)
-  const [images, setImages] = useState<string[]>([]);
+  // All media files fetched from Firebase (sorted: newest first)
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   // Currently visible subset (for infinite scroll)
-  const [paginatedImages, setPaginatedImages] = useState<string[]>([]);
-  // Which "page" we're on (1-based). page = 1 means the first IMAGES_PER_PAGE, etc.
+  const [paginatedMedia, setPaginatedMedia] = useState<MediaFile[]>([]);
+  // Which "page" we're on (1-based). page = 1 means the first ITEMS_PER_PAGE, etc.
   const [page, setPage] = useState(1);
   // Toggle while fetching from storage
   const [isLoading, setIsLoading] = useState(true);
@@ -27,22 +34,34 @@ export default function Reset() {
       router.push("/login");
     }
   }, [user, loading, router]);
-  // Once we have a userId, fetch all output images from `${userId}/output`
+  // Once we have a userId, fetch all output media files from `${userId}/output`
   useEffect(() => {
     if (user?.uid) {
-      fetchImages(user.uid);
+      fetchMediaFiles(user.uid);
     }
   }, [user?.uid]);
 
-  const fetchImages = async (userId: string) => {
+  const getFileType = (fileName: string): 'image' | 'video' => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv'];
+    
+    const extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
+    
+    if (imageExtensions.includes(extension)) return 'image';
+    if (videoExtensions.includes(extension)) return 'video';
+    
+    return 'image'; // default to image
+  };
+
+  const fetchMediaFiles = async (userId: string) => {
     setIsLoading(true);
 
     // Try to get cached data
-    const cached = sessionStorage.getItem(`imagesCache-${userId}`);
+    const cached = sessionStorage.getItem(`mediaCache-${userId}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      setImages(parsed);
-      setPaginatedImages(parsed.slice(0, IMAGES_PER_PAGE));
+      setMediaFiles(parsed);
+      setPaginatedMedia(parsed.slice(0, ITEMS_PER_PAGE));
       setPage(1);
       setIsLoading(false);
       return;
@@ -58,27 +77,26 @@ export default function Reset() {
         return {
           url,
           name: item.name,
+          type: getFileType(item.name),
           createdAt: new Date(metadata.timeCreated).getTime(),
         };
       });
 
       const files = await Promise.all(urlPromises);
 
-      const sortedUrls = files
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .map((file) => file.url);
+      const sortedFiles = files.sort((a, b) => b.createdAt - a.createdAt);
 
       // Cache for the session
       sessionStorage.setItem(
-        `imagesCache-${userId}`,
-        JSON.stringify(sortedUrls),
+        `mediaCache-${userId}`,
+        JSON.stringify(sortedFiles),
       );
 
-      setImages(sortedUrls);
-      setPaginatedImages(sortedUrls.slice(0, IMAGES_PER_PAGE));
+      setMediaFiles(sortedFiles);
+      setPaginatedMedia(sortedFiles.slice(0, ITEMS_PER_PAGE));
       setPage(1);
     } catch (error) {
-      console.error("Error loading images:", error);
+      console.error("Error loading media files:", error);
     } finally {
       setIsLoading(false);
     }
@@ -87,18 +105,18 @@ export default function Reset() {
   // Append the next batch when the user scrolls near the bottom
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
-    const startIndex = page * IMAGES_PER_PAGE;
-    const endIndex = startIndex + IMAGES_PER_PAGE;
+    const startIndex = page * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
 
-    // If no more images to load, do nothing
-    if (startIndex >= images.length) {
+    // If no more media files to load, do nothing
+    if (startIndex >= mediaFiles.length) {
       return;
     }
 
-    const nextSlice = images.slice(startIndex, endIndex);
-    setPaginatedImages((prev) => [...prev, ...nextSlice]);
+    const nextSlice = mediaFiles.slice(startIndex, endIndex);
+    setPaginatedMedia((prev: MediaFile[]) => [...prev, ...nextSlice]);
     setPage(nextPage);
-  }, [images, page]);
+  }, [mediaFiles, page]);
 
   // Scroll listener: when near bottom, call loadMore()
   useEffect(() => {
@@ -109,8 +127,8 @@ export default function Reset() {
       const scrolledToBottom =
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - threshold;
-      // If we're at bottom and there are still images left, load more
-      if (scrolledToBottom && page * IMAGES_PER_PAGE < images.length) {
+      // If we're at bottom and there are still media files left, load more
+      if (scrolledToBottom && page * ITEMS_PER_PAGE < mediaFiles.length) {
         loadMore();
       }
     };
@@ -118,7 +136,7 @@ export default function Reset() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [images.length, loadMore, page]);
+  }, [mediaFiles.length, loadMore, page]);
 
   return (
     <>
@@ -131,18 +149,30 @@ export default function Reset() {
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-              {paginatedImages.map((url, index) => (
-                <ImageZoomModal
-                  key={index}
-                  src={url}
-                  alt={`User output ${index}`}
-                  className="w-full aspect-square object-cover rounded"
-                />
+              {paginatedMedia.map((media, index) => (
+                <div key={index} className="w-full aspect-square rounded overflow-hidden">
+                  {media.type === 'image' ? (
+                    <ImageZoomModal
+                      src={media.url}
+                      alt={`User output ${index}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={media.url}
+                      className="w-full h-full object-cover"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                  )}
+                </div>
               ))}
             </div>
             {/* Optional: A little "Loading..." indicator at the bottom while fetching more.
-                You can conditionally show this only if page * IMAGES_PER_PAGE < images.length. */}
-            {page * IMAGES_PER_PAGE < images.length && (
+                You can conditionally show this only if page * ITEMS_PER_PAGE < mediaFiles.length. */}
+            {page * ITEMS_PER_PAGE < mediaFiles.length && (
               <div className="flex justify-center my-6">
                 <Spinner />
               </div>
