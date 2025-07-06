@@ -30,6 +30,7 @@ import {
   Package,
   Palette,
   Droplets,
+  Clapperboard
 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
@@ -721,6 +722,144 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
+  // Handle video generation from image
+  const handleVideo = useCallback(
+    async (imageUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log("🎬 Starting video generation for:", imageUrl);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `video-${Date.now()}`,
+        sender: "agent",
+        type: "videos",
+        text: "Generating video from image...",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      try {
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Call seedancevideo API
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("image_url", imageUrl);
+
+        const response = await fetch("/api/seedancevideo", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (
+          result.status === "success" &&
+          result.result &&
+          result.result.videoUrl
+        ) {
+          // Create video message
+          const videoMessage: ChatMessage = {
+            id: `video-result-${Date.now()}`,
+            sender: "agent",
+            type: "videos",
+            text: "Here's your generated video:",
+            videos: [result.result.videoUrl],
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Update Firestore with the video
+          // First, get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with video result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? videoMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+
+          console.log("✅ Generated video saved to chat");
+        } else {
+          throw new Error("Invalid response from seedancevideo API");
+        }
+      } catch (error) {
+        console.error("❌ Video generation failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `video-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't generate the video. Please try again later.",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+
+          // Get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with error message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          } else {
+            // If no chat found, just add the error message
+            await updateDoc(chatRef, {
+              messages: arrayUnion(errorMessage),
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
   // Handle upscale image
   const handleUpscale = useCallback(
     async (imageUrl: string) => {
@@ -1130,6 +1269,16 @@ export default function ChatWindow({
                                     title="Retry"
                                   >
                                     <RefreshCcw
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleVideo(img)}
+                                    className="p-1 rounded-full "
+                                    title="Generate Video"
+                                  >
+                                    <Clapperboard
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
