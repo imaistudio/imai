@@ -165,9 +165,61 @@
   }
 }
 
+/* Aggressive mobile viewport fix */
+@media (max-width: 768px) {
+  .h-\[100dvh\] {
+    height: 100vh;
+    height: calc(100vh - env(keyboard-inset-height, 0px));
+  }
+  
+  /* Safari iOS specific */
+  @supports (-webkit-touch-callout: none) {
+    .h-\[100dvh\] {
+      height: -webkit-fill-available;
+      height: calc(-webkit-fill-available - env(keyboard-inset-height, 0px));
+    }
+  }
+}
+
 /* iOS safe area support */
 @supports (padding: max(0px)) {
   .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Mobile Layout Grid - Exact Height Control */
+.mobile-layout-grid {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: 
+    "nav"
+    "chat"
+    "input";
+  overflow: hidden;
+}
+
+.mobile-nav-area {
+  grid-area: nav;
+  flex-shrink: 0;
+}
+
+.mobile-chat-area {
+  grid-area: chat;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mobile-input-area {
+  grid-area: input;
+  flex-shrink: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+/* iOS Safe Area for mobile input */
+@supports (padding: max(0px)) {
+  .mobile-input-area {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
