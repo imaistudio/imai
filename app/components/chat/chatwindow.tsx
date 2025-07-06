@@ -1278,17 +1278,19 @@ export default function ChatWindow({
                                 key={`${index}-video-${i}`}
                                 className="relative group/video"
                               >
-                                <video
-                                  src={video}
-                                  autoPlay
-                                  loop
-                                  muted
-                                  className="w-auto h-auto rounded-lg"
-                                  onError={(e) => {
-                                    console.error("Video failed to load:", video);
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
+                                <div className="w-96 h-56 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+                                  <video
+                                    src={video}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      console.error("Video failed to load:", video);
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
                                 {/* Icon row below the video */}
                                 <div className="flex items-start justify-start gap-1 mt-2">
                                   <button
