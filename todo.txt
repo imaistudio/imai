@@ -1,8 +1,6 @@
 Current Task 
-2. Only Five Projects Can Be Created More then that Hide the Create Icon or drop down betterment
-3. Fix Sidebar New Chat Always on top 
-
-Todo 
+1. Only Five Projects Can Be Created More then that Hide the Create Icon or drop down betterment
+2. Fix Sidebar New Chat Always on top 
  
 1. New Chat Show Default Promot With horizontal Scrooling Tabs 
 2. Pagination to Explore Page and firestore database 
