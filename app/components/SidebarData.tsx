@@ -211,6 +211,13 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
   const createFolder = async () => {
     if (!currentUser || !newFolderName.trim() || creatingFolderLoading) return;
 
+    // Check if user already has 5 folders
+    if (folders.length >= 5) {
+      console.log("❌ Cannot create folder: Maximum of 5 folders allowed");
+      resetFolderCreation();
+      return;
+    }
+
     try {
       setCreatingFolderLoading(true);
       const foldersRef = collection(
@@ -649,7 +656,7 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
                             }
                           >
                             <div className="flex items-center gap-2">
-                              <Move size={16} />
+                              <Folder size={16} />
                               Move to {folderItem.foldername}
                             </div>
                           </DropdownItem>
@@ -811,22 +818,25 @@ export default function SidebarData({ searchTerm }: SidebarDataProps) {
       <div className="mb-4">
         <div className="flex items-center justify-between p-2">
           <p className="ml-2 p-0 opacity-50">Projects</p>
-          <button
-            onClick={() =>
-              !creatingFolder &&
-              !creatingFolderLoading &&
-              setCreatingFolder(true)
-            }
-            className={`p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors ${
-              creatingFolder || creatingFolderLoading
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
-            title="Create Projects"
-            disabled={creatingFolder || creatingFolderLoading}
-          >
-            <Plus size={16} />
-          </button>
+          {folders.length < 5 && (
+            <button
+              onClick={() =>
+                !creatingFolder &&
+                !creatingFolderLoading &&
+                folders.length < 5 &&
+                setCreatingFolder(true)
+              }
+              className={`p-1 text-black dark:text-white rounded hover:bg-muted/50 transition-colors ${
+                creatingFolder || creatingFolderLoading
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+              title="Create Projects"
+              disabled={creatingFolder || creatingFolderLoading}
+            >
+              <Plus size={16} />
+            </button>
+          )}
         </div>
 
         {/* Create Folder Input */}
