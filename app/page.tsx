@@ -28,6 +28,7 @@ export default function Home() {
   const {
     currentChatId,
     createNewChatIfNeeded,
+    backgroundCleanup,
     isLoading: chatLoading,
   } = useChat();
 
@@ -73,6 +74,9 @@ export default function Home() {
         return;
       }
 
+      // Start background cleanup without blocking UI
+      backgroundCleanup();
+
       // Wait a bit more to ensure ChatContext has finished initializing from sessionStorage
       setTimeout(async () => {
         // Double-check after timeout - don't create if we now have a currentChatId
@@ -109,6 +113,7 @@ export default function Home() {
     chatLoading,
     sessionChatAttempted,
     createNewChatIfNeeded,
+    backgroundCleanup,
   ]);
 
   // Reset session chat attempt flag when user changes or logs out

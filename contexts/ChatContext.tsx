@@ -30,6 +30,7 @@ interface ChatContextType {
   createNewChatIfNeeded: () => Promise<void>;
   switchToChat: (chatId: string) => void;
   cleanupEmptyChats: () => Promise<void>;
+  backgroundCleanup: () => Promise<void>;
   isLoading: boolean;
   isSwitching: boolean;
 }
@@ -72,6 +73,98 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     },
     [currentUser],
   );
+
+  // OPTIMIZED: Lightweight cleanup that only checks recent chats
+  const cleanupRecentEmptyChats = useCallback(async (): Promise<
+    string | null
+  > => {
+    if (!currentUser) return null;
+
+    try {
+      // Only get the 5 most recent chats to avoid expensive queries
+      const sidebarRef = collection(
+        firestore,
+        `users/${currentUser.uid}/sidebar`,
+      );
+      const q = query(sidebarRef, orderBy("createdAt", "desc"), limit(5));
+      const snapshot = await getDocs(q);
+
+      const emptyChats: Array<{ id: string; chatId: string; createdAt: any }> = [];
+      const checkPromises: Promise<void>[] = [];
+
+      // Check chats in parallel instead of sequentially
+      snapshot.docs.forEach(doc => {
+        const chatData = doc.data();
+        const chatId = chatData.chatId;
+
+        if (chatId) {
+          checkPromises.push(
+            checkChatHasMessages(chatId).then(hasMessages => {
+              if (!hasMessages) {
+                emptyChats.push({
+                  id: doc.id,
+                  chatId: chatId,
+                  createdAt: chatData.createdAt,
+                });
+              }
+            })
+          );
+        }
+      });
+
+      // Wait for all checks to complete
+      await Promise.all(checkPromises);
+
+      if (emptyChats.length <= 1) {
+        return emptyChats.length === 1 ? emptyChats[0].chatId : null;
+      }
+
+      // Multiple empty chats found - keep the most recent and delete the rest
+      console.log(`Found ${emptyChats.length} empty chats, cleaning up duplicates`);
+
+      // Sort by creation time (most recent first)
+      emptyChats.sort((a, b) => {
+        const aTime = a.createdAt?.seconds || 0;
+        const bTime = b.createdAt?.seconds || 0;
+        return bTime - aTime;
+      });
+
+      const mostRecentEmptyChat = emptyChats[0];
+      const chatsToDelete = emptyChats.slice(1);
+
+      // Delete duplicate empty chats in parallel
+      const deletePromises = chatsToDelete.map(async (chat) => {
+        try {
+          const sidebarDocRef = doc(
+            firestore,
+            `users/${currentUser.uid}/sidebar/${chat.chatId}`,
+          );
+          await deleteDoc(sidebarDocRef);
+          console.log(`🗑️ Deleted empty chat from sidebar: ${chat.chatId}`);
+
+          // Also delete the actual chat document if it exists
+          const chatDocRef = doc(
+            firestore,
+            `chats/${currentUser.uid}/prompts/${chat.chatId}`,
+          );
+          const chatDoc = await getDoc(chatDocRef);
+          if (chatDoc.exists()) {
+            await deleteDoc(chatDocRef);
+            console.log(`🗑️ Deleted empty chat document: ${chat.chatId}`);
+          }
+        } catch (error) {
+          console.error(`❌ Error deleting empty chat ${chat.chatId}:`, error);
+        }
+      });
+
+      await Promise.all(deletePromises);
+
+      return mostRecentEmptyChat.chatId;
+    } catch (error) {
+      console.error("Error cleaning up recent empty chats:", error);
+      return null;
+    }
+  }, [currentUser, checkChatHasMessages]);
 
   // Function to clean up duplicate empty chats and keep only the most recent one
   const cleanupDuplicateEmptyChats = useCallback(async (): Promise<
@@ -206,8 +299,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true);
 
-        // Proactively clean up any duplicate empty chats when user logs in
-        await cleanupDuplicateEmptyChats();
+        // OPTIMIZED: Only do lightweight cleanup during initialization
+        await cleanupRecentEmptyChats();
 
         // Check if there's an existing chat ID in sessionStorage for this user
         const sessionKey = `currentChatId_${currentUser.uid}`;
@@ -228,7 +321,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     if (!loading && currentUser) {
       initializeChat();
     }
-  }, [currentUser, loading, cleanupDuplicateEmptyChats]);
+  }, [currentUser, loading, cleanupRecentEmptyChats]);
 
   // Clear chat ID and session when user logs out
   useEffect(() => {
@@ -275,6 +368,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     return newChatId;
   };
 
+  // OPTIMIZED: Simple new chat creation
   const createNewChat = async () => {
     try {
       setIsLoading(true);
@@ -286,7 +380,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Function to create a new chat only if needed (no existing empty chat)
+  // OPTIMIZED: Fast chat creation with minimal cleanup
   const createNewChatIfNeeded = async () => {
     try {
       setIsLoading(true);
@@ -299,13 +393,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Clean up any duplicate empty chats and get the most recent one
-      const cleanedEmptyChat = await cleanupDuplicateEmptyChats();
-      if (cleanedEmptyChat) {
-        // Switch to the cleaned empty chat instead of creating new one
+      // Quick check for recent empty chats (only last 3 chats)
+      const recentEmptyChat = await findMostRecentEmptyChat();
+      if (recentEmptyChat) {
         const sessionKey = `currentChatId_${currentUser?.uid}`;
-        sessionStorage.setItem(sessionKey, cleanedEmptyChat);
-        setCurrentChatId(cleanedEmptyChat);
+        sessionStorage.setItem(sessionKey, recentEmptyChat);
+        setCurrentChatId(recentEmptyChat);
         return;
       }
 
@@ -390,6 +483,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Background cleanup that doesn't block the UI
+  const backgroundCleanup = async () => {
+    try {
+      // Run cleanup in the background without blocking
+      setTimeout(async () => {
+        try {
+          await cleanupDuplicateEmptyChats();
+          console.log("✅ Background cleanup completed");
+        } catch (error) {
+          console.error("❌ Background cleanup failed:", error);
+        }
+      }, 100);
+    } catch (error) {
+      console.error("❌ Error scheduling background cleanup:", error);
+    }
+  };
+
   const value: ChatContextType = {
     currentChatId,
     setCurrentChatId,
@@ -397,6 +507,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     createNewChatIfNeeded,
     switchToChat,
     cleanupEmptyChats,
+    backgroundCleanup,
     isLoading,
     isSwitching,
   };

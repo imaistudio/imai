@@ -21,18 +21,22 @@ interface SearchFormProps extends React.ComponentProps<"form"> {
 export function SearchForm({ onSearchChange, ...props }: SearchFormProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const { createNewChatIfNeeded } = useChat();
+  const { createNewChat } = useChat();
   const [libraryCount, setLibraryCount] = useState<number>(0);
   const [latestImageUrl, setLatestImageUrl] = useState<string | null>(null);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
 
   const handleNewChatClick = async () => {
+    if (isCreatingChat) return; // Prevent multiple clicks
+    
     try {
-      await createNewChatIfNeeded();
-      console.log(
-        "New chat created or switched to existing empty chat successfully",
-      );
+      setIsCreatingChat(true);
+      await createNewChat();
+      console.log("New chat created successfully");
     } catch (error) {
       console.error("Error creating new chat:", error);
+    } finally {
+      setIsCreatingChat(false);
     }
   };
 
@@ -121,10 +125,17 @@ export function SearchForm({ onSearchChange, ...props }: SearchFormProps) {
             <button
               type="button"
               onClick={handleNewChatClick}
-              className="w-[8%] flex items-center justify-center rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
+              disabled={isCreatingChat}
+              className={`w-[8%] flex items-center justify-center rounded-md hover:bg-muted/50 transition-colors ${
+                isCreatingChat ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
               aria-label="New Chat"
             >
-              <SquarePen className="text-black dark:text-white" />
+              {isCreatingChat ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <SquarePen className="text-black dark:text-white" />
+              )}
             </button>
           </div>
         </SidebarGroup>
