@@ -8,12 +8,13 @@ import { Spinner } from "@heroui/react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
+import { VideoZoomModal } from "../components/VideoZoomModal";
 const ITEMS_PER_PAGE = 50;
 
 interface MediaFile {
   url: string;
   name: string;
-  type: 'image' | 'video';
+  type: "image" | "video";
   createdAt: number;
 }
 
@@ -41,16 +42,34 @@ export default function Reset() {
     }
   }, [user?.uid]);
 
-  const getFileType = (fileName: string): 'image' | 'video' => {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
-    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv'];
-    
-    const extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
-    
-    if (imageExtensions.includes(extension)) return 'image';
-    if (videoExtensions.includes(extension)) return 'video';
-    
-    return 'image'; // default to image
+  const getFileType = (fileName: string): "image" | "video" => {
+    const imageExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".bmp",
+      ".svg",
+    ];
+    const videoExtensions = [
+      ".mp4",
+      ".webm",
+      ".mov",
+      ".avi",
+      ".mkv",
+      ".flv",
+      ".wmv",
+    ];
+
+    const extension = fileName
+      .toLowerCase()
+      .substring(fileName.lastIndexOf("."));
+
+    if (imageExtensions.includes(extension)) return "image";
+    if (videoExtensions.includes(extension)) return "video";
+
+    return "image"; // default to image
   };
 
   const fetchMediaFiles = async (userId: string) => {
@@ -150,21 +169,20 @@ export default function Reset() {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
               {paginatedMedia.map((media, index) => (
-                <div key={index} className="w-full aspect-square rounded overflow-hidden">
-                  {media.type === 'image' ? (
+                <div
+                  key={index}
+                  className="w-full aspect-square rounded overflow-hidden"
+                >
+                  {media.type === "image" ? (
                     <ImageZoomModal
                       src={media.url}
                       alt={`User output ${index}`}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <video
+                    <VideoZoomModal
                       src={media.url}
                       className="w-full h-full object-cover"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
                     />
                   )}
                 </div>

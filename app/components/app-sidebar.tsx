@@ -22,7 +22,10 @@ export function AppSidebar({ onNewChatClick, ...props }: AppSidebarProps) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <SearchForm onSearchChange={setSearchTerm} onNewChatClick={onNewChatClick} />
+        <SearchForm
+          onSearchChange={setSearchTerm}
+          onNewChatClick={onNewChatClick}
+        />
       </SidebarHeader>
       <SidebarContent>
         <SidebarData searchTerm={searchTerm} />

@@ -60,7 +60,10 @@ export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <SearchForm onSearchChange={setSearchTerm} onNewChatClick={onNewChatClick} />
+        <SearchForm
+          onSearchChange={setSearchTerm}
+          onNewChatClick={onNewChatClick}
+        />
         <div className="flex-1 overflow-y-auto">
           <SidebarData searchTerm={searchTerm} />
         </div>

@@ -19,7 +19,11 @@ interface SearchFormProps extends React.ComponentProps<"form"> {
   onNewChatClick?: () => Promise<void>; // 🔧 NEW: Optional custom new chat handler
 }
 
-export function SearchForm({ onSearchChange, onNewChatClick, ...props }: SearchFormProps) {
+export function SearchForm({
+  onSearchChange,
+  onNewChatClick,
+  ...props
+}: SearchFormProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { createNewChat } = useChat();
@@ -29,17 +33,17 @@ export function SearchForm({ onSearchChange, onNewChatClick, ...props }: SearchF
 
   const handleNewChatClick = async () => {
     if (isCreatingChat) return; // Prevent multiple clicks
-    
+
     try {
       setIsCreatingChat(true);
-      
+
       // 🔧 NEW: Use custom handler if provided, otherwise use default
       if (onNewChatClick) {
         await onNewChatClick();
       } else {
         await createNewChat();
       }
-      
+
       console.log("New chat created successfully");
     } catch (error) {
       console.error("Error creating new chat:", error);
@@ -135,7 +139,9 @@ export function SearchForm({ onSearchChange, onNewChatClick, ...props }: SearchF
               onClick={handleNewChatClick}
               disabled={isCreatingChat}
               className={`w-[8%] flex items-center justify-center rounded-md hover:bg-muted/50 transition-colors ${
-                isCreatingChat ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                isCreatingChat
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer"
               }`}
               aria-label="New Chat"
             >

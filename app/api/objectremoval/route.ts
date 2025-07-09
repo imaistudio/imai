@@ -13,7 +13,16 @@ interface ObjectRemovalOptions {
   num_inference_steps?: number;
   safety_tolerance?: "1" | "2" | "3" | "4" | "5" | "6";
   output_format?: "jpeg" | "png";
-  aspect_ratio?: "21:9" | "16:9" | "4:3" | "3:2" | "1:1" | "2:3" | "3:4" | "9:16" | "9:21";
+  aspect_ratio?:
+    | "21:9"
+    | "16:9"
+    | "4:3"
+    | "3:2"
+    | "1:1"
+    | "2:3"
+    | "3:4"
+    | "9:16"
+    | "9:21";
   seed?: number;
   sync_mode?: boolean;
   prompt?: string;
@@ -35,10 +44,10 @@ interface ObjectRemovalResponse {
 async function testImageUrl(imageUrl: string): Promise<boolean> {
   try {
     console.log("🔍 Testing image URL accessibility...");
-    const response = await fetch(imageUrl, { method: 'HEAD' });
+    const response = await fetch(imageUrl, { method: "HEAD" });
     console.log(`📡 Image URL test: ${response.status} ${response.statusText}`);
-    console.log(`📄 Content-Type: ${response.headers.get('content-type')}`);
-    console.log(`📏 Content-Length: ${response.headers.get('content-length')}`);
+    console.log(`📄 Content-Type: ${response.headers.get("content-type")}`);
+    console.log(`📏 Content-Length: ${response.headers.get("content-length")}`);
     return response.ok;
   } catch (error) {
     console.error("❌ Image URL test failed:", error);
@@ -56,14 +65,14 @@ export async function POST(request: NextRequest) {
     if (!imageUrl) {
       return NextResponse.json(
         { error: "Missing image_url parameter" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!userid) {
       return NextResponse.json(
         { error: "Missing userid parameter" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -72,7 +81,7 @@ export async function POST(request: NextRequest) {
       console.error("❌ FAL_KEY not found in environment variables");
       return NextResponse.json(
         { error: "FAL_KEY not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -80,18 +89,42 @@ export async function POST(request: NextRequest) {
 
     // Extract optional parameters with defaults
     const options: ObjectRemovalOptions = {
-      guidance_scale: parseFloat(formData.get("guidance_scale") as string) || 3.5,
-      num_inference_steps: parseInt(formData.get("num_inference_steps") as string) || 30,
-      safety_tolerance: (formData.get("safety_tolerance") as "1" | "2" | "3" | "4" | "5" | "6") || "2",
-      output_format: (formData.get("output_format") as "jpeg" | "png") || "jpeg",
-      aspect_ratio: formData.get("aspect_ratio") as "21:9" | "16:9" | "4:3" | "3:2" | "1:1" | "2:3" | "3:4" | "9:16" | "9:21" || undefined,
-      seed: formData.get("seed") ? parseInt(formData.get("seed") as string) : undefined,
+      guidance_scale:
+        parseFloat(formData.get("guidance_scale") as string) || 3.5,
+      num_inference_steps:
+        parseInt(formData.get("num_inference_steps") as string) || 30,
+      safety_tolerance:
+        (formData.get("safety_tolerance") as
+          | "1"
+          | "2"
+          | "3"
+          | "4"
+          | "5"
+          | "6") || "2",
+      output_format:
+        (formData.get("output_format") as "jpeg" | "png") || "jpeg",
+      aspect_ratio:
+        (formData.get("aspect_ratio") as
+          | "21:9"
+          | "16:9"
+          | "4:3"
+          | "3:2"
+          | "1:1"
+          | "2:3"
+          | "3:4"
+          | "9:16"
+          | "9:21") || undefined,
+      seed: formData.get("seed")
+        ? parseInt(formData.get("seed") as string)
+        : undefined,
       sync_mode: formData.get("sync_mode") === "true" || false,
-      prompt: formData.get("prompt") as string || "background people",
+      prompt: (formData.get("prompt") as string) || "background people",
     };
 
     console.log("Starting object removal...");
-    console.log(`Parameters: guidance_scale=${options.guidance_scale}, num_inference_steps=${options.num_inference_steps}, safety_tolerance=${options.safety_tolerance}, output_format=${options.output_format}, prompt="${options.prompt}"`);
+    console.log(
+      `Parameters: guidance_scale=${options.guidance_scale}, num_inference_steps=${options.num_inference_steps}, safety_tolerance=${options.safety_tolerance}, output_format=${options.output_format}, prompt="${options.prompt}"`,
+    );
     console.log(`Image to process: ${imageUrl}`);
 
     // Test image URL accessibility
@@ -100,12 +133,12 @@ export async function POST(request: NextRequest) {
       console.error("❌ Image URL is not accessible");
       return NextResponse.json(
         { error: "Image URL is not accessible" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.log("Submitting request to FAL AI Object Removal...");
-    
+
     // Prepare FAL AI request parameters
     const falParams: any = {
       image_url: imageUrl,
@@ -125,7 +158,9 @@ export async function POST(request: NextRequest) {
       falParams.seed = options.seed;
     }
 
-    console.log(`Arguments: guidance_scale=${options.guidance_scale}, num_inference_steps=${options.num_inference_steps}, safety_tolerance=${options.safety_tolerance}, output_format=${options.output_format}, prompt="${options.prompt}"`);
+    console.log(
+      `Arguments: guidance_scale=${options.guidance_scale}, num_inference_steps=${options.num_inference_steps}, safety_tolerance=${options.safety_tolerance}, output_format=${options.output_format}, prompt="${options.prompt}"`,
+    );
 
     const result = await fal.subscribe("fal-ai/image-editing/object-removal", {
       input: falParams,
@@ -141,11 +176,15 @@ export async function POST(request: NextRequest) {
     console.log("Processing completed successfully!");
     console.log("Raw result:", result);
 
-    if (!result.data || !result.data.images || result.data.images.length === 0) {
+    if (
+      !result.data ||
+      !result.data.images ||
+      result.data.images.length === 0
+    ) {
       console.error("❌ No images returned from FAL AI");
       return NextResponse.json(
         { error: "No images returned from FAL AI" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -164,21 +203,20 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json(response);
-
   } catch (error) {
     console.error("❌ Object removal failed:", error);
-    
+
     let errorMessage = "Internal server error";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
 
     return NextResponse.json(
-      { 
+      {
         error: errorMessage,
-        status: "error" 
+        status: "error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

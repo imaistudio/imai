@@ -13,7 +13,16 @@ interface SceneCompositionOptions {
   num_inference_steps?: number;
   safety_tolerance?: "1" | "2" | "3" | "4" | "5" | "6";
   output_format?: "jpeg" | "png";
-  aspect_ratio?: "21:9" | "16:9" | "4:3" | "3:2" | "1:1" | "2:3" | "3:4" | "9:16" | "9:21";
+  aspect_ratio?:
+    | "21:9"
+    | "16:9"
+    | "4:3"
+    | "3:2"
+    | "1:1"
+    | "2:3"
+    | "3:4"
+    | "9:16"
+    | "9:21";
   seed?: number;
   sync_mode?: boolean;
   prompt?: string;
@@ -34,7 +43,7 @@ async function composeScene(
   options: SceneCompositionOptions,
 ): Promise<{ imageUrl: string; seed?: number }> {
   try {
-    const { 
+    const {
       guidance_scale = 3.5,
       num_inference_steps = 30,
       safety_tolerance = "2",
@@ -42,21 +51,27 @@ async function composeScene(
       aspect_ratio,
       seed,
       sync_mode = false,
-      prompt = "enchanted forest"
+      prompt = "enchanted forest",
     } = options;
 
     console.log("Submitting request to FAL AI Scene Composition...");
     console.log(
       `Arguments: guidance_scale=${guidance_scale}, num_inference_steps=${num_inference_steps}, safety_tolerance=${safety_tolerance}, output_format=${output_format}, prompt="${prompt}"`,
     );
-    
+
     // Check if image URL is accessible
     try {
       console.log("🔍 Testing image URL accessibility...");
-      const testResponse = await fetch(imageUrl, { method: 'HEAD' });
-      console.log(`📡 Image URL test: ${testResponse.status} ${testResponse.statusText}`);
-      console.log(`📄 Content-Type: ${testResponse.headers.get('content-type')}`);
-      console.log(`📏 Content-Length: ${testResponse.headers.get('content-length')}`);
+      const testResponse = await fetch(imageUrl, { method: "HEAD" });
+      console.log(
+        `📡 Image URL test: ${testResponse.status} ${testResponse.statusText}`,
+      );
+      console.log(
+        `📄 Content-Type: ${testResponse.headers.get("content-type")}`,
+      );
+      console.log(
+        `📏 Content-Length: ${testResponse.headers.get("content-length")}`,
+      );
     } catch (urlError) {
       console.error("⚠️ Image URL accessibility test failed:", urlError);
     }
@@ -75,22 +90,30 @@ async function composeScene(
     if (aspect_ratio) input.aspect_ratio = aspect_ratio;
     if (seed !== undefined) input.seed = seed;
 
-    const result = await fal.subscribe("fal-ai/image-editing/scene-composition", {
-      input,
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Processing in progress...");
-          update.logs.map((log) => log.message).forEach(console.log);
-        }
+    const result = await fal.subscribe(
+      "fal-ai/image-editing/scene-composition",
+      {
+        input,
+        logs: true,
+        onQueueUpdate: (update) => {
+          if (update.status === "IN_PROGRESS") {
+            console.log("Processing in progress...");
+            update.logs.map((log) => log.message).forEach(console.log);
+          }
+        },
       },
-    });
+    );
 
     console.log("Processing completed successfully!");
     console.log("Raw result:", result);
 
     // According to FAL AI documentation, result structure is: result.data.images[0].url
-    if (!result.data || !result.data.images || !Array.isArray(result.data.images) || result.data.images.length === 0) {
+    if (
+      !result.data ||
+      !result.data.images ||
+      !Array.isArray(result.data.images) ||
+      result.data.images.length === 0
+    ) {
       throw new Error(
         `No images found in result. Expected result.data.images array. Result structure: ${JSON.stringify(result)}`,
       );
@@ -105,16 +128,19 @@ async function composeScene(
 
     return {
       imageUrl: firstImage.url,
-      seed: result.data.seed
+      seed: result.data.seed,
     };
   } catch (error) {
     console.error("Error in composeScene:", error);
-    
+
     // Log detailed error information for debugging
-    if (error && typeof error === 'object' && 'body' in error) {
-      console.error("FAL AI Error Details:", JSON.stringify(error.body, null, 2));
+    if (error && typeof error === "object" && "body" in error) {
+      console.error(
+        "FAL AI Error Details:",
+        JSON.stringify(error.body, null, 2),
+      );
     }
-    
+
     throw error;
   }
 }
@@ -146,7 +172,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     console.log("🔗 Using provided image URL for scene composition:", imageUrl);
-    
+
     // Check FAL_KEY configuration
     console.log("🔑 FAL_KEY status:", process.env.FAL_KEY ? "Set" : "Not Set");
     if (!process.env.FAL_KEY) {
@@ -157,29 +183,39 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Extract scene composition parameters
-    const guidance_scale_param = (formData.get("guidance_scale") as string);
-    const guidance_scale = guidance_scale_param ? parseFloat(guidance_scale_param) : 3.5;
-    
-    const num_inference_steps_param = (formData.get("num_inference_steps") as string);
-    const num_inference_steps = num_inference_steps_param ? parseInt(num_inference_steps_param, 10) : 30;
-    
-    const safety_tolerance = (formData.get("safety_tolerance") as string) || "2";
+    const guidance_scale_param = formData.get("guidance_scale") as string;
+    const guidance_scale = guidance_scale_param
+      ? parseFloat(guidance_scale_param)
+      : 3.5;
+
+    const num_inference_steps_param = formData.get(
+      "num_inference_steps",
+    ) as string;
+    const num_inference_steps = num_inference_steps_param
+      ? parseInt(num_inference_steps_param, 10)
+      : 30;
+
+    const safety_tolerance =
+      (formData.get("safety_tolerance") as string) || "2";
     const output_format = (formData.get("output_format") as string) || "jpeg";
     const aspect_ratio = (formData.get("aspect_ratio") as string) || undefined;
-    
-    const seed_param = (formData.get("seed") as string);
+
+    const seed_param = formData.get("seed") as string;
     const seed = seed_param ? parseInt(seed_param, 10) : undefined;
-    
-    const sync_mode_param = (formData.get("sync_mode") as string);
+
+    const sync_mode_param = formData.get("sync_mode") as string;
     const sync_mode = sync_mode_param?.toLowerCase() === "true";
-    
+
     const prompt = (formData.get("prompt") as string) || "enchanted forest";
 
     // Validate safety_tolerance
     const validSafetyLevels = ["1", "2", "3", "4", "5", "6"];
     if (!validSafetyLevels.includes(safety_tolerance)) {
       return NextResponse.json(
-        { status: "error", error: 'safety_tolerance must be one of: 1, 2, 3, 4, 5, 6' },
+        {
+          status: "error",
+          error: "safety_tolerance must be one of: 1, 2, 3, 4, 5, 6",
+        },
         { status: 400 },
       );
     }
@@ -193,10 +229,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Validate aspect_ratio if provided
-    const validAspectRatios = ["21:9", "16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16", "9:21"];
+    const validAspectRatios = [
+      "21:9",
+      "16:9",
+      "4:3",
+      "3:2",
+      "1:1",
+      "2:3",
+      "3:4",
+      "9:16",
+      "9:21",
+    ];
     if (aspect_ratio && !validAspectRatios.includes(aspect_ratio)) {
       return NextResponse.json(
-        { status: "error", error: `aspect_ratio must be one of: ${validAspectRatios.join(", ")}` },
+        {
+          status: "error",
+          error: `aspect_ratio must be one of: ${validAspectRatios.join(", ")}`,
+        },
         { status: 400 },
       );
     }
@@ -233,8 +282,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(apiResponse);
   } catch (processingError) {
-    console.error("Error processing scene composition request:", processingError);
-    
+    console.error(
+      "Error processing scene composition request:",
+      processingError,
+    );
+
     let errorMessage = "Failed to process scene composition";
     if (processingError instanceof Error) {
       errorMessage = processingError.message;
@@ -269,4 +321,4 @@ export async function GET(): Promise<NextResponse> {
     },
     { status: 200 },
   );
-} 
+}

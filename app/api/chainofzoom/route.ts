@@ -49,10 +49,16 @@ async function performChainOfZoom(
     // Check if image URL is accessible
     try {
       console.log("🔍 Testing image URL accessibility...");
-      const testResponse = await fetch(imageUrl, { method: 'HEAD' });
-      console.log(`📡 Image URL test: ${testResponse.status} ${testResponse.statusText}`);
-      console.log(`📄 Content-Type: ${testResponse.headers.get('content-type')}`);
-      console.log(`📏 Content-Length: ${testResponse.headers.get('content-length')}`);
+      const testResponse = await fetch(imageUrl, { method: "HEAD" });
+      console.log(
+        `📡 Image URL test: ${testResponse.status} ${testResponse.statusText}`,
+      );
+      console.log(
+        `📄 Content-Type: ${testResponse.headers.get("content-type")}`,
+      );
+      console.log(
+        `📏 Content-Length: ${testResponse.headers.get("content-length")}`,
+      );
     } catch (urlError) {
       console.error("⚠️ Image URL accessibility test failed:", urlError);
     }
@@ -81,9 +87,13 @@ async function performChainOfZoom(
     console.log("Chain of zoom processing completed successfully!");
     console.log("Result summary:", {
       status: result.data ? "success" : "failed",
-      imageCount: result.data?.images ? (Array.isArray(result.data.images) ? result.data.images.length : 1) : 0,
+      imageCount: result.data?.images
+        ? Array.isArray(result.data.images)
+          ? result.data.images.length
+          : 1
+        : 0,
       scale: result.data?.scale,
-      zoom_center: result.data?.zoom_center
+      zoom_center: result.data?.zoom_center,
     });
 
     // Check for proper response structure
@@ -94,8 +104,11 @@ async function performChainOfZoom(
     }
 
     // Extract image URLs from the result
-    const imageUrls = (Array.isArray(result.data.images) ? result.data.images : [result.data.images])
-      .map((image: any) => typeof image === 'string' ? image : image.url);
+    const imageUrls = (
+      Array.isArray(result.data.images)
+        ? result.data.images
+        : [result.data.images]
+    ).map((image: any) => (typeof image === "string" ? image : image.url));
 
     return {
       images: imageUrls,
@@ -104,12 +117,15 @@ async function performChainOfZoom(
     };
   } catch (error) {
     console.error("Error in performChainOfZoom:", error);
-    
+
     // Log detailed error information for debugging
-    if (error && typeof error === 'object' && 'body' in error) {
-      console.error("FAL AI Error Details:", JSON.stringify(error.body, null, 2));
+    if (error && typeof error === "object" && "body" in error) {
+      console.error(
+        "FAL AI Error Details:",
+        JSON.stringify(error.body, null, 2),
+      );
     }
-    
+
     throw error;
   }
 }
@@ -153,9 +169,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Extract optional parameters with defaults
     const options: ChainOfZoomOptions = {
-      scale: formData.get("scale") ? parseFloat(formData.get("scale") as string) : 5,
-      center_x: formData.get("center_x") ? parseFloat(formData.get("center_x") as string) : 0.5,
-      center_y: formData.get("center_y") ? parseFloat(formData.get("center_y") as string) : 0.5,
+      scale: formData.get("scale")
+        ? parseFloat(formData.get("scale") as string)
+        : 5,
+      center_x: formData.get("center_x")
+        ? parseFloat(formData.get("center_x") as string)
+        : 0.5,
+      center_y: formData.get("center_y")
+        ? parseFloat(formData.get("center_y") as string)
+        : 0.5,
       user_prompt: (formData.get("user_prompt") as string) || "",
       sync_mode: formData.get("sync_mode") === "true" || false,
     };
@@ -174,7 +196,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 🔧 REFRAME PATTERN: Return FAL AI URLs directly (no base64 conversion)
     // This prevents Firebase document size overflow and is much more efficient
     console.log("✅ Using FAL AI URLs directly (following reframe pattern)");
-    
+
     const response: ChainOfZoomResponse = {
       status: "success",
       imageUrl: result.images[0], // Primary image for consistency with other APIs
@@ -212,18 +234,22 @@ export async function GET(): Promise<NextResponse> {
           image_url:
             "string (required) - Image URL from intentroute (accepts URLs or base64)",
           scale: "number (optional) - Zoom scale in powers of 2 (default: 5)",
-          center_x: "number (optional) - X coordinate of zoom center 0-1 (default: 0.5)",
-          center_y: "number (optional) - Y coordinate of zoom center 0-1 (default: 0.5)",
-          user_prompt: "string (optional) - Additional prompt to guide zoom enhancement",
-          sync_mode: "boolean (optional) - Wait for upload before response (default: false)",
+          center_x:
+            "number (optional) - X coordinate of zoom center 0-1 (default: 0.5)",
+          center_y:
+            "number (optional) - Y coordinate of zoom center 0-1 (default: 0.5)",
+          user_prompt:
+            "string (optional) - Additional prompt to guide zoom enhancement",
+          sync_mode:
+            "boolean (optional) - Wait for upload before response (default: false)",
         },
         returns: {
           imageUrl: "string - Primary zoom result (FAL AI URL)",
           images: "array - All zoom steps as FAL AI URLs (not base64)",
           scale: "number - Applied zoom scale",
-          zoom_center: "array - Applied zoom center coordinates"
-        }
+          zoom_center: "array - Applied zoom center coordinates",
+        },
       },
     },
   });
-} 
+}

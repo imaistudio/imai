@@ -430,10 +430,12 @@ export async function POST(
 
     console.log("Flow Design: Analyzing each image separately for inspiration");
     const imageAnalyses: string[] = [];
-    
+
     // Analyze each image individually to extract inspiration elements
     for (let i = 0; i < imageBuffers.length; i++) {
-      console.log(`Flow Design: Analyzing image ${i + 1} for design inspiration`);
+      console.log(
+        `Flow Design: Analyzing image ${i + 1} for design inspiration`,
+      );
       const response = await openai.chat.completions.create({
         model: "gpt-4.1",
         messages: [
@@ -455,15 +457,19 @@ export async function POST(
         ],
         max_tokens: 200,
       });
-      
-      const analysis = response.choices[0]?.message?.content || "No analysis available";
+
+      const analysis =
+        response.choices[0]?.message?.content || "No analysis available";
       imageAnalyses.push(analysis);
-      console.log(`Flow Design: Image ${i + 1} inspiration analysis:`, analysis);
+      console.log(
+        `Flow Design: Image ${i + 1} inspiration analysis:`,
+        analysis,
+      );
     }
 
     console.log("Flow Design: Combining inspiration elements");
     const combinedAnalysis = imageAnalyses.join("\n\n---\n\n");
-    
+
     // For backward compatibility, still create concatenated image
     console.log("Flow Design: Creating concatenated image for reference");
     const concatenatedImage = await concatenateImages(

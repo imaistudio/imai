@@ -89,17 +89,18 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       const q = query(sidebarRef, orderBy("createdAt", "desc"), limit(5));
       const snapshot = await getDocs(q);
 
-      const emptyChats: Array<{ id: string; chatId: string; createdAt: any }> = [];
+      const emptyChats: Array<{ id: string; chatId: string; createdAt: any }> =
+        [];
       const checkPromises: Promise<void>[] = [];
 
       // Check chats in parallel instead of sequentially
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const chatData = doc.data();
         const chatId = chatData.chatId;
 
         if (chatId) {
           checkPromises.push(
-            checkChatHasMessages(chatId).then(hasMessages => {
+            checkChatHasMessages(chatId).then((hasMessages) => {
               if (!hasMessages) {
                 emptyChats.push({
                   id: doc.id,
@@ -107,7 +108,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                   createdAt: chatData.createdAt,
                 });
               }
-            })
+            }),
           );
         }
       });
@@ -120,7 +121,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Multiple empty chats found - keep the most recent and delete the rest
-      console.log(`Found ${emptyChats.length} empty chats, cleaning up duplicates`);
+      console.log(
+        `Found ${emptyChats.length} empty chats, cleaning up duplicates`,
+      );
 
       // Sort by creation time (most recent first)
       emptyChats.sort((a, b) => {

@@ -25,9 +25,9 @@ export default function InvitePage() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    
+
     const formData = new FormData(e.currentTarget);
-    
+
     try {
       await fetch("/api/invite", {
         method: "POST",
@@ -52,7 +52,9 @@ export default function InvitePage() {
               <IMAIIcon size={32} />
             </div>
             <p className="pb-2 text-xl font-medium">Join the Future</p>
-            <p className="text-sm text-default-500">Get early access to our AI platform</p>
+            <p className="text-sm text-default-500">
+              Get early access to our AI platform
+            </p>
           </div>
 
           {isSubmitted ? (
@@ -60,9 +62,12 @@ export default function InvitePage() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
                 <CheckCircle className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Application Submitted!</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Application Submitted!
+              </h3>
               <p className="text-default-500 mb-4 text-sm">
-                We'll review your application and email your login credentials soon.
+                We'll review your application and email your login credentials
+                soon.
               </p>
               <Badge variant="flat" color="primary">
                 <Sparkles className="w-3 h-3 mr-1" />
@@ -78,7 +83,7 @@ export default function InvitePage() {
               {error && (
                 <div className="text-red-500 text-sm text-center">{error}</div>
               )}
-              
+
               <Input
                 isRequired
                 label="First Name"
@@ -88,7 +93,7 @@ export default function InvitePage() {
                 variant="underlined"
                 isDisabled={isLoading}
               />
-              
+
               <Input
                 isRequired
                 label="Last Name"
@@ -98,7 +103,7 @@ export default function InvitePage() {
                 variant="underlined"
                 isDisabled={isLoading}
               />
-              
+
               <Input
                 isRequired
                 label="Email Address"
@@ -108,20 +113,25 @@ export default function InvitePage() {
                 variant="underlined"
                 isDisabled={isLoading}
               />
-              
+
               <div className="flex w-full items-center justify-start px-1 py-2">
-                <Checkbox isRequired name="terms" size="sm" isDisabled={isLoading}>
+                <Checkbox
+                  isRequired
+                  name="terms"
+                  size="sm"
+                  isDisabled={isLoading}
+                >
                   I agree to the{" "}
                   <HeroLink href="/terms" size="sm" className="text-blue-500">
                     Terms
-                  </HeroLink>
-                  {" "}and{" "}
+                  </HeroLink>{" "}
+                  and{" "}
                   <HeroLink href="/privacy" size="sm" className="text-blue-500">
                     Privacy Policy
                   </HeroLink>
                 </Checkbox>
               </div>
-              
+
               <Button
                 className="w-full"
                 color="primary"

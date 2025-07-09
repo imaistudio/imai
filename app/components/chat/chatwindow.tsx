@@ -30,10 +30,11 @@ import {
   Package,
   Palette,
   Droplets,
-  Clapperboard
+  Clapperboard,
 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
+import { VideoZoomModal } from "../VideoZoomModal";
 
 interface ChatMessage {
   id?: string;
@@ -766,10 +767,7 @@ export default function ChatWindow({
 
         const result = await response.json();
 
-        if (
-          result.status === "success" &&
-          result.videoUrl
-        ) {
+        if (result.status === "success" && result.videoUrl) {
           // Create video message
           const videoMessage: ChatMessage = {
             id: `video-result-${Date.now()}`,
@@ -1427,16 +1425,9 @@ export default function ChatWindow({
                                 className="relative group/video"
                               >
                                 <div className="w-96 h-56 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
-                                  <video
+                                  <VideoZoomModal
                                     src={video}
-                                    autoPlay
-                                    loop
-                                    muted
                                     className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      console.error("Video failed to load:", video);
-                                      e.currentTarget.style.display = 'none';
-                                    }}
                                   />
                                 </div>
                                 {/* Icon row below the video */}

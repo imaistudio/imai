@@ -212,7 +212,7 @@ export default function Home() {
       color: [],
       productplaceholder: null,
       designplaceholder: [],
-      colorplaceholder: []
+      colorplaceholder: [],
     };
 
     // Call the same form submission handler
@@ -225,10 +225,10 @@ export default function Home() {
       // Immediately reset hasMessages to show welcome screen
       setHasMessages(false);
       setIsCheckingMessages(false);
-      
+
       // Create the new chat
       await createNewChat();
-      
+
       console.log("✅ New chat created and hasMessages reset");
     } catch (error) {
       console.error("❌ Error creating new chat:", error);
@@ -707,7 +707,12 @@ export default function Home() {
           // Create a completely safe agent message for Firestore
           const safeAgentMessage = {
             sender: "agent",
-            type: agentMessage.videos.length > 0 ? "videos" : (agentMessage.images.length > 0 ? "images" : "prompt"),
+            type:
+              agentMessage.videos.length > 0
+                ? "videos"
+                : agentMessage.images.length > 0
+                  ? "images"
+                  : "prompt",
             text: String(result.message || ""),
             images: agentMessage.images.filter(
               (img) => typeof img === "string" && img.length > 0,
