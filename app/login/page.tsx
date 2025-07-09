@@ -132,8 +132,8 @@ export default function Login() {
               <Checkbox defaultSelected name="remember" size="sm">
                 Remember me
               </Checkbox>
-              <Link className="text-blue-500" href="#" size="sm">
-                Forgot password?
+              <Link className="text-blue-500" href="/invite" size="sm">
+                Request Early Access?
               </Link>
             </div>
             <Button

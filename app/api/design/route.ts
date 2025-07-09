@@ -1388,17 +1388,49 @@ async function uploadImageToFiles(
 
       // Get metadata to detect actual format
       const metadata = await sharp(buffer).metadata();
-      const formatInfo = metadata.format || "unknown";
-      console.log(`🔍 Files API - Detected image format: ${formatInfo}`);
+      const sharpFormat = metadata.format || "unknown";
+      let actualFormat: string = sharpFormat;
+      
+      // Enhanced MPO detection - Sharp often misdetects MPO as JPEG
+      if (sharpFormat === "jpeg" || sharpFormat === "jpg") {
+        // Check for MPO signature in the buffer
+        const uint8Array = new Uint8Array(buffer);
+        let isMPO = false;
+        
+        // Look for "MPF" marker in the first 2KB (Multi Picture Format)
+        for (let i = 0; i < Math.min(uint8Array.length, 2048); i++) {
+          if (uint8Array[i] === 0x4d && uint8Array[i + 1] === 0x50 && uint8Array[i + 2] === 0x46) { // "MPF"
+            console.log("🔍 Files API - MPO format detected via signature scan");
+            actualFormat = "mpo";
+            isMPO = true;
+            break;
+          }
+        }
+        
+        // Additional MPO detection - look for MPO-specific EXIF data
+        if (!isMPO) {
+          // Look for MP Individual Image markers
+          for (let i = 0; i < Math.min(uint8Array.length, 5000); i++) {
+            if (uint8Array[i] === 0xb0 && uint8Array[i + 1] === 0x00) { // MP Individual Image
+              console.log("🔍 Files API - MPO format detected via MP Individual Image marker");
+              actualFormat = "mpo";
+              isMPO = true;
+              break;
+            }
+          }
+        }
+      }
+      
+      console.log(`🔍 Files API - Detected image format: ${actualFormat}`);
 
       // Define supported and unsupported formats for OpenAI Files API
       const supportedFormats = ["jpeg", "jpg", "png", "webp"];
       const unsupportedFormats = ["mpo", "heic", "heif", "tiff", "bmp", "gif"];
 
       // Check if format conversion is needed
-      if (unsupportedFormats.includes(formatInfo.toLowerCase())) {
+      if (unsupportedFormats.includes(actualFormat.toLowerCase())) {
         console.log(
-          `🔄 Files API - Unsupported format detected: ${formatInfo} - converting to JPEG`,
+          `🔄 Files API - Unsupported format detected: ${actualFormat} - converting to JPEG`,
         );
 
         // Convert to JPEG using Sharp
@@ -1408,14 +1440,14 @@ async function uploadImageToFiles(
         finalFilename = filename.replace(/\.[^/.]+$/, "") + ".jpg";
 
         console.log(
-          `✅ Files API - Successfully converted ${formatInfo} to JPEG`,
+          `✅ Files API - Successfully converted ${actualFormat} to JPEG`,
         );
         console.log(
           `📊 Files API - Size change: ${Math.round(buffer.length / 1024)}KB → ${Math.round(finalBuffer.length / 1024)}KB`,
         );
-      } else if (!supportedFormats.includes(formatInfo.toLowerCase())) {
+      } else if (!supportedFormats.includes(actualFormat.toLowerCase())) {
         console.log(
-          `⚠️ Files API - Unknown format detected: ${formatInfo} - attempting conversion to JPEG`,
+          `⚠️ Files API - Unknown format detected: ${actualFormat} - attempting conversion to JPEG`,
         );
 
         // Convert unknown formats to JPEG as well
@@ -1429,7 +1461,7 @@ async function uploadImageToFiles(
         );
       } else {
         console.log(
-          `✅ Files API - Image format ${formatInfo} is supported, no conversion needed`,
+          `✅ Files API - Image format ${actualFormat} is supported, no conversion needed`,
         );
       }
     } catch (sharpError) {
@@ -1705,9 +1737,19 @@ async function getImageDimensions(
       return { width, height };
     }
 
-    // Simple JPEG dimension detection (basic implementation)
+    // Simple JPEG/MPO dimension detection (basic implementation)
     if (uint8Array[0] === 0xff && uint8Array[1] === 0xd8) {
-      // For JPEG, we'll use a more complex parser or fallback to default
+      // Check if it's MPO format (Multi Picture Object)
+      let isMPO = false;
+      for (let i = 0; i < Math.min(uint8Array.length, 1000); i++) {
+        if (uint8Array[i] === 0x4d && uint8Array[i + 1] === 0x50 && uint8Array[i + 2] === 0x46) { // "MPF"
+          console.log("🔍 MPO format detected in getImageDimensions");
+          isMPO = true;
+          break;
+        }
+      }
+      
+      // For JPEG/MPO, we'll use a more complex parser or fallback to default
       // This is a simplified approach - for production, consider using a proper image library
       for (let i = 0; i < uint8Array.length - 8; i++) {
         if (
@@ -1716,12 +1758,63 @@ async function getImageDimensions(
         ) {
           const height = (uint8Array[i + 5] << 8) | uint8Array[i + 6];
           const width = (uint8Array[i + 7] << 8) | uint8Array[i + 8];
+          if (isMPO) {
+            console.log(`🔍 MPO dimensions detected: ${width}x${height}`);
+          } else {
+            console.log(`🔍 JPEG dimensions detected: ${width}x${height}`);
+          }
+          return { width, height };
+        }
+      }
+    }
+
+    // WebP dimension detection
+    if (
+      uint8Array[0] === 0x52 && // 'R'
+      uint8Array[1] === 0x49 && // 'I'
+      uint8Array[2] === 0x46 && // 'F'
+      uint8Array[3] === 0x46 && // 'F'
+      uint8Array[8] === 0x57 && // 'W'
+      uint8Array[9] === 0x45 && // 'E'
+      uint8Array[10] === 0x42 && // 'B'
+      uint8Array[11] === 0x50   // 'P'
+    ) {
+      // WebP format detected
+      console.log("🔍 WebP format detected in getImageDimensions");
+      
+      // Look for VP8 or VP8L chunk
+      for (let i = 12; i < uint8Array.length - 10; i++) {
+        // VP8 chunk
+        if (
+          uint8Array[i] === 0x56 && // 'V'
+          uint8Array[i + 1] === 0x50 && // 'P'
+          uint8Array[i + 2] === 0x38 && // '8'
+          uint8Array[i + 3] === 0x20    // ' '
+        ) {
+          // VP8 lossy format
+          const width = uint8Array[i + 14] | (uint8Array[i + 15] << 8);
+          const height = uint8Array[i + 16] | (uint8Array[i + 17] << 8);
+          console.log(`🔍 WebP VP8 dimensions detected: ${width}x${height}`);
+          return { width, height };
+        }
+        // VP8L chunk  
+        else if (
+          uint8Array[i] === 0x56 && // 'V'
+          uint8Array[i + 1] === 0x50 && // 'P'
+          uint8Array[i + 2] === 0x38 && // '8'
+          uint8Array[i + 3] === 0x4C    // 'L'
+        ) {
+          // VP8L lossless format
+          const width = 1 + (((uint8Array[i + 9] & 0x3F) << 8) | uint8Array[i + 8]);
+          const height = 1 + (((uint8Array[i + 11] & 0x0F) << 10) | (uint8Array[i + 10] << 2) | ((uint8Array[i + 9] & 0xC0) >> 6));
+          console.log(`🔍 WebP VP8L dimensions detected: ${width}x${height}`);
           return { width, height };
         }
       }
     }
 
     // Default fallback
+    console.log("⚠️ Could not detect image dimensions, falling back to 1024x1024");
     return { width: 1024, height: 1024 };
   } catch (error) {
     console.log(
@@ -2910,6 +3003,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         analyses.product = `TARGET PRODUCT: ${productSpec} This product ready for design application will serve as the base for the design composition. IMPORTANT: Generate specifically a ${productName}, not any other product type.`;
         console.log("Preset product type processed successfully");
+      } else if (productImageUrl && workflow_type.includes('preset')) {
+        // 🔧 PRESET WORKFLOW FIX: Handle preset workflows with product images
+        // This catches cases where we have a product image URL in preset workflows that weren't handled above
+        console.log("🔧 PRESET WORKFLOW: Using product image URL for preset workflow:", productImageUrl);
+        inputUrls.product = productImageUrl;
+        console.log("🔍 Starting product image analysis for preset workflow...");
+        analyses.product = await analyzeImageWithGPT4Vision(
+          productImageUrl,
+          "product",
+        );
+        console.log("✅ Product image processed successfully for preset workflow");
       }
 
       // Handle design image (file, URL, or preset) with semantic override
