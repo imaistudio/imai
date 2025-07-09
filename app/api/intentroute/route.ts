@@ -268,30 +268,28 @@ async function saveOutputImageToFirebase(
 
     try {
       // Fetch the image from the URL with timeout
-      const response = await fetch(imageUrl, {
+      const response = await fetch(imageUrl, { 
         signal: controller.signal,
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; IMAI/1.0)",
-        },
+          'User-Agent': 'Mozilla/5.0 (compatible; IMAI/1.0)'
+        }
       });
-
+      
       clearTimeout(timeoutId);
-
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.statusText}`);
       }
 
       // Check content length before processing
-      const contentLength = response.headers.get("content-length");
+      const contentLength = response.headers.get('content-length');
       if (contentLength) {
         const sizeInMB = parseInt(contentLength) / (1024 * 1024);
         console.log(`📏 Image size: ${sizeInMB.toFixed(2)}MB`);
-
+        
         // For very large files (>15MB), skip Firebase upload and use original URL
         if (sizeInMB > 15) {
-          console.log(
-            `⚠️ Image too large (${sizeInMB.toFixed(2)}MB) - using original URL`,
-          );
+          console.log(`⚠️ Image too large (${sizeInMB.toFixed(2)}MB) - using original URL`);
           return imageUrl;
         }
       }
@@ -301,17 +299,13 @@ async function saveOutputImageToFirebase(
       const file = new File([blob], fileName, { type: "image/png" });
 
       // Upload to Firebase Storage in the output folder
-      const firebaseUrl = await uploadImageToFirebaseStorage(
-        file,
-        userid,
-        true,
-      );
+      const firebaseUrl = await uploadImageToFirebaseStorage(file, userid, true);
 
       console.log(`✅ Output image saved to Firebase Storage: ${firebaseUrl}`);
       return firebaseUrl;
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
-      if (fetchError.name === "AbortError") {
+      if (fetchError.name === 'AbortError') {
         console.log(`⏰ Download timeout for large image - using original URL`);
         return imageUrl;
       }
@@ -803,7 +797,9 @@ async function analyzeIntent(
       const hasPreviousResult = !!lastGeneratedResult?.imageUrl;
       const shouldClearContext = !hasExplicitReference && !hasPreviousResult; // Only clear if no explicit reference AND no previous result
 
-      // 🎯 SMART WORKFLOW DETECTION: Choose workflow based on combination of uploads + presets
+
+
+      // �� SMART WORKFLOW DETECTION: Choose workflow based on combination of uploads + presets
 
       // 🔧 DETECT PRESET TYPES: Check what specific presets are provided
       const hasProductPreset = formDataEntries.some(
@@ -819,22 +815,48 @@ async function analyzeIntent(
           key.startsWith("preset_color") || key.startsWith("color_palette"),
       );
 
+      // 🎯 AUTO-REFERENCE PREFERENCE: Auto-referenced images should ONLY be used as PRODUCT
+      // Never as design or color - design route will enforce this constraint
+      if (hasPreviousResult && !hasExplicitReference) {
+        console.log("🎯 AUTO-REFERENCE: Previous result will be used as PRODUCT only (never design/color)");
+        console.log("   - Design presets/images and color presets/images will provide design/color inputs");
+        console.log("   - Auto-referenced image constraint will be enforced in design route");
+      }
+
       // 🎯 SMART WORKFLOW SELECTION: Choose based on preset types + message content
       let workflowType = "preset_design"; // fallback default
 
       // 🔧 CRITICAL FIX: Handle color-only presets properly
       if (!hasProductPreset && !hasDesignPreset && hasColorPreset) {
-        // Only color preset + prompt = color_prompt workflow
-        workflowType = "color_prompt";
-        console.log(
-          "🎯 PRESET TYPE: Color preset only → color_prompt workflow",
-        );
+        // 🔧 CRITICAL FIX: Account for auto-referenced images that become product inputs
+        if (hasPreviousResult && !hasExplicitReference) {
+          // Auto-referenced product + color preset = preset_design workflow (handles presets)
+          workflowType = "preset_design";
+          console.log(
+            "🎯 PRESET TYPE: Color preset + auto-referenced product → preset_design workflow",
+          );
+        } else {
+          // Only color preset + prompt = color_prompt workflow
+          workflowType = "color_prompt";
+          console.log(
+            "🎯 PRESET TYPE: Color preset only → color_prompt workflow",
+          );
+        }
       } else if (!hasProductPreset && hasDesignPreset && !hasColorPreset) {
-        // Only design preset + prompt = design_prompt workflow
-        workflowType = "design_prompt";
-        console.log(
-          "🎯 PRESET TYPE: Design preset only → design_prompt workflow",
-        );
+        // 🔧 CRITICAL FIX: Account for auto-referenced images that become product inputs
+        if (hasPreviousResult && !hasExplicitReference) {
+          // Auto-referenced product + design preset = preset_design workflow (handles presets)
+          workflowType = "preset_design";
+          console.log(
+            "🎯 PRESET TYPE: Design preset + auto-referenced product → preset_design workflow",
+          );
+        } else {
+          // Only design preset + prompt = design_prompt workflow
+          workflowType = "design_prompt";
+          console.log(
+            "🎯 PRESET TYPE: Design preset only → design_prompt workflow",
+          );
+        }
       } else if (hasProductPreset || (hasDesignPreset && hasColorPreset)) {
         // Product preset OR (design + color presets) = preset_design workflow
         workflowType = "preset_design";
@@ -949,7 +971,7 @@ async function analyzeIntent(
         explanation: hasExplicitReference
           ? `User selected preset options (${workflowType}) to modify referenced image - preserving context`
           : hasPreviousResult
-            ? `User selected preset options (${workflowType}) with auto-reference to previous result - preserving context`
+            ? `User selected preset options (${workflowType}) with auto-reference to previous result as PRODUCT only - preserving context`
             : `User selected preset options (${workflowType}) - routing directly to design endpoint with fresh context`,
       };
     }
@@ -966,22 +988,12 @@ async function analyzeIntent(
         message.includes("repeating pattern") ||
         message.includes("repeating elements") ||
         (message.includes("pattern") && message.includes("element")) ||
-        (message.includes("use") &&
-          message.includes("element") &&
-          message.includes("pattern")) ||
-        (message.includes("create") &&
-          message.includes("element") &&
-          message.includes("pattern")) ||
-        (message.includes("make") &&
-          message.includes("element") &&
-          message.includes("pattern")) ||
-        (message.includes("actual") &&
-          message.includes("element") &&
-          message.includes("pattern")) ||
+        (message.includes("use") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("create") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("make") && message.includes("element") && message.includes("pattern")) ||
+        (message.includes("actual") && message.includes("element") && message.includes("pattern")) ||
         (message.includes("literal") && message.includes("element")) ||
-        (message.includes("main") &&
-          message.includes("element") &&
-          message.includes("pattern")) ||
+        (message.includes("main") && message.includes("element") && message.includes("pattern")) ||
         (message.includes("object") && message.includes("pattern")) ||
         (message.includes("element") && message.includes("repeating")) ||
         (message.includes("textile") && message.includes("pattern")) ||
@@ -1020,14 +1032,8 @@ async function analyzeIntent(
         message.includes("flow pattern") ||
         message.includes("make a flow") ||
         (message.includes("pattern") &&
-          (message.includes("from these") ||
-            message.includes("using these") ||
-            message.includes("out of these") ||
-            message.includes("with these") ||
-            message.includes("from this") ||
-            message.includes("using this") ||
-            message.includes("out of this") ||
-            message.includes("with this")) &&
+          (message.includes("from these") || message.includes("using these") || message.includes("out of these") || message.includes("with these") ||
+           message.includes("from this") || message.includes("using this") || message.includes("out of this") || message.includes("with this")) &&
           !message.includes("element")) || // Exclude if contains "element" (already handled above)
         message.includes("create pattern") ||
         message.includes("make pattern") ||
@@ -1117,6 +1123,14 @@ async function analyzeIntent(
         `📋 Enhanced image routing - Previous result: ${hasPreviousResult}, Explicit reference: ${hasExplicitReference}, Workflow: ${workflowType}, Clear context: ${shouldClearContext}`,
       );
 
+      // 🎯 AUTO-REFERENCE PREFERENCE: Auto-referenced images should ONLY be used as PRODUCT
+      // Never as design or color - design route will enforce this constraint
+      if (hasPreviousResult && !hasExplicitReference) {
+        console.log("🎯 AUTO-REFERENCE: Previous result will be used as PRODUCT only (never design/color)");
+        console.log("   - Design/color images and presets will provide design/color inputs");
+        console.log(`   - Workflow: ${workflowType}, Auto-reference constraint enforced in design route`);
+      }
+
       return {
         intent: "design",
         confidence: 0.95,
@@ -1133,7 +1147,7 @@ async function analyzeIntent(
         explanation: hasExplicitReference
           ? `Complex reference scenario detected: ${workflowType} with explicit reference - preserving context`
           : hasPreviousResult
-            ? `User uploaded images with auto-reference to previous result: ${workflowType} - preserving context`
+            ? `User uploaded images with auto-reference to previous result as PRODUCT only: ${workflowType} - preserving context`
             : `Fresh image upload: ${workflowType} - new design request`,
       };
     }
@@ -1197,78 +1211,27 @@ async function analyzeIntent(
     ) {
       // 🔧 ENHANCED: Check for complex multi-step operations with time of day, reframe, and upscale
       const timeOfDayKeywords = [
-        "sunrise",
-        "sunset",
-        "dawn",
-        "dusk",
-        "morning",
-        "afternoon",
-        "evening",
-        "night",
-        "noon",
-        "midnight",
-        "golden hour",
-        "blue hour",
-        "daylight",
-        "nighttime",
+        "sunrise", "sunset", "dawn", "dusk", "morning", "afternoon", "evening", "night",
+        "noon", "midnight", "golden hour", "blue hour", "daylight", "nighttime",
         // Common typos and variations
-        "aunset",
-        "sunser",
-        "sunst",
-        "sunet",
-        "at aunset",
-        "at sunser",
+        "aunset", "sunser", "sunst", "sunet", "at aunset", "at sunser"
       ];
       const reframeKeywords = ["landscape", "portrait", "reframe", "crop"];
-
-      const hasTimeOfDayRequest = timeOfDayKeywords.some((keyword) =>
-        message.includes(keyword),
-      );
-      const hasReframeRequest = reframeKeywords.some((keyword) =>
-        message.includes(keyword),
-      );
+      
+      const hasTimeOfDayRequest = timeOfDayKeywords.some(keyword => message.includes(keyword));
+      const hasReframeRequest = reframeKeywords.some(keyword => message.includes(keyword));
 
       // Scene composition detection - flexible for typos
       const sceneKeywords = [
-        "place it in",
-        "place it at",
-        "put it in",
-        "put it at",
-        "set it in",
-        "set it at",
-        "location",
-        "background",
-        "scene",
-        "environment",
-        "setting",
-        "place",
-        "bridge",
-        "tower",
-        "beach",
-        "mountain",
-        "forest",
-        "city",
-        "street",
-        "new background",
-        "different setting",
-        "change scene",
-        "in the",
+        "place it in", "place it at", "put it in", "put it at", "set it in", "set it at",
+        "location", "background", "scene", "environment", "setting", "place",
+        "bridge", "tower", "beach", "mountain", "forest", "city", "street",
+        "new background", "different setting", "change scene", "in the",
         // Common landmarks with typo flexibility
-        "london",
-        "londoen",
-        "paris",
-        "tokyo",
-        "new york",
-        "bridge",
-        "place in",
-        "put in",
-        "set in",
-        "move to",
-        "relocate to",
+        "london", "londoen", "paris", "tokyo", "new york", "bridge",
+        "place in", "put in", "set in", "move to", "relocate to"
       ];
-      const hasSceneRequest = sceneKeywords.some((keyword) =>
-        message.includes(keyword),
-      );
+      const hasSceneRequest = sceneKeywords.some(keyword => message.includes(keyword));
 
       // 🔍 DEBUG: Log detection results
       console.log("🔍 Multi-step detection debug:", {
@@ -1277,15 +1240,9 @@ async function analyzeIntent(
         hasTimeOfDayRequest,
         hasReframeRequest,
         hasUpscaleRequest: message.includes("upscale"),
-        sceneMatches: sceneKeywords.filter((keyword) =>
-          message.includes(keyword),
-        ),
-        timeMatches: timeOfDayKeywords.filter((keyword) =>
-          message.includes(keyword),
-        ),
-        reframeMatches: reframeKeywords.filter((keyword) =>
-          message.includes(keyword),
-        ),
+        sceneMatches: sceneKeywords.filter(keyword => message.includes(keyword)),
+        timeMatches: timeOfDayKeywords.filter(keyword => message.includes(keyword)),
+        reframeMatches: reframeKeywords.filter(keyword => message.includes(keyword))
       });
 
       // 🎯 FOUR-STEP OPERATION: Scene composition + time of day + reframe + upscale
@@ -1293,7 +1250,7 @@ async function analyzeIntent(
         console.log(
           "Smart fallback detected multi-step scene + timeofday + reframe + upscale operation",
         );
-
+        
         const orientation = message.includes("landscape")
           ? "landscape"
           : message.includes("portrait")
@@ -1304,11 +1261,7 @@ async function analyzeIntent(
         let timeOfDay = "morning"; // default
         if (message.includes("sunrise") || message.includes("dawn")) {
           timeOfDay = "sunrise";
-        } else if (
-          message.includes("sunset") ||
-          message.includes("dusk") ||
-          message.includes("aunset")
-        ) {
+        } else if (message.includes("sunset") || message.includes("dusk") || message.includes("aunset")) {
           timeOfDay = "sunset";
         } else if (message.includes("night") || message.includes("midnight")) {
           timeOfDay = "night";
@@ -1322,8 +1275,7 @@ async function analyzeIntent(
           endpoint: "/api/scenecomposition",
           parameters: { composition_style: "realistic" },
           requiresFiles: true,
-          explanation:
-            "First step of scene + timeofday + reframe + upscale operation",
+          explanation: "First step of scene + timeofday + reframe + upscale operation",
           isMultiStep: true,
           multiStepPlan: {
             steps: [
@@ -1374,7 +1326,7 @@ async function analyzeIntent(
         console.log(
           "Smart fallback detected multi-step timeofday + reframe + upscale operation",
         );
-
+        
         const orientation = message.includes("landscape")
           ? "landscape"
           : message.includes("portrait")
@@ -1872,9 +1824,7 @@ async function analyzeIntent(
         message.includes("flow pattern") ||
         message.includes("make a flow") ||
         (message.includes("pattern") &&
-          (message.includes("from these") ||
-            message.includes("using these") ||
-            message.includes("out of these")))
+          (message.includes("from these") || message.includes("using these") || message.includes("out of these")))
       ) {
         console.log(
           "Smart fallback routing to flowdesign endpoint for explicit flow/pattern design creation",
@@ -2692,9 +2642,7 @@ EDGE CASE EXAMPLES:
       smartResult.intent === "elemental_design" || // ✅ NEW: Always bypass Claude for elemental design
       // ✅ NEW: Always bypass Claude for multi-step operations
       // Smart fallback is excellent at detecting these complex workflows
-      (smartResult.isMultiStep &&
-        smartResult.multiStepPlan?.steps &&
-        smartResult.multiStepPlan.steps.length >= 2) ||
+      (smartResult.isMultiStep && smartResult.multiStepPlan?.steps && smartResult.multiStepPlan.steps.length >= 2) ||
       (smartResult.intent === "design" &&
         userMessage.toLowerCase().includes("generate") &&
         userMessage.toLowerCase().includes("image")) ||
@@ -3501,20 +3449,15 @@ async function routeToAPI(
       if (parameters.quality) {
         formData.append("quality", parameters.quality);
       }
-
+      
       // 🔍 DEBUG: Show all available image keys for troubleshooting
-      console.log(
-        "🔍 Available image keys for flowdesign:",
-        Object.keys(imageUrls),
-      );
+      console.log("🔍 Available image keys for flowdesign:", Object.keys(imageUrls));
 
       // 🔧 CRITICAL FIX: Handle actual image key names from intentroute
       const actualImageKeys = Object.keys(imageUrls);
-
+      
       // Find product image (can be product_image, product_image_image, etc.)
-      const productKey = actualImageKeys.find((key) =>
-        key.includes("product_image"),
-      );
+      const productKey = actualImageKeys.find(key => key.includes("product_image"));
       if (productKey && imageUrls[productKey]) {
         formData.append("product_image_url", imageUrls[productKey]);
         console.log(
@@ -3522,11 +3465,9 @@ async function routeToAPI(
           imageUrls[productKey],
         );
       }
-
+      
       // Find design image (can be design_image, design_image_0_image, etc.)
-      const designKey = actualImageKeys.find((key) =>
-        key.includes("design_image"),
-      );
+      const designKey = actualImageKeys.find(key => key.includes("design_image"));
       if (designKey && imageUrls[designKey]) {
         formData.append("design_image_url", imageUrls[designKey]);
         console.log(
@@ -3534,11 +3475,9 @@ async function routeToAPI(
           imageUrls[designKey],
         );
       }
-
+      
       // Find color image (can be color_image, color_image_0_image, etc.)
-      const colorKey = actualImageKeys.find((key) =>
-        key.includes("color_image"),
-      );
+      const colorKey = actualImageKeys.find(key => key.includes("color_image"));
       if (colorKey && imageUrls[colorKey]) {
         formData.append("color_image_url", imageUrls[colorKey]);
         console.log(
@@ -3559,64 +3498,55 @@ async function routeToAPI(
       if (parameters.quality) {
         formData.append("quality", parameters.quality);
       }
-
+      
       // 🔍 DEBUG: Show all available image keys for elemental design
-      console.log(
-        "🔍 Available image keys for elemental design:",
-        Object.keys(imageUrls),
-      );
+      console.log("🔍 Available image keys for elemental design:", Object.keys(imageUrls));
 
       // 🔧 Handle actual image key names from intentroute
       const actualImageKeys = Object.keys(imageUrls);
-
+      
       // Find product image (can be product_image, product_image_image, etc.)
-      const productKey = actualImageKeys.find((key) =>
-        key.includes("product_image"),
-      );
+      const productKey = actualImageKeys.find(key => key.includes("product_image"));
       if (productKey && imageUrls[productKey]) {
         // Download and add as file for elemental design
         const imageResponse = await fetch(imageUrls[productKey]);
         const imageBuffer = await imageResponse.arrayBuffer();
-        const imageBlob = new Blob([imageBuffer], { type: "image/png" });
+        const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
         formData.append("product_image", imageBlob, "product_image.png");
         console.log(
           "🔗 Added product_image for elemental design:",
           imageUrls[productKey],
         );
       }
-
+      
       // Find design image (can be design_image, design_image_0_image, etc.)
-      const designKey = actualImageKeys.find((key) =>
-        key.includes("design_image"),
-      );
+      const designKey = actualImageKeys.find(key => key.includes("design_image"));
       if (designKey && imageUrls[designKey]) {
         // Download and add as file for elemental design
         const imageResponse = await fetch(imageUrls[designKey]);
         const imageBuffer = await imageResponse.arrayBuffer();
-        const imageBlob = new Blob([imageBuffer], { type: "image/png" });
+        const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
         formData.append("design_image", imageBlob, "design_image.png");
         console.log(
           "🔗 Added design_image for elemental design:",
           imageUrls[designKey],
         );
       }
-
+      
       // Find color image (can be color_image, color_image_0_image, etc.)
-      const colorKey = actualImageKeys.find((key) =>
-        key.includes("color_image"),
-      );
+      const colorKey = actualImageKeys.find(key => key.includes("color_image"));
       if (colorKey && imageUrls[colorKey]) {
         // Download and add as file for elemental design
         const imageResponse = await fetch(imageUrls[colorKey]);
         const imageBuffer = await imageResponse.arrayBuffer();
-        const imageBlob = new Blob([imageBuffer], { type: "image/png" });
+        const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
         formData.append("color_image", imageBlob, "color_image.png");
         console.log(
           "🔗 Added color_image for elemental design:",
           imageUrls[colorKey],
         );
       }
-
+      
       // 🔧 REFERENCE SUPPORT: Pass reference_image_url if provided
       if (parameters.reference_image_url) {
         formData.append("reference_image_url", parameters.reference_image_url);
@@ -3718,7 +3648,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
@@ -3744,16 +3674,10 @@ async function routeToAPI(
         formData.append("guidanceScale", String(parameters.guidanceScale));
       }
       if (parameters.numInferenceSteps) {
-        formData.append(
-          "numInferenceSteps",
-          String(parameters.numInferenceSteps),
-        );
+        formData.append("numInferenceSteps", String(parameters.numInferenceSteps));
       }
       if (parameters.enableSafetyChecker !== undefined) {
-        formData.append(
-          "enableSafetyChecker",
-          String(parameters.enableSafetyChecker),
-        );
+        formData.append("enableSafetyChecker", String(parameters.enableSafetyChecker));
       }
 
       // Add prompt if provided
@@ -3767,7 +3691,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
@@ -3799,7 +3723,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
@@ -3873,7 +3797,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url; // 🔧 Add fallback for previous result
@@ -3896,7 +3820,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url;
@@ -3919,10 +3843,7 @@ async function routeToAPI(
       // 🔧 CRITICAL FIX: Pass user message as prompt parameter
       if (originalMessage && !parameters.prompt) {
         formData.append("prompt", originalMessage);
-        console.log(
-          "🔗 Added user message as prompt for time of day:",
-          originalMessage,
-        );
+        console.log("🔗 Added user message as prompt for time of day:", originalMessage);
       }
 
       console.log("🔗 Added timeofday parameters");
@@ -3931,7 +3852,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url;
@@ -3954,10 +3875,7 @@ async function routeToAPI(
       // 🔧 CRITICAL FIX: Pass user message as prompt parameter
       if (originalMessage && !parameters.prompt) {
         formData.append("prompt", originalMessage);
-        console.log(
-          "🔗 Added user message as prompt for scene composition:",
-          originalMessage,
-        );
+        console.log("🔗 Added user message as prompt for scene composition:", originalMessage);
       }
 
       console.log("🔗 Added scenecomposition parameters");
@@ -3966,7 +3884,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url;
@@ -3989,10 +3907,7 @@ async function routeToAPI(
       // 🔧 CRITICAL FIX: Pass user message as prompt parameter
       if (originalMessage && !parameters.prompt) {
         formData.append("prompt", originalMessage);
-        console.log(
-          "🔗 Added user message as prompt for dance video:",
-          originalMessage,
-        );
+        console.log("🔗 Added user message as prompt for dance video:", originalMessage);
       }
 
       console.log("🔗 Added seedancevideo parameters");
@@ -4001,7 +3916,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url;
@@ -4024,10 +3939,7 @@ async function routeToAPI(
       // 🔧 CRITICAL FIX: Pass user message as prompt parameter
       if (originalMessage && !parameters.prompt) {
         formData.append("prompt", originalMessage);
-        console.log(
-          "🔗 Added user message as prompt for object removal:",
-          originalMessage,
-        );
+        console.log("🔗 Added user message as prompt for object removal:", originalMessage);
       }
 
       console.log("🔗 Added objectremoval parameters");
@@ -4036,7 +3948,7 @@ async function routeToAPI(
         imageUrls.product_image ||
         imageUrls.design_image ||
         imageUrls.color_image ||
-        imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
+        imageUrls.product_image_image ||  // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
         parameters.reference_image_url;
@@ -4059,10 +3971,7 @@ async function routeToAPI(
       // 🔧 CRITICAL FIX: Pass user message as prompt parameter
       if (originalMessage && !parameters.prompt) {
         formData.append("prompt", originalMessage);
-        console.log(
-          "🔗 Added user message as prompt for chain of zoom:",
-          originalMessage,
-        );
+        console.log("🔗 Added user message as prompt for chain of zoom:", originalMessage);
       }
 
       console.log("🔗 Added chainofzoom parameters");
@@ -4177,9 +4086,7 @@ async function routeToAPI(
       return await response.json();
     } else if (endpoint === "/api/elementaldesign") {
       // Import and call the elemental design API logic directly
-      const { POST: elementalDesignPOST } = await import(
-        "../elementaldesign/route"
-      );
+      const { POST: elementalDesignPOST } = await import("../elementaldesign/route");
 
       const mockRequest = new Request(`${getBaseUrl()}/api/elementaldesign`, {
         method: "POST",
@@ -4258,9 +4165,7 @@ async function routeToAPI(
       return await response.json();
     } else if (endpoint === "/api/scenecomposition") {
       // Import and call the scenecomposition API logic directly
-      const { POST: scenecompositionPOST } = await import(
-        "../scenecomposition/route"
-      );
+      const { POST: scenecompositionPOST } = await import("../scenecomposition/route");
 
       const mockRequest = new Request(`${getBaseUrl()}/api/scenecomposition`, {
         method: "POST",
@@ -4271,9 +4176,7 @@ async function routeToAPI(
       return await response.json();
     } else if (endpoint === "/api/seedancevideo") {
       // Import and call the seedancevideo API logic directly
-      const { POST: seedancevideoPOST } = await import(
-        "../seedancevideo/route"
-      );
+      const { POST: seedancevideoPOST } = await import("../seedancevideo/route");
 
       const mockRequest = new Request(`${getBaseUrl()}/api/seedancevideo`, {
         method: "POST",
@@ -4284,9 +4187,7 @@ async function routeToAPI(
       return await response.json();
     } else if (endpoint === "/api/objectremoval") {
       // Import and call the objectremoval API logic directly
-      const { POST: objectremovalPOST } = await import(
-        "../objectremoval/route"
-      );
+      const { POST: objectremovalPOST } = await import("../objectremoval/route");
 
       const mockRequest = new Request(`${getBaseUrl()}/api/objectremoval`, {
         method: "POST",
@@ -4308,9 +4209,7 @@ async function routeToAPI(
       return await response.json();
     } else if (endpoint === "/api/clarityupscaler") {
       // Import and call the clarityupscaler API logic directly
-      const { POST: clarityupscalerPOST } = await import(
-        "../clarityupscaler/route"
-      );
+      const { POST: clarityupscalerPOST } = await import("../clarityupscaler/route");
 
       const mockRequest = new Request(`${getBaseUrl()}/api/clarityupscaler`, {
         method: "POST",
@@ -5530,15 +5429,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               const workflowType = intentAnalysis.parameters.workflow_type;
 
               if (workflowType === "design_prompt") {
-                imageUrls.design_image = referenceResult.imageUrl;
+                // 🚫 CRITICAL USER CONSTRAINT: Auto-referenced images can ONLY be used as PRODUCT
+                imageUrls.product_image = referenceResult.imageUrl;
                 console.log(
-                  `🔄 Claude's choice not in chain, using reference result as design_image for design_prompt:`,
+                  `🔄 Claude's choice not in chain, using reference result as product_image for design_prompt (user constraint: auto-reference only as product):`,
                   referenceResult.imageUrl,
                 );
               } else if (workflowType === "color_prompt") {
-                imageUrls.color_image = referenceResult.imageUrl;
+                // 🚫 CRITICAL USER CONSTRAINT: Auto-referenced images can ONLY be used as PRODUCT
+                imageUrls.product_image = referenceResult.imageUrl;
                 console.log(
-                  `🔄 Claude's choice not in chain, using reference result as color_image for color_prompt:`,
+                  `🔄 Claude's choice not in chain, using reference result as product_image for color_prompt (user constraint: auto-reference only as product):`,
                   referenceResult.imageUrl,
                 );
               } else if (
@@ -5641,17 +5542,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               const workflowType = intentAnalysis.parameters.workflow_type;
 
               if (workflowType === "design_prompt") {
-                // design_prompt requires: hasDesign=true, hasPrompt=true, hasProduct=false, hasColor=false
-                imageUrls.design_image = referenceResult.imageUrl;
+                // 🚫 CRITICAL USER CONSTRAINT: Auto-referenced images can ONLY be used as PRODUCT
+                // NEVER as design or color - user's explicit preference
+                imageUrls.product_image = referenceResult.imageUrl;
                 console.log(
-                  `✅ Added ${sourceType} image as design_image for design_prompt workflow:`,
+                  `✅ Added ${sourceType} image as product_image for design_prompt workflow (user constraint: auto-reference only as product):`,
                   referenceResult.imageUrl,
                 );
               } else if (workflowType === "color_prompt") {
-                // color_prompt requires: hasColor=true, hasPrompt=true, hasProduct=false, hasDesign=false
-                imageUrls.color_image = referenceResult.imageUrl;
+                // 🚫 CRITICAL USER CONSTRAINT: Auto-referenced images can ONLY be used as PRODUCT
+                // NEVER as design or color - user's explicit preference
+                imageUrls.product_image = referenceResult.imageUrl;
                 console.log(
-                  `✅ Added ${sourceType} image as color_image for color_prompt workflow:`,
+                  `✅ Added ${sourceType} image as product_image for color_prompt workflow (user constraint: auto-reference only as product):`,
                   referenceResult.imageUrl,
                 );
               } else if (
@@ -5783,28 +5686,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 🎯 INTELLIGENT: Handle both Claude-detected and smart fallback multi-step operations
     if (
-      (intentAnalysis.intent === "multi_step" &&
-        intentAnalysis.parameters?.steps) ||
+      (intentAnalysis.intent === "multi_step" && intentAnalysis.parameters?.steps) ||
       (intentAnalysis.isMultiStep && intentAnalysis.multiStepPlan)
     ) {
       // Handle both formats: Claude uses parameters.steps, smart fallback uses multiStepPlan.steps
-      const steps =
-        intentAnalysis.parameters?.steps || intentAnalysis.multiStepPlan?.steps;
-      console.log(`🧠 Executing multi-step operation: ${steps.length} steps`);
+      const steps = intentAnalysis.parameters?.steps || intentAnalysis.multiStepPlan?.steps;
+      console.log(
+        `🧠 Executing multi-step operation: ${steps.length} steps`,
+      );
       let currentResult = null;
       let allResults: any[] = [];
 
       // 🔧 CRITICAL FIX: Add reference image URL to imageUrls for multi-step operations
-      if (
-        intentAnalysis.parameters?.reference_image_url &&
-        !imageUrls.product_image &&
-        !imageUrls.design_image &&
-        !imageUrls.color_image
-      ) {
+      if (intentAnalysis.parameters?.reference_image_url && !imageUrls.product_image && !imageUrls.design_image && !imageUrls.color_image) {
         imageUrls.product_image = intentAnalysis.parameters.reference_image_url;
-        console.log(
-          `🔧 Added reference image URL to imageUrls for multi-step: ${intentAnalysis.parameters.reference_image_url}`,
-        );
+        console.log(`🔧 Added reference image URL to imageUrls for multi-step: ${intentAnalysis.parameters.reference_image_url}`);
       }
 
       for (let i = 0; i < steps.length; i++) {
@@ -5813,9 +5709,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // For steps after the first, use the output of the previous step if context_chain is enabled
         let stepImageUrls = { ...imageUrls };
-        const contextChain =
-          intentAnalysis.parameters?.context_chain ||
-          intentAnalysis.multiStepPlan?.contextChain;
+        const contextChain = intentAnalysis.parameters?.context_chain || intentAnalysis.multiStepPlan?.contextChain;
         if (i > 0 && contextChain) {
           // Check if previous step succeeded and has a valid output URL
           const previousOutputUrl =
@@ -5988,16 +5882,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     userid,
                     `step_${i + 1}`,
                   );
-
+                  
                   // Race between saving and timeout (30 seconds)
                   const firebaseUrl = await Promise.race([
                     savePromise,
-                    new Promise<string>((_, reject) =>
-                      setTimeout(
-                        () => reject(new Error("Firebase save timeout")),
-                        30000,
-                      ),
-                    ),
+                    new Promise<string>((_, reject) => 
+                      setTimeout(() => reject(new Error('Firebase save timeout')), 30000)
+                    )
                   ]);
 
                   // Update current result with Firebase URL
@@ -6023,7 +5914,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                   console.log(
                     `⚠️ Continuing with external URL for chaining: ${outputUrl}`,
                   );
-
+                  
                   // Update current result with external URL (don't lose the step result)
                   currentResult = {
                     ...stepResult,
@@ -6085,8 +5976,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         message: detailedMessage.trim(),
         intent: intentAnalysis,
         result: finalResult,
-        // 🆕 Include all step results for frontend access
-        allStepResults: allResults,
+              // 🆕 Include all step results for frontend access
+      allStepResults: allResults,
         conversation_id: `${userid}_${Date.now()}`,
       };
 
@@ -6289,9 +6180,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         let allImages: string[] = [];
         if (apiResult?.images && Array.isArray(apiResult.images)) {
           allImages = apiResult.images;
-          console.log(
-            `✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`,
-          );
+          console.log(`✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`);
         } else if (apiResult?.imageUrl) {
           allImages = [apiResult.imageUrl];
         }
@@ -6335,9 +6224,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let allImages: string[] = [];
     if (apiResult?.images && Array.isArray(apiResult.images)) {
       allImages = apiResult.images;
-      console.log(
-        `✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`,
-      );
+      console.log(`✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`);
     } else if (apiResult?.imageUrl) {
       allImages = [apiResult.imageUrl];
     }
