@@ -114,43 +114,32 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalContent className="rounded-xl shadow-2xl">
-        <ModalHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                <Share2 className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold">Share {mediaType}</h2>
-                <p className="text-sm text-muted-foreground">Choose how you'd like to share</p>
-              </div>
-            </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </ModalHeader>
-
-        <ModalBody className="space-y-6">
+    <Modal backdrop="blur" isOpen={isOpen} onClose={onClose}>
+      <ModalContent className="rounded-xl">
+        <ModalBody>
           {/* Media Preview */}
-          <div className="relative rounded-xl overflow-hidden border bg-muted">
-            <div className="aspect-video relative">
+          <div className="relative overflow-hidden rounded-lg">
+            <div className="w-full h-[300px] relative">
               {mediaType === "image" ? (
-                <img src={mediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                <img
+                  src={mediaUrl}
+                  alt="Preview"
+                  className="w-full h-full object-cover object-center rounded-md"
+                />
               ) : (
-                <video src={mediaUrl} className="w-full h-full object-cover" controls={false} muted />
+                <video
+                  src={mediaUrl}
+                  className="w-full h-full object-cover object-center rounded-md"
+                  controls={false}
+                  muted
+                />
               )}
               <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition" />
             </div>
-            <span className="absolute top-3 right-3 text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
-              {mediaType.toUpperCase()}
-            </span>
           </div>
 
           {/* Caption */}
-          <div className="space-y-2">
+          <div className="space-y-2 mt-4">
             <label className="text-sm font-medium text-muted-foreground">Add a message</label>
             <textarea
               value={shareText}
@@ -163,7 +152,7 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
           </div>
 
           {/* Platforms */}
-          <div className="space-y-3">
+          <div className="space-y-3 mt-4">
             <h3 className="text-sm font-medium text-muted-foreground">Share to</h3>
             <div className="flex flex-wrap gap-3 justify-center">
               {socialPlatforms.map((platform) => (
@@ -181,7 +170,7 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
           </div>
 
           {/* Direct Link */}
-          <div className="space-y-2 pt-4 border-t">
+          <div className="space-y-2 pt-4 border-t mt-4">
             <label className="text-sm font-medium text-muted-foreground">Direct Link</label>
             <div className="flex gap-2">
               <Input readOnly value={mediaUrl} className="text-sm" />
@@ -191,26 +180,6 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
             </div>
           </div>
         </ModalBody>
-
-        <ModalFooter className="gap-2">
-          <Button variant="outline" onClick={handleCopyLink} className="flex-1">
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 mr-2 text-green-600" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Link
-              </>
-            )}
-          </Button>
-          <Button variant="outline" onClick={handleDownload} className="flex-1">
-            <Download className="w-4 h-4 mr-2" />
-            Download
-          </Button>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   )

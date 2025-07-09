@@ -390,42 +390,47 @@ VISUAL REQUIREMENTS (ABSOLUTE PRIORITY):
     }
 
     case "product_color": {
-      const basePrompt = `Apply only the color palette and color scheme from the color reference image to the PRODUCT ONLY while maintaining its original design, structure, and details. Extract colors only — do NOT copy any design patterns, textures, or visual elements. Keep all product features intact and transform only the colors to match the reference palette.
+      const basePrompt = `🎯 TASK: Recolor the FIRST image (PRODUCT) using colors from the SECOND image (COLOR REFERENCE)
+
+📸 IMAGE INSTRUCTIONS (CRITICAL):
+- FIRST IMAGE = PRODUCT TO RECOLOR (main subject - preserve everything except colors)
+- SECOND IMAGE = COLOR REFERENCE (extract color palette ONLY - ignore everything else)
+- Your output must be the FIRST image with colors from the SECOND image applied
 
 🚨 PRODUCT PRESERVATION REQUIREMENTS (ABSOLUTELY CRITICAL - HIGHEST PRIORITY):
-- YOU MUST PRESERVE THE EXACT SAME PRODUCT STRUCTURE, SHAPE, AND DESIGN AS THE INPUT
+- YOU MUST PRESERVE THE EXACT SAME PRODUCT STRUCTURE, SHAPE, AND DESIGN AS THE FIRST IMAGE
 - DO NOT CHANGE the product's form, silhouette, proportions, or geometry AT ALL
 - DO NOT CHANGE the product's materials, textures, or construction details
 - DO NOT CHANGE the product's style, category, or design elements
 - ONLY CHANGE THE COLORS - nothing else about the product should be different
-- The output must be the SAME EXACT PRODUCT with different colors applied
+- The output must be the SAME EXACT PRODUCT from the FIRST image with different colors applied
 - This is a COLOR RECOLORING task, NOT a design modification task
+
+🎯 CRITICAL COLOR APPLICATION RULES:
+- Extract ONLY the color palette from the SECOND image (ignore any products, patterns, or designs it contains)
+- Apply these extracted colors ONLY to the product from the FIRST image
+- PRESERVE the original background completely unchanged from the FIRST image
+- PRESERVE the original lighting and shadows from the FIRST image
+- Apply new colors ONLY to product surfaces, materials, and components
+- Do NOT change background color, lighting, or environmental elements
+- Maintain the exact same photo composition and setting as the FIRST image
+- Colors should look like real fabric dyes, paints, or materials - not digital overlays
 
 🚨 PHOTOREALISM REQUIREMENTS (CRITICAL - HIGHEST PRIORITY):
 - Render as REALISTIC PRODUCT PHOTOGRAPHY with professional studio lighting
-- Maintain actual product materials, textures, and physical properties
+- Maintain actual product materials, textures, and physical properties from the FIRST image
 - NO artistic rendering, NO cartoon style, NO illustration style, NO anime style
 - Must look like you could purchase this exact product from a high-end store
 - Use proper lighting, shadows, reflections, and surface details
 - HYPER-REALISTIC material textures (leather, fabric, rubber, metal, etc.)
 
-🎯 CRITICAL COLOR APPLICATION RULES:
-- ONLY change colors on the PRODUCT itself (shoes, clothing, bag, etc.)
-- PRESERVE the original background completely unchanged
-- PRESERVE the original lighting and shadows
-- Apply new colors ONLY to product surfaces, materials, and components
-- Do NOT change background color, lighting, or environmental elements
-- Maintain the exact same photo composition and setting
-- Colors should look like real fabric dyes, paints, or materials - not digital overlays
-
-🔧 SPECIFIC PRODUCT PRESERVATION INSTRUCTIONS:
-- Look at the input product image and MEMORIZE its exact shape, structure, and design
-- Your job is to create the SAME EXACT PRODUCT but with different colors
-- Do NOT interpret this as "create a similar product" - it must be IDENTICAL except for colors
-- If the input is a high-top sneaker, the output must be the same high-top sneaker
-- If the input has specific design elements (stripes, logos, patterns), preserve them exactly
-- If the input has specific proportions, maintain those exact proportions
-- Think of this as digitally recoloring the existing product, not creating a new one
+🔧 SPECIFIC RECOLORING INSTRUCTIONS:
+- Study the FIRST image and MEMORIZE its exact shape, structure, and design
+- Study the SECOND image and EXTRACT ONLY its color palette (ignore any objects, products, or designs)
+- Create the SAME EXACT PRODUCT from the FIRST image but with the color palette from the SECOND image
+- Do NOT copy any visual elements from the SECOND image except colors
+- If the SECOND image contains products, patterns, or designs - IGNORE them completely
+- Think of this as digitally recoloring the FIRST image using a color palette extracted from the SECOND image
 
 ORIGINAL PRODUCT ANALYSIS: ${essentialProductAnalysis ?? "N/A"}
 COLOR PALETTE ANALYSIS: ${essentialColorAnalysis ?? "N/A"}`;
@@ -1138,14 +1143,14 @@ function extractEssentialAnalysis(
 /**
  * Global persistent cache for color preset analyses (shared across all users)
  */
-const CACHE_FILE_PATH = path.join(process.cwd(), "color_preset_cache.json");
+const CACHE_FILE_PATH = path.join(process.cwd(), 'color_preset_cache.json');
 
 /**
  * Check if a URL is a preset color URL
  */
 function isPresetColorUrl(url: string): boolean {
   if (!url) return false;
-  return url.includes("/inputs/placeholders/colors/") && url.endsWith(".webp");
+  return url.includes('/inputs/placeholders/colors/') && url.endsWith('.webp');
 }
 
 interface ColorPresetCache {
@@ -1161,11 +1166,11 @@ interface ColorPresetCache {
  */
 async function loadColorPresetCache(): Promise<ColorPresetCache> {
   try {
-    const cacheData = await fs.readFile(CACHE_FILE_PATH, "utf8");
+    const cacheData = await fs.readFile(CACHE_FILE_PATH, 'utf8');
     return JSON.parse(cacheData);
   } catch (error) {
     // Cache file doesn't exist or is invalid - return empty cache
-    console.log("📦 No existing color preset cache found, creating new one");
+    console.log('📦 No existing color preset cache found, creating new one');
     return {};
   }
 }
@@ -1176,9 +1181,9 @@ async function loadColorPresetCache(): Promise<ColorPresetCache> {
 async function saveColorPresetCache(cache: ColorPresetCache): Promise<void> {
   try {
     await fs.writeFile(CACHE_FILE_PATH, JSON.stringify(cache, null, 2));
-    console.log("💾 Color preset cache saved successfully");
+    console.log('💾 Color preset cache saved successfully');
   } catch (error) {
-    console.error("❌ Failed to save color preset cache:", error);
+    console.error('❌ Failed to save color preset cache:', error);
   }
 }
 
@@ -1190,44 +1195,36 @@ async function getCachedColorPresetAnalysis(
   imageUrl: string,
 ): Promise<string> {
   const cacheKey = presetName.toLowerCase(); // Normalize case
-
+  
   // Load global cache
   const globalCache = await loadColorPresetCache();
-
+  
   // Check if we have cached analysis
   if (globalCache[cacheKey]) {
-    console.log(
-      `📦 Using GLOBAL cached analysis for color preset: ${presetName}`,
-    );
-    console.log(
-      `📦 Analysis was cached on: ${new Date(globalCache[cacheKey].timestamp).toISOString()}`,
-    );
+    console.log(`📦 Using GLOBAL cached analysis for color preset: ${presetName}`);
+    console.log(`📦 Analysis was cached on: ${new Date(globalCache[cacheKey].timestamp).toISOString()}`);
     return globalCache[cacheKey].analysis;
   }
 
   // Not cached globally, analyze with GPT-4 Vision
-  console.log(
-    `🔄 Analyzing color preset with GPT-4 Vision (FIRST TIME EVER): ${presetName}`,
-  );
+  console.log(`🔄 Analyzing color preset with GPT-4 Vision (FIRST TIME EVER): ${presetName}`);
   console.log(`🔄 Converting to base64 for analysis: ${imageUrl}`);
-
+  
   const analysis = await analyzeImageWithGPT4Vision(
     imageUrl,
     "color reference",
   );
-
+  
   // Cache the result globally for ALL users
   globalCache[cacheKey] = {
     analysis: analysis,
     timestamp: Date.now(),
-    version: "1.0",
+    version: "1.0"
   };
-
+  
   await saveColorPresetCache(globalCache);
-  console.log(
-    `💾 GLOBALLY cached analysis for color preset: ${presetName} (available to ALL users)`,
-  );
-
+  console.log(`💾 GLOBALLY cached analysis for color preset: ${presetName} (available to ALL users)`);
+  
   return analysis;
 }
 
@@ -1398,39 +1395,29 @@ async function uploadImageToFiles(
       const metadata = await sharp(buffer).metadata();
       const sharpFormat = metadata.format || "unknown";
       let actualFormat: string = sharpFormat;
-
+      
       // Enhanced MPO detection - Sharp often misdetects MPO as JPEG
       if (sharpFormat === "jpeg" || sharpFormat === "jpg") {
         // Check for MPO signature in the buffer
         const uint8Array = new Uint8Array(buffer);
         let isMPO = false;
-
+        
         // Look for "MPF" marker in the first 2KB (Multi Picture Format)
         for (let i = 0; i < Math.min(uint8Array.length, 2048); i++) {
-          if (
-            uint8Array[i] === 0x4d &&
-            uint8Array[i + 1] === 0x50 &&
-            uint8Array[i + 2] === 0x46
-          ) {
-            // "MPF"
-            console.log(
-              "🔍 Files API - MPO format detected via signature scan",
-            );
+          if (uint8Array[i] === 0x4d && uint8Array[i + 1] === 0x50 && uint8Array[i + 2] === 0x46) { // "MPF"
+            console.log("🔍 Files API - MPO format detected via signature scan");
             actualFormat = "mpo";
             isMPO = true;
             break;
           }
         }
-
+        
         // Additional MPO detection - look for MPO-specific EXIF data
         if (!isMPO) {
           // Look for MP Individual Image markers
           for (let i = 0; i < Math.min(uint8Array.length, 5000); i++) {
-            if (uint8Array[i] === 0xb0 && uint8Array[i + 1] === 0x00) {
-              // MP Individual Image
-              console.log(
-                "🔍 Files API - MPO format detected via MP Individual Image marker",
-              );
+            if (uint8Array[i] === 0xb0 && uint8Array[i + 1] === 0x00) { // MP Individual Image
+              console.log("🔍 Files API - MPO format detected via MP Individual Image marker");
               actualFormat = "mpo";
               isMPO = true;
               break;
@@ -1438,7 +1425,7 @@ async function uploadImageToFiles(
           }
         }
       }
-
+      
       console.log(`🔍 Files API - Detected image format: ${actualFormat}`);
 
       // Define supported and unsupported formats for OpenAI Files API
@@ -1760,18 +1747,13 @@ async function getImageDimensions(
       // Check if it's MPO format (Multi Picture Object)
       let isMPO = false;
       for (let i = 0; i < Math.min(uint8Array.length, 1000); i++) {
-        if (
-          uint8Array[i] === 0x4d &&
-          uint8Array[i + 1] === 0x50 &&
-          uint8Array[i + 2] === 0x46
-        ) {
-          // "MPF"
+        if (uint8Array[i] === 0x4d && uint8Array[i + 1] === 0x50 && uint8Array[i + 2] === 0x46) { // "MPF"
           console.log("🔍 MPO format detected in getImageDimensions");
           isMPO = true;
           break;
         }
       }
-
+      
       // For JPEG/MPO, we'll use a more complex parser or fallback to default
       // This is a simplified approach - for production, consider using a proper image library
       for (let i = 0; i < uint8Array.length - 8; i++) {
@@ -1800,11 +1782,11 @@ async function getImageDimensions(
       uint8Array[8] === 0x57 && // 'W'
       uint8Array[9] === 0x45 && // 'E'
       uint8Array[10] === 0x42 && // 'B'
-      uint8Array[11] === 0x50 // 'P'
+      uint8Array[11] === 0x50   // 'P'
     ) {
       // WebP format detected
       console.log("🔍 WebP format detected in getImageDimensions");
-
+      
       // Look for VP8 or VP8L chunk
       for (let i = 12; i < uint8Array.length - 10; i++) {
         // VP8 chunk
@@ -1812,7 +1794,7 @@ async function getImageDimensions(
           uint8Array[i] === 0x56 && // 'V'
           uint8Array[i + 1] === 0x50 && // 'P'
           uint8Array[i + 2] === 0x38 && // '8'
-          uint8Array[i + 3] === 0x20 // ' '
+          uint8Array[i + 3] === 0x20    // ' '
         ) {
           // VP8 lossy format
           const width = uint8Array[i + 14] | (uint8Array[i + 15] << 8);
@@ -1820,21 +1802,16 @@ async function getImageDimensions(
           console.log(`🔍 WebP VP8 dimensions detected: ${width}x${height}`);
           return { width, height };
         }
-        // VP8L chunk
+        // VP8L chunk  
         else if (
           uint8Array[i] === 0x56 && // 'V'
           uint8Array[i + 1] === 0x50 && // 'P'
           uint8Array[i + 2] === 0x38 && // '8'
-          uint8Array[i + 3] === 0x4c // 'L'
+          uint8Array[i + 3] === 0x4C    // 'L'
         ) {
           // VP8L lossless format
-          const width =
-            1 + (((uint8Array[i + 9] & 0x3f) << 8) | uint8Array[i + 8]);
-          const height =
-            1 +
-            (((uint8Array[i + 11] & 0x0f) << 10) |
-              (uint8Array[i + 10] << 2) |
-              ((uint8Array[i + 9] & 0xc0) >> 6));
+          const width = 1 + (((uint8Array[i + 9] & 0x3F) << 8) | uint8Array[i + 8]);
+          const height = 1 + (((uint8Array[i + 11] & 0x0F) << 10) | (uint8Array[i + 10] << 2) | ((uint8Array[i + 9] & 0xC0) >> 6));
           console.log(`🔍 WebP VP8L dimensions detected: ${width}x${height}`);
           return { width, height };
         }
@@ -1842,9 +1819,7 @@ async function getImageDimensions(
     }
 
     // Default fallback
-    console.log(
-      "⚠️ Could not detect image dimensions, falling back to 1024x1024",
-    );
+    console.log("⚠️ Could not detect image dimensions, falling back to 1024x1024");
     return { width: 1024, height: 1024 };
   } catch (error) {
     console.log(
@@ -2409,8 +2384,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const hasMultiplePresets =
       [presetProductType, presetDesignStyle, presetColorPalette].filter(Boolean)
         .length >= 2;
-    const referenceWithMultiplePresets =
-      !!actualReferenceUrl && hasMultiplePresets;
 
     // 🔧 CRITICAL FIX: If all 3 slots are filled with actual uploads, SKIP all reference processing
     const hasUploadedDesignImage = !!designImageUrl;
@@ -2421,25 +2394,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       hasUploadedDesignImage &&
       hasUploadedColorImage;
 
-    // 🔧 CRITICAL AUTO-REFERENCE RULE: If Claude wants to use reference for design/color,
-    // this violates auto-reference rules and should be treated as fresh generation
+    // 🔧 CRITICAL AUTO-REFERENCE RULE: Auto-referenced images can ONLY be used as PRODUCT
+    // NEVER as design or color - this violates user preferences
     const claudeViolatesAutoReferenceRules = claudeDetectedDesignOrColor;
 
     // 🔧 CRITICAL: Check if Claude explicitly says to ignore reference completely
-    const claudeWantsNoReference =
+    const claudeWantsNoReference = 
       semanticAnalysis?.input_roles?.design_sources === "none" ||
-      (semanticAnalysis?.input_roles?.product_sources === "upload" &&
-        semanticAnalysis?.input_roles?.design_sources !== "reference" &&
-        semanticAnalysis?.input_roles?.color_sources === "upload");
+      (semanticAnalysis?.input_roles?.product_sources === "upload" && 
+       semanticAnalysis?.input_roles?.design_sources !== "reference" &&
+       semanticAnalysis?.input_roles?.color_sources === "upload");
 
     // 🔧 CRITICAL FIX: Detect smart fallback auto-reference scenario
     // When smart fallback handles auto-reference, product_image_url and reference_image_url are the same
-    const isSmartFallbackAutoReference =
-      !!actualReferenceUrl &&
-      !!productImageUrl &&
-      productImageUrl === referenceImageUrl &&
-      !semanticAnalysis && // Smart fallback was used (no Claude analysis)
-      !hasMultiplePresets; // Only one preset involved (typical auto-reference scenario)
+    const isSmartFallbackAutoReference = 
+      !!actualReferenceUrl && 
+      !!productImageUrl && 
+      productImageUrl === referenceImageUrl && 
+      !semanticAnalysis; // Smart fallback was used (no Claude analysis)
+      // 🔧 REMOVED: !hasMultiplePresets condition - auto-reference can have multiple presets
+
+    // 🔧 CRITICAL FIX: Only consider multiple presets as manual reference if it's NOT auto-reference
+    // Auto-reference + multiple presets is still auto-reference (just use reference as product)
+    const referenceWithMultiplePresets =
+      !!actualReferenceUrl && hasMultiplePresets && !isSmartFallbackAutoReference;
 
     // 🔧 NEW: Detect manual reference when user uploads product + reference (common manual reference scenario)
     // BUT NOT when all 3 slots are filled with uploads (that's just 3 direct uploads, not reference scenario)
@@ -2447,11 +2425,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // AND NOT when Claude explicitly says to ignore reference completely
     // AND NOT when it's smart fallback auto-reference (same URL for product and reference)
     const manualReferenceWithUploads =
-      !!actualReferenceUrl &&
-      hasUploadedProductImage &&
-      !hasAllThreeUploads &&
-      !claudeViolatesAutoReferenceRules &&
-      !claudeWantsNoReference &&
+      !!actualReferenceUrl && hasUploadedProductImage && !hasAllThreeUploads && 
+      !claudeViolatesAutoReferenceRules && !claudeWantsNoReference &&
       !isSmartFallbackAutoReference;
 
     const isLikelyManualReference =
@@ -2463,16 +2438,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       isExplicitManualReference ||
       hasSpecificReferenceMode ||
       isLikelyManualReference;
-
+    
     // 🔧 AUTO-REFERENCE STRICT RULES: Only valid if Claude wants it for product role OR smart fallback detected it
-    const isValidAutoReference =
-      !!actualReferenceUrl &&
-      !isManualReference &&
+    const isValidAutoReference = 
+      !!actualReferenceUrl && 
+      !isManualReference && 
       !hasAllThreeUploads &&
       !claudeViolatesAutoReferenceRules &&
-      (semanticAnalysis?.input_roles?.product_sources === "reference" ||
-        isSmartFallbackAutoReference);
-
+      (semanticAnalysis?.input_roles?.product_sources === "reference" || isSmartFallbackAutoReference);
+      
     const isAutoReference = isValidAutoReference;
 
     console.log(`🔍 REFERENCE TYPE DETECTION:`);
@@ -2491,9 +2465,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.log(
       `  - Claude detected design/color reference: ${claudeDetectedDesignOrColor}`,
     );
-    console.log(
-      `  - 🚫 Claude violates auto-reference rules: ${claudeViolatesAutoReferenceRules}`,
-    );
+    console.log(`  - 🚫 Claude violates auto-reference rules: ${claudeViolatesAutoReferenceRules}`);
     console.log(`  - 🚫 Claude wants no reference: ${claudeWantsNoReference}`);
     console.log(`  - Has explicit presets: ${hasExplicitPresets}`);
     console.log(`  - Has multiple presets: ${hasMultiplePresets}`);
@@ -2506,41 +2478,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       `  - Manual reference with uploads: ${manualReferenceWithUploads}`,
     );
     console.log(`  - Smart fallback triggered: ${isLikelyManualReference}`);
-    console.log(
-      `  - 🔧 Smart fallback auto-reference: ${isSmartFallbackAutoReference}`,
-    );
+    console.log(`  - 🔧 Smart fallback auto-reference: ${isSmartFallbackAutoReference}`);
     console.log(`  - 🔧 Valid auto-reference: ${isValidAutoReference}`);
     console.log(`  - FINAL: Is manual reference: ${isManualReference}`);
     console.log(`  - FINAL: Is auto reference: ${isAutoReference}`);
-
+    
     // 🔧 EXPLAIN AUTO-REFERENCE VIOLATIONS
     if (claudeViolatesAutoReferenceRules) {
-      console.log(
-        `🚫 AUTO-REFERENCE VIOLATION: Claude wants to use reference for design/color role`,
-      );
+      console.log(`🚫 AUTO-REFERENCE VIOLATION: Claude wants to use reference for design/color role`);
       console.log(`   - Auto-reference is ONLY allowed for product role`);
-      console.log(
-        `   - This will be processed as fresh generation with uploaded images only`,
-      );
+      console.log(`   - This will be processed as fresh generation with uploaded images only`);
     }
-
+    
     // 🔧 EXPLAIN WHEN CLAUDE WANTS NO REFERENCE
     if (claudeWantsNoReference) {
-      console.log(
-        `🚫 CLAUDE WANTS NO REFERENCE: Claude explicitly said to ignore reference completely`,
-      );
-      console.log(
-        `   - design_sources: ${semanticAnalysis?.input_roles?.design_sources}`,
-      );
-      console.log(
-        `   - product_sources: ${semanticAnalysis?.input_roles?.product_sources}`,
-      );
-      console.log(
-        `   - color_sources: ${semanticAnalysis?.input_roles?.color_sources}`,
-      );
-      console.log(
-        `   - This will be processed as fresh generation with uploaded images only`,
-      );
+      console.log(`🚫 CLAUDE WANTS NO REFERENCE: Claude explicitly said to ignore reference completely`);
+      console.log(`   - design_sources: ${semanticAnalysis?.input_roles?.design_sources}`);
+      console.log(`   - product_sources: ${semanticAnalysis?.input_roles?.product_sources}`);
+      console.log(`   - color_sources: ${semanticAnalysis?.input_roles?.color_sources}`);
+      console.log(`   - This will be processed as fresh generation with uploaded images only`);
     }
 
     // 🧠 INTELLIGENT REFERENCE LOGIC: Claude's semantic analysis + explicit rules as fallback
@@ -2595,13 +2551,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // ========================================
       if (isAutoReference) {
         console.log("🤖 AUTO-REFERENCE PROCESSING:");
-
+        
         // 🚫 CRITICAL RULE: AUTO-REFERENCE IS ONLY FOR PRODUCT ROLE
         console.log("  🚫 AUTO-REFERENCE STRICT RULE: ONLY for product role");
         console.log("     - NEVER use auto-reference for design role");
         console.log("     - NEVER use auto-reference for color role");
         console.log("     - Manual reference can be used for any role");
-
+        
         // Explicitly ensure auto-reference is NEVER used for design or color
         overrideInputs.useReferenceAsDesign = false;
         overrideInputs.useReferenceAsColor = false;
@@ -2791,17 +2747,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 🔧 WORKFLOW CORRECTION: If reference is being used as design, upgrade workflow appropriately
     if (hasDesignFromReference && workflow_type === "product_color") {
-      console.log(
-        "🔧 WORKFLOW CORRECTION: Reference used as design - upgrading product_color to full_composition",
-      );
+      console.log("🔧 WORKFLOW CORRECTION: Reference used as design - upgrading product_color to full_composition");
       workflow_type = "full_composition";
     }
-
-    // 🔧 WORKFLOW CORRECTION: If reference is being used as color, upgrade workflow appropriately
+    
+    // 🔧 WORKFLOW CORRECTION: If reference is being used as color, upgrade workflow appropriately  
     if (hasColorFromReference && workflow_type === "product_design") {
-      console.log(
-        "🔧 WORKFLOW CORRECTION: Reference used as color - upgrading product_design to full_composition",
-      );
+      console.log("🔧 WORKFLOW CORRECTION: Reference used as color - upgrading product_design to full_composition");
       workflow_type = "full_composition";
     }
 
@@ -2834,7 +2786,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       color?: string;
       color2?: string;
     } = {};
-
+    
     // 🔧 PRESET OPTIMIZATION: Track Firebase input URLs separately from OpenAI generation URLs
     const firebaseInputUrls: {
       product?: string;
@@ -2842,7 +2794,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       color?: string;
       color2?: string;
     } = {};
-
+    
     const analyses: { product?: string; design?: string; color?: string } = {};
 
     try {
@@ -3059,24 +3011,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         analyses.product = `TARGET PRODUCT: ${productSpec} This product ready for design application will serve as the base for the design composition. IMPORTANT: Generate specifically a ${productName}, not any other product type.`;
         console.log("Preset product type processed successfully");
-      } else if (productImageUrl && workflow_type.includes("preset")) {
+      } else if (productImageUrl && workflow_type.includes('preset')) {
         // 🔧 PRESET WORKFLOW FIX: Handle preset workflows with product images
         // This catches cases where we have a product image URL in preset workflows that weren't handled above
-        console.log(
-          "🔧 PRESET WORKFLOW: Using product image URL for preset workflow:",
-          productImageUrl,
-        );
+        console.log("🔧 PRESET WORKFLOW: Using product image URL for preset workflow:", productImageUrl);
         inputUrls.product = productImageUrl;
-        console.log(
-          "🔍 Starting product image analysis for preset workflow...",
-        );
+        console.log("🔍 Starting product image analysis for preset workflow...");
         analyses.product = await analyzeImageWithGPT4Vision(
           productImageUrl,
           "product",
         );
-        console.log(
-          "✅ Product image processed successfully for preset workflow",
-        );
+        console.log("✅ Product image processed successfully for preset workflow");
       }
 
       // Handle design image (file, URL, or preset) with semantic override
@@ -3273,11 +3218,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // 🧠 SEMANTIC OVERRIDES: Handle reference image color extraction based on Claude's analysis
       // CRITICAL: Reference can serve DUAL PURPOSE (both design + color from same image)
       // 🎯 PRIORITY: When all 3 uploads are present, process them directly without reference logic
-      if (
-        hasAllThreeUploads &&
-        colorImageUrl &&
-        !isPresetColorUrl(colorImageUrl)
-      ) {
+      if (hasAllThreeUploads && colorImageUrl && !isPresetColorUrl(colorImageUrl)) {
         console.log("🎯 ALL THREE UPLOADS: Processing color image directly");
         inputUrls.color = colorImageUrl;
         const uploadedColorAnalysis = await analyzeImageWithGPT4Vision(
@@ -3286,11 +3227,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         colorAnalysisParts.push(uploadedColorAnalysis);
         console.log("✅ Color image processed successfully (direct upload)");
-      } else if (
-        hasAllThreeUploads &&
-        colorImageUrl &&
-        isPresetColorUrl(colorImageUrl)
-      ) {
+      } else if (hasAllThreeUploads && colorImageUrl && isPresetColorUrl(colorImageUrl)) {
         console.log(
           "🔧 PRESET OPTIMIZATION: Skipping preset color URL in all three uploads - will handle in preset section:",
           colorImageUrl.substring(0, 80) + "...",
@@ -3307,11 +3244,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         colorAnalysisParts.push(referenceColorAnalysis);
         console.log("✅ Reference image processed as COLOR source");
-      } else if (
-        overrideInputs.useReferenceAsColor &&
-        colorImageUrl &&
-        !isPresetColorUrl(colorImageUrl)
-      ) {
+      } else if (overrideInputs.useReferenceAsColor && colorImageUrl && !isPresetColorUrl(colorImageUrl)) {
         // When Claude explicitly says reference should be color source
         console.log(
           "🧠 SEMANTIC OVERRIDE 2: Using reference image as COLOR source instead of presets",
@@ -3323,11 +3256,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         colorAnalysisParts.push(referenceColorAnalysis);
         console.log("✅ Reference image processed as COLOR source");
-      } else if (
-        overrideInputs.useReferenceAsColor &&
-        colorImageUrl &&
-        isPresetColorUrl(colorImageUrl)
-      ) {
+      } else if (overrideInputs.useReferenceAsColor && colorImageUrl && isPresetColorUrl(colorImageUrl)) {
         // When Claude says reference should be color source but it's a preset URL
         console.log(
           "🔧 PRESET OPTIMIZATION: Skipping preset color URL for reference processing - will handle in preset section:",
@@ -3336,11 +3265,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       // Handle standard color inputs (colorImageUrl from references, color files)
       // 🔧 CRITICAL FIX: Don't process colorImageUrl when Claude said to use preset instead
-      else if (
-        colorImageUrl &&
-        !shouldUsePresetForColor &&
-        !isPresetColorUrl(colorImageUrl)
-      ) {
+      else if (colorImageUrl && !shouldUsePresetForColor && !isPresetColorUrl(colorImageUrl)) {
         console.log(
           "🎯 MAIN COLOR PROCESSING: Using color image URL (likely from reference):",
           colorImageUrl.substring(0, 80) + "...",
@@ -3429,14 +3354,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           // Set color URLs for Firebase tracking only (not for OpenAI generation)
           if (i === 0 && !firebaseInputUrls.color) {
             firebaseInputUrls.color = presetColorImageUrl; // ✅ Track for Firebase response
-            console.log(
-              `🎨 Cached preset color analysis (not sending image to OpenAI): ${palette}`,
-            );
+            console.log(`🎨 Cached preset color analysis (not sending image to OpenAI): ${palette}`);
           } else if (i === 1 && !firebaseInputUrls.color2) {
             firebaseInputUrls.color2 = presetColorImageUrl; // ✅ Track for Firebase response
-            console.log(
-              `🎨 Cached secondary preset color analysis (not sending image to OpenAI): ${palette}`,
-            );
+            console.log(`🎨 Cached secondary preset color analysis (not sending image to OpenAI): ${palette}`);
           }
 
           // 🚀 CACHED ANALYSIS: Use cached premium GPT-4 Vision analysis or analyze if not cached
@@ -3448,10 +3369,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             allColorAnalyses.push(presetColorAnalysis);
             console.log(`✅ Color preset ${palette} analysis retrieved`);
           } catch (error) {
-            console.log(
-              `⚠️ Error getting color preset analysis for ${palette}:`,
-              error,
-            );
+            console.log(`⚠️ Error getting color preset analysis for ${palette}:`, error);
             // Fallback to text description if analysis fails
             const formattedName = palette
               .replace(/([a-z])([A-Z])/g, "$1 $2")
@@ -3685,7 +3603,7 @@ ${analysis}
       ...inputUrls,
       ...firebaseInputUrls, // Preset URLs override actual URLs in response
     };
-
+    
     const responsePayload: ComposeProductResponse = {
       status: "success",
       firebaseInputUrls: combinedFirebaseInputUrls,
