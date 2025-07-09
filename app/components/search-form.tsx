@@ -16,9 +16,10 @@ import {
 
 interface SearchFormProps extends React.ComponentProps<"form"> {
   onSearchChange: (searchTerm: string) => void;
+  onNewChatClick?: () => Promise<void>; // 🔧 NEW: Optional custom new chat handler
 }
 
-export function SearchForm({ onSearchChange, ...props }: SearchFormProps) {
+export function SearchForm({ onSearchChange, onNewChatClick, ...props }: SearchFormProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { createNewChat } = useChat();
@@ -31,7 +32,14 @@ export function SearchForm({ onSearchChange, ...props }: SearchFormProps) {
     
     try {
       setIsCreatingChat(true);
-      await createNewChat();
+      
+      // 🔧 NEW: Use custom handler if provided, otherwise use default
+      if (onNewChatClick) {
+        await onNewChatClick();
+      } else {
+        await createNewChat();
+      }
+      
       console.log("New chat created successfully");
     } catch (error) {
       console.error("Error creating new chat:", error);

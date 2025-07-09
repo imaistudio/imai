@@ -5,6 +5,7 @@ import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import { useChat } from "@/contexts/ChatContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
 import ChatWindow from "./components/chat/chatwindow";
+import WelcomeScreen from "./components/WelcomeScreen";
 import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 const MODAL_SHOWN_KEY = "modalDismissedOnce";
@@ -30,12 +31,55 @@ export default function Home() {
     createNewChatIfNeeded,
     backgroundCleanup,
     isLoading: chatLoading,
+    isSwitching,
+    createNewChat,
   } = useChat();
 
   // Debug: Track currentChatId changes
   useEffect(() => {
     // Removed debug log
   }, [currentChatId]);
+
+  // 🔧 NEW: Check if current chat has messages
+  useEffect(() => {
+    // 🔧 OPTIMIZED: Immediately reset hasMessages when chatId changes to prevent glitches
+    setHasMessages(false);
+    setIsCheckingMessages(true);
+
+    const checkChatMessages = async () => {
+      if (!currentChatId || !currentUser) {
+        setHasMessages(false);
+        setIsCheckingMessages(false);
+        return;
+      }
+
+      try {
+        const chatRef = doc(
+          firestore,
+          `chats/${currentUser.uid}/prompts/${currentChatId}`,
+        );
+        const chatDoc = await getDoc(chatRef);
+
+        if (chatDoc.exists()) {
+          const chatData = chatDoc.data();
+          const messages = chatData.messages || [];
+          setHasMessages(messages.length > 0);
+        } else {
+          setHasMessages(false);
+        }
+      } catch (error) {
+        console.error("Error checking chat messages:", error);
+        setHasMessages(false);
+      } finally {
+        setIsCheckingMessages(false);
+      }
+    };
+
+    // 🔧 OPTIMIZED: Add small delay to prevent excessive API calls during rapid switching
+    const timeoutId = setTimeout(checkChatMessages, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentChatId, currentUser]);
 
   // 🔧 NEW: State for reply/reference functionality
   const [referencedMessage, setReferencedMessage] =
@@ -46,6 +90,11 @@ export default function Home() {
 
   // 🔧 OPTIMIZED: Track if we've already attempted to create a session chat
   const [sessionChatAttempted, setSessionChatAttempted] = useState(false);
+
+  // 🔧 NEW: State to track if current chat has messages
+  const [hasMessages, setHasMessages] = useState(false);
+  // 🔧 NEW: State to track if we're checking for messages
+  const [isCheckingMessages, setIsCheckingMessages] = useState(false);
 
   const [modalShown, setModalShown] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
@@ -66,15 +115,10 @@ export default function Home() {
   // 🔧 OPTIMIZED: Create new chat for new sessions (fixed logic)
   useEffect(() => {
     const initializeSessionChat = async () => {
-      // Don't create new chat if:
-      // - User not loaded or loading
-      // - Chat context is still loading (this prevents premature execution)
-      // - Already attempted to create session chat
       if (!currentUser || loading || chatLoading || sessionChatAttempted) {
         return;
       }
 
-      // Start background cleanup without blocking UI
       backgroundCleanup();
 
       // Wait a bit more to ensure ChatContext has finished initializing from sessionStorage
@@ -151,6 +195,47 @@ export default function Home() {
   // 🔧 NEW: Function to clear reference
   const clearReference = () => {
     setReferencedMessage(null);
+  };
+
+  // 🔧 NEW: Function to handle example button clicks from WelcomeScreen
+  const handleExampleClick = async (prompt: string) => {
+    if (!currentUser) {
+      openModal();
+      return;
+    }
+
+    // Create a formatted data object like the UnifiedPromptContainer would
+    const exampleData = {
+      prompt: prompt,
+      product: null,
+      design: [],
+      color: [],
+      productplaceholder: null,
+      designplaceholder: [],
+      colorplaceholder: []
+    };
+
+    // Call the same form submission handler
+    await handleFormSubmission(exampleData);
+  };
+
+  // 🔧 NEW: Custom new chat handler that immediately resets hasMessages
+  const handleNewChatClick = async () => {
+    try {
+      // Immediately reset hasMessages to show welcome screen
+      setHasMessages(false);
+      setIsCheckingMessages(false);
+      
+      // Create the new chat
+      await createNewChat();
+      
+      console.log("✅ New chat created and hasMessages reset");
+    } catch (error) {
+      console.error("❌ Error creating new chat:", error);
+      // Reset hasMessages on error too
+      setHasMessages(false);
+      setIsCheckingMessages(false);
+    }
   };
 
   // 🔧 NEW: Function to handle title rename callback
@@ -290,6 +375,9 @@ export default function Home() {
           },
           { merge: true },
         );
+
+        // 🔧 NEW: Update hasMessages state to switch from welcome screen to chat view
+        setHasMessages(true);
 
         // Update chat summary in sidebar if this is the first message
         if (existingMessages.length === 0 && data.prompt) {
@@ -833,21 +921,39 @@ export default function Home() {
     <div className="mobile-layout-grid h-[100dvh] w-full">
       {/* Fixed MobileNav at the top */}
       <div className="mobile-nav-area">
-        <MobileNav />
+        <MobileNav onNewChatClick={handleNewChatClick} />
       </div>
 
-      {/* ChatWindow takes remaining space, scrolls internally */}
+      {/* Main content area - switches between WelcomeScreen and ChatWindow */}
       <div className="mobile-chat-area overflow-hidden px-2">
         <div className="h-full overflow-y-auto hide-scrollbar">
-          <ChatWindow
-            chatId={currentChatId}
-            onReplyToMessage={handleReplyToMessage}
-            onTitleRenamed={handleTitleRenamed}
-          />
+          {loading || chatLoading || isSwitching || isCheckingMessages ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-gray-500 dark:text-gray-400">
+                Loading...
+              </div>
+            </div>
+          ) : !currentUser ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-gray-500 dark:text-gray-400">
+                Please log in to start chatting
+              </div>
+            </div>
+          ) : !hasMessages ? (
+            <div className="flex items-center justify-center h-full">
+              <WelcomeScreen onExampleClick={handleExampleClick} />
+            </div>
+          ) : (
+            <ChatWindow
+              chatId={currentChatId}
+              onReplyToMessage={handleReplyToMessage}
+              onTitleRenamed={handleTitleRenamed}
+            />
+          )}
         </div>
       </div>
 
-      {/* Fixed Prompt Input at the bottom */}
+      {/* Fixed Prompt Input at the bottom - Always visible */}
       <div className="mobile-input-area px-2">
         <UnifiedPromptContainer
           onSubmit={handleFormSubmission}

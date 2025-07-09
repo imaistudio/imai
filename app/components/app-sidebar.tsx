@@ -12,13 +12,17 @@ import { NavUser } from "./nav-user";
 import { SearchForm } from "./search-form";
 import SidebarData from "./SidebarData";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  onNewChatClick?: () => Promise<void>; // 🔧 NEW: Optional custom new chat handler
+}
+
+export function AppSidebar({ onNewChatClick, ...props }: AppSidebarProps) {
   const [searchTerm, setSearchTerm] = React.useState("");
 
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <SearchForm onSearchChange={setSearchTerm} />
+        <SearchForm onSearchChange={setSearchTerm} onNewChatClick={onNewChatClick} />
       </SidebarHeader>
       <SidebarContent>
         <SidebarData searchTerm={searchTerm} />

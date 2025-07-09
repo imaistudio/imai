@@ -8,7 +8,11 @@ import { SearchForm } from "./search-form";
 import SidebarData from "./SidebarData";
 import { NavUser } from "./nav-user";
 
-export default function MobileNav() {
+interface MobileNavProps {
+  onNewChatClick?: () => Promise<void>; // 🔧 NEW: Optional custom new chat handler
+}
+
+export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -56,7 +60,7 @@ export default function MobileNav() {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <SearchForm onSearchChange={setSearchTerm} />
+        <SearchForm onSearchChange={setSearchTerm} onNewChatClick={onNewChatClick} />
         <div className="flex-1 overflow-y-auto">
           <SidebarData searchTerm={searchTerm} />
         </div>
