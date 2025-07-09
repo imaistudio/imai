@@ -29,7 +29,7 @@ export default function GlobalModal() {
               <X className="w-8 h-8 text-white dark:text-black" />
             </button>
             <img
-              src="/popup.jpg" // Replace with your image path
+              src="/popup.webp"
               alt="Design Collage"
               className="object-cover w-full h-auto  rounded-md"
             />
