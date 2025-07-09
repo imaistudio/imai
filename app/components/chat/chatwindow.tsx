@@ -17,6 +17,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
+import { useShareModal } from "@/contexts/ShareModalContext";
 import {
   Reply,
   ThumbsUp,
@@ -83,6 +84,9 @@ export default function ChatWindow({
   const [referenceMode, setReferenceMode] = useState<
     "product" | "color" | "design"
   >("product");
+
+  // 🔧 NEW: Use global share modal context
+  const { showShareModal } = useShareModal();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -857,6 +861,16 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
+  // Handle share action
+  const handleShare = useCallback(
+    (platform: string, content: any) => {
+      console.log(`📤 Content shared to ${platform}:`, content);
+      // You can add analytics tracking here
+      // Example: track('media_shared', { platform, mediaType: content.mediaType, userId });
+    },
+    [userId],
+  );
+
   // Handle upscale image
   const handleUpscale = useCallback(
     async (imageUrl: string) => {
@@ -1333,7 +1347,14 @@ export default function ChatWindow({
                                     />
                                   </button>
                                   <button
-                                    onClick={() => console.log("Share:", img)}
+                                    onClick={() => {
+                                      showShareModal({
+                                        mediaUrl: img,
+                                        mediaType: "image",
+                                        caption: msg.text,
+                                        onShare: handleShare,
+                                      });
+                                    }}
                                     className="p-1 rounded-full "
                                     title="Share"
                                   >
@@ -1464,6 +1485,33 @@ export default function ChatWindow({
                                           ? "text-red-600 dark:text-red-400"
                                           : "text-black dark:text-white"
                                       }`}
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDownload(video)}
+                                    className="p-1 rounded-full"
+                                    title="Download Video"
+                                  >
+                                    <Download
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      showShareModal({
+                                        mediaUrl: video,
+                                        mediaType: "video",
+                                        caption: msg.text,
+                                        onShare: handleShare,
+                                      });
+                                    }}
+                                    className="p-1 rounded-full"
+                                    title="Share Video"
+                                  >
+                                    <Share2
+                                      size={16}
+                                      className="text-black dark:text-white"
                                     />
                                   </button>
                                 </div>
