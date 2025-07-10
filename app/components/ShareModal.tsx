@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   Facebook,
   Twitter,
@@ -10,32 +10,25 @@ import {
   Check,
   Copy,
   Download,
-  Share2,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@heroui/modal"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Modal, ModalContent, ModalBody } from "@heroui/modal";
 
 interface ShareModalProps {
-  isOpen: boolean
-  onClose: () => void
-  mediaUrl: string
-  mediaType: "image" | "video"
-  caption?: string
-  onShare?: (platform: string, content: any) => void
+  isOpen: boolean;
+  onClose: () => void;
+  mediaUrl: string;
+  mediaType: "image" | "video";
+  caption?: string;
+  onShare?: (platform: string, content: any) => void;
 }
 
 interface SocialPlatform {
-  name: string
-  icon: React.ReactNode
-  color: string
-  shareUrl: (url: string, text: string) => string
+  name: string;
+  icon: React.ReactNode;
+  color: string;
+  shareUrl: (url: string, text: string) => string;
 }
 
 const socialPlatforms: SocialPlatform[] = [
@@ -66,95 +59,125 @@ const socialPlatforms: SocialPlatform[] = [
     color: "bg-[#25D366] hover:bg-[#1EBE5E]",
     shareUrl: (url, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
   },
-]
+];
 
 export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "", onShare }: ShareModalProps) {
-  const [shareText, setShareText] = useState(caption)
-  const [isSharing, setIsSharing] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [shareText, setShareText] = useState(caption);
+  const [isSharing, setIsSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(mediaUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(mediaUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      console.error("Could not copy link")
+      console.error("Could not copy link");
     }
-  }
+  };
 
   const handleDownload = async () => {
+    console.log("🔄 Starting download for:", mediaUrl);
+
     try {
-      const res = await fetch(mediaUrl)
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `shared-${Date.now()}.${mediaType === "image" ? "jpg" : "mp4"}`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-    } catch {
-      console.error("Download failed")
+      // Extract filename from URL
+      let fileName = mediaUrl.split("/").pop() || `shared-${Date.now()}.${mediaType === "image" ? "jpg" : "mp4"}`;
+
+      // Clean up filename - remove query parameters
+      if (fileName.includes("?")) {
+        fileName = fileName.split("?")[0];
+      }
+
+      // Ensure filename has an extension
+      if (!fileName.includes(".")) {
+        fileName += mediaType === "image" ? ".jpg" : ".mp4";
+      }
+
+      console.log("📁 Using filename:", fileName);
+
+      // Use server-side proxy for ALL URLs (most reliable approach)
+      const proxyUrl = `/api/download-image?url=${encodeURIComponent(mediaUrl)}`;
+
+      console.log("🔗 Proxy URL:", proxyUrl);
+
+      // Create download link and trigger immediately
+      const link = document.createElement("a");
+      link.href = proxyUrl;
+      link.download = fileName;
+      link.style.display = "none";
+
+      console.log("🔗 Created download link with href:", link.href);
+      console.log("📥 Download attribute:", link.download);
+
+      document.body.appendChild(link);
+
+      // Force click
+      link.click();
+
+      console.log("✅ Download link clicked");
+
+      // Clean up after a short delay
+      setTimeout(() => {
+        try {
+          document.body.removeChild(link);
+          console.log("🗑️ Cleaned up download link");
+        } catch (e) {
+          console.warn("⚠️ Could not clean up link:", e);
+        }
+      }, 1000);
+    } catch (error) {
+      console.error("❌ Download failed:", error);
+
+      // Simple fallback: direct window.open
+      console.log("🔄 Fallback: Opening in new tab");
+      window.open(mediaUrl, "_blank");
     }
-  }
+  };
 
   const handleShare = (platform: SocialPlatform) => {
-    setIsSharing(true)
+    setIsSharing(true);
     try {
-      const url = platform.shareUrl(mediaUrl, shareText)
-      window.open(url, "_blank", "width=600,height=500")
-      onShare?.(platform.name, { url: mediaUrl, text: shareText, mediaType })
+      const url = platform.shareUrl(mediaUrl, shareText);
+      window.open(url, "_blank", "width=600,height=500");
+      onShare?.(platform.name, { url: mediaUrl, text: shareText, mediaType });
     } catch {
-      console.error(`Could not share to ${platform.name}`)
+      console.error(`Could not share to ${platform.name}`);
     } finally {
-      setIsSharing(false)
+      setIsSharing(false);
     }
-  }
+  };
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} onClose={onClose}>
-      <ModalContent className="rounded-xl">
-        <ModalBody>
-          {/* Media Preview */}
-          <div className="relative overflow-hidden rounded-lg">
-            <div className="w-full h-[300px] relative">
-              {mediaType === "image" ? (
-                <img
-                  src={mediaUrl}
-                  alt="Preview"
-                  className="w-full h-full object-cover object-center rounded-md"
-                />
-              ) : (
-                <video
-                  src={mediaUrl}
-                  className="w-full h-full object-cover object-center rounded-md"
-                  controls={false}
-                  muted
-                />
-              )}
-              <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition" />
-            </div>
+    <Modal
+      isOpen={isOpen}
+      hideCloseButton
+      shouldBlockScroll
+      backdrop="blur"
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      className="m-4 max-w-md rounded-2xl overflow-hidden bg-white dark:bg-black"
+    >
+      <ModalContent>
+        <>
+          {/* Media Header */}
+          <div className="relative w-full h-auto pb-4 overflow-hidden">
+            <button onClick={onClose} className="absolute top-4 right-4 p-2 z-10">
+              <X className="w-6 h-6 text-white dark:text-black" />
+            </button>
+            {mediaType === "image" ? (
+              <img src={mediaUrl} alt="Preview" className="w-full md:h-72 h-48 object-cover rounded-md" />
+            ) : (
+              <video src={mediaUrl} className="w-full md:h-72 h-48 object-cover rounded-md" controls={false} muted />
+            )}
           </div>
 
-          {/* Caption */}
-          <div className="space-y-2 mt-4">
-            <label className="text-sm font-medium text-muted-foreground">Add a message</label>
-            <textarea
-              value={shareText}
-              onChange={(e) => setShareText(e.target.value)}
-              placeholder="Say something..."
-              className="resize-none w-full p-2 border rounded-md"
-              rows={3}
-            />
-            <div className="text-xs text-muted-foreground text-right">{shareText.length}/280</div>
-          </div>
+          
 
-          {/* Platforms */}
-          <div className="space-y-3 mt-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Share to</h3>
-            <div className="flex flex-wrap gap-3 justify-center">
+          {/* Social Buttons */}
+          <div className="px-6 pb-4">
+            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Share to</h3>
+            <div className="flex flex-wrap justify-center gap-3">
               {socialPlatforms.map((platform) => (
                 <button
                   key={platform.name}
@@ -169,18 +192,36 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
             </div>
           </div>
 
-          {/* Direct Link */}
-          <div className="space-y-2 pt-4 border-t mt-4">
-            <label className="text-sm font-medium text-muted-foreground">Direct Link</label>
-            <div className="flex gap-2">
+          {/* Caption */}
+          <div className="px-6 pb-4">
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Add a message</label>
+            <textarea
+              value={shareText}
+              onChange={(e) => setShareText(e.target.value)}
+              placeholder="Say something..."
+              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm resize-none"
+              rows={3}
+            />
+            <div className="text-xs text-right text-muted-foreground mt-1">{shareText.length}/280</div>
+          </div>
+
+          {/* Link + Download */}
+          <div className="px-6 pb-6 space-y-3 border-t pt-4">
+            <div className="flex items-center gap-2">
               <Input readOnly value={mediaUrl} className="text-sm" />
               <Button variant="outline" size="sm" onClick={handleCopyLink}>
                 {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
               </Button>
             </div>
+            <Button
+              onClick={handleDownload}
+              className="w-full bg-black dark:bg-white text-white dark:text-black rounded-full py-3 mt-2"
+            >
+              Download
+            </Button>
           </div>
-        </ModalBody>
+        </>
       </ModalContent>
     </Modal>
-  )
+  );
 }
