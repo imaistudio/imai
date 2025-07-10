@@ -344,6 +344,7 @@ export default function Home() {
         updatedAt: Timestamp.now(),
         userId: currentUser.uid,
         chatId: currentChatId,
+        isReferenced: !!referencedMessage, // 🔧 NEW: Set to true if user is replying to a message
       };
 
       // Get existing messages first
@@ -366,6 +367,7 @@ export default function Home() {
           updatedAt: Timestamp.now(),
           userId: String(currentUser.uid),
           chatId: String(currentChatId),
+          isReferenced: !!referencedMessage, // 🔧 NEW: Set to true if user is replying to a message
         };
 
         await setDoc(
@@ -395,14 +397,15 @@ export default function Home() {
           stack: firestoreError.stack,
         });
 
-        // Final fallback - store only essential data
-        try {
-          const minimalMessage = {
-            sender: "user",
-            text: String(data.prompt || ""),
-            timestamp: Timestamp.now(),
-            userId: String(currentUser.uid),
-          };
+                  // Final fallback - store only essential data
+          try {
+            const minimalMessage = {
+              sender: "user",
+              text: String(data.prompt || ""),
+              timestamp: Timestamp.now(),
+              userId: String(currentUser.uid),
+              isReferenced: !!referencedMessage, // 🔧 NEW: Include reference status in fallback
+            };
 
           await setDoc(
             chatRef,
