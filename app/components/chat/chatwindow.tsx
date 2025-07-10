@@ -134,7 +134,7 @@ export default function ChatWindow({
 
   // Handle reply to message
   const handleReply = useCallback(
-    (msg: ChatMessage, index: number) => {
+    (msg: ChatMessage, index: number, customReferenceMode?: "product" | "color" | "design") => {
       if (!onReplyToMessage) return;
 
       const referencedMessage: ReferencedMessage = {
@@ -149,7 +149,7 @@ export default function ChatWindow({
                 (msg.createdAt as Timestamp).seconds * 1000,
               ).toISOString()
             : new Date().toISOString(),
-        referencemode: referenceMode, // 🔧 NEW: Include selected reference mode
+        referencemode: customReferenceMode || referenceMode, // 🔧 NEW: Use custom reference mode if provided
       };
 
       onReplyToMessage(referencedMessage);
@@ -1401,7 +1401,7 @@ export default function ChatWindow({
                               <button
                                 onClick={() => {
                                   setReferenceMode("product");
-                                  handleReply(msg, index);
+                                  handleReply(msg, index, "product");
                                 }}
                                 className={`p-1 rounded-full transition-all duration-200 ${
                                   referenceMode === "product"
@@ -1415,7 +1415,7 @@ export default function ChatWindow({
                               <button
                                 onClick={() => {
                                   setReferenceMode("design");
-                                  handleReply(msg, index);
+                                  handleReply(msg, index, "design");
                                 }}
                                 className={`p-1 rounded-full transition-all duration-200 ${
                                   referenceMode === "design"
@@ -1429,7 +1429,7 @@ export default function ChatWindow({
                               <button
                                 onClick={() => {
                                   setReferenceMode("color");
-                                  handleReply(msg, index);
+                                  handleReply(msg, index, "color");
                                 }}
                                 className={`p-1 rounded-full transition-all duration-200 ${
                                   referenceMode === "color"
