@@ -15,7 +15,7 @@ POST http://localhost:3000/api/seedancevideo
 ## Optional Parameters
 - `prompt` (string): Animation description (default: "Dynamic motion and natural animation")
 - `resolution` (string): Always "1080p" (highest quality)
-- `duration` (string): Always "10" seconds (longer sequences)
+- `duration` (string): Always "5" seconds (fixed duration)
 - `camera_fixed` (boolean): Whether to fix camera position (default: false)
 - `seed` (number): For reproducible results (optional)
 
@@ -78,7 +78,7 @@ curl -X POST "http://localhost:3000/api/seedancevideo" \
 | image_url | https://example.com/image.jpg | Image to animate |
 | prompt | Dynamic motion and natural animation | Animation description |
 | resolution | 1080p | Always highest quality (fixed) |
-| duration | 10 | Always 10 seconds (fixed) |
+| duration | 5 | Always 5 seconds (fixed) |
 | camera_fixed | false | Fix camera position |
 | seed | 12345 | Reproducible generation |
 
@@ -139,7 +139,7 @@ curl -X POST "http://localhost:3000/api/seedancevideo" \
 - **1080p**: Always uses highest quality (4-6 minutes processing), large file size, professional output
 
 ### Duration
-- **10 seconds**: Always uses longer duration for detailed storytelling, complex motion, and comprehensive sequences
+- **5 seconds**: Fixed duration for concise animation sequences
 
 ### Camera Fixed
 - **false**: Dynamic camera movement, cinematic effects, more engaging
@@ -196,7 +196,7 @@ The Seedance Video API integrates with the IntentRoute system for natural langua
 
 ## Performance Notes
 
-- Processing time: 4-6 minutes (always 1080p, 10 seconds)
+- Processing time: 3-5 minutes (always 1080p, 5 seconds)
 - Timeout: 10 minutes maximum
 - Supported input formats: JPEG, PNG, WebP
 - Output: Base64 encoded MP4 video data (high quality)

@@ -386,11 +386,21 @@ interface MultiStepOperation {
   contextChain: boolean; // Whether to use output of previous step as input to next
 }
 
+interface ProactiveRecommendation {
+  id: string;
+  label: string;
+  intent: string;
+  endpoint: string;
+  parameters: Record<string, any>;
+  icon?: string;
+}
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp?: string;
   images?: string[]; // Add images field
+  recommendations?: ProactiveRecommendation[]; // NEW: Proactive recommendations
 }
 
 interface IntentAnalysis {
@@ -414,6 +424,7 @@ interface ChatResponse {
   error?: string;
   allStepResults?: any[]; // For multi-step operations
   images?: string[]; // For multi-image operations like chainofzoom
+  recommendations?: ProactiveRecommendation[]; // NEW: Proactive recommendations
 }
 
 async function parseClaudeIntent(response: any): Promise<IntentAnalysis> {
@@ -582,6 +593,19 @@ async function analyzeIntent(
 ): Promise<IntentAnalysis> {
   const smartFallbackAnalysis = (): IntentAnalysis => {
     const message = userMessage.toLowerCase();
+
+    // 🔧 KEYWORD ARRAYS: Define all keyword arrays at the beginning for consistent access
+    const timeOfDayKeywords = [
+      // Explicit timeofday requests (PRIORITY)
+      "time of day", "change time of day", "different time of day", "change the time",
+      "time change", "lighting change", "change lighting", "different lighting",
+      "timeofday", "time-of-day", "change time", "alter time", "modify time",
+      // Specific time periods
+      "sunrise", "sunset", "dawn", "dusk", "morning", "afternoon", "evening", "night",
+      "noon", "midnight", "golden hour", "blue hour", "daylight", "nighttime",
+      // Common typos and variations
+      "aunset", "sunser", "sunst", "sunet", "at aunset", "at sunser"
+    ];
 
     const hasProductImage =
       formDataEntries.some(
@@ -1217,6 +1241,270 @@ async function analyzeIntent(
       };
     }
 
+    // 🎯 PRIORITY: Check for video upscale requests first
+    const videoUpscaleKeywords = [
+      "upscale video",
+      "enhance video",
+      "improve video quality",
+      "video quality",
+      "make video bigger",
+      "increase video resolution",
+      "upscale the video",
+      "enhance the video",
+      "video upscaler",
+      "video enhancement",
+    ];
+    const hasVideoUpscaleRequest = videoUpscaleKeywords.some((keyword) =>
+      message.includes(keyword),
+    );
+
+    // Check if we have a video URL in the context (from previous video generation)
+    const hasVideoContext = lastGeneratedResult?.endpoint === "/api/seedancevideo" || 
+                           lastGeneratedResult?.endpoint === "/api/videoupscaler" ||
+                           lastGeneratedResult?.endpoint === "/api/videoreframe" ||
+                           lastGeneratedResult?.endpoint === "/api/videooutpainting" ||
+                           (lastGeneratedResult?.imageUrl && 
+                            (lastGeneratedResult.imageUrl.includes(".mp4") || 
+                             lastGeneratedResult.imageUrl.includes("seedancevideo") ||
+                             lastGeneratedResult.imageUrl.includes("videoupscaler") ||
+                             lastGeneratedResult.imageUrl.includes("videoreframe") ||
+                             lastGeneratedResult.imageUrl.includes("videooutpainting") ||
+                             lastGeneratedResult.imageUrl.includes("video")));
+
+    // 🔧 ENHANCED: Also check for context-based video upscale (when user says "upscale this" after video generation)
+    const hasContextBasedVideoUpscale = hasVideoContext && 
+                                       (message.includes("upscale") || message.includes("upcale") || message.includes("upscal") || 
+                                        message.includes("enhance") || message.includes("improve quality") || 
+                                        message.includes("make bigger") || message.includes("increase resolution")) &&
+                                       (message.includes("this") || message.includes("it") || message.includes("that"));
+
+    // Debug video context detection
+    if (hasVideoUpscaleRequest || hasContextBasedVideoUpscale) {
+      console.log("🎬 VIDEO UPSCALE REQUEST DEBUG:");
+      console.log(`  - Has video upscale keywords: ${hasVideoUpscaleRequest}`);
+      console.log(`  - Has context-based video upscale: ${hasContextBasedVideoUpscale}`);
+      console.log(`  - Last result endpoint: ${lastGeneratedResult?.endpoint}`);
+      console.log(`  - Last result URL: ${lastGeneratedResult?.imageUrl?.substring(0, 80)}...`);
+      console.log(`  - Has video context: ${hasVideoContext}`);
+    }
+
+    if ((hasVideoUpscaleRequest || hasContextBasedVideoUpscale) && hasVideoContext) {
+      console.log(
+        "Smart fallback detected video upscale request with video context",
+      );
+      return {
+        intent: "upscale_video",
+        confidence: 0.95,
+        endpoint: "/api/videoupscaler",
+        parameters: {},
+        requiresFiles: false,
+        explanation: "User wants to upscale video from conversation context",
+      };
+    }
+
+    // 🎯 PRIORITY: Check for video reframe requests
+    const videoReframeKeywords = [
+      "reframe video",
+      "video reframe",
+      "change video aspect ratio",
+      "video aspect ratio",
+      "make video 16:9",
+      "make video 1:1",
+      "make video 9:16",
+      "video to square",
+      "video to landscape",
+      "video to portrait",
+      "adjust video dimensions",
+      "resize video",
+      "crop video",
+      "reframe the video",
+      "video format",
+      "video dimensions",
+    ];
+    const hasVideoReframeRequest = videoReframeKeywords.some((keyword) =>
+      message.includes(keyword),
+    );
+
+    // Check for aspect ratio mentions
+    const aspectRatioKeywords = [
+      "16:9", "16 9", "sixteen nine", "widescreen",
+      "1:1", "1 1", "square", "instagram",
+      "9:16", "9 16", "nine sixteen", "vertical", "portrait", "tiktok", "stories",
+      "landscape", "horizontal"
+    ];
+    const hasAspectRatioRequest = aspectRatioKeywords.some((keyword) =>
+      message.includes(keyword),
+    );
+
+    // Check if we have a video URL in the context (from previous video generation or video operations)
+    const hasVideoContextForReframe = lastGeneratedResult?.endpoint === "/api/seedancevideo" || 
+                                     lastGeneratedResult?.endpoint === "/api/videoupscaler" ||
+                                     lastGeneratedResult?.endpoint === "/api/videoreframe" ||
+                                     lastGeneratedResult?.endpoint === "/api/videooutpainting" ||
+                                     (lastGeneratedResult?.imageUrl && 
+                                      (lastGeneratedResult.imageUrl.includes(".mp4") || 
+                                       lastGeneratedResult.imageUrl.includes("seedancevideo") ||
+                                       lastGeneratedResult.imageUrl.includes("videoupscaler") ||
+                                       lastGeneratedResult.imageUrl.includes("videoreframe") ||
+                                       lastGeneratedResult.imageUrl.includes("videooutpainting") ||
+                                       lastGeneratedResult.imageUrl.includes("video")));
+
+    // 🔧 ENHANCED: Also check for context-based video reframe (when user says "reframe this" or mentions aspect ratio after video generation)
+    const hasContextBasedVideoReframe = hasVideoContextForReframe && 
+                                       ((message.includes("reframe") || message.includes("crop") || message.includes("resize")) &&
+                                        (message.includes("this") || message.includes("it") || message.includes("that"))) ||
+                                       (hasAspectRatioRequest && (message.includes("this") || message.includes("it") || message.includes("that") || message.includes("make")));
+
+    // Debug video reframe context detection
+    if (hasVideoReframeRequest || hasAspectRatioRequest || hasContextBasedVideoReframe) {
+      console.log("🎬 VIDEO REFRAME REQUEST DEBUG:");
+      console.log(`  - Has video reframe keywords: ${hasVideoReframeRequest}`);
+      console.log(`  - Has aspect ratio keywords: ${hasAspectRatioRequest}`);
+      console.log(`  - Has context-based video reframe: ${hasContextBasedVideoReframe}`);
+      console.log(`  - Last result endpoint: ${lastGeneratedResult?.endpoint}`);
+      console.log(`  - Last result URL: ${lastGeneratedResult?.imageUrl?.substring(0, 80)}...`);
+      console.log(`  - Has video context: ${hasVideoContextForReframe}`);
+    }
+
+    if ((hasVideoReframeRequest || hasAspectRatioRequest || hasContextBasedVideoReframe) && hasVideoContextForReframe) {
+      console.log(
+        "Smart fallback detected video reframe request with video context",
+      );
+      
+      // Determine aspect ratio from message
+      let aspectRatio = "auto";
+      if (message.includes("16:9") || message.includes("16 9") || message.includes("sixteen nine") || 
+          message.includes("widescreen") || message.includes("landscape") || message.includes("horizontal")) {
+        aspectRatio = "16:9";
+      } else if (message.includes("1:1") || message.includes("1 1") || message.includes("square") || 
+                 message.includes("instagram")) {
+        aspectRatio = "1:1";
+      } else if (message.includes("9:16") || message.includes("9 16") || message.includes("nine sixteen") || 
+                 message.includes("vertical") || message.includes("portrait") || message.includes("tiktok") || 
+                 message.includes("stories")) {
+        aspectRatio = "9:16";
+      }
+
+      return {
+        intent: "reframe_video",
+        confidence: 0.95,
+        endpoint: "/api/videoreframe",
+        parameters: { aspect_ratio: aspectRatio },
+        requiresFiles: false,
+        explanation: `User wants to reframe video to ${aspectRatio} aspect ratio from conversation context`,
+      };
+    }
+
+    // 🎯 PRIORITY: Check for video outpainting requests
+    const videoOutpaintingKeywords = [
+      "outpaint video",
+      "video outpaint",
+      "expand video",
+      "video expand",
+      "extend video",
+      "video extend",
+      "make video wider",
+      "make video taller",
+      "add to video",
+      "video outpainting",
+      "video expansion",
+      "expand the video",
+      "extend the video",
+      "outpaint the video",
+      "make the video bigger",
+      "add content to video",
+      "video extension",
+      "widen video",
+      "lengthen video",
+    ];
+    const hasVideoOutpaintingRequest = videoOutpaintingKeywords.some((keyword) =>
+      message.includes(keyword),
+    );
+
+    // Check for directional expansion keywords
+    const directionKeywords = [
+      "left", "right", "top", "bottom", "up", "down", "horizontal", "vertical",
+      "sides", "edges", "around", "all directions", "360"
+    ];
+    const hasDirectionRequest = directionKeywords.some((keyword) =>
+      message.includes(keyword),
+    );
+
+    // Check if we have a video URL in the context (from previous video generation or video operations)
+    const hasVideoContextForOutpainting = lastGeneratedResult?.endpoint === "/api/seedancevideo" || 
+                                         lastGeneratedResult?.endpoint === "/api/videoupscaler" ||
+                                         lastGeneratedResult?.endpoint === "/api/videoreframe" ||
+                                         lastGeneratedResult?.endpoint === "/api/videooutpainting" ||
+                                         (lastGeneratedResult?.imageUrl && 
+                                          (lastGeneratedResult.imageUrl.includes(".mp4") || 
+                                           lastGeneratedResult.imageUrl.includes("seedancevideo") ||
+                                           lastGeneratedResult.imageUrl.includes("videoupscaler") ||
+                                           lastGeneratedResult.imageUrl.includes("videoreframe") ||
+                                           lastGeneratedResult.imageUrl.includes("videooutpainting") ||
+                                           lastGeneratedResult.imageUrl.includes("video")));
+
+    // 🔧 ENHANCED: Also check for context-based video outpainting (when user says "expand this" after video generation)
+    const hasContextBasedVideoOutpainting = hasVideoContextForOutpainting && 
+                                           (message.includes("expand") || message.includes("extend") || message.includes("outpaint") || 
+                                            message.includes("make bigger") || message.includes("add content") || 
+                                            message.includes("widen") || message.includes("lengthen")) &&
+                                           (message.includes("this") || message.includes("it") || message.includes("that"));
+
+    // Debug video outpainting context detection
+    if (hasVideoOutpaintingRequest || hasContextBasedVideoOutpainting) {
+      console.log("🎬 VIDEO OUTPAINTING REQUEST DEBUG:");
+      console.log(`  - Has video outpainting keywords: ${hasVideoOutpaintingRequest}`);
+      console.log(`  - Has context-based video outpainting: ${hasContextBasedVideoOutpainting}`);
+      console.log(`  - Has direction keywords: ${hasDirectionRequest}`);
+      console.log(`  - Last result endpoint: ${lastGeneratedResult?.endpoint}`);
+      console.log(`  - Last result URL: ${lastGeneratedResult?.imageUrl?.substring(0, 80)}...`);
+      console.log(`  - Has video context: ${hasVideoContextForOutpainting}`);
+    }
+
+    if ((hasVideoOutpaintingRequest || hasContextBasedVideoOutpainting) && hasVideoContextForOutpainting) {
+      console.log(
+        "Smart fallback detected video outpainting request with video context",
+      );
+      
+      // Determine expansion parameters from message
+      let parameters: Record<string, any> = {};
+      
+      // Set expansion directions based on keywords
+      if (message.includes("left") || message.includes("horizontal") || message.includes("sides")) {
+        parameters.expand_left = true;
+      }
+      if (message.includes("right") || message.includes("horizontal") || message.includes("sides")) {
+        parameters.expand_right = true;
+      }
+      if (message.includes("top") || message.includes("up") || message.includes("vertical")) {
+        parameters.expand_top = true;
+      }
+      if (message.includes("bottom") || message.includes("down") || message.includes("vertical")) {
+        parameters.expand_bottom = true;
+      }
+      if (message.includes("all directions") || message.includes("360") || message.includes("around")) {
+        parameters.expand_left = true;
+        parameters.expand_right = true;
+        parameters.expand_top = true;
+        parameters.expand_bottom = true;
+      }
+
+      // If no specific direction mentioned, default to horizontal expansion
+      if (!parameters.expand_left && !parameters.expand_right && !parameters.expand_top && !parameters.expand_bottom) {
+        parameters.expand_left = true;
+        parameters.expand_right = true;
+      }
+
+      return {
+        intent: "outpaint_video",
+        confidence: 0.95,
+        endpoint: "/api/videooutpainting",
+        parameters: parameters,
+        requiresFiles: false,
+        explanation: "User wants to outpaint/expand video from conversation context",
+      };
+    }
+
     // 🎯 PRIORITY: Check for upscale/enhance requests even without new images (conversation context)
     const upscaleKeywords = [
       "enhance",
@@ -1242,29 +1530,7 @@ async function analyzeIntent(
       !hasColorImage
     ) {
       // 🔧 ENHANCED: Check for complex multi-step operations with time of day, reframe, and upscale
-      const timeOfDayKeywords = [
-        "sunrise",
-        "sunset",
-        "dawn",
-        "dusk",
-        "morning",
-        "afternoon",
-        "evening",
-        "night",
-        "noon",
-        "midnight",
-        "golden hour",
-        "blue hour",
-        "daylight",
-        "nighttime",
-        // Common typos and variations
-        "aunset",
-        "sunser",
-        "sunst",
-        "sunet",
-        "at aunset",
-        "at sunser",
-      ];
+      // Note: timeOfDayKeywords is already defined at the top of smartFallbackAnalysis function
       const reframeKeywords = ["landscape", "portrait", "reframe", "crop"];
 
       const hasTimeOfDayRequest = timeOfDayKeywords.some((keyword) =>
@@ -1274,43 +1540,26 @@ async function analyzeIntent(
         message.includes(keyword),
       );
 
-      // Scene composition detection - flexible for typos
+      // Scene composition detection - comprehensive and PRIORITY FIRST
       const sceneKeywords = [
-        "place it in",
-        "place it at",
-        "put it in",
-        "put it at",
-        "set it in",
-        "set it at",
-        "location",
-        "background",
-        "scene",
-        "environment",
-        "setting",
-        "place",
-        "bridge",
-        "tower",
-        "beach",
-        "mountain",
-        "forest",
-        "city",
-        "street",
-        "new background",
-        "different setting",
-        "change scene",
-        "in the",
+        // CRITICAL: Explicit scene composition requests (highest priority)
+        "scene composition", "enhance the scene", "scene enhance", "enhance scene",
+        "scene improvement", "improve scene", "better scene", "scene better",
+        "composition", "scene setup", "enhance composition", "improve composition",
+        
+        // Background and environment changes
+        "place it in", "place it at", "put it in", "put it at", "set it in", "set it at",
+        "location", "background", "scene", "environment", "setting", "place",
+        "bridge", "tower", "beach", "mountain", "forest", "city", "street",
+        "new background", "different setting", "change scene", "in the",
+        
         // Common landmarks with typo flexibility
-        "london",
-        "londoen",
-        "paris",
-        "tokyo",
-        "new york",
-        "bridge",
-        "place in",
-        "put in",
-        "set in",
-        "move to",
-        "relocate to",
+        "london", "londoen", "paris", "tokyo", "new york", "bridge",
+        "place in", "put in", "set in", "move to", "relocate to",
+        
+        // Enhancement specific to scenes (not general enhancement)
+        "enhance background", "enhance environment", "enhance setting",
+        "improve background", "improve environment", "improve setting"
       ];
       const hasSceneRequest = sceneKeywords.some((keyword) =>
         message.includes(keyword),
@@ -1333,6 +1582,21 @@ async function analyzeIntent(
           message.includes(keyword),
         ),
       });
+
+      // 🎯 PRIORITY: Scene composition requests take precedence over upscale
+      if (hasSceneRequest && !hasProductImage && !hasDesignImage && !hasColorImage) {
+        console.log(
+          "🎯 PRIORITY: Smart fallback detected scene composition request - routing to scenecomposition"
+        );
+        return {
+          intent: "scene_composition",
+          confidence: 0.95,
+          endpoint: "/api/scenecomposition",
+          parameters: { composition_style: "realistic" },
+          requiresFiles: true,
+          explanation: "User wants to enhance scene composition of previous image from conversation context",
+        };
+      }
 
       // 🎯 FOUR-STEP OPERATION: Scene composition + time of day + reframe + upscale
       if (hasSceneRequest && hasTimeOfDayRequest && hasReframeRequest) {
@@ -1674,6 +1938,50 @@ async function analyzeIntent(
       };
     }
 
+    // 🎯 TIME OF DAY CHANGE REQUESTS (using conversation context)
+    const hasTimeOfDayRequest = timeOfDayKeywords.some((keyword) =>
+      message.includes(keyword),
+    );
+
+    if (
+      hasTimeOfDayRequest &&
+      !hasProductImage &&
+      !hasDesignImage &&
+      !hasColorImage
+    ) {
+      console.log(
+        "Smart fallback detected timeofday request without new images - using conversation context",
+      );
+
+      // Detect specific time of day from message
+      let timeOfDay = "golden hour"; // default
+      if (message.includes("sunrise") || message.includes("dawn")) {
+        timeOfDay = "sunrise";
+      } else if (message.includes("sunset") || message.includes("dusk")) {
+        timeOfDay = "sunset";
+      } else if (message.includes("night") || message.includes("midnight")) {
+        timeOfDay = "night";
+      } else if (message.includes("noon") || message.includes("afternoon")) {
+        timeOfDay = "afternoon";
+      } else if (message.includes("morning")) {
+        timeOfDay = "morning";
+      } else if (message.includes("evening")) {
+        timeOfDay = "evening";
+      }
+
+      console.log(`🎯 Detected time of day request from context: ${timeOfDay}`);
+
+      return {
+        intent: "change_time_of_day",
+        confidence: 0.95,
+        endpoint: "/api/timeofday",
+        parameters: { time_of_day: timeOfDay },
+        requiresFiles: true,
+        explanation:
+          `User wants to change time of day to ${timeOfDay} for previous image from conversation context`,
+      };
+    }
+
     // 🎯 PRIORITY: Check for specific image operations BEFORE general design routing
     if (hasProductImage || hasDesignImage || hasColorImage) {
       const imageCount = [
@@ -1803,6 +2111,43 @@ async function analyzeIntent(
           requiresFiles: true,
           explanation:
             "User explicitly wants to remove background from a single image",
+        };
+      }
+
+      // TIME OF DAY / LIGHTING requests
+      if (
+        imageCount === 1 &&
+        timeOfDayKeywords.some(keyword => message.includes(keyword))
+      ) {
+        console.log(
+          "Smart fallback routing to timeofday endpoint for lighting/time change",
+        );
+
+        // Detect specific time of day from message
+        let timeOfDay = "golden hour"; // default
+        if (message.includes("sunrise") || message.includes("dawn")) {
+          timeOfDay = "sunrise";
+        } else if (message.includes("sunset") || message.includes("dusk")) {
+          timeOfDay = "sunset";
+        } else if (message.includes("night") || message.includes("midnight")) {
+          timeOfDay = "night";
+        } else if (message.includes("noon") || message.includes("afternoon")) {
+          timeOfDay = "afternoon";
+        } else if (message.includes("morning")) {
+          timeOfDay = "morning";
+        } else if (message.includes("evening")) {
+          timeOfDay = "evening";
+        }
+
+        console.log(`🎯 Detected time of day request: ${timeOfDay}`);
+
+        return {
+          intent: "change_time_of_day",
+          confidence: 0.95,
+          endpoint: "/api/timeofday",
+          parameters: { time_of_day: timeOfDay },
+          requiresFiles: true,
+          explanation: `User explicitly wants to change time of day/lighting to ${timeOfDay}`,
         };
       }
     }
@@ -2457,9 +2802,9 @@ For multi-step operations:
 
 For single operations:
 {
-  "intent": "casual_conversation|create_design|design|upscale_image|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background|change_time_of_day|scene_composition|create_dance_video|remove_object|chain_of_zoom",
+          "intent": "casual_conversation|create_design|design|upscale_image|upscale_video|reframe_video|outpaint_video|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background|change_time_of_day|scene_composition|create_dance_video|remove_object|chain_of_zoom",
   "confidence": 0.8-0.95,
-  "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/seedancevideo|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg|/api/timeofday|/api/scenecomposition|/api/objectremoval|/api/chainofzoom",
+      "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/videoupscaler|/api/videoreframe|/api/videooutpainting|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/seedancevideo|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg|/api/timeofday|/api/scenecomposition|/api/objectremoval|/api/chainofzoom",
   "parameters": {
     "workflow_type": "prompt_only|product_prompt|design_prompt|color_prompt|product_design|product_color|color_design|full_composition|preset_design",
     "size": "1024x1024|1536x1024|1024x1536", // AUTO-SELECT: portrait (1024x1536) for tall items/clothing, landscape (1536x1024) for wide scenes/pants, square (1024x1024) for products/general
@@ -2734,7 +3079,12 @@ EDGE CASE EXAMPLES:
     smartResult.confidence >= 0.95 &&
     // Only bypass Claude for these super obvious patterns:
     (smartResult.intent === "upscale_image" ||
-      smartResult.intent === "reframe_image" ||
+              smartResult.intent === "upscale_video" ||
+        smartResult.intent === "reframe_video" ||
+        smartResult.intent === "outpaint_video" ||
+        smartResult.intent === "reframe_image" ||
+        smartResult.intent === "change_time_of_day" || // ✅ NEW: Always bypass Claude for timeofday requests
+        smartResult.intent === "remove_background" || // ✅ NEW: Always bypass Claude for background removal
       smartResult.intent === "elemental_design" || // ✅ NEW: Always bypass Claude for elemental design
       // ✅ NEW: Always bypass Claude for multi-step operations
       // Smart fallback is excellent at detecting these complex workflows
@@ -3019,12 +3369,172 @@ Follow system instructions and return intent JSON only.`;
   }
 }
 
+// Helper function to generate proactive recommendations
+function generateProactiveRecommendations(
+  intentAnalysis: IntentAnalysis,
+  apiResult?: any,
+): ProactiveRecommendation[] {
+  const recommendations: ProactiveRecommendation[] = [];
+  
+  // Only generate recommendations for successful operations
+  if (!apiResult || apiResult.status !== "success") {
+    return recommendations;
+  }
+
+  // Generate recommendations based on the operation type
+  switch (intentAnalysis.intent) {
+    case "design":
+    case "design_image":
+    case "elemental_design":
+    case "flow_design":
+      recommendations.push(
+        {
+          id: "upscale-recommendation",
+          label: "upscale this further",
+          intent: "upscale_image",
+          endpoint: "/api/upscale",
+          parameters: { upscaling_factor: "4", overlapping_tiles: "false", checkpoint: "v1" },
+          icon: "✨"
+        },
+        {
+          id: "reframe-recommendation",
+          label: "change to landscape",
+          intent: "reframe_image",
+          endpoint: "/api/reframe",
+          parameters: { aspect_ratio: "16:9", position: "center" },
+          icon: "🖼️"
+        },
+        {
+          id: "similar-recommendation",
+          label: "create similar with different colors",
+          intent: "design",
+          endpoint: "/api/design",
+          parameters: { workflow_type: "product_prompt" },
+          icon: "🎨"
+        }
+      );
+      break;
+    
+    case "upscale_image":
+      recommendations.push(
+        {
+          id: "reframe-recommendation",
+          label: "change to landscape",
+          intent: "reframe_image",
+          endpoint: "/api/reframe",
+          parameters: { aspect_ratio: "16:9", position: "center" },
+          icon: "🖼️"
+        },
+        {
+          id: "analyze-recommendation",
+          label: "analyze this image",
+          intent: "analyze_image",
+          endpoint: "/api/analyzeimage",
+          parameters: {},
+          icon: "🔍"
+        },
+        {
+          id: "similar-recommendation",
+          label: "create similar design",
+          intent: "design",
+          endpoint: "/api/design",
+          parameters: { workflow_type: "product_prompt" },
+          icon: "🎨"
+        }
+      );
+      break;
+    
+    case "reframe_image":
+      recommendations.push(
+        {
+          id: "upscale-recommendation",
+          label: "upscale this further",
+          intent: "upscale_image",
+          endpoint: "/api/upscale",
+          parameters: { upscaling_factor: "4", overlapping_tiles: "false", checkpoint: "v1" },
+          icon: "✨"
+        },
+        {
+          id: "aspect-recommendation",
+          label: "try different aspect ratio",
+          intent: "reframe_image",
+          endpoint: "/api/reframe",
+          parameters: { aspect_ratio: "1:1", position: "center" },
+          icon: "📐"
+        },
+        {
+          id: "similar-recommendation",
+          label: "create similar design",
+          intent: "design",
+          endpoint: "/api/design",
+          parameters: { workflow_type: "product_prompt" },
+          icon: "🎨"
+        }
+      );
+      break;
+    
+    case "analyze_image":
+      recommendations.push(
+        {
+          id: "upscale-recommendation",
+          label: "upscale this image",
+          intent: "upscale_image",
+          endpoint: "/api/upscale",
+          parameters: { upscaling_factor: "4", overlapping_tiles: "false", checkpoint: "v1" },
+          icon: "✨"
+        },
+        {
+          id: "reframe-recommendation",
+          label: "change to landscape",
+          intent: "reframe_image",
+          endpoint: "/api/reframe",
+          parameters: { aspect_ratio: "16:9", position: "center" },
+          icon: "🖼️"
+        },
+        {
+          id: "similar-recommendation",
+          label: "create similar design",
+          intent: "design",
+          endpoint: "/api/design",
+          parameters: { workflow_type: "product_prompt" },
+          icon: "🎨"
+        }
+      );
+      break;
+    
+    default:
+      // For other operations, provide generic recommendations
+      if (apiResult.firebaseOutputUrl || apiResult.data_url || apiResult.outputUrl || apiResult.imageUrl) {
+        recommendations.push(
+          {
+            id: "upscale-recommendation",
+            label: "upscale this",
+            intent: "upscale_image",
+            endpoint: "/api/upscale",
+            parameters: { upscaling_factor: "4", overlapping_tiles: "false", checkpoint: "v1" },
+            icon: "✨"
+          },
+          {
+            id: "reframe-recommendation",
+            label: "change to landscape",
+            intent: "reframe_image",
+            endpoint: "/api/reframe",
+            parameters: { aspect_ratio: "16:9", position: "center" },
+            icon: "🖼️"
+          }
+        );
+      }
+  }
+  
+  return recommendations;
+}
+
 async function generateResponse(
   userMessage: string,
   intentAnalysis: IntentAnalysis,
   apiResult?: any,
-): Promise<string> {
-  const smartFallbackResponse = (): string => {
+): Promise<{ message: string; recommendations: ProactiveRecommendation[] }> {
+  const smartFallbackResponse = (): { message: string; recommendations: ProactiveRecommendation[] } => {
     if (apiResult) {
       if (apiResult.status === "success") {
         const hasOutput =
@@ -3033,20 +3543,35 @@ async function generateResponse(
           apiResult.outputUrl ||
           apiResult.output_image ||
           apiResult.imageUrl;
-        return `🎉 Fantastic! I've successfully processed your ${intentAnalysis.intent.replace("_", " ")} request${hasOutput ? " and your result is ready for download!" : "!"} Feel free to try more IMAI features!`;
+        return {
+          message: `🎉 Fantastic! I've successfully processed your ${intentAnalysis.intent.replace("_", " ")} request${hasOutput ? " and your result is ready for download!" : "!"} Feel free to try more IMAI features!`,
+          recommendations: generateProactiveRecommendations(intentAnalysis, apiResult)
+        };
       } else {
-        return `⚠️ I encountered an issue while processing your request: ${apiResult.error || "Unknown error"}. Let's try again - I'm here to help you create amazing images! 🎨`;
+        return {
+          message: `⚠️ I encountered an issue while processing your request: ${apiResult.error || "Unknown error"}. Let's try again - I'm here to help you create amazing images! 🎨`,
+          recommendations: []
+        };
       }
     } else {
       if (intentAnalysis.requiresFiles) {
-        return `📁 I understand you want to ${intentAnalysis.intent.replace("_", " ")}! Please upload the required files and I'll process them for you using IMAI's powerful tools.`;
+        return {
+          message: `📁 I understand you want to ${intentAnalysis.intent.replace("_", " ")}! Please upload the required files and I'll process them for you using IMAI's powerful tools.`,
+          recommendations: []
+        };
       } else if (
         intentAnalysis.endpoint === "none" ||
         intentAnalysis.intent === "casual_conversation"
       ) {
-        return `👋 Hi there! I'm IRIS, your AI assistant for IMAI - an advanced image generation platform! I can help you create stunning product designs, upscale images, analyze visuals, and so much more. What would you like to create today? 🎨`;
+        return {
+          message: `👋 Hi there! I'm IRIS, your AI assistant for IMAI - an advanced image generation platform! I can help you create stunning product designs, upscale images, analyze visuals, and so much more. What would you like to create today? 🎨`,
+          recommendations: []
+        };
       } else {
-        return `✨ I can help you with ${intentAnalysis.intent.replace("_", " ")}! Let me process that for you using IMAI's capabilities.`;
+        return {
+          message: `✨ I can help you with ${intentAnalysis.intent.replace("_", " ")}! Let me process that for you using IMAI's capabilities.`,
+          recommendations: []
+        };
       }
     }
   };
@@ -3063,7 +3588,10 @@ async function generateResponse(
 
       if (claudeResponse.success && !claudeResponse.usedFallback) {
         console.log("✅ Claude response generated successfully");
-        return claudeResponse.text;
+        return {
+          message: claudeResponse.text,
+          recommendations: []
+        };
       } else {
         console.log(
           "⚠️ Claude failed, using smart fallback:",
@@ -3114,33 +3642,315 @@ ${analysisContent}
 
 Generate a SHORT response (2-3 sentences max) that:
 1. Briefly mentions key visual findings (colors, shapes, composition) in 1 sentence
-2. Offers 3 simple options: "Would you like me to **upscale this**, **change to landscape**, or **create similar design**?"
-3. Use just the feature names without detailed explanations
+2. Offers 3 clickable options in this exact format: "Would you like me to **[upscale this](action:upscale)**, **[change to landscape](action:reframe:landscape)**, or **[create similar design](action:design:similar)**?"
+3. Use the [text](action:type:param) format for all clickable recommendations
 4. Keep it concise and direct. Use 1 emoji max.`;
         } else {
-          // For all other successful image operations, provide proactive recommendations
+          // 🧠 SMART CONTEXT-AWARE RECOMMENDATIONS 
           const operationNames: Record<string, string> = {
             design: "custom design",
             design_image: "design composition",
             elemental_design: "elemental design",
             flow_design: "flow design",
             reframe_image: "image reframing",
+            reframe_video: "video reframing", 
+            outpaint_video: "video outpainting",
             upscale_image: "image upscaling",
+            analyze_image: "image analysis",
+            remove_background: "background removal",
+            scene_composition: "scene composition",
+            time_of_day: "time transformation",
+            object_removal: "object removal",
           };
 
           const operationName =
             operationNames[intentAnalysis.intent] ||
             intentAnalysis.intent.replace("_", " ");
 
+          // 🧠 INTELLIGENT IMAGE ANALYSIS for Smart Recommendations
+          let imageWidth = 0;
+          let imageHeight = 0;
+          let imageSize = "";
+          let generatedImageUrl = "";
+          let imageContent = "";
+          let imageSubjects: string[] = [];
+          
+          // Try to extract image dimensions from API result
+          if (apiResult.firebaseOutputUrl) {
+            generatedImageUrl = apiResult.firebaseOutputUrl;
+          } else if (apiResult.imageUrl) {
+            generatedImageUrl = apiResult.imageUrl;
+          } else if (apiResult.data_url) {
+            generatedImageUrl = apiResult.data_url;
+          } else if (apiResult.result?.imageUrl) {
+            generatedImageUrl = apiResult.result.imageUrl;
+          }
+
+          // Extract dimensions from various possible result formats
+          if (apiResult.width && apiResult.height) {
+            imageWidth = apiResult.width;
+            imageHeight = apiResult.height;
+          } else if (apiResult.result?.width && apiResult.result?.height) {
+            imageWidth = apiResult.result.width;
+            imageHeight = apiResult.result.height;
+          } else if (apiResult.data?.image?.width && apiResult.data?.image?.height) {
+            imageWidth = apiResult.data.image.width;
+            imageHeight = apiResult.data.image.height;
+          }
+
+          // 🔍 EXTRACT IMAGE CONTENT UNDERSTANDING from multiple sources
+          const subjectPatterns = {
+            vehicle: ['car', 'vehicle', 'automobile', 'truck', 'motorcycle', 'bicycle', 'transport', 'automotive', 'aerodynamic'],
+            person: ['person', 'human', 'man', 'woman', 'people', 'figure', 'portrait', 'face', 'model', 'character'],
+            furniture: ['chair', 'table', 'sofa', 'desk', 'bed', 'cabinet', 'furniture', 'seating'],
+            architecture: ['building', 'house', 'architecture', 'structure', 'tower', 'bridge', 'skyscraper', 'interior'],
+            nature: ['tree', 'flower', 'landscape', 'mountain', 'sky', 'water', 'forest', 'garden', 'outdoor'],
+            product: ['product', 'design', 'object', 'item', 'device', 'gadget', 'electronics', 'consumer'],
+            fashion: ['clothing', 'shirt', 'dress', 'fashion', 'apparel', 'garment', 'outfit', 'style', 'wear'],
+            food: ['food', 'meal', 'dish', 'cuisine', 'cooking', 'restaurant', 'kitchen', 'recipe'],
+            jewelry: ['ring', 'necklace', 'earring', 'bracelet', 'jewelry', 'accessory', 'gem', 'precious'],
+            bags: ['bag', 'purse', 'backpack', 'handbag', 'luggage', 'suitcase', 'tote']
+          };
+          
+          // Analyze multiple text sources for content detection
+          const textSources = [
+            apiResult.generated_prompt || '',
+            userMessage || '',
+            intentAnalysis.explanation || ''
+          ].join(' ').toLowerCase();
+          
+          if (textSources) {
+            // Detect subjects/objects from all available text
+            for (const [category, keywords] of Object.entries(subjectPatterns)) {
+              if (keywords.some(keyword => textSources.includes(keyword))) {
+                imageSubjects.push(category);
+              }
+            }
+            
+            // Extract overall content style
+            imageContent = textSources.includes('photorealistic') ? 'photorealistic' : 
+                          textSources.includes('artistic') ? 'artistic' :
+                          textSources.includes('modern') ? 'modern' :
+                          textSources.includes('vintage') ? 'vintage' :
+                          textSources.includes('luxury') ? 'luxury' :
+                          textSources.includes('minimalist') ? 'minimalist' : 'general';
+                          
+            console.log("🔍 Content analysis from text:", {
+              sources: textSources.substring(0, 100) + "...",
+              detectedSubjects: imageSubjects,
+              style: imageContent
+            });
+          }
+
+          // 🔍 SMART CONTEXT ANALYSIS from user message and intent
+          const userContext = userMessage.toLowerCase();
+          const wasRecentlyUpscaled = intentAnalysis.intent === 'upscale_image';
+          const wasRecentlyReframed = intentAnalysis.intent === 'reframe_image';
+          const wasRecentlyDesigned = intentAnalysis.intent.includes('design');
+
+          // Determine aspect ratio and size category
+          const isLandscape = imageWidth > imageHeight;
+          const isPortrait = imageHeight > imageWidth;
+          const isSquare = Math.abs(imageWidth - imageHeight) < 50;
+          const isHighRes = imageWidth >= 2048 || imageHeight >= 2048;
+          const isUltraHighRes = imageWidth >= 4096 || imageHeight >= 4096;
+          
+          if (apiResult.data?.image?.file_size) {
+            const sizeInMB = apiResult.data.image.file_size / (1024 * 1024);
+            imageSize = sizeInMB > 10 ? "large" : sizeInMB > 5 ? "medium" : "standard";
+          }
+
+          // 🧠 SUPER SMART CONTENT-AWARE RECOMMENDATION LOGIC
+          let recommendationOptions: string[] = [];
+          
+          console.log("🧠 Smart Analysis:", {
+            subjects: imageSubjects,
+            content: imageContent,
+            wasUpscaled: wasRecentlyUpscaled,
+            wasReframed: wasRecentlyReframed,
+            isUltraHighRes,
+            aspectRatio: isLandscape ? 'landscape' : isPortrait ? 'portrait' : 'square'
+          });
+          
+          // 🚫 CRITICAL RULE: Never suggest upscale if recently upscaled OR ultra-high-res
+          const shouldSuggestUpscale = !wasRecentlyUpscaled && !isUltraHighRes;
+          
+          // 🎯 CONTENT-SPECIFIC RECOMMENDATIONS
+          if (imageSubjects.includes('vehicle')) {
+            // Cars/vehicles: avoid portrait suggestions, focus on environment/time
+            if (shouldSuggestUpscale) {
+              recommendationOptions.push("**[upscale this](action:upscale)**");
+            }
+            recommendationOptions.push("**[change environment](action:scene)**");
+            recommendationOptions.push("**[different time of day](action:timeofday)**");
+            if (isPortrait) { // Only suggest landscape if currently portrait
+              recommendationOptions.push("**[change to landscape](action:reframe:landscape)**");
+            }
+            
+          } else if (imageSubjects.includes('person')) {
+            // People: focus on portraits, backgrounds, style
+            if (shouldSuggestUpscale) {
+              recommendationOptions.push("**[upscale this](action:upscale)**");
+            }
+            recommendationOptions.push("**[remove background](action:removebg)**");
+            if (isLandscape) { // Only suggest portrait if currently landscape
+              recommendationOptions.push("**[change to portrait](action:reframe:portrait)**");
+            } else {
+              recommendationOptions.push("**[enhance the scene](action:scene)**");
+            }
+            
+          } else if (imageSubjects.includes('architecture') || imageSubjects.includes('nature')) {
+            // Buildings/landscapes: time changes, weather effects
+            if (shouldSuggestUpscale) {
+              recommendationOptions.push("**[upscale this](action:upscale)**");
+            }
+            recommendationOptions.push("**[change time of day](action:timeofday)**");
+            recommendationOptions.push("**[enhance the scene](action:scene)**");
+            
+          } else if (imageSubjects.includes('product')) {
+            // Products: backgrounds, colors, analysis
+            if (shouldSuggestUpscale) {
+              recommendationOptions.push("**[upscale this](action:upscale)**");
+            }
+            recommendationOptions.push("**[remove background](action:removebg)**");
+            recommendationOptions.push("**[try different colors](action:design:different-colors)**");
+            
+          } else {
+            // 🎲 OPERATION-SPECIFIC SMART SUGGESTIONS
+            if (wasRecentlyUpscaled) {
+              // Just upscaled - suggest creative transforms, NEVER more upscaling
+              console.log("🚫 Just upscaled - excluding upscale suggestions");
+              recommendationOptions.push("**[enhance the scene](action:scene)**");
+              recommendationOptions.push("**[change time of day](action:timeofday)**");
+              recommendationOptions.push("**[remove background](action:removebg)**");
+              
+            } else if (wasRecentlyReframed) {
+              // Just reframed - suggest enhancement and creative options
+              if (shouldSuggestUpscale) {
+                recommendationOptions.push("**[upscale this](action:upscale)**");
+              }
+              recommendationOptions.push("**[remove background](action:removebg)**");
+              recommendationOptions.push("**[add mirror effect](action:mirrormagic)**");
+              
+            } else if (wasRecentlyDesigned) {
+              // Just designed - suggest variations and analysis
+              recommendationOptions.push("**[try different colors](action:design:different-colors)**");
+              recommendationOptions.push("**[create similar style](action:design:similar)**");
+              recommendationOptions.push("**[analyze the design](action:analyze)**");
+              
+            } else {
+              // 🔄 DEFAULT SMART SUGGESTIONS - vary by aspect ratio
+              if (shouldSuggestUpscale) {
+                recommendationOptions.push("**[upscale this](action:upscale)**");
+              }
+              
+              // Smart aspect ratio suggestions that make sense
+              if (isPortrait) {
+                recommendationOptions.push("**[change to landscape](action:reframe:landscape)**");
+              } else if (isLandscape) {
+                recommendationOptions.push("**[make it square](action:reframe:square)**");
+              } else {
+                recommendationOptions.push("**[change to portrait](action:reframe:portrait)**");
+              }
+              
+              recommendationOptions.push("**[remove background](action:removebg)**");
+            }
+          }
+          
+          // 🎨 ADD ADVANCED FEATURES for variety (promote IMAI capabilities)
+          const advancedOptions = [
+            "**[enhance the scene](action:scene)**",
+            "**[change time of day](action:timeofday)**", 
+            "**[remove unwanted objects](action:objectremoval)**",
+            "**[create zoom effect](action:chainofzoom)**",
+            "**[mirror magic effect](action:mirrormagic)**",
+            "**[analyze this image](action:analyze)**",
+            "**[create similar design](action:design:similar)**",
+            "**[try different colors](action:design:different-colors)**"
+          ];
+          
+          // Fill remaining slots with advanced features (avoid duplicates)
+          const uniqueAdvanced = advancedOptions.filter(option => 
+            !recommendationOptions.some(existing => 
+              existing.includes(option.split('](')[0].replace('**[', ''))
+            )
+          );
+          
+          // Add variety - mix in advanced features
+          while (recommendationOptions.length < 3 && uniqueAdvanced.length > 0) {
+            const randomIndex = Math.floor(Math.random() * uniqueAdvanced.length);
+            recommendationOptions.push(uniqueAdvanced.splice(randomIndex, 1)[0]);
+          }
+          
+          // 🛡️ SAFETY: Ensure exactly 3 options
+          if (recommendationOptions.length > 3) {
+            recommendationOptions = recommendationOptions.slice(0, 3);
+          }
+          
+          // Final fallback if somehow we don't have enough
+          while (recommendationOptions.length < 3) {
+            const emergency = [
+              "**[enhance the scene](action:scene)**",
+              "**[analyze this image](action:analyze)**",
+              "**[create variations](action:design:similar)**"
+            ];
+            const needed = emergency.find(e => !recommendationOptions.includes(e));
+            if (needed) {
+              recommendationOptions.push(needed);
+            } else {
+              break;
+            }
+          }
+
+          // 🎨 DYNAMIC RESPONSE VARIATIONS for engagement
+          const celebrationPhrases = [
+            "Perfect! Your", "Fantastic! Your", "Amazing! Your", "Great! Your", 
+            "Wonderful! Your", "Excellent! Your", "Beautiful! Your", "Stunning! Your"
+          ];
+          
+          const actionPhrases = [
+            "Would you like me to", "How about I", "Want me to", "Should I",
+            "Ready to", "Let me", "I can also", "Next, I could"
+          ];
+          
+          const randomCelebration = celebrationPhrases[Math.floor(Math.random() * celebrationPhrases.length)];
+          const randomAction = actionPhrases[Math.floor(Math.random() * actionPhrases.length)];
+          
+          // Context-aware dimension info
+          let dimensionInfo = "";
+          if (imageWidth && imageHeight) {
+            dimensionInfo = ` (${imageWidth}x${imageHeight}${isHighRes ? " - high resolution!" : ""})`;
+          }
+
           prompt = `The user said: "${userMessage}"
 
-I successfully created their ${operationName} and the result is ready!
+I successfully created their ${operationName}${dimensionInfo} and the result is ready!
+
+Image details:
+- Dimensions: ${imageWidth}x${imageHeight} 
+- Aspect ratio: ${isLandscape ? "Landscape" : isPortrait ? "Portrait" : "Square"}
+- Resolution: ${isUltraHighRes ? "Ultra High (4K+)" : isHighRes ? "High (2K+)" : "Standard"}
+- Operation performed: ${operationName}
+
+🧠 SMART CONTEXT-AWARE RESPONSE RULES:
+- Image content: ${imageSubjects.length > 0 ? imageSubjects.join(', ') : 'general'}
+- Style: ${imageContent}
+- Recent operation: ${operationName}
+- User context: ${wasRecentlyUpscaled ? 'recently upscaled' : wasRecentlyReframed ? 'recently reframed' : 'new creation'}
 
 Generate a SHORT response (2-3 sentences max) that:
-1. Celebrates the success briefly (1 sentence)
-2. Offers 3 simple options: "Would you like me to **upscale this**, **change to landscape**, or **create similar with different colors**?"
-3. Use just the feature names without detailed explanations
-4. Keep it concise and direct. Use 1 emoji max.`;
+1. Use "${randomCelebration}" to start and celebrate the success briefly 
+2. Use "${randomAction}" to introduce EXACTLY these options: "${recommendationOptions.join(", ")}"
+3. CRITICAL: Use the [text](action:type:param) format for ALL clickable recommendations
+4. Be CONTEXT-AWARE: mention the image content/style when relevant
+5. VARY YOUR LANGUAGE: Don't always use the same phrases - be creative and dynamic
+6. Keep it concise and enthusiastic. Use 1 emoji max.
+7. Make it sound natural and conversational, not robotic.
+
+EXAMPLES OF DYNAMIC RESPONSES:
+- For vehicles: "Stunning! Your ${imageContent} vehicle design looks incredible! Ready to [enhance the scene] or [change time of day]?"
+- For people: "Beautiful! The portrait composition is perfect! Want me to [remove background] or [enhance to 4K]?"
+- For upscaled images: "Amazing! Your high-resolution image is crisp and detailed! How about I [change the lighting] or [add artistic effects]?"`;
         }
       } else {
         prompt = `The user said: "${userMessage}"
@@ -3180,20 +3990,62 @@ Generate a friendly, helpful response (2-3 sentences max). Briefly explain what 
 - Always introduce yourself as IRIS when greeting new users
 - Enthusiastic about image creation and design
 - Concise but informative (2-4 sentences max)
+x- Varied and dynamic language (avoid repetitive responses)
 
-**IMAI Platform Capabilities:**
-- 🎨 Product design composition (combine product, design, and color references)
-- ⬆️ Image upscaling and enhancement  
-- 🔍 Image analysis and description
-- 🖼️ Image reframing and cropping
-- ✨ Prompt enhancement for better results
-- 🎯 Elemental and flow-based design creation
+**IMAI Platform Capabilities (showcase these in recommendations):**
+🎨 **Design & Creation:**
+- Product design composition (combine product, design, and color references)
+- Elemental and flow-based design creation
+- Custom pattern and style generation
+
+🔧 **Image Enhancement:**
+- Image upscaling (2K, 4K, 8K resolution)
+- Clarity upscaling for sharp details
+- Background removal and transparency
+- Image reframing and aspect ratio changes
+
+🎭 **Creative Effects:**
+- Scene composition and environment changes
+- Time of day transformations (day/night/sunset)
+- Object removal and content-aware filling
+- Mirror magic and artistic effects
+- Chain of zoom dynamic effects
+
+🧠 **Analysis & Intelligence:**
+- Detailed image analysis and description
+- Color palette extraction
+- Style and composition analysis
+- Prompt enhancement for better results
+
+**CRITICAL: Smart Clickable Link Format**
+ALWAYS use the provided recommendationOptions from the prompt exactly as given.
+Use this EXACT format: **[text](action:type:param)**
+
+**Smart Action Types Available:**
+- action:upscale (enhance resolution)
+- action:reframe:landscape / action:reframe:portrait / action:reframe:square
+- action:design:similar / action:design:different-colors
+- action:removebg (remove background)
+- action:scene (enhance scene/environment)
+- action:timeofday (change lighting/time)
+- action:analyze (detailed analysis)
+- action:objectremoval (remove unwanted objects)
+- action:chainofzoom (dynamic zoom effects)
+- action:mirrormagic (artistic mirror effects)
+
+**Context-Aware Guidelines:**
+- Never suggest landscape reframing for landscape images
+- Don't suggest upscaling for already ultra-high-res images (4K+)
+- Vary recommendations based on image type and previous operations
+- Showcase different IMAI features, not just the same 3 options
+- Use dynamic language patterns to avoid repetitive responses
 
 **Response Guidelines:**
 - For greetings: Introduce yourself as IRIS, welcome them to IMAI, briefly mention 2-3 key capabilities
 - For conversations: Be friendly and guide them toward trying image features
-- For successful results: Celebrate their success and encourage them to try more
+- For successful results: Celebrate their success and offer clickable next steps using the link format
 - For errors: Be supportive and offer helpful alternatives
+- ALWAYS use the **[text](action:type:param)** format for actionable recommendations
 - Use 1-2 emojis max, keep it natural and professional`,
       messages: [
         {
@@ -3206,9 +4058,31 @@ Generate a friendly, helpful response (2-3 sentences max). Briefly explain what 
     console.log("✅ Claude response generation successful");
 
     const content = response.content[0];
-    return content.type === "text"
+    const responseText = content.type === "text"
       ? content.text.trim()
       : "I apologize, but I had trouble generating a response.";
+    
+    console.log("🔍 Claude generated response:", responseText);
+    
+    // 🔧 CRITICAL FIX: Ensure clickable links are present for successful operations
+    if (apiResult && apiResult.status === "success" && !responseText.includes("](action:")) {
+      console.log("⚠️ Claude response missing clickable links, adding them manually");
+      
+      // Extract the main response and add clickable links
+      const baseResponse = responseText.replace(/Would you like me to.*?[.!?]?$/, "").trim();
+      const enhancedResponse = `${baseResponse} Would you like me to **[upscale this](action:upscale)**, **[change to landscape](action:reframe:landscape)**, or **[create similar with different colors](action:design:different-colors)**?`;
+      
+      console.log("🔧 Enhanced response with clickable links:", enhancedResponse);
+      return {
+        message: enhancedResponse,
+        recommendations: generateProactiveRecommendations(intentAnalysis, apiResult)
+      };
+    }
+    
+    return {
+      message: responseText,
+      recommendations: generateProactiveRecommendations(intentAnalysis, apiResult)
+    };
   } catch (error: any) {
     console.error("❌ Error generating Claude response:", error);
     console.log("🔄 Using smart fallback response generation");
@@ -3346,6 +4220,30 @@ async function routeToAPI(
           `🔗 Added reference_image_url parameter:`,
           parameters.reference_image_url,
         );
+      }
+
+      // 🔧 CRITICAL FIX: Handle generic image_image URLs based on workflow type
+      if (imageUrls.image_image) {
+        const workflowType = parameters.workflow_type;
+        if (workflowType === "design_prompt") {
+          formData.append("design_image_url", imageUrls.image_image);
+          console.log(
+            `🔗 Added design_image_url from image_image for design_prompt workflow:`,
+            imageUrls.image_image,
+          );
+        } else if (workflowType === "color_prompt") {
+          formData.append("color_image_url", imageUrls.image_image);
+          console.log(
+            `🔗 Added color_image_url from image_image for color_prompt workflow:`,
+            imageUrls.image_image,
+          );
+        } else if (workflowType === "product_prompt" || workflowType === "product_design" || workflowType === "product_color") {
+          formData.append("product_image_url", imageUrls.image_image);
+          console.log(
+            `🔗 Added product_image_url from image_image for ${workflowType} workflow:`,
+            imageUrls.image_image,
+          );
+        }
       }
 
       // Also check for any processed URLs from file uploads that might have different key names
@@ -3808,6 +4706,128 @@ async function routeToAPI(
       } else if (parameters.prompt) {
         formData.append("prompt", parameters.prompt);
       }
+    } else if (endpoint === "/api/videoupscaler") {
+      // Handle video upscaler parameters
+      const videoUrl = parameters.reference_image_url; // For video context, this will be the video URL
+
+      if (videoUrl) {
+        formData.append("video_url", videoUrl);
+        console.log("🔗 Added video_url for video upscaler:", videoUrl);
+      } else {
+        throw new Error("No video URL found for video upscaling");
+      }
+
+      // Video upscaler uses fixed 4x scaling - no scale parameter needed
+
+      // Add prompt if provided (though video upscaler doesn't use prompts currently)
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+      }
+    } else if (endpoint === "/api/videoreframe") {
+      // Handle video reframe parameters
+      const videoUrl = parameters.reference_image_url; // For video context, this will be the video URL
+
+      if (videoUrl) {
+        formData.append("video_url", videoUrl);
+        console.log("🔗 Added video_url for video reframe:", videoUrl);
+      } else {
+        throw new Error("No video URL found for video reframing");
+      }
+
+      // Add video reframe specific parameters
+      if (parameters.aspect_ratio) {
+        formData.append("aspect_ratio", parameters.aspect_ratio);
+      }
+      if (parameters.resolution) {
+        formData.append("resolution", parameters.resolution);
+      }
+      if (parameters.zoom_factor !== undefined) {
+        formData.append("zoom_factor", String(parameters.zoom_factor));
+      }
+      if (parameters.num_inference_steps) {
+        formData.append("num_inference_steps", String(parameters.num_inference_steps));
+      }
+      if (parameters.guidance_scale) {
+        formData.append("guidance_scale", String(parameters.guidance_scale));
+      }
+      if (parameters.seed) {
+        formData.append("seed", String(parameters.seed));
+      }
+
+      // Add prompt if provided
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+      } else if (parameters.prompt) {
+        formData.append("prompt", parameters.prompt);
+      }
+
+            console.log("🔗 Added videoreframe parameters");
+    } else if (endpoint === "/api/videooutpainting") {
+      // Handle video outpainting parameters
+      const videoUrl = parameters.reference_image_url; // For video context, this will be the video URL
+
+      if (videoUrl) {
+        formData.append("video_url", videoUrl);
+        console.log("🔗 Added video_url for video outpainting:", videoUrl);
+      } else {
+        throw new Error("No video URL found for video outpainting");
+      }
+
+      // Add video outpainting specific parameters
+      if (parameters.expand_left !== undefined) {
+        formData.append("expand_left", String(parameters.expand_left));
+      }
+      if (parameters.expand_right !== undefined) {
+        formData.append("expand_right", String(parameters.expand_right));
+      }
+      if (parameters.expand_top !== undefined) {
+        formData.append("expand_top", String(parameters.expand_top));
+      }
+      if (parameters.expand_bottom !== undefined) {
+        formData.append("expand_bottom", String(parameters.expand_bottom));
+      }
+      if (parameters.expand_ratio !== undefined) {
+        formData.append("expand_ratio", String(parameters.expand_ratio));
+      }
+      if (parameters.resolution) {
+        formData.append("resolution", parameters.resolution);
+      }
+      if (parameters.aspect_ratio) {
+        formData.append("aspect_ratio", parameters.aspect_ratio);
+      }
+      if (parameters.num_frames !== undefined) {
+        formData.append("num_frames", String(parameters.num_frames));
+      }
+      if (parameters.frames_per_second !== undefined) {
+        formData.append("frames_per_second", String(parameters.frames_per_second));
+      }
+      if (parameters.num_inference_steps !== undefined) {
+        formData.append("num_inference_steps", String(parameters.num_inference_steps));
+      }
+      if (parameters.guidance_scale !== undefined) {
+        formData.append("guidance_scale", String(parameters.guidance_scale));
+      }
+      if (parameters.seed !== undefined) {
+        formData.append("seed", String(parameters.seed));
+      }
+      if (parameters.safety_checker !== undefined) {
+        formData.append("safety_checker", String(parameters.safety_checker));
+      }
+      if (parameters.prompt_expansion !== undefined) {
+        formData.append("prompt_expansion", String(parameters.prompt_expansion));
+      }
+      if (parameters.acceleration !== undefined) {
+        formData.append("acceleration", String(parameters.acceleration));
+      }
+
+      // Add prompt if provided
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+      } else if (parameters.prompt) {
+        formData.append("prompt", parameters.prompt);
+      }
+
+      console.log("🔗 Added videooutpainting parameters");
     } else if (endpoint === "/api/kling") {
       const imageUrl =
         imageUrls.product_image ||
@@ -4328,6 +5348,39 @@ async function routeToAPI(
 
       const response = await seedancevideoPOST(mockRequest as any);
       return await response.json();
+    } else if (endpoint === "/api/videoupscaler") {
+      // Import and call the videoupscaler API logic directly  
+      const { POST: videoupscalerPOST } = await import("../videoupscaler/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/videoupscaler`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await videoupscalerPOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/videoreframe") {
+      // Import and call the videoreframe API logic directly
+      const { POST: videoreframePOST } = await import("../videoreframe/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/videoreframe`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await videoreframePOST(mockRequest as any);
+      return await response.json();
+    } else if (endpoint === "/api/videooutpainting") {
+      // Import and call the videooutpainting API logic directly
+      const { POST: videooutpaintingPOST } = await import("../videooutpainting/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/videooutpainting`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await videooutpaintingPOST(mockRequest as any);
+      return await response.json();
     } else if (endpoint === "/api/objectremoval") {
       // Import and call the objectremoval API logic directly
       const { POST: objectremovalPOST } = await import(
@@ -4428,8 +5481,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const isBase64Data =
         typeof value === "string" && value.startsWith("data:image/");
 
-      // Check for URL fields
-      const isUrlField = key.endsWith("_url");
+      // Check for URL fields (including generic image_url)
+      const isUrlField = key.endsWith("_url") || key === "image_url";
       const isValidUrl =
         typeof value === "string" &&
         (value.startsWith("http") || value.startsWith("/"));
@@ -4937,72 +5990,139 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       | { imageUrl?: string; endpoint?: string; intent?: string }
       | undefined;
     if (conversationHistory.length > 0) {
+3      // 🎬 ENHANCED: Smart URL extraction that prioritizes video URLs for video operations
+      const extractUrlsFromMessage = (msg: any) => {
+        const urls: { url: string; type: 'video' | 'image'; source: string }[] = [];
+        
+        // Check images field first (most reliable)
+        if (msg.images && Array.isArray(msg.images) && msg.images.length > 0) {
+          msg.images.forEach((url: string) => {
+            const isVideo = url.includes('.mp4') || url.includes('video') || 
+                           url.includes('seedancevideo') || url.includes('videoupscaler') || 
+                           url.includes('videoreframe') || url.includes('videooutpainting');
+            urls.push({
+              url,
+              type: isVideo ? 'video' : 'image',
+              source: 'images_field'
+            });
+          });
+        }
+
+        // Extract from message content
+        const patterns = [
+          { name: 'videoUrl', regex: /videoUrl['":\s]*([^"'\s,}]+)/, type: 'video' as const },
+          { name: 'firebaseOutputUrl', regex: /firebaseOutputUrl['":\s]*([^"'\s,}]+)/, type: 'image' as const },
+          { name: 'imageUrl', regex: /imageUrl['":\s]*([^"'\s,}]+)/, type: 'image' as const },
+          { name: 'outputUrl', regex: /outputUrl['":\s]*([^"'\s,}]+)/, type: 'image' as const },
+          { name: 'data_url', regex: /data_url['":\s]*([^"'\s,}]+)/, type: 'image' as const },
+        ];
+
+        patterns.forEach(pattern => {
+          const match = msg.content.match(pattern.regex);
+          if (match?.[1]) {
+            // Smart type detection based on URL content
+            const url = match[1];
+            let detectedType = pattern.type;
+            
+            // Override type detection for video patterns
+            if (url.includes('.mp4') || url.includes('video') || 
+                url.includes('seedancevideo') || url.includes('videoupscaler') || 
+                url.includes('videoreframe') || url.includes('videooutpainting')) {
+              detectedType = 'video';
+            }
+            
+            urls.push({
+              url,
+              type: detectedType,
+              source: pattern.name
+            });
+          }
+        });
+
+        return urls;
+      };
+
+      // Get user's current intent hints for smart prioritization
+      const userMessageLower = effectiveMessage.toLowerCase();
+      const hasVideoUpscaleIntent = userMessageLower.includes('upscale') && 
+                                   (userMessageLower.includes('video') || 
+                                    userMessageLower.includes('this') || 
+                                    userMessageLower.includes('it'));
+      
+      const hasVideoReframeIntent = (userMessageLower.includes('reframe') || 
+                                    userMessageLower.includes('aspect ratio') || 
+                                    userMessageLower.includes('16:9') || 
+                                    userMessageLower.includes('1:1') || 
+                                    userMessageLower.includes('9:16') || 
+                                    userMessageLower.includes('square') || 
+                                    userMessageLower.includes('landscape') || 
+                                    userMessageLower.includes('portrait')) && 
+                                   (userMessageLower.includes('video') || 
+                                    userMessageLower.includes('this') || 
+                                    userMessageLower.includes('it'));
+
+      const hasVideoOutpaintIntent = (userMessageLower.includes('outpaint') || 
+                                     userMessageLower.includes('expand') || 
+                                     userMessageLower.includes('extend') || 
+                                     userMessageLower.includes('widen') || 
+                                     userMessageLower.includes('lengthen')) && 
+                                    (userMessageLower.includes('video') || 
+                                     userMessageLower.includes('this') || 
+                                     userMessageLower.includes('it'));
+
+      const preferVideoUrls = hasVideoUpscaleIntent || hasVideoReframeIntent || hasVideoOutpaintIntent;
+
+      console.log(`🎬 VIDEO CONTEXT DETECTION:`);
+      console.log(`  - Message: "${effectiveMessage}"`);
+      console.log(`  - Has video upscale intent: ${hasVideoUpscaleIntent}`);
+      console.log(`  - Has video reframe intent: ${hasVideoReframeIntent}`);
+      console.log(`  - Has video outpaint intent: ${hasVideoOutpaintIntent}`);
+      console.log(`  - Prefer video URLs: ${preferVideoUrls}`);
+
       // Look for the most recent assistant message with result information
       for (let i = conversationHistory.length - 1; i >= 0; i--) {
         const msg = conversationHistory[i];
         if (msg.role === "assistant") {
           try {
-            let extractedImageUrl: string | undefined;
-            let extractedEndpoint: string | undefined;
-            let extractedIntent: string | undefined;
+            const extractedUrls = extractUrlsFromMessage(msg);
+            console.log(`🔍 Extracted URLs from message ${i}:`, extractedUrls);
 
-            // 🔧 FIX: First check if the message has images field (stored from frontend)
-            if (
-              (msg as any).images &&
-              Array.isArray((msg as any).images) &&
-              (msg as any).images.length > 0
-            ) {
-              extractedImageUrl = (msg as any).images[0]; // Use the first image
-              console.log(
-                "🔍 Found image URL in message images field:",
-                extractedImageUrl,
-              );
-            }
+            if (extractedUrls.length > 0) {
+              // Smart URL selection based on user intent
+              let selectedUrl: string;
+              
+              if (preferVideoUrls) {
+                // Prioritize video URLs for video operations
+                const videoUrl = extractedUrls.find(u => u.type === 'video')?.url;
+                const imageUrl = extractedUrls.find(u => u.type === 'image')?.url;
+                selectedUrl = videoUrl || imageUrl || extractedUrls[0].url;
+                
+                if (videoUrl) {
+                  console.log(`🎬 PRIORITIZED VIDEO URL for video operation: ${videoUrl}`);
+                } else if (imageUrl) {
+                  console.log(`⚠️ No video URL found, falling back to image URL: ${imageUrl}`);
+                }
+              } else {
+                // Default behavior: use most recent URL
+                selectedUrl = extractedUrls[0].url;
+                console.log(`🔍 Using most recent URL: ${selectedUrl} (type: ${extractedUrls[0].type})`);
+              }
 
-            // Fallback: Try to extract result info from assistant message content - look for various patterns
-            if (!extractedImageUrl) {
-              const firebaseUrlMatch = msg.content.match(
-                /firebaseOutputUrl['":\s]*([^"'\s,}]+)/,
-              );
-              const imageUrlMatch = msg.content.match(
-                /imageUrl['":\s]*([^"'\s,}]+)/,
-              );
-              const outputUrlMatch = msg.content.match(
-                /outputUrl['":\s]*([^"'\s,}]+)/,
-              );
-              const dataUrlMatch = msg.content.match(
-                /data_url['":\s]*([^"'\s,}]+)/,
-              );
+              // Look for endpoint and intent information in content
+              const endpointMatch =
+                msg.content.match(/endpoint['":\s]*([^"'\s,}]+)/) ||
+                msg.content.match(/→\s*([\/\w]+)/); // Match "→ /api/design" pattern
+              const intentMatch =
+                msg.content.match(/intent['":\s]*([^"'\s,}]+)/) ||
+                msg.content.match(/Intent:\s*(\w+)/); // Match "Intent: design" pattern
 
-              extractedImageUrl =
-                firebaseUrlMatch?.[1] ||
-                imageUrlMatch?.[1] ||
-                outputUrlMatch?.[1] ||
-                dataUrlMatch?.[1];
-            }
-
-            // Look for endpoint and intent information in content
-            const endpointMatch =
-              msg.content.match(/endpoint['":\s]*([^"'\s,}]+)/) ||
-              msg.content.match(/→\s*([\/\w]+)/); // Match "→ /api/design" pattern
-            const intentMatch =
-              msg.content.match(/intent['":\s]*([^"'\s,}]+)/) ||
-              msg.content.match(/Intent:\s*(\w+)/); // Match "Intent: design" pattern
-
-            extractedEndpoint = endpointMatch?.[1];
-            extractedIntent = intentMatch?.[1];
-
-            // If we found an image URL or other context info, use it
-            if (extractedImageUrl || extractedEndpoint || extractedIntent) {
               lastGeneratedResult = {
-                imageUrl: extractedImageUrl,
-                endpoint: extractedEndpoint,
-                intent: extractedIntent,
+                imageUrl: selectedUrl,
+                endpoint: endpointMatch?.[1],
+                intent: intentMatch?.[1],
               };
-              console.log(
-                "🔍 Extracted last result context:",
-                lastGeneratedResult,
-              );
+              
+              console.log("🔍 Extracted last result context:", lastGeneratedResult);
               break;
             }
           } catch (error) {
@@ -5535,18 +6655,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           );
         }
         // Determine the correct image field based on the current intent
-        else if (
+        else         if (
           intentAnalysis.intent === "upscale_image" ||
           intentAnalysis.intent === "analyze_image" ||
           intentAnalysis.intent === "reframe_image" ||
+          intentAnalysis.intent === "reframe_video" ||
+          intentAnalysis.intent === "outpaint_video" ||
           intentAnalysis.intent === "clarity_upscale" ||
           intentAnalysis.intent === "create_video" ||
-          intentAnalysis.intent === "mirror_magic"
+          intentAnalysis.intent === "mirror_magic" ||
+          intentAnalysis.intent === "upscale_video"
         ) {
-          // For single-image operations, use product_image as the standard field
+          // For single-image/video operations, use product_image as the standard field
+          // Note: For video operations, this will be the video URL
           imageUrls.product_image = referenceResult.imageUrl;
           console.log(
-            `✅ Added ${sourceType} image as product_image:`,
+            `✅ Added ${sourceType} ${intentAnalysis.intent === "upscale_video" || intentAnalysis.intent === "reframe_video" || intentAnalysis.intent === "outpaint_video" ? "video" : "image"} as product_image:`,
             referenceResult.imageUrl,
           );
         } else if (
@@ -6285,7 +7409,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // For image operations, return immediately with the result to avoid waiting for Claude
     const imageOperations = [
-      "reframe_image",
+              "reframe_image",
+        "reframe_video",
       "upscale_image",
       "analyze_image",
       "design",
@@ -6339,20 +7464,36 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         let allImages: string[] = [];
         if (apiResult?.images && Array.isArray(apiResult.images)) {
           allImages = apiResult.images;
-          console.log(
-            `✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`,
-          );
-        } else if (apiResult?.imageUrl) {
-          allImages = [apiResult.imageUrl];
+          console.log(`✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`);
+        } else {
+          // Check all possible image URL locations
+          const imageUrl = 
+            apiResult?.imageUrl ||                    // Direct imageUrl (upscale format)
+            apiResult?.result?.imageUrl ||            // Nested result.imageUrl (reframe format) 
+            apiResult?.firebaseOutputUrl ||           // Firebase output URL
+            apiResult?.result?.firebaseOutputUrl ||   // Nested Firebase URL
+            null;
+          
+          if (imageUrl) {
+            allImages = [imageUrl];
+            console.log(`✅ Extracted image URL from ${intentAnalysis.endpoint}:`, imageUrl);
+          }
         }
 
+        const responseData = await generateResponse(
+          effectiveMessage,
+          intentAnalysis,
+          apiResult,
+        );
+        
         const chatResponse: ChatResponse = {
           status: "success",
-          message: proactiveResponse,
+          message: responseData.message,
           intent: intentAnalysis,
           result: apiResult,
           conversation_id: `${userid}_${Date.now()}`,
           images: allImages.length > 0 ? allImages : undefined,
+          recommendations: responseData.recommendations,
         };
 
         // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)
@@ -6375,7 +7516,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    responseMessage = await generateResponse(
+    const responseData = await generateResponse(
       effectiveMessage,
       intentAnalysis,
       apiResult,
@@ -6385,20 +7526,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let allImages: string[] = [];
     if (apiResult?.images && Array.isArray(apiResult.images)) {
       allImages = apiResult.images;
-      console.log(
-        `✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`,
-      );
-    } else if (apiResult?.imageUrl) {
-      allImages = [apiResult.imageUrl];
+      console.log(`✅ Extracted ${allImages.length} images from ${intentAnalysis.endpoint}`);
+    } else {
+      // Check all possible image URL locations
+      const imageUrl = 
+        apiResult?.imageUrl ||                    // Direct imageUrl (upscale format)
+        apiResult?.result?.imageUrl ||            // Nested result.imageUrl (reframe format) 
+        apiResult?.firebaseOutputUrl ||           // Firebase output URL
+        apiResult?.result?.firebaseOutputUrl ||   // Nested Firebase URL
+        null;
+      
+      if (imageUrl) {
+        allImages = [imageUrl];
+        console.log(`✅ Extracted image URL from ${intentAnalysis.endpoint}:`, imageUrl);
+      }
     }
 
     const chatResponse: ChatResponse = {
       status: "success",
-      message: responseMessage,
+      message: responseData.message,
       intent: intentAnalysis,
       result: apiResult,
       conversation_id: `${userid}_${Date.now()}`,
       images: allImages.length > 0 ? allImages : undefined,
+      recommendations: responseData.recommendations,
     };
 
     // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)

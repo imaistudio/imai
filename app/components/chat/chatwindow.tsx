@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { firestore, auth } from "@/lib/firebase";
+import { firestore, auth, storage } from "@/lib/firebase";
 import {
   doc,
   Timestamp,
@@ -16,7 +16,8 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { ImageZoomModal } from "@/components/ImageZoomModal";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ImageZoomModal } from "@/app/components/ImageZoomModal";
 import { useShareModal } from "@/contexts/ShareModalContext";
 import {
   Reply,
@@ -40,6 +41,16 @@ import {
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
 import { VideoZoomModal } from "../VideoZoomModal";
+import { ClickableText } from "../ClickableText";
+
+interface ProactiveRecommendation {
+  id: string;
+  label: string;
+  intent: string;
+  endpoint: string;
+  parameters: Record<string, any>;
+  icon?: string;
+}
 
 interface ChatMessage {
   id?: string;
@@ -54,6 +65,7 @@ interface ChatMessage {
   isLoading?: boolean;
   isReferenced?: boolean; // 🔧 NEW: Boolean to track if this message is a reply to another message
   updatedAt?: Timestamp | { seconds: number; nanoseconds: number };
+  recommendations?: ProactiveRecommendation[]; // NEW: Proactive recommendations
 }
 
 // 🔧 NEW: Interface for referenced message
@@ -96,6 +108,7 @@ export default function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const lastActionTimeRef = useRef<number>(0);
 
   // Memoized cache functions
   const cacheKey = useMemo(
@@ -874,6 +887,142 @@ export default function ChatWindow({
     [userId],
   );
 
+  // Handle proactive recommendation clicks
+  const handleRecommendationClick = useCallback(
+    async (recommendation: ProactiveRecommendation, targetImageUrl?: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log(`🎯 Proactive recommendation clicked:`, recommendation);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `recommendation-${Date.now()}`,
+        sender: "agent",
+        type: "prompt",
+        text: `Processing ${recommendation.label.toLowerCase()}...`,
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      try {
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Prepare form data based on recommendation type
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("message", recommendation.label);
+
+        // Add specific parameters based on recommendation
+        Object.entries(recommendation.parameters).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+
+        // If we have a target image URL, add it to the form data
+        if (targetImageUrl) {
+          formData.append("image_url", targetImageUrl);
+        }
+
+        // Call the intentroute API to process the recommendation
+        const response = await fetch("/api/intentroute", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          // Create success message
+          const successMessage: ChatMessage = {
+            id: `recommendation-result-${Date.now()}`,
+            sender: "agent",
+            type: result.result?.imageUrl ? "images" : "prompt",
+            text: result.message,
+            images: result.result?.imageUrl ? [result.result.imageUrl] : undefined,
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Replace loading message with success message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with success message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? successMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+
+          console.log("✅ Proactive recommendation processed successfully");
+        } else {
+          throw new Error(result.error || "Failed to process recommendation");
+        }
+      } catch (error) {
+        console.error("❌ Proactive recommendation failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `recommendation-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: `Sorry, I couldn't ${recommendation.label.toLowerCase()}. Please try again later.`,
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Replace loading message with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
   // Handle upscale image
   const handleUpscale = useCallback(
     async (imageUrl: string) => {
@@ -1011,14 +1160,21 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
+<<<<<<< Updated upstream
   // Handle video landscape (outpainting)
   const handlelandscapevideo = useCallback(
     async (videoUrl: string) => {
+=======
+  // Handle inpainting
+  const handleInpainting = useCallback(
+    async (imageUrl: string, maskDataUrl: string, prompt: string) => {
+>>>>>>> Stashed changes
       if (!userId || !chatId) {
         console.error("User not authenticated or no chat ID");
         return;
       }
 
+<<<<<<< Updated upstream
       console.log("🎬 Starting video landscape outpainting for:", videoUrl);
 
       // Create loading message
@@ -1027,6 +1183,16 @@ export default function ChatWindow({
         sender: "agent",
         type: "videos",
         text: "Converting video to landscape format...",
+=======
+      console.log("🎨 Starting inpainting for:", imageUrl);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `inpaint-${Date.now()}`,
+        sender: "agent",
+        type: "images",
+        text: `Inpainting: "${prompt}"...`,
+>>>>>>> Stashed changes
         chatId: chatId,
         createdAt: Timestamp.now(),
         isLoading: true,
@@ -1039,6 +1205,7 @@ export default function ChatWindow({
           messages: arrayUnion(loadingMessage),
         });
 
+<<<<<<< Updated upstream
         // Call video outpainting API
         const formData = new FormData();
         formData.append("userid", userId);
@@ -1054,6 +1221,17 @@ export default function ChatWindow({
         formData.append("guidance_scale", "5.0");
 
         const response = await fetch("/api/videooutpainting", {
+=======
+        // Call inpainting API
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("image_url", imageUrl);
+        formData.append("mask", maskDataUrl);
+        formData.append("prompt", prompt);
+        // Let the API determine the best size based on image dimensions
+
+        const response = await fetch("/api/inpainting", {
+>>>>>>> Stashed changes
           method: "POST",
           body: formData,
         });
@@ -1064,6 +1242,7 @@ export default function ChatWindow({
 
         const result = await response.json();
 
+<<<<<<< Updated upstream
         if (result.status === "success" && result.videoUrl) {
           // Create landscape video message
           const landscapeMessage: ChatMessage = {
@@ -1072,12 +1251,52 @@ export default function ChatWindow({
             type: "videos",
             text: "Here's your landscape video:",
             videos: [result.videoUrl],
+=======
+        if (result.status === "success" && result.imageUrl) {
+          let finalImageUrl = result.imageUrl;
+
+          // Convert base64 to Firebase Storage URL if needed
+          if (result.imageUrl.startsWith("data:image/")) {
+            console.log("🔄 Converting base64 inpainting result to Firebase Storage...");
+            try {
+              // Extract base64 data
+              const base64Data = result.imageUrl.split(',')[1];
+              const buffer = Buffer.from(base64Data, 'base64');
+              
+              // Create a File object
+              const fileName = `inpaint_${Date.now()}.png`;
+              const file = new File([buffer], fileName, { type: 'image/png' });
+              
+              // Upload to Firebase Storage
+              const storageRef = ref(storage, `${userId}/output/${fileName}`);
+              const snapshot = await uploadBytes(storageRef, file);
+              finalImageUrl = await getDownloadURL(snapshot.ref);
+              
+              console.log("✅ Converted base64 to Firebase Storage URL:", finalImageUrl);
+            } catch (conversionError) {
+              console.error("❌ Failed to convert base64 to Firebase Storage:", conversionError);
+              // Keep original base64 URL as fallback
+            }
+          }
+
+          // Create inpainted image message
+          const inpaintMessage: ChatMessage = {
+            id: `inpaint-result-${Date.now()}`,
+            sender: "agent",
+            type: "images",
+            text: `Inpainted: "${prompt}"`,
+            images: [finalImageUrl],
+>>>>>>> Stashed changes
             chatId: chatId,
             createdAt: Timestamp.now(),
           };
 
+<<<<<<< Updated upstream
           // Update Firestore with the landscape video
           // First, get current messages to replace loading message
+=======
+          // Update Firestore with the inpainted image
+>>>>>>> Stashed changes
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
@@ -1089,9 +1308,15 @@ export default function ChatWindow({
             const chatData = chatDoc.docs[0].data();
             const currentMessages = chatData.messages || [];
 
+<<<<<<< Updated upstream
             // Replace loading message with landscape video result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
               msg.id === loadingMessage.id ? landscapeMessage : msg,
+=======
+            // Replace loading message with inpaint result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? inpaintMessage : msg,
+>>>>>>> Stashed changes
             );
 
             await updateDoc(chatRef, {
@@ -1099,6 +1324,7 @@ export default function ChatWindow({
             });
           }
 
+<<<<<<< Updated upstream
           console.log("✅ Landscape video saved to chat");
         } else {
           throw new Error("Invalid response from video outpainting API");
@@ -1112,6 +1338,22 @@ export default function ChatWindow({
           sender: "agent",
           type: "prompt",
           text: "Sorry, I couldn't convert the video to landscape format. Please try again later.",
+=======
+          console.log("✅ Inpainted image saved to chat");
+          return result.imageUrl;
+        } else {
+          throw new Error("Invalid response from inpainting API");
+        }
+      } catch (error) {
+        console.error("❌ Inpainting failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `inpaint-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't complete the inpainting. Please try again later.",
+>>>>>>> Stashed changes
           chatId: chatId,
           createdAt: Timestamp.now(),
         };
@@ -1119,8 +1361,11 @@ export default function ChatWindow({
         // Update Firestore with error message
         try {
           const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+<<<<<<< Updated upstream
 
           // Get current messages to replace loading message
+=======
+>>>>>>> Stashed changes
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
@@ -1140,20 +1385,29 @@ export default function ChatWindow({
             await updateDoc(chatRef, {
               messages: updatedMessages,
             });
+<<<<<<< Updated upstream
           } else {
             // If no chat found, just add the error message
             await updateDoc(chatRef, {
               messages: arrayUnion(errorMessage),
             });
+=======
+>>>>>>> Stashed changes
           }
         } catch (updateError) {
           console.error("❌ Failed to save error message:", updateError);
         }
+<<<<<<< Updated upstream
+=======
+
+        throw error;
+>>>>>>> Stashed changes
       }
     },
     [userId, chatId],
   );
 
+<<<<<<< Updated upstream
   // Handle video reframe to portrait
   const handleVideoreframe = useCallback(
     async (videoUrl: string) => {
@@ -1315,22 +1569,226 @@ export default function ChatWindow({
       };
 
       try {
+=======
+  // Handle clickable action links
+  const handleActionClick = useCallback(
+    async (action: string, type: string, param?: string) => {
+      if (!userId || !chatId) return;
+
+      console.log("🔗 Action clicked:", { action, type, param });
+
+      // Prevent double-clicking
+      const now = Date.now();
+      if (now - lastActionTimeRef.current < 2000) {
+        console.log("⏳ Preventing rapid click, please wait...");
+        return;
+      }
+      lastActionTimeRef.current = now;
+
+      // Declare loading message outside try block for error handling scope
+      let loadingMessage: ChatMessage | undefined;
+
+      try {
+        // Find the most recent image from messages
+        const recentImage = messages
+          .slice()
+          .reverse()
+          .find(m => m.images && m.images.length > 0)
+          ?.images?.[0];
+
+        console.log("🖼️ Recent image found:", recentImage ? "YES" : "NO");
+        console.log("🖼️ Total messages in conversation:", messages.length);
+        console.log("🖼️ All messages:", messages.map((m, idx) => ({
+          index: idx,
+          sender: m.sender,
+          hasImages: !!(m.images && m.images.length > 0),
+          imageCount: m.images?.length || 0,
+          firstImagePreview: m.images?.[0]?.substring(0, 80) + "..." || "none",
+          textPreview: m.text?.substring(0, 50) + "..." || "none"
+        })));
+        
+        if (recentImage) {
+          console.log("🖼️ Recent image URL:", recentImage.substring(0, 100) + "...");
+        } else {
+          console.log("🖼️ NO RECENT IMAGE FOUND!");
+          console.log("🖼️ Messages with images:", messages.filter(m => m.images && m.images.length > 0).length);
+        }
+
+        // Create form data for the action
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("chatId", chatId);
+        
+        // Handle image URL
+        let imageUrlToUse = recentImage;
+        
+        if (!recentImage) {
+          console.error("❌ No recent image found for action:", type);
+          
+          // 🔧 FALLBACK: Try to extract image from any message text that contains Firebase URLs
+          const messageWithFirebaseUrl = messages
+            .slice()
+            .reverse()
+            .find(m => m.text && m.text.includes('firebasestorage.app'));
+          
+          if (messageWithFirebaseUrl) {
+            const urlMatch = messageWithFirebaseUrl.text?.match(/https:\/\/storage\.googleapis\.com\/[^\s]+/);
+            if (urlMatch) {
+              imageUrlToUse = urlMatch[0];
+              console.log("🔧 FALLBACK: Found Firebase URL in message text:", imageUrlToUse);
+            } else {
+              alert("No recent image found to process. Please ensure there's an image in the conversation.");
+              return;
+            }
+          } else {
+            alert("No recent image found to process. Please ensure there's an image in the conversation.");
+            return;
+          }
+        }
+        
+        if (imageUrlToUse) {
+          formData.append("image_url", imageUrlToUse);
+          console.log("📤 Added image_url for action:", imageUrlToUse.substring(0, 80) + "...");
+        }
+
+        // 🎯 ENHANCED: Map action types to messages and endpoints
+        let finalMessage = "";
+        
+        if (type === "upscale") {
+          finalMessage = "upscale this image to higher resolution";
+        } else if (type === "reframe") {
+          if (param === "landscape") {
+            finalMessage = "change to landscape format";
+          } else if (param === "portrait") {
+            finalMessage = "change to portrait format";
+          } else if (param === "square") {
+            finalMessage = "change to square format";
+          } else {
+            finalMessage = "reframe this image";
+          }
+          if (param) {
+            formData.append("aspect_ratio", param);
+          }
+        } else if (type === "design") {
+          if (param === "similar") {
+            finalMessage = "create similar design";
+          } else if (param === "different-colors") {
+            finalMessage = "create similar design with different colors";
+          } else {
+            finalMessage = "create new design based on this";
+          }
+        } else if (type === "removebg") {
+          finalMessage = "remove background from this image";
+        } else if (type === "scene") {
+          // 🎨 RANDOM BACKGROUND GENERATION - pick from diverse, interesting backgrounds
+          const randomBackgrounds = [
+            "place this in a modern minimalist studio with soft lighting",
+            "set this against a vibrant sunset cityscape background",
+            "put this in a luxurious marble room with elegant lighting",
+            "place this in a cozy coffee shop with warm ambient lighting",
+            "set this in a futuristic neon-lit environment",
+            "put this in a natural forest setting with dappled sunlight",
+            "place this on a pristine white beach with crystal blue water",
+            "set this in an industrial loft with exposed brick walls",
+            "put this in a serene Japanese zen garden",
+            "place this in a bustling modern city street at golden hour",
+            "set this in a cosmic space environment with stars and nebula",
+            "put this in a vintage library with warm wooden shelves",
+            "place this in a sleek tech laboratory with blue lighting",
+            "set this in a magical fairy tale forest with glowing elements",
+            "put this in a sophisticated art gallery with spotlights",
+            "place this in a tropical paradise with palm trees",
+            "set this in a snowy mountain landscape with pine trees",
+            "put this in a retro 80s neon synthwave environment",
+            "place this in an underwater scene with coral and fish",
+            "set this in a desert oasis with sand dunes and palm trees"
+          ];
+          
+          const randomBackground = randomBackgrounds[Math.floor(Math.random() * randomBackgrounds.length)];
+          finalMessage = randomBackground;
+          console.log("🎨 Generated random background prompt:", randomBackground);
+        } else if (type === "timeofday") {
+          finalMessage = "change the time of day in this image";
+        } else if (type === "analyze") {
+          finalMessage = "analyze this image in detail";
+        } else if (type === "objectremoval") {
+          finalMessage = "remove unwanted objects from this image";
+        } else if (type === "chainofzoom") {
+          finalMessage = "create dynamic zoom effect with this image";
+        } else if (type === "mirrormagic") {
+          finalMessage = "apply mirror magic effects to this image";
+        } else {
+          // Fallback for unknown action types
+          finalMessage = `apply ${type} to this image`;
+        }
+
+        console.log("📝 Message being sent:", finalMessage);
+        console.log("🔗 Image URL being sent:", imageUrlToUse ? "YES" : "NO");
+        
+        // ❌ CRITICAL FIX: Message field was missing! Always add the message
+        if (finalMessage) {
+          formData.append("message", finalMessage);
+          console.log("📤 Added message field:", finalMessage);
+        } else {
+          console.error("❌ No message to send for action:", type);
+          return;
+        }
+        
+        // Add conversation history for context
+        const conversationHistory = messages.map(msg => ({
+          role: msg.sender === "user" ? "user" : "assistant",
+          content: msg.text || "",
+          images: msg.images || []
+        }));
+        
+        formData.append("conversation_history", JSON.stringify(conversationHistory));
+        
+        // Debug FormData contents
+        const formDataEntries = Array.from(formData.entries());
+        const formDataDebug: Record<string, any> = {};
+        formDataEntries.forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            formDataDebug[key] = value.length > 100 ? value.substring(0, 100) + '...' : value;
+          } else {
+            formDataDebug[key] = '[File]';
+          }
+        });
+        console.log("📋 FormData being sent:", formDataDebug);
+
+        // Create loading message
+        const loadingMessage: ChatMessage = {
+          id: `action-${type}-${Date.now()}`,
+          sender: "agent",
+          type: "images",
+          text: finalMessage + "...",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+          isLoading: true,
+        };
+
+>>>>>>> Stashed changes
         // Add loading message to Firestore
         const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
         await updateDoc(chatRef, {
           messages: arrayUnion(loadingMessage),
         });
 
+<<<<<<< Updated upstream
         // Call video upscale API
         const formData = new FormData();
         formData.append("video_url", videoUrl);
 
         const response = await fetch("/api/videoupscaler", {
+=======
+        // Submit to intentroute
+        const response = await fetch("/api/intentroute", {
+>>>>>>> Stashed changes
           method: "POST",
           body: formData,
         });
 
         if (!response.ok) {
+<<<<<<< Updated upstream
           throw new Error(`API request failed: ${response.statusText}`);
         }
 
@@ -1344,12 +1802,56 @@ export default function ChatWindow({
             type: "videos",
             text: "Here's your upscaled video:",
             videos: [result.video_url],
+=======
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("✅ API Response:", result);
+
+        // 🔧 CRITICAL FIX: Process the response and display the generated image
+        // Handle different response formats from different APIs
+        let generatedImageUrl: string | null = null;
+        
+        if (result.status === "success") {
+          // Try different possible image URL locations
+          generatedImageUrl = 
+            result.result?.firebaseOutputUrl ||  // Design API format
+            result.imageUrl ||                   // Upscale/Reframe API format  
+            result.result?.imageUrl ||           // Alternative format (reframe nested)
+            result.images?.[0] ||                // New: Images array from intentroute
+            result.videoUrl ||                   // Video API format
+            result.result?.videoUrl ||           // Alternative video format
+            null;
+        }
+
+        console.log("🔍 Image URL detection:", {
+          hasResult: !!result.result,
+          firebaseOutputUrl: result.result?.firebaseOutputUrl || "not found",
+          imageUrl: result.imageUrl || "not found", 
+          resultImageUrl: result.result?.imageUrl || "not found",
+          finalUrl: generatedImageUrl || "not found"
+        });
+
+        if (generatedImageUrl) {
+          // Create success message with generated image
+          const successMessage: ChatMessage = {
+            id: `action-result-${type}-${Date.now()}`,
+            sender: "agent",
+            type: "images",
+            text: result.message || `Here's your ${type} result:`,
+            images: [generatedImageUrl],
+>>>>>>> Stashed changes
             chatId: chatId,
             createdAt: Timestamp.now(),
           };
 
+<<<<<<< Updated upstream
           // Update Firestore with the upscaled video
           // First, get current messages to replace loading message
+=======
+          // Replace loading message with success message
+>>>>>>> Stashed changes
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
@@ -1361,9 +1863,15 @@ export default function ChatWindow({
             const chatData = chatDoc.docs[0].data();
             const currentMessages = chatData.messages || [];
 
+<<<<<<< Updated upstream
             // Replace loading message with upscale video result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
               msg.id === loadingMessage.id ? upscaleMessage : msg,
+=======
+            // Replace loading message with success message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? successMessage : msg,
+>>>>>>> Stashed changes
             );
 
             await updateDoc(chatRef, {
@@ -1371,6 +1879,7 @@ export default function ChatWindow({
             });
           }
 
+<<<<<<< Updated upstream
           console.log("✅ Upscaled video saved to chat");
         } else {
           throw new Error("Invalid response from video upscaler API");
@@ -1424,6 +1933,57 @@ export default function ChatWindow({
       }
     },
     [userId, chatId],
+=======
+          console.log("✅ Generated image added to chat:", generatedImageUrl);
+        } else {
+          console.error("❌ No image URL found in response:", result);
+          throw new Error(`No image generated in response. Status: ${result.status}, Available keys: ${Object.keys(result).join(', ')}`);
+        }
+              } catch (error) {
+          console.error("❌ Error submitting action:", error);
+          
+          // Create error message to replace loading message
+          const errorMessage: ChatMessage = {
+            id: `action-error-${type}-${Date.now()}`,
+            sender: "agent",
+            type: "prompt",
+            text: `Sorry, I couldn't ${type} the image. Please try again later.`,
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Replace loading message with error message
+          try {
+            const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+            const chatDoc = await getDocs(
+              query(
+                collection(firestore, `chats/${userId}/prompts`),
+                where("__name__", "==", chatId),
+              ),
+            );
+
+            if (!chatDoc.empty) {
+              const chatData = chatDoc.docs[0].data();
+              const currentMessages = chatData.messages || [];
+
+              // Replace loading message with error message (only if loading message was created)
+              const updatedMessages = loadingMessage 
+                ? currentMessages.map((msg: ChatMessage) =>
+                    msg.id === loadingMessage.id ? errorMessage : msg,
+                  )
+                : [...currentMessages, errorMessage];
+
+              await updateDoc(chatRef, {
+                messages: updatedMessages,
+              });
+            }
+          } catch (updateError) {
+            console.error("❌ Failed to save error message:", updateError);
+          }
+        }
+    },
+    [userId, chatId, messages]
+>>>>>>> Stashed changes
   );
 
   // Initialize auth state
@@ -1600,6 +2160,7 @@ export default function ChatWindow({
                                 src={img}
                                 alt={`image-${i}`}
                                 className="min-w-20 max-h-20 object-cover rounded-lg"
+                                onInpaint={handleInpainting}
                               />
                             </div>
                           ))}
@@ -1640,13 +2201,16 @@ export default function ChatWindow({
                       <div className="flex items-end gap-2">
                         <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl py-2">
                           <div className="text-sm leading-relaxed">
-                            <p className="text-black dark:text-white">
-                              {msg.text}
+                            <ClickableText
+                              text={msg.text || ""}
+                              onActionClick={handleActionClick}
+                              className="text-black dark:text-white no-underline capitalize"
+                            />
                               {(msg as any).isStreaming && (
                                 <span className="animate-pulse">▊</span>
                               )}
-                            </p>
                           </div>
+
                         </div>
                       </div>
                     </div>
@@ -1666,6 +2230,7 @@ export default function ChatWindow({
                                   src={img}
                                   alt={`image-${i}`}
                                   className="w-auto h-36 md:h-96 object-cover rounded-lg"
+                                  onInpaint={handleInpainting}
                                 />
                                 {/* Icon row below the image */}
                                 <div className="flex items-start justify-start gap-1 mt-2">
