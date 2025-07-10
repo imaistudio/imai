@@ -150,19 +150,7 @@ export default function Masonry() {
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
-          <div className="flex justify-center items-center min-h-[50vh]">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 dark:border-white"></div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+
 
   if (error) {
     return (
@@ -193,18 +181,6 @@ export default function Masonry() {
         <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 gap-2 space-y-4">
           {mediaItems.map((item, index) => renderMediaItem(item, index))}
         </div>
-        
-        {loadingMore && (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
-          </div>
-        )}
-        
-        {!hasMore && mediaItems.length > 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400">No more items to load</p>
-          </div>
-        )}
       </main>
       <Footer />
     </>
