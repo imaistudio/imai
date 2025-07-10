@@ -21,6 +21,7 @@ interface ReferencedMessage {
   timestamp: string;
   isLoading?: boolean; // 🔧 NEW: Loading state for API calls
   referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode for contextual replies
+  recommendations?: any[]; // 🔧 NEW: Added recommendations array
 }
 
 export default function Home() {
@@ -198,7 +199,19 @@ export default function Home() {
   };
 
   // 🔧 NEW: Function to handle example button clicks from WelcomeScreen
-  const handleExampleClick = async (prompt: string) => {
+  const handleExampleClick = async (
+    prompt: string, 
+    presets?: {
+      preset_product_type?: string;
+      preset_design_style?: string;
+      preset_color_palette?: string;
+    },
+    defaultImages?: {
+      product?: string;
+      design?: string;
+      color?: string;
+    }
+  ) => {
     if (!currentUser) {
       openModal();
       return;
@@ -207,12 +220,16 @@ export default function Home() {
     // Create a formatted data object like the UnifiedPromptContainer would
     const exampleData = {
       prompt: prompt,
-      product: null,
-      design: [],
-      color: [],
-      productplaceholder: null,
-      designplaceholder: [],
-      colorplaceholder: [],
+      product: defaultImages?.product || null,
+      design: defaultImages?.design ? [defaultImages.design] : [],
+      color: defaultImages?.color ? [defaultImages.color] : [],
+      productplaceholder: defaultImages?.product || null,
+      designplaceholder: defaultImages?.design ? [defaultImages.design] : [],
+      colorplaceholder: defaultImages?.color ? [defaultImages.color] : [],
+      // Add preset information to be passed to the API
+      preset_product_type: presets?.preset_product_type,
+      preset_design_style: presets?.preset_design_style,
+      preset_color_palette: presets?.preset_color_palette,
     };
 
     // Call the same form submission handler
@@ -628,6 +645,7 @@ export default function Home() {
           text: result.message || "",
           images: [] as string[],
           videos: [] as string[], // 🔧 NEW: Added videos array
+          recommendations: result.recommendations || [], // 🔧 NEW: Added recommendations array
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           userId: currentUser.uid,
@@ -723,6 +741,7 @@ export default function Home() {
             videos: agentMessage.videos.filter(
               (video) => typeof video === "string" && video.length > 0,
             ), // 🔧 NEW: Added videos array
+            recommendations: result.recommendations || [], // 🔧 NEW: Added recommendations array
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
             userId: String(currentUser.uid),

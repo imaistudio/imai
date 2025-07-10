@@ -21,6 +21,7 @@ POST http://localhost:3000/api/intentroute
 ## Supported Target APIs
 - `/api/design` - Product composition and design
 - `/api/upscale` - Image upscaling and enhancement
+- `/api/videoupscaler` - Video upscaling and enhancement
 - `/api/mirrormagic` - Creative image transformations
 - `/api/clarityupscaler` - High-quality upscaling with clarity
 - `/api/promptenhancer` - Text prompt enhancement
@@ -59,7 +60,15 @@ curl -X POST http://localhost:3000/api/intentroute \
   -F "product_image=@lowres-image.jpg"
 ```
 
-### 4. Creative Transformation
+### 4. Video Upscaling (after video generation)
+```bash
+# First generate a video, then upscale it by just prompting:
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \
+  -F "message=upscale the video quality"
+```
+
+### 5. Creative Transformation
 ```bash
 curl -X POST http://localhost:3000/api/intentroute \
   -F "userid=uTiXKRbCYbhWnBbkLFZoMdEMdgf2" \

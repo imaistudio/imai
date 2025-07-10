@@ -28,23 +28,25 @@ fal.config({
 
 interface SeedanceVideoOptions {
   prompt?: string;
-  resolution?: "1080p"; // Always use highest quality
-  duration?: "5"; // Fixed 5-second duration
+  resolution?: "1080p";
+  duration?: "5";
   camera_fixed?: boolean;
   seed?: number;
 }
 
 interface SeedanceVideoResponse {
   status: string;
-  videoUrl?: string; // Firebase Storage URL (permanent) with FAL AI URL fallback
+  videoUrl?: string;
   seed?: number;
   error?: string;
 }
 
+// Fashion/clothing preset prompts
+const FASHION_PROMPTS = [
+  "Scene: Product sits on a textured pedestal in near-total darkness. Lighting: A narrow slit of light (as from blinds) pans across the surface, revealing parts. Camera: Lock-off shot that tilts and slowly creeps forward. Detail Shots: Light glints catching curves, high-contrast reflections on materials. Mood: Quiet intensity, perfect for tech or fashion accessories (e.g., headphones, watches)."
+];
+
 // 🔧 VIDEO FIREBASE STORAGE FUNCTIONS
-/**
- * Uploads a video file to Firebase Storage
- */
 async function uploadVideoToFirebaseStorage(
   file: File,
   userid: string,
@@ -58,19 +60,14 @@ async function uploadVideoToFirebaseStorage(
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Get Firebase Storage bucket
     const bucket = getStorage().bucket();
-
-    // Create storage path: userid/output
     const folder = isOutput ? "output" : "input";
     const timestamp = Date.now();
     const fileName = `${timestamp}_${file.name.replace(/\.[^/.]+$/, ".mp4")}`;
     const filePath = `${userid}/${folder}/${fileName}`;
 
-    // Create file reference
     const fileRef = bucket.file(filePath);
 
-    // Upload the file
     await fileRef.save(buffer, {
       metadata: {
         contentType: "video/mp4",
@@ -83,14 +80,10 @@ async function uploadVideoToFirebaseStorage(
       },
     });
 
-    // Make the file publicly accessible
     await fileRef.makePublic();
-
-    // Get the public URL
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 
     console.log(`✅ Firebase Storage video upload successful: ${publicUrl}`);
-
     return publicUrl;
   } catch (error) {
     console.error("❌ Firebase Storage video upload failed:", error);
@@ -100,9 +93,6 @@ async function uploadVideoToFirebaseStorage(
   }
 }
 
-/**
- * Downloads a video from FAL AI URL and uploads it to Firebase Storage
- */
 async function saveOutputVideoToFirebase(
   videoUrl: string,
   userid: string,
@@ -113,12 +103,10 @@ async function saveOutputVideoToFirebase(
       `💾 Saving output video to Firebase Storage for user ${userid}...`,
     );
 
-    // Add timeout for large video files (10 minutes)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutes
+    const timeoutId = setTimeout(() => controller.abort(), 600000);
 
     try {
-      // Fetch the video from the URL with timeout
       const response = await fetch(videoUrl, {
         signal: controller.signal,
         headers: {
@@ -132,13 +120,11 @@ async function saveOutputVideoToFirebase(
         throw new Error(`Failed to fetch video: ${response.statusText}`);
       }
 
-      // Check content length before processing
       const contentLength = response.headers.get("content-length");
       if (contentLength) {
         const sizeInMB = parseInt(contentLength) / (1024 * 1024);
         console.log(`📏 Video size: ${sizeInMB.toFixed(2)}MB`);
 
-        // For very large files (>100MB), skip Firebase upload and use original URL
         if (sizeInMB > 100) {
           console.log(
             `⚠️ Video too large (${sizeInMB.toFixed(2)}MB) - using original URL`,
@@ -151,7 +137,6 @@ async function saveOutputVideoToFirebase(
       const fileName = `${endpoint.replace("/api/", "")}_output_${Date.now()}.mp4`;
       const file = new File([blob], fileName, { type: "video/mp4" });
 
-      // Upload to Firebase Storage in the output folder
       const firebaseUrl = await uploadVideoToFirebaseStorage(
         file,
         userid,
@@ -170,15 +155,11 @@ async function saveOutputVideoToFirebase(
     }
   } catch (error) {
     console.error("❌ Failed to save output video to Firebase:", error);
-    // Return original URL as fallback
     console.log(`🔄 Using original URL as fallback: ${videoUrl}`);
     return videoUrl;
   }
 }
 
-/**
- * Tests if an image URL is accessible
- */
 async function testImageUrl(imageUrl: string): Promise<boolean> {
   try {
     console.log("🔍 Testing image URL accessibility...");
@@ -199,7 +180,6 @@ export async function POST(request: NextRequest) {
     const imageUrl = formData.get("image_url") as string;
     const userid = formData.get("userid") as string;
 
-    // Validate required parameters
     if (!imageUrl) {
       return NextResponse.json(
         { error: "Missing image_url parameter" },
@@ -214,7 +194,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if FAL_KEY is available
     if (!process.env.FAL_KEY) {
       console.error("❌ FAL_KEY not found in environment variables");
       return NextResponse.json(
@@ -225,26 +204,25 @@ export async function POST(request: NextRequest) {
 
     console.log("🔑 FAL_KEY status: Set");
 
-    // Extract optional parameters with defaults - always use highest quality
+    // 🎯 FASHION PRESET: Select random fashion-optimized prompt
+    const selectedPrompt = FASHION_PROMPTS[Math.floor(Math.random() * FASHION_PROMPTS.length)];
+    
     const options: SeedanceVideoOptions = {
-      prompt:
-        (formData.get("prompt") as string) ||
-        "Dynamic motion and natural animation",
-      resolution: "1080p", // Always use highest quality
-      duration: "5", // Fixed 5-second duration
+      prompt: selectedPrompt,
+      resolution: "1080p",
+      duration: "5",
       camera_fixed: formData.get("camera_fixed") === "true" || false,
       seed: formData.get("seed")
         ? parseInt(formData.get("seed") as string)
         : undefined,
     };
 
-    console.log("Starting Seedance video generation...");
+    console.log("Starting Fashion Showcase video generation...");
     console.log(
-      `Parameters: prompt="${options.prompt}", resolution=${options.resolution}, duration=${options.duration}, camera_fixed=${options.camera_fixed}`,
+      `🎯 FASHION PRESET: "${options.prompt}"`,
     );
     console.log(`Image to process: ${imageUrl}`);
 
-    // Test image URL accessibility
     const isAccessible = await testImageUrl(imageUrl);
     if (!isAccessible) {
       console.error("❌ Image URL is not accessible");
@@ -256,7 +234,6 @@ export async function POST(request: NextRequest) {
 
     console.log("Submitting request to FAL AI Seedance Video...");
 
-    // Prepare FAL AI request parameters
     const falParams: any = {
       prompt: options.prompt,
       image_url: imageUrl,
@@ -265,7 +242,6 @@ export async function POST(request: NextRequest) {
       camera_fixed: options.camera_fixed,
     };
 
-    // Only add seed if provided
     if (options.seed !== undefined) {
       falParams.seed = options.seed;
     }
@@ -281,14 +257,14 @@ export async function POST(request: NextRequest) {
         logs: true,
         onQueueUpdate: (update) => {
           if (update.status === "IN_PROGRESS") {
-            console.log("Video generation in progress...");
+            console.log("Fashion showcase video generation in progress...");
             update.logs?.map((log) => log.message).forEach(console.log);
           }
         },
       },
     );
 
-    console.log("Video generation completed successfully!");
+    console.log("Fashion showcase video generation completed successfully!");
     console.log("Raw result:", result);
 
     if (!result.data || !result.data.video || !result.data.video.url) {
@@ -300,10 +276,9 @@ export async function POST(request: NextRequest) {
     }
 
     const outputVideoUrl = result.data.video.url;
-    console.log(`Seedance video generation completed!`);
+    console.log(`Fashion showcase video generation completed!`);
     console.log(`Generated video URL: ${outputVideoUrl}`);
 
-    // 🔧 NEW: Upload video to Firebase Storage for permanent storage
     console.log(
       "🔄 Uploading video to Firebase Storage for permanent storage...",
     );
@@ -312,14 +287,14 @@ export async function POST(request: NextRequest) {
       const firebaseVideoUrl = await saveOutputVideoToFirebase(
         outputVideoUrl,
         userid,
-        "/api/seedancevideo",
+        "/api/seedancevideo-fashion",
       );
 
       console.log("✅ Video uploaded to Firebase Storage successfully!");
 
       const response: SeedanceVideoResponse = {
         status: "success",
-        videoUrl: firebaseVideoUrl, // Firebase Storage URL (permanent)
+        videoUrl: firebaseVideoUrl,
         seed: result.data.seed,
       };
 
@@ -330,17 +305,16 @@ export async function POST(request: NextRequest) {
         uploadError,
       );
 
-      // Fallback to original FAL AI URL if Firebase upload fails
       const response: SeedanceVideoResponse = {
         status: "success",
-        videoUrl: outputVideoUrl, // Fallback to FAL AI URL
+        videoUrl: outputVideoUrl,
         seed: result.data.seed,
       };
 
       return NextResponse.json(response);
     }
   } catch (error) {
-    console.error("❌ Seedance video generation failed:", error);
+    console.error("❌ Fashion showcase video generation failed:", error);
 
     let errorMessage = "Internal server error";
     if (error instanceof Error) {
@@ -355,4 +329,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-}
+} 
