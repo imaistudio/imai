@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "@/lib/firebase";
-import { ImageZoomModal } from "@/components/ImageZoomModal";
-import { VideoZoomModal } from "../components/VideoZoomModal";
+import { ImageZoomModal } from "@/app/components/ImageZoomModal";
+import { VideoZoomModal } from "@/app/components/VideoZoomModal";
 const ITEMS_PER_PAGE = 50;
 
 interface MediaFile {

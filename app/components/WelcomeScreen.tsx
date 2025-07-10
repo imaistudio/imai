@@ -76,6 +76,82 @@ interface WelcomeScreenProps {
 }
 
 export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
+  // Define arrays for random combinations
+  const productTypes = [
+    { key: "tshirt", name: "T-shirt", icon: <Shirt className="w-4 h-4" />, placeholder: "t-shirt.svg" },
+    { key: "watches", name: "Watch", icon: <Watch className="w-4 h-4" />, placeholder: "watches.svg" },
+    { key: "coffecup", name: "Coffee Mug", icon: <Coffee className="w-4 h-4" />, placeholder: "coffeecup.svg" },
+    { key: "phonecase", name: "Phone Case", icon: <Smartphone className="w-4 h-4" />, placeholder: "phonecase.svg" },
+    { key: "earrings", name: "Earrings", icon: <Gem className="w-4 h-4" />, placeholder: "earrings.svg" },
+    { key: "sofa", name: "Sofa", icon: <Sofa className="w-4 h-4" />, placeholder: "sofa.svg" },
+    { key: "glasses", name: "Sunglasses", icon: <Glasses className="w-4 h-4" />, placeholder: "glasses.svg" },
+    { key: "notebook", name: "Notebook", icon: <Laptop className="w-4 h-4" />, placeholder: "notebook.svg" },
+    { key: "vehicles", name: "Vehicle", icon: <Car className="w-4 h-4" />, placeholder: "vehicles.svg" },
+    { key: "toys", name: "Toy", icon: <Star className="w-4 h-4" />, placeholder: "toys.svg" },
+    { key: "bags", name: "Handbag", icon: <Heart className="w-4 h-4" />, placeholder: "bags.svg" },
+    { key: "footwear", name: "Shoes", icon: <Zap className="w-4 h-4" />, placeholder: "footwear.svg" },
+    { key: "kitchenware", name: "Kitchen Utensils", icon: <Home className="w-4 h-4" />, placeholder: "kitchenware.svg" },
+    { key: "homedecor", name: "Home Decor", icon: <Lightbulb className="w-4 h-4" />, placeholder: "homedecor.svg" },
+    { key: "officesupplies", name: "Office Supplies", icon: <Paintbrush className="w-4 h-4" />, placeholder: "officesupplies.svg" },
+    { key: "furniture", name: "Furniture", icon: <Sofa className="w-4 h-4" />, placeholder: "furniture.svg" },
+  ];
+
+  const designStyles = [
+    { key: "minimalist", name: "Minimalist", folder: "fashion" },
+    { key: "luxury", name: "Luxury", folder: "fashion" },
+    { key: "artistic", name: "Artistic", folder: "general" },
+    { key: "futuristic", name: "Futuristic", folder: "general" },
+    { key: "romantic", name: "Romantic", folder: "general" },
+    { key: "minimalsleek", name: "Minimal Sleek", folder: "general" },
+    { key: "vintagefeel", name: "Vintage Feel", folder: "fashion" },
+    { key: "bold", name: "Bold", folder: "general" },
+    { key: "sportysleek", name: "Sporty Sleek", folder: "general" },
+    { key: "funcoolquriky", name: "Fun & Quirky", folder: "general" },
+    { key: "elegantandsophesticated", name: "Elegant & Sophisticated", folder: "bags" },
+    { key: "professional", name: "Professional", folder: "general" },
+    { key: "cozy", name: "Cozy", folder: "general" },
+  ];
+
+  const colorPalettes = [
+    { key: "neutral", name: "Neutral" },
+    { key: "jewel", name: "Jewel Tones" },
+    { key: "earth", name: "Earth Tones" },
+    { key: "neon", name: "Neon" },
+    { key: "romantic", name: "Romantic" },
+    { key: "cool", name: "Cool" },
+    { key: "vintage", name: "Vintage" },
+    { key: "vibrant", name: "Vibrant" },
+    { key: "cyberpunk", name: "Cyberpunk" },
+    { key: "tropical", name: "Tropical" },
+    { key: "monochrome", name: "Monochrome" },
+    { key: "electric", name: "Electric" },
+    { key: "warm", name: "Warm" },
+    { key: "corporate", name: "Corporate" },
+  ];
+
+  // Function to generate random preset combinations
+  const generateRandomPresetCombination = (): ExamplePrompt => {
+    const randomProduct = productTypes[Math.floor(Math.random() * productTypes.length)];
+    const randomDesign = designStyles[Math.floor(Math.random() * designStyles.length)];
+    const randomColor = colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
+
+    return {
+      icon: randomProduct.icon,
+      title: `${randomDesign.name} ${randomProduct.name}`,
+      prompt: `Create a ${randomDesign.name.toLowerCase()} ${randomProduct.name.toLowerCase()} design with ${randomColor.name.toLowerCase()} color palette`,
+      presets: {
+        preset_product_type: randomProduct.key,
+        preset_design_style: randomDesign.key,
+        preset_color_palette: randomColor.key,
+      },
+      defaultImages: {
+        product: `/inputs/placeholders/${randomProduct.placeholder}`,
+        design: `/inputs/placeholders/${randomDesign.folder}/${randomDesign.key}.webp`,
+        color: `/inputs/placeholders/colors/${randomColor.key}.webp`,
+      },
+    };
+  };
+
   const allExamplePrompts: ExamplePrompt[] = [
     {
       icon: <Sparkles className="w-4 h-4" />,
@@ -226,288 +302,20 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
       prompt:
         "Design a show-stopping red carpet outfit with dramatic details and perfect fit",
     },
-    // Advanced Features Section
-    {
-      icon: <ArrowUpCircle className="w-4 h-4" />,
-      title: "Upscale image quality",
-      prompt: "upscale this image to higher resolution with enhanced details",
-    },
-    {
-      icon: <Video className="w-4 h-4" />,
-      title: "Create product video",
-      prompt: "generate a video showcasing this product with smooth motion",
-    },
-    {
-      icon: <Clapperboard className="w-4 h-4" />,
-      title: "Dance video generation",
-      prompt: "create a dance video with energetic movements and music",
-    },
-    {
-      icon: <Monitor className="w-4 h-4" />,
-      title: "Reframe to landscape",
-      prompt: "change this image to 16:9 landscape format for social media",
-    },
-    {
-      icon: <Maximize className="w-4 h-4" />,
-      title: "Reframe to square",
-      prompt: "reframe this to 1:1 square aspect ratio for Instagram",
-    },
-    {
-      icon: <RotateCcw className="w-4 h-4" />,
-      title: "Reframe to portrait",
-      prompt: "change this to 9:16 portrait orientation for mobile viewing",
-    },
-    {
-      icon: <Sunrise className="w-4 h-4" />,
-      title: "Change to sunset lighting",
-      prompt: "change the time of day to golden hour sunset with warm lighting",
-    },
-    {
-      icon: <Moon className="w-4 h-4" />,
-      title: "Transform to night scene",
-      prompt: "change this to a night scene with dramatic evening lighting",
-    },
-    {
-      icon: <Sun className="w-4 h-4" />,
-      title: "Bright daytime lighting",
-      prompt: "change the lighting to bright sunny daytime with natural light",
-    },
-    {
-      icon: <Building className="w-4 h-4" />,
-      title: "Place in modern kitchen",
-      prompt: "place this product in a modern kitchen scene with contemporary design",
-    },
-    {
-      icon: <Sofa className="w-4 h-4" />,
-      title: "Living room scene",
-      prompt: "create a scene composition with this product in a cozy living room",
-    },
-    {
-      icon: <Camera className="w-4 h-4" />,
-      title: "Studio photography scene",
-      prompt: "place this in a professional photography studio with perfect lighting",
-    },
-    {
-      icon: <Workflow className="w-4 h-4" />,
-      title: "Multi-step: Upscale then reframe",
-      prompt: "upscale this image to higher quality and then reframe to landscape",
-    },
-    {
-      icon: <Layers className="w-4 h-4" />,
-      title: "Multi-step: Enhance and transform",
-      prompt: "first upscale this image, then change the lighting to sunset",
-    },
-    {
-      icon: <Sparkles className="w-4 h-4" />,
-      title: "Multi-step: Quality and format",
-      prompt: "enhance image quality with upscaling then change to square format",
-    },
-    // Background & Object Editing
-    {
-      icon: <Eraser className="w-4 h-4" />,
-      title: "Remove background",
-      prompt: "remove the background from this image for clean product shots",
-    },
-    {
-      icon: <Trash2 className="w-4 h-4" />,
-      title: "Remove unwanted objects",
-      prompt: "remove the unwanted objects from this photo while keeping the main subject",
-    },
-    {
-      icon: <FlipHorizontal className="w-4 h-4" />,
-      title: "Mirror magic effect",
-      prompt: "create a mirror magic effect with this image for artistic presentation",
-    },
-    // Advanced Enhancement
-    {
-      icon: <ZoomIn className="w-4 h-4" />,
-      title: "Chain of zoom enhancement",
-      prompt: "create a chain of zoom effect with multiple resolution levels",
-    },
-    {
-      icon: <Eye className="w-4 h-4" />,
-      title: "Clarity upscaler",
-      prompt: "enhance image clarity and sharpness with advanced upscaling",
-    },
-    {
-      icon: <Camera className="w-4 h-4" />,
-      title: "Analyze image content",
-      prompt: "analyze this image and describe its visual elements and composition",
-    },
-    // Video Advanced Features
-    {
-      icon: <Crop className="w-4 h-4" />,
-      title: "Video outpainting",
-      prompt: "expand the video frame with outpainting to create wider scenes",
-    },
-    {
-      icon: <Monitor className="w-4 h-4" />,
-      title: "Video reframe",
-      prompt: "reframe this video to landscape format for YouTube",
-    },
-    {
-      icon: <ArrowUpCircle className="w-4 h-4" />,
-      title: "Video upscaling",
-      prompt: "upscale this video to higher resolution with enhanced quality",
-    },
-    // Preset Combination Examples
-    {
-      icon: <Shirt className="w-4 h-4" />,
-      title: "Minimalist T-shirt Design",
-      prompt: "Create a clean, minimal design composition",
-      presets: {
-        preset_product_type: "tshirt",
-        preset_design_style: "minimalist",
-        preset_color_palette: "neutral"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/t-shirt.svg",
-        design: "/inputs/placeholders/fashion/minimalist.webp",
-        color: "/inputs/placeholders/colors/neutral.webp"
-      }
-    },
-    {
-      icon: <Watch className="w-4 h-4" />,
-      title: "Luxury Watch Design",
-      prompt: "Design an elegant timepiece with premium details",
-      presets: {
-        preset_product_type: "watches",
-        preset_design_style: "luxury",
-        preset_color_palette: "jewel"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/watches.svg",
-        design: "/inputs/placeholders/fashion/luxury.webp",
-        color: "/inputs/placeholders/colors/jewel.webp"
-      }
-    },
-    {
-      icon: <Coffee className="w-4 h-4" />,
-      title: "Artisan Coffee Mug",
-      prompt: "Create a handcrafted ceramic mug with artistic patterns",
-      presets: {
-        preset_product_type: "coffecup",
-        preset_design_style: "artistic",
-        preset_color_palette: "earth"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/coffeecup.svg",
-        design: "/inputs/placeholders/general/artistic.webp",
-        color: "/inputs/placeholders/colors/earth.webp"
-      }
-    },
-    {
-      icon: <Smartphone className="w-4 h-4" />,
-      title: "Futuristic Phone Case",
-      prompt: "Design a cutting-edge phone case with advanced features",
-      presets: {
-        preset_product_type: "phonecase",
-        preset_design_style: "futuristic",
-        preset_color_palette: "neon"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/phonecase.svg",
-        design: "/inputs/placeholders/general/futuristic.webp",
-        color: "/inputs/placeholders/colors/neon.webp"
-      }
-    },
-    {
-      icon: <Gem className="w-4 h-4" />,
-      title: "Romantic Earrings",
-      prompt: "Create sophisticated earrings with romantic details",
-      presets: {
-        preset_product_type: "earrings",
-        preset_design_style: "romantic",
-        preset_color_palette: "romantic"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/earrings.svg",
-        design: "/inputs/placeholders/general/romantic.webp",
-        color: "/inputs/placeholders/colors/romantic.webp"
-      }
-    },
-    {
-      icon: <Sofa className="w-4 h-4" />,
-      title: "Modern Sofa Design",
-      prompt: "Design a comfortable sofa with contemporary aesthetics",
-      presets: {
-        preset_product_type: "sofa",
-        preset_design_style: "minimalsleek",
-        preset_color_palette: "cool"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/sofa.svg",
-        design: "/inputs/placeholders/bags/minimalsleeksophisticated.webp",
-        color: "/inputs/placeholders/colors/cool.webp"
-      }
-    },
-    {
-      icon: <Glasses className="w-4 h-4" />,
-      title: "Vintage Sunglasses",
-      prompt: "Create retro-style sunglasses with classic appeal",
-      presets: {
-        preset_product_type: "glasses",
-        preset_design_style: "vintagefeel",
-        preset_color_palette: "vintage"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/glasses.svg",
-        design: "/inputs/placeholders/fashion/vintage feel.webp",
-        color: "/inputs/placeholders/colors/vintage.webp"
-      }
-    },
-    {
-      icon: <Laptop className="w-4 h-4" />,
-      title: "Bold Notebook Design",
-      prompt: "Design a striking notebook with bold graphics",
-      presets: {
-        preset_product_type: "notebook",
-        preset_design_style: "bold",
-        preset_color_palette: "vibrant"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/notebook.svg",
-        design: "/inputs/placeholders/general/bold.webp",
-        color: "/inputs/placeholders/colors/vibrant.webp"
-      }
-    },
-    {
-      icon: <Car className="w-4 h-4" />,
-      title: "Sporty Vehicle Design",
-      prompt: "Create a dynamic vehicle with aerodynamic features",
-      presets: {
-        preset_product_type: "vehicles",
-        preset_design_style: "sportysleek",
-        preset_color_palette: "cyberpunk"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/vehicles.svg",
-        design: "/inputs/placeholders/general/sportysleek.webp",
-        color: "/inputs/placeholders/colors/cyberpunk.webp"
-      }
-    },
-    {
-      icon: <Headphones className="w-4 h-4" />,
-      title: "Fun Colorful Toy",
-      prompt: "Design a playful toy with bright colors and whimsical patterns",
-      presets: {
-        preset_product_type: "toys",
-        preset_design_style: "funcoolquriky",
-        preset_color_palette: "tropical"
-      },
-      defaultImages: {
-        product: "/inputs/placeholders/toys.svg",
-        design: "/inputs/placeholders/general/funcoolquriky.webp",
-        color: "/inputs/placeholders/colors/tropical.webp"
-      }
-    },
   ];
 
-  // Randomly select 8 prompts each time the component renders to showcase variety
+  // Randomly select prompts and generate random preset combinations
   const examplePrompts = useMemo(() => {
-    const shuffled = [...allExamplePrompts].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 8);
-  }, []);
+    const shuffledBasicPrompts = [...allExamplePrompts].sort(() => Math.random() - 0.5);
+    const basicPrompts = shuffledBasicPrompts.slice(0, 4); // 4 basic prompts
+    
+    // Generate 4 random preset combinations
+    const randomPresetPrompts = Array.from({ length: 4 }, () => generateRandomPresetCombination());
+    
+    // Combine and shuffle again
+    const allPrompts = [...basicPrompts, ...randomPresetPrompts];
+    return allPrompts.sort(() => Math.random() - 0.5);
+  }, [Math.floor(Date.now() / 10000)]); // Rotate every 10 seconds
 
   return (
     <div className="flex flex-col items-center justify-center h-auto md:max-w-4xlmx-auto px-4">
