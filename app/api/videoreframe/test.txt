@@ -1,0 +1,217 @@
+## Video Reframe API - Test Documentation
+
+### Overview
+The videoreframe API endpoint provides advanced video reframing capabilities using FAL AI's wan-vace-14b/reframe model.
+
+### Endpoint
+POST /api/videoreframe
+
+### Key Features
+- Video aspect ratio adjustment (16:9, 1:1, 9:16, auto)
+- Resolution options (480p, 580p, 720p)
+- Zoom factor control
+- Firebase Storage integration for permanent URLs
+- Multi-step usage support
+- Optimized for quality and speed
+
+### Required Parameters
+- video_url: URL to the source video file
+- userid: User identifier for storage organization
+
+### Optional Parameters
+- prompt: Text prompt to guide video generation (default: "")
+- aspect_ratio: Output aspect ratio (default: "auto")
+  - Options: "auto", "16:9", "1:1", "9:16"
+- resolution: Output resolution (default: "720p")
+  - Options: "480p", "580p", "720p"
+- zoom_factor: Zoom factor for video (default: 0)
+- num_inference_steps: Number of inference steps (default: 30)
+- guidance_scale: Guidance scale (default: 5)
+- seed: Random seed for reproducibility (optional)
+
+### Basic Usage Example
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://example.com/video.mp4" \
+  -F "userid=user123" \
+  -F "aspect_ratio=16:9" \
+  -F "resolution=720p"
+```
+
+### Expected Response
+```json
+{
+  "status": "success",
+  "videoUrl": "https://storage.googleapis.com/bucket/user123/output/1234567890_videoreframe_output.mp4",
+  "seed": 123456,
+  "prompt": "",
+  "can_continue": true,
+  "next_steps": {
+    "further_reframe": {
+      "endpoint": "/api/videoreframe",
+      "description": "Apply additional reframing",
+      "params": {
+        "video_url": "https://storage.googleapis.com/bucket/user123/output/1234567890_videoreframe_output.mp4",
+        "aspect_ratio": "16:9 | 1:1 | 9:16"
+      }
+    },
+    "upscale_video": {
+      "endpoint": "/api/videoupscaler",
+      "description": "Upscale reframed video quality",
+      "params": {
+        "video_url": "https://storage.googleapis.com/bucket/user123/output/1234567890_videoreframe_output.mp4"
+      }
+    },
+    "generate_motion": {
+      "endpoint": "/api/seedancevideo",
+      "description": "Add motion to reframed video frames",
+      "params": {
+        "image_url": "Extract frame first",
+        "prompt": "motion prompt"
+      }
+    }
+  }
+}
+```
+
+### Test Cases
+
+#### 1. Basic Video Reframing
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://storage.googleapis.com/your-bucket/test-video.mp4" \
+  -F "userid=test-user" \
+  -F "aspect_ratio=16:9" \
+  -F "resolution=720p"
+```
+
+#### 2. Square Format for Social Media
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://storage.googleapis.com/your-bucket/test-video.mp4" \
+  -F "userid=test-user" \
+  -F "aspect_ratio=1:1" \
+  -F "resolution=720p" \
+  -F "prompt=cinematic square format"
+```
+
+#### 3. Vertical Video for Mobile
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://storage.googleapis.com/your-bucket/test-video.mp4" \
+  -F "userid=test-user" \
+  -F "aspect_ratio=9:16" \
+  -F "resolution=720p" \
+  -F "zoom_factor=0.1"
+```
+
+#### 4. Custom Zoom and Quality
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://storage.googleapis.com/your-bucket/test-video.mp4" \
+  -F "userid=test-user" \
+  -F "aspect_ratio=16:9" \
+  -F "resolution=720p" \
+  -F "zoom_factor=0.2" \
+  -F "num_inference_steps=40" \
+  -F "guidance_scale=6" \
+  -F "seed=42"
+```
+
+#### 5. High-Quality Processing
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://storage.googleapis.com/your-bucket/test-video.mp4" \
+  -F "userid=test-user" \
+  -F "aspect_ratio=auto" \
+  -F "resolution=720p" \
+  -F "num_inference_steps=50" \
+  -F "guidance_scale=7" \
+  -F "prompt=enhance visual quality and composition"
+```
+
+### Error Responses
+
+#### Missing Required Parameters
+```json
+{
+  "error": "Missing video_url parameter"
+}
+```
+
+#### Invalid Video URL
+```json
+{
+  "error": "Video URL is not accessible"
+}
+```
+
+#### FAL AI Processing Error
+```json
+{
+  "error": "Video reframing failed",
+  "details": "Detailed error message",
+  "status": "error"
+}
+```
+
+### Multi-Step Usage Examples
+
+#### Chain with Video Upscaling
+1. First reframe the video:
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://example.com/input.mp4" \
+  -F "userid=user123" \
+  -F "aspect_ratio=16:9"
+```
+
+2. Then upscale the reframed video:
+```bash
+curl -X POST "http://localhost:3000/api/videoupscaler" \
+  -F "video_url=https://storage.googleapis.com/bucket/user123/output/videoreframe_output.mp4" \
+  -F "userid=user123"
+```
+
+#### Multiple Reframing Steps
+1. Initial reframe to 16:9:
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://example.com/input.mp4" \
+  -F "userid=user123" \
+  -F "aspect_ratio=16:9"
+```
+
+2. Further reframe with zoom:
+```bash
+curl -X POST "http://localhost:3000/api/videoreframe" \
+  -F "video_url=https://storage.googleapis.com/bucket/user123/output/videoreframe_output.mp4" \
+  -F "userid=user123" \
+  -F "aspect_ratio=16:9" \
+  -F "zoom_factor=0.15"
+```
+
+### Performance Notes
+- Processing time: 3-8 minutes depending on video length and resolution
+- Maximum video size: 100MB (larger files use fallback URLs)
+- Output: Permanent Firebase Storage URLs
+- Supports videos up to 10 minutes in length
+- Optimized for quality with 720p default resolution
+
+### Best Practices
+1. Use 720p resolution for best quality
+2. Test with zoom_factor values between 0-0.3
+3. For social media, use appropriate aspect ratios (1:1 for Instagram, 9:16 for TikTok)
+4. Add descriptive prompts for better results
+5. Use consistent seeds for reproducible results
+
+### Supported Video Formats
+- MP4 (recommended)
+- MOV
+- AVI
+- WebM
+
+### Integration with Other APIs
+- Can be chained with videoupscaler for quality enhancement
+- Compatible with seedancevideo for motion generation
+- Works with all existing video processing workflows 
