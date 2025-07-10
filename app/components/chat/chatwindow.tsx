@@ -1011,6 +1011,421 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
+  // Handle video landscape (outpainting)
+  const handlelandscapevideo = useCallback(
+    async (videoUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log("🎬 Starting video landscape outpainting for:", videoUrl);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `landscape-video-${Date.now()}`,
+        sender: "agent",
+        type: "videos",
+        text: "Converting video to landscape format...",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      try {
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Call video outpainting API
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("video_url", videoUrl);
+        formData.append("aspect_ratio", "16:9");
+        formData.append("resolution", "720p");
+        formData.append("expand_left", "true");
+        formData.append("expand_right", "true");
+        formData.append("expand_ratio", "0.25");
+        formData.append("num_frames", "81");
+        formData.append("frames_per_second", "16");
+        formData.append("num_inference_steps", "30");
+        formData.append("guidance_scale", "5.0");
+
+        const response = await fetch("/api/videooutpainting", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (result.status === "success" && result.videoUrl) {
+          // Create landscape video message
+          const landscapeMessage: ChatMessage = {
+            id: `landscape-video-result-${Date.now()}`,
+            sender: "agent",
+            type: "videos",
+            text: "Here's your landscape video:",
+            videos: [result.videoUrl],
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Update Firestore with the landscape video
+          // First, get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with landscape video result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? landscapeMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+
+          console.log("✅ Landscape video saved to chat");
+        } else {
+          throw new Error("Invalid response from video outpainting API");
+        }
+      } catch (error) {
+        console.error("❌ Video landscape outpainting failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `landscape-video-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't convert the video to landscape format. Please try again later.",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+
+          // Get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with error message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          } else {
+            // If no chat found, just add the error message
+            await updateDoc(chatRef, {
+              messages: arrayUnion(errorMessage),
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
+  // Handle video reframe to portrait
+  const handleVideoreframe = useCallback(
+    async (videoUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log("🎬 Starting video reframe to portrait for:", videoUrl);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `reframe-video-${Date.now()}`,
+        sender: "agent",
+        type: "videos",
+        text: "Reframing video to portrait format...",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      try {
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Call video reframe API
+        const formData = new FormData();
+        formData.append("userid", userId);
+        formData.append("video_url", videoUrl);
+        formData.append("aspect_ratio", "9:16");
+        formData.append("resolution", "720p");
+        formData.append("zoom_factor", "0");
+        formData.append("num_inference_steps", "30");
+        formData.append("guidance_scale", "5");
+
+        const response = await fetch("/api/videoreframe", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (result.status === "success" && result.videoUrl) {
+          // Create reframed video message
+          const reframeMessage: ChatMessage = {
+            id: `reframe-video-result-${Date.now()}`,
+            sender: "agent",
+            type: "videos",
+            text: "Here's your portrait reframed video:",
+            videos: [result.videoUrl],
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Update Firestore with the reframed video
+          // First, get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with reframe video result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? reframeMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+
+          console.log("✅ Reframed video saved to chat");
+        } else {
+          throw new Error("Invalid response from video reframe API");
+        }
+      } catch (error) {
+        console.error("❌ Video reframe failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `reframe-video-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't reframe the video to portrait format. Please try again later.",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+
+          // Get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with error message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          } else {
+            // If no chat found, just add the error message
+            await updateDoc(chatRef, {
+              messages: arrayUnion(errorMessage),
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
+  // Handle video upscale
+  const handleVideoUpscale = useCallback(
+    async (videoUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log("✨ Starting video upscale for:", videoUrl);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `upscale-video-${Date.now()}`,
+        sender: "agent",
+        type: "videos",
+        text: "Upscaling video to higher resolution...",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      try {
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Call video upscale API
+        const formData = new FormData();
+        formData.append("video_url", videoUrl);
+
+        const response = await fetch("/api/videoupscaler", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.video_url) {
+          // Create upscaled video message
+          const upscaleMessage: ChatMessage = {
+            id: `upscale-video-result-${Date.now()}`,
+            sender: "agent",
+            type: "videos",
+            text: "Here's your upscaled video:",
+            videos: [result.video_url],
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Update Firestore with the upscaled video
+          // First, get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with upscale video result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? upscaleMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+
+          console.log("✅ Upscaled video saved to chat");
+        } else {
+          throw new Error("Invalid response from video upscaler API");
+        }
+      } catch (error) {
+        console.error("❌ Video upscale failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `upscale-video-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't upscale the video. Please try again later.",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+
+          // Get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with error message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          } else {
+            // If no chat found, just add the error message
+            await updateDoc(chatRef, {
+              messages: arrayUnion(errorMessage),
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
   // Initialize auth state
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user: User | null) => {
@@ -1524,6 +1939,7 @@ export default function ChatWindow({
                                     />
                                   </button>
                                   <button
+                                    onClick={() => handlelandscapevideo(video)}
                                     className="p-1 rounded-full "
                                     title="Landscape"
                                   >
@@ -1534,6 +1950,7 @@ export default function ChatWindow({
                                   </button>
 
                                   <button
+                                    onClick={() => handleVideoreframe(video)}
                                     className="p-1 rounded-full "
                                     title="Portrait"
                                   >
@@ -1546,6 +1963,7 @@ export default function ChatWindow({
 
 
                                   <button
+                                    onClick={() => handleVideoUpscale(video)}
                                     className="p-1 rounded-full "
                                     title="Upscale Video"
                                   >
