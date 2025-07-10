@@ -32,6 +32,7 @@ import {
   Palette,
   Droplets,
   Clapperboard,
+  Undo2,
 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
@@ -48,6 +49,7 @@ interface ChatMessage {
   chatId: string;
   isStreaming?: boolean;
   isLoading?: boolean;
+  isReferenced?: boolean; // 🔧 NEW: Boolean to track if this message is a reply to another message
   updatedAt?: Timestamp | { seconds: number; nanoseconds: number };
 }
 
@@ -1179,8 +1181,19 @@ export default function ChatWindow({
                         </div>
                       )}
                       {msg.text && (
-                        <div className="text-sm  text-white bg-primary rounded-full py-2 px-4 leading-relaxed text-left">
-                          <p>{msg.text}</p>
+                        <div className="relative">
+                          {/* 🔧 NEW: Reply icon indicator */}
+                          {msg.isReferenced && (
+                            <div className="flex justify-end mb-1">
+                              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                <Undo2 size={16} />
+                                <span>Replied</span>
+                              </div>
+                            </div>
+                          )}
+                          <div className="text-sm  text-white bg-primary rounded-full py-2 px-4 leading-relaxed text-left">
+                            <p>{msg.text}</p>
+                          </div>
                         </div>
                       )}
                     </div>
