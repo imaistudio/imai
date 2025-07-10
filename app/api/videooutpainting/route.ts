@@ -246,28 +246,30 @@ export async function POST(request: NextRequest) {
     const expandRatioStr = formData.get("expand_ratio") as string;
     let expandRatio = expandRatioStr ? parseFloat(expandRatioStr) : 0.25;
     if (isNaN(expandRatio)) expandRatio = 0.25;
-    
+
     const numFramesStr = formData.get("num_frames") as string;
     let numFrames = numFramesStr ? parseInt(numFramesStr) : 81;
     if (isNaN(numFrames)) numFrames = 81;
-    
+
     const fpsStr = formData.get("frames_per_second") as string;
     let framesPerSecond = fpsStr ? parseInt(fpsStr) : 16;
     if (isNaN(framesPerSecond)) framesPerSecond = 16;
-    
+
     const inferenceStepsStr = formData.get("num_inference_steps") as string;
     let inferenceSteps = inferenceStepsStr ? parseInt(inferenceStepsStr) : 30;
     if (isNaN(inferenceSteps)) inferenceSteps = 30;
-    
+
     const guidanceScaleStr = formData.get("guidance_scale") as string;
     let guidanceScale = guidanceScaleStr ? parseFloat(guidanceScaleStr) : 5.0;
     if (isNaN(guidanceScale)) guidanceScale = 5.0;
 
     // Extract optional parameters with defaults
     const options: VideoOutpaintingOptions = {
-      prompt: (formData.get("prompt") as string) || 
+      prompt:
+        (formData.get("prompt") as string) ||
         "Extend the video scene naturally, maintaining visual consistency and style",
-      negative_prompt: (formData.get("negative_prompt") as string) || 
+      negative_prompt:
+        (formData.get("negative_prompt") as string) ||
         "letterboxing, borders, black bars, bright colors, overexposed, static, blurred details, subtitles, style, artwork, painting, picture, still, overall gray, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn faces, deformed, disfigured, malformed limbs, fused fingers, still picture, cluttered background, three legs, many people in the background, walking backwards",
       video_url: videoUrl,
       expand_left: formData.get("expand_left") === "true" || false,
@@ -275,20 +277,28 @@ export async function POST(request: NextRequest) {
       expand_top: formData.get("expand_top") === "true" || false,
       expand_bottom: formData.get("expand_bottom") === "true" || false,
       expand_ratio: expandRatio,
-      resolution: (formData.get("resolution") as "480p" | "580p" | "720p") || "720p",
-      aspect_ratio: (formData.get("aspect_ratio") as "auto" | "16:9" | "1:1" | "9:16") || "auto",
+      resolution:
+        (formData.get("resolution") as "480p" | "580p" | "720p") || "720p",
+      aspect_ratio:
+        (formData.get("aspect_ratio") as "auto" | "16:9" | "1:1" | "9:16") ||
+        "auto",
       num_frames: numFrames,
       frames_per_second: framesPerSecond,
-      match_input_num_frames: formData.get("match_input_num_frames") === "true" || false,
-      match_input_frames_per_second: formData.get("match_input_frames_per_second") === "true" || false,
+      match_input_num_frames:
+        formData.get("match_input_num_frames") === "true" || false,
+      match_input_frames_per_second:
+        formData.get("match_input_frames_per_second") === "true" || false,
       num_inference_steps: inferenceSteps,
       guidance_scale: guidanceScale,
-      seed: formData.get("seed") 
-        ? parseInt(formData.get("seed") as string) 
+      seed: formData.get("seed")
+        ? parseInt(formData.get("seed") as string)
         : undefined,
-      enable_safety_checker: formData.get("enable_safety_checker") === "true" || false,
-      enable_prompt_expansion: formData.get("enable_prompt_expansion") === "true" || false,
-      acceleration: (formData.get("acceleration") as "none" | "regular") || undefined,
+      enable_safety_checker:
+        formData.get("enable_safety_checker") === "true" || false,
+      enable_prompt_expansion:
+        formData.get("enable_prompt_expansion") === "true" || false,
+      acceleration:
+        (formData.get("acceleration") as "none" | "regular") || undefined,
     };
 
     // Validate expand_ratio
@@ -316,7 +326,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if at least one expansion direction is enabled
-    if (!options.expand_left && !options.expand_right && !options.expand_top && !options.expand_bottom) {
+    if (
+      !options.expand_left &&
+      !options.expand_right &&
+      !options.expand_top &&
+      !options.expand_bottom
+    ) {
       // Default to expanding all directions if none specified
       options.expand_left = true;
       options.expand_right = true;
@@ -379,19 +394,16 @@ export async function POST(request: NextRequest) {
       `Arguments: expand_ratio=${options.expand_ratio}, resolution=${options.resolution}, aspect_ratio=${options.aspect_ratio}, num_frames=${options.num_frames}`,
     );
 
-    const result = await fal.subscribe(
-      "fal-ai/wan-vace-14b/outpainting",
-      {
-        input: falParams,
-        logs: true,
-        onQueueUpdate: (update) => {
-          if (update.status === "IN_PROGRESS") {
-            console.log("Video outpainting in progress...");
-            update.logs?.map((log) => log.message).forEach(console.log);
-          }
-        },
+    const result = await fal.subscribe("fal-ai/wan-vace-14b/outpainting", {
+      input: falParams,
+      logs: true,
+      onQueueUpdate: (update) => {
+        if (update.status === "IN_PROGRESS") {
+          console.log("Video outpainting in progress...");
+          update.logs?.map((log) => log.message).forEach(console.log);
+        }
       },
-    );
+    });
 
     console.log("Video outpainting completed successfully!");
     console.log("Raw result:", result);
@@ -427,7 +439,7 @@ export async function POST(request: NextRequest) {
         "Use '/api/upscale' to enhance video quality",
         "Apply '/api/videoreframe' to change aspect ratio",
         "Try '/api/timeofday' for lighting adjustments",
-        "Use '/api/scenecomposition' for scene modifications"
+        "Use '/api/scenecomposition' for scene modifications",
       ];
 
       const response: VideoOutpaintingResponse = {
@@ -455,7 +467,7 @@ export async function POST(request: NextRequest) {
           "Use '/api/upscale' to enhance video quality",
           "Apply '/api/videoreframe' to change aspect ratio",
           "Try '/api/timeofday' for lighting adjustments",
-          "Use '/api/scenecomposition' for scene modifications"
+          "Use '/api/scenecomposition' for scene modifications",
         ],
       };
 
@@ -477,4 +489,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-} 
+}

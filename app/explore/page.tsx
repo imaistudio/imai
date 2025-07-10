@@ -9,7 +9,7 @@ import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 interface MediaItem {
   url: string;
-  type: 'image' | 'video';
+  type: "image" | "video";
   name: string;
 }
 
@@ -24,79 +24,101 @@ export default function Masonry() {
   const ITEMS_PER_PAGE = 20;
 
   const isImageFile = (filename: string): boolean => {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif', '.svg'];
-    return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+    const imageExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".avif",
+      ".svg",
+    ];
+    return imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
   };
 
   const isVideoFile = (filename: string): boolean => {
-    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv'];
-    return videoExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+    const videoExtensions = [
+      ".mp4",
+      ".webm",
+      ".mov",
+      ".avi",
+      ".mkv",
+      ".flv",
+      ".wmv",
+    ];
+    return videoExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
   };
 
-  const fetchMediaItems = useCallback(async (isLoadMore: boolean = false) => {
-    try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
-
-      const exploreRef = ref(storage, 'expolore');
-      const result = await listAll(exploreRef);
-      
-      // Get all files and their download URLs
-      const allFiles = await Promise.all(
-        result.items.map(async (itemRef) => {
-          const url = await getDownloadURL(itemRef);
-          const filename = itemRef.name;
-          let type: 'image' | 'video' = 'image';
-          
-          if (isImageFile(filename)) {
-            type = 'image';
-          } else if (isVideoFile(filename)) {
-            type = 'video';
-          }
-          
-          return {
-            url,
-            type,
-            name: filename
-          };
-        })
-      );
-
-      // Filter out unsupported file types
-      const supportedFiles = allFiles.filter(file => 
-        isImageFile(file.name) || isVideoFile(file.name)
-      );
-
-      if (isLoadMore) {
-        // Calculate pagination
-        const currentLength = mediaItems.length;
-        const newItems = supportedFiles.slice(currentLength, currentLength + ITEMS_PER_PAGE);
-        
-        if (newItems.length > 0) {
-          setMediaItems(prev => [...prev, ...newItems]);
-          setHasMore(currentLength + newItems.length < supportedFiles.length);
+  const fetchMediaItems = useCallback(
+    async (isLoadMore: boolean = false) => {
+      try {
+        if (isLoadMore) {
+          setLoadingMore(true);
         } else {
-          setHasMore(false);
+          setLoading(true);
         }
-      } else {
-        // Initial load
-        const initialItems = supportedFiles.slice(0, ITEMS_PER_PAGE);
-        setMediaItems(initialItems);
-        setHasMore(initialItems.length < supportedFiles.length);
-      }
 
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching media items:', err);
-      setError('Failed to load media items');
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [mediaItems.length]);
+        const exploreRef = ref(storage, "expolore");
+        const result = await listAll(exploreRef);
+
+        // Get all files and their download URLs
+        const allFiles = await Promise.all(
+          result.items.map(async (itemRef) => {
+            const url = await getDownloadURL(itemRef);
+            const filename = itemRef.name;
+            let type: "image" | "video" = "image";
+
+            if (isImageFile(filename)) {
+              type = "image";
+            } else if (isVideoFile(filename)) {
+              type = "video";
+            }
+
+            return {
+              url,
+              type,
+              name: filename,
+            };
+          }),
+        );
+
+        // Filter out unsupported file types
+        const supportedFiles = allFiles.filter(
+          (file) => isImageFile(file.name) || isVideoFile(file.name),
+        );
+
+        if (isLoadMore) {
+          // Calculate pagination
+          const currentLength = mediaItems.length;
+          const newItems = supportedFiles.slice(
+            currentLength,
+            currentLength + ITEMS_PER_PAGE,
+          );
+
+          if (newItems.length > 0) {
+            setMediaItems((prev) => [...prev, ...newItems]);
+            setHasMore(currentLength + newItems.length < supportedFiles.length);
+          } else {
+            setHasMore(false);
+          }
+        } else {
+          // Initial load
+          const initialItems = supportedFiles.slice(0, ITEMS_PER_PAGE);
+          setMediaItems(initialItems);
+          setHasMore(initialItems.length < supportedFiles.length);
+        }
+
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching media items:", err);
+        setError("Failed to load media items");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [mediaItems.length],
+  );
 
   const loadMoreItems = useCallback(() => {
     if (!loadingMore && hasMore) {
@@ -110,19 +132,22 @@ export default function Masonry() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 1000
+      ) {
         loadMoreItems();
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [loadMoreItems]);
 
   const renderMediaItem = (item: MediaItem, index: number) => {
     const key = `${item.name}-${index}`;
-    
-    if (item.type === 'video') {
+
+    if (item.type === "video") {
       return (
         <div
           key={key}
@@ -149,8 +174,6 @@ export default function Masonry() {
       );
     }
   };
-
-
 
   if (error) {
     return (

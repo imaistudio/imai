@@ -18,7 +18,9 @@ if (!getApps().length) {
   });
 }
 
-console.log("🔥 Firebase initialized - using Firebase Storage for video handling");
+console.log(
+  "🔥 Firebase initialized - using Firebase Storage for video handling",
+);
 
 fal.config({
   credentials: process.env.FAL_KEY,
@@ -214,12 +216,23 @@ export async function POST(request: NextRequest) {
     // Extract optional parameters with optimized defaults
     const options: VideoReframeOptions = {
       prompt: (formData.get("prompt") as string) || "",
-      aspect_ratio: (formData.get("aspect_ratio") as "auto" | "16:9" | "1:1" | "9:16") || "auto",
-      resolution: (formData.get("resolution") as "480p" | "580p" | "720p") || "720p", // Highest quality
-      zoom_factor: formData.get("zoom_factor") ? parseFloat(formData.get("zoom_factor") as string) : 0,
-      num_inference_steps: formData.get("num_inference_steps") ? parseInt(formData.get("num_inference_steps") as string) : 30,
-      guidance_scale: formData.get("guidance_scale") ? parseFloat(formData.get("guidance_scale") as string) : 5,
-      seed: formData.get("seed") ? parseInt(formData.get("seed") as string) : undefined,
+      aspect_ratio:
+        (formData.get("aspect_ratio") as "auto" | "16:9" | "1:1" | "9:16") ||
+        "auto",
+      resolution:
+        (formData.get("resolution") as "480p" | "580p" | "720p") || "720p", // Highest quality
+      zoom_factor: formData.get("zoom_factor")
+        ? parseFloat(formData.get("zoom_factor") as string)
+        : 0,
+      num_inference_steps: formData.get("num_inference_steps")
+        ? parseInt(formData.get("num_inference_steps") as string)
+        : 30,
+      guidance_scale: formData.get("guidance_scale")
+        ? parseFloat(formData.get("guidance_scale") as string)
+        : 5,
+      seed: formData.get("seed")
+        ? parseInt(formData.get("seed") as string)
+        : undefined,
     };
 
     console.log("Starting video reframing...");
@@ -319,19 +332,25 @@ export async function POST(request: NextRequest) {
           further_reframe: {
             endpoint: "/api/videoreframe",
             description: "Apply additional reframing",
-            params: { video_url: firebaseVideoUrl, aspect_ratio: "16:9 | 1:1 | 9:16" }
+            params: {
+              video_url: firebaseVideoUrl,
+              aspect_ratio: "16:9 | 1:1 | 9:16",
+            },
           },
           upscale_video: {
             endpoint: "/api/videoupscaler",
             description: "Upscale reframed video quality",
-            params: { video_url: firebaseVideoUrl }
+            params: { video_url: firebaseVideoUrl },
           },
           generate_motion: {
             endpoint: "/api/seedancevideo",
             description: "Add motion to reframed video frames",
-            params: { image_url: "Extract frame first", prompt: "motion prompt" }
-          }
-        }
+            params: {
+              image_url: "Extract frame first",
+              prompt: "motion prompt",
+            },
+          },
+        },
       };
 
       return NextResponse.json(response);
@@ -361,9 +380,15 @@ export async function POST(request: NextRequest) {
       errorMessage = error.message;
 
       // Handle specific fal.ai errors
-      if (error.message.includes("Invalid video URL") || error.message.includes("not accessible")) {
+      if (
+        error.message.includes("Invalid video URL") ||
+        error.message.includes("not accessible")
+      ) {
         statusCode = 400;
-      } else if (error.message.includes("quota") || error.message.includes("limit")) {
+      } else if (
+        error.message.includes("quota") ||
+        error.message.includes("limit")
+      ) {
         statusCode = 429;
       }
     }
@@ -377,4 +402,4 @@ export async function POST(request: NextRequest) {
       { status: statusCode },
     );
   }
-} 
+}

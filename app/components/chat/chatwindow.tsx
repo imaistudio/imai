@@ -33,6 +33,7 @@ import {
   Droplets,
   Clapperboard,
   Undo2,
+  AudioWaveform,
 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
@@ -134,7 +135,11 @@ export default function ChatWindow({
 
   // Handle reply to message
   const handleReply = useCallback(
-    (msg: ChatMessage, index: number, customReferenceMode?: "product" | "color" | "design") => {
+    (
+      msg: ChatMessage,
+      index: number,
+      customReferenceMode?: "product" | "color" | "design",
+    ) => {
       if (!onReplyToMessage) return;
 
       const referencedMessage: ReferencedMessage = {
@@ -404,16 +409,10 @@ export default function ChatWindow({
       link.href = proxyUrl;
       link.download = fileName;
       link.style.display = "none";
-
-      console.log("🔗 Created download link with href:", link.href);
-      console.log("📥 Download attribute:", link.download);
-
       document.body.appendChild(link);
 
       // Force click
       link.click();
-
-      console.log("✅ Download link clicked");
 
       // Clean up after a short delay
       setTimeout(() => {
@@ -1500,6 +1499,56 @@ export default function ChatWindow({
                                       }`}
                                     />
                                   </button>
+                                  <button
+                                    onClick={() =>
+                                      console.log("Refresh:", video)
+                                    }
+                                    className="p-1 rounded-full "
+                                    title="Retry"
+                                  >
+                                    <RefreshCcw
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+
+                                  <button
+                                    className="p-1 rounded-full "
+                                    title="Add Audio"
+                                  >
+                                    <AudioWaveform
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    className="p-1 rounded-full "
+                                    title="Landscape Video"
+                                  >
+                                    <UnfoldHorizontal
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    className="p-1 rounded-full "
+                                    title="Upscale Video"
+                                  >
+                                    <Sparkles
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    className="p-1 rounded-full "
+                                    title="Video to Prompt"
+                                  >
+                                    <LetterText
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+
                                   <button
                                     onClick={() => handleDownload(video)}
                                     className="p-1 rounded-full"
