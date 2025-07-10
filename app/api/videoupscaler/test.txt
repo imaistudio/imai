@@ -1,0 +1,34 @@
+Video Upscaler API Test
+
+Endpoint: POST /api/videoupscaler
+
+Parameters:
+- video_url (required): URL of the video to upscale
+- Fixed 4x upscaling applied automatically
+
+Example test:
+```bash
+curl -X POST http://localhost:3000/api/videoupscaler \
+  -F "video_url=https://storage.googleapis.com/falserverless/videos/_o3VmzjOytBwRjCVPFX6i_output.mp4"
+```
+
+Expected response:
+```json
+{
+  "success": true,
+  "video_url": "https://storage.googleapis.com/falserverless/videos/h0jgPaO6AJAbyrsNYNbGl_upscaled_video.mp4",
+  "video": {
+    "content_type": "video/mp4",
+    "url": "https://storage.googleapis.com/falserverless/videos/h0jgPaO6AJAbyrsNYNbGl_upscaled_video.mp4"
+  },
+  "request_id": "764cabcf-b745-4b3e-ae38-1200304cf45b",
+  "scale_factor": 4,
+  "original_video_url": "https://storage.googleapis.com/falserverless/videos/_o3VmzjOytBwRjCVPFX6i_output.mp4"
+}
+```
+
+Error cases:
+- Missing video_url: 400 Bad Request
+- Invalid video URL: 400 Bad Request  
+- FAL_KEY not set: 500 Internal Server Error
+- Rate limit exceeded: 429 Too Many Requests 
