@@ -10,6 +10,14 @@ import {
   Check,
   Copy,
   Download,
+  MessageSquare,
+  Camera,
+  Instagram,
+  Music,
+  MapPin,
+  Send,
+  Gamepad2,
+  Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +66,57 @@ const socialPlatforms: SocialPlatform[] = [
     icon: <MessageCircle className="w-5 h-5" />,
     color: "bg-[#25D366] hover:bg-[#1EBE5E]",
     shareUrl: (url, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
+  },
+  {
+    name: "Reddit",
+    icon: <MessageSquare className="w-5 h-5" />,
+    color: "bg-[#FF4500] hover:bg-[#E63E00]",
+    shareUrl: (url, text) =>
+      `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`,
+  },
+  {
+    name: "Snapchat",
+    icon: <Camera className="w-5 h-5" />,
+    color: "bg-[#FFFC00] hover:bg-[#F0ED00] text-black",
+    shareUrl: (url, text) => `https://www.snapchat.com/share?url=${encodeURIComponent(url)}`,
+  },
+  {
+    name: "Instagram",
+    icon: <Instagram className="w-5 h-5" />,
+    color: "bg-gradient-to-r from-[#405DE6] via-[#5851DB] via-[#833AB4] via-[#C13584] via-[#E1306C] to-[#FD1D1D] hover:opacity-90",
+    shareUrl: (url, text) => `https://www.instagram.com/share?url=${encodeURIComponent(url)}`,
+  },
+  {
+    name: "TikTok",
+    icon: <Music className="w-5 h-5" />,
+    color: "bg-[#000000] hover:bg-[#161823]",
+    shareUrl: (url, text) => `https://www.tiktok.com/share?url=${encodeURIComponent(url)}`,
+  },
+  {
+    name: "Pinterest",
+    icon: <MapPin className="w-5 h-5" />,
+    color: "bg-[#BD081C] hover:bg-[#A00713]",
+    shareUrl: (url, text) =>
+      `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent(text)}`,
+  },
+  {
+    name: "Telegram",
+    icon: <Send className="w-5 h-5" />,
+    color: "bg-[#0088cc] hover:bg-[#0077b3]",
+    shareUrl: (url, text) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+  },
+  {
+    name: "Discord",
+    icon: <Gamepad2 className="w-5 h-5" />,
+    color: "bg-[#5865F2] hover:bg-[#4752C4]",
+    shareUrl: (url, text) => `https://discord.com/channels/@me?message=${encodeURIComponent(`${text} ${url}`)}`,
+  },
+  {
+    name: "Tumblr",
+    icon: <Hash className="w-5 h-5" />,
+    color: "bg-[#00cf35] hover:bg-[#00b82f]",
+    shareUrl: (url, text) =>
+      `https://www.tumblr.com/widgets/share/tool?canonicalUrl=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`,
   },
 ];
 
