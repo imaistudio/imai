@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
     const options: VideoOutpaintingOptions = {
       prompt:
         (formData.get("prompt") as string) ||
-        "Extend the video scene naturally, maintaining visual consistency and style",
+        "Extend the scene beyond the current video frame while preserving the visual style, perspective, lighting, motion consistency, and semantic context. Seamlessly continue the environment, objects, and background elements in a natural and coherent way as if the frame were wider or taller. Do not add new elements that are inconsistent with the original content.",
       negative_prompt:
         (formData.get("negative_prompt") as string) ||
         "letterboxing, borders, black bars, bright colors, overexposed, static, blurred details, subtitles, style, artwork, painting, picture, still, overall gray, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn faces, deformed, disfigured, malformed limbs, fused fingers, still picture, cluttered background, three legs, many people in the background, walking backwards",

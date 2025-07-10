@@ -4577,6 +4577,7 @@ async function routeToAPI(
         imageUrls.design_image_image ||
         imageUrls.color_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 Add fallback for generic image uploads
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -4603,6 +4604,7 @@ async function routeToAPI(
         imageUrls.design_image_image ||
         imageUrls.color_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 Add fallback for generic image uploads
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -4635,6 +4637,7 @@ async function routeToAPI(
         imageUrls.design_image_image ||
         imageUrls.color_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 Add fallback for generic image uploads
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -4665,6 +4668,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 Add fallback for generic image uploads
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -4836,6 +4840,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 FIX: Handle generic image_image fallback
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -4868,6 +4873,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 Add fallback for generic image uploads
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -4942,6 +4948,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 FIX: Handle generic image_image fallback
         parameters.reference_image_url; // 🔧 Add fallback for previous result
 
       if (imageUrl) {
@@ -4965,6 +4972,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 Add fallback for generic image uploads
         parameters.reference_image_url;
 
       if (imageUrl) {
@@ -5000,6 +5008,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 FIX: Handle generic image_image fallback
         parameters.reference_image_url;
 
       if (imageUrl) {
@@ -5070,6 +5079,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 FIX: Handle generic image_image fallback
         parameters.reference_image_url;
 
       if (imageUrl) {
@@ -5105,6 +5115,7 @@ async function routeToAPI(
         imageUrls.product_image_image || // 🔧 FIX: Handle _image suffix keys
         imageUrls.design_image_image ||
         imageUrls.color_image_image ||
+        imageUrls.image_image || // 🔧 Add fallback for generic image uploads
         parameters.reference_image_url;
 
       if (imageUrl) {

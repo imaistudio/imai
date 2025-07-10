@@ -42,7 +42,7 @@ OPTIONAL:
   Default: "Extend the video scene naturally, maintaining visual consistency and style"
 
 - negative_prompt (string): What to avoid in the generation
-  Default: "letterboxing, borders, black bars, bright colors, overexposed..."
+  Default: "low quality, blurred, distorted, artifacts, compression, noise"
 
 - expand_left (boolean): Expand video to the left
   Default: false
@@ -58,7 +58,7 @@ OPTIONAL:
   Note: If no expansion directions are specified, all directions will be expanded
 
 - expand_ratio (float): Amount of expansion (0.0-1.0)
-  Default: 0.25 (25% expansion)
+  Default: 0.15 (15% expansion)
   Example: 0.5 = 50% expansion
 
 - resolution (string): Output resolution
@@ -78,10 +78,10 @@ OPTIONAL:
   Default: 16
 
 - match_input_num_frames (boolean): Match input video frame count
-  Default: false
+  Default: true
 
 - match_input_frames_per_second (boolean): Match input video FPS
-  Default: false
+  Default: true
 
 - num_inference_steps (integer): Quality vs speed trade-off
   Range: 1-50
@@ -102,7 +102,7 @@ OPTIONAL:
 
 - acceleration (string): Inference acceleration
   Options: "none", "regular"
-  Default: none
+  Default: "regular"
 
 RESPONSE FORMAT:
 ---------------
@@ -162,15 +162,15 @@ curl -X POST http://localhost:3000/api/videooutpainting \
 BEST PRACTICES:
 --------------
 ✅ Use descriptive prompts that match the video content
-✅ Start with smaller expand_ratio values (0.2-0.3) for better quality
+✅ Start with smaller expand_ratio values (0.1-0.2) for better quality
 ✅ Test different expansion directions based on your content
 ✅ Use higher resolution (720p) for better quality
-✅ Match input frame rate for smooth playback
+✅ Default settings now match input frame rate for smooth playback
 ✅ Ideal for: landscape videos, product showcases, architectural content
 
 ❌ Avoid: very shaky or fast-moving videos
 ❌ Don't use: extremely low-quality source videos
-❌ Limit: very high expand_ratio values (>0.7) may reduce quality
+❌ Limit: very high expand_ratio values (>0.5) may reduce quality
 
 EXPECTED OUTPUT:
 ---------------
