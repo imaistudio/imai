@@ -397,15 +397,15 @@ export default function Home() {
           stack: firestoreError.stack,
         });
 
-                  // Final fallback - store only essential data
-          try {
-            const minimalMessage = {
-              sender: "user",
-              text: String(data.prompt || ""),
-              timestamp: Timestamp.now(),
-              userId: String(currentUser.uid),
-              isReferenced: !!referencedMessage, // 🔧 NEW: Include reference status in fallback
-            };
+        // Final fallback - store only essential data
+        try {
+          const minimalMessage = {
+            sender: "user",
+            text: String(data.prompt || ""),
+            timestamp: Timestamp.now(),
+            userId: String(currentUser.uid),
+            isReferenced: !!referencedMessage, // 🔧 NEW: Include reference status in fallback
+          };
 
           await setDoc(
             chatRef,

@@ -48,7 +48,8 @@ const socialPlatforms: SocialPlatform[] = [
     name: "WhatsApp",
     icon: "/logos/shareicons/whatsapp.svg",
     color: "bg-[#29a71a]",
-    shareUrl: (url, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
+    shareUrl: (url, text) =>
+      `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
   },
   {
     name: "Reddit",
@@ -61,29 +62,40 @@ const socialPlatforms: SocialPlatform[] = [
     name: "Instagram",
     icon: "/logos/shareicons/instagram.svg",
     color: "bg-[#ffffff]",
-    shareUrl: (url, text) => `https://www.instagram.com/share?url=${encodeURIComponent(url)}`,
+    shareUrl: (url, text) =>
+      `https://www.instagram.com/share?url=${encodeURIComponent(url)}`,
   },
   {
     name: "TikTok",
     icon: "/logos/shareicons/tik-tok.svg",
     color: "bg-[#000000]",
-    shareUrl: (url, text) => `https://www.tiktok.com/share?url=${encodeURIComponent(url)}`,
+    shareUrl: (url, text) =>
+      `https://www.tiktok.com/share?url=${encodeURIComponent(url)}`,
   },
   {
     name: "Telegram",
     icon: "/logos/shareicons/telegram.svg",
     color: "bg-[#039be5]",
-    shareUrl: (url, text) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+    shareUrl: (url, text) =>
+      `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
   },
   {
     name: "Discord",
     icon: "/logos/shareicons/discord.svg",
     color: "bg-[#5c6bc0]",
-    shareUrl: (url, text) => `https://discord.com/channels/@me?message=${encodeURIComponent(`${text} ${url}`)}`,
+    shareUrl: (url, text) =>
+      `https://discord.com/channels/@me?message=${encodeURIComponent(`${text} ${url}`)}`,
   },
 ];
 
-export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "", onShare }: ShareModalProps) {
+export function ShareModal({
+  isOpen,
+  onClose,
+  mediaUrl,
+  mediaType,
+  caption = "",
+  onShare,
+}: ShareModalProps) {
   const [shareText, setShareText] = useState(caption);
   const [isSharing, setIsSharing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -103,7 +115,9 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
 
     try {
       // Extract filename from URL
-      let fileName = mediaUrl.split("/").pop() || `shared-${Date.now()}.${mediaType === "image" ? "jpg" : "mp4"}`;
+      let fileName =
+        mediaUrl.split("/").pop() ||
+        `shared-${Date.now()}.${mediaType === "image" ? "jpg" : "mp4"}`;
 
       // Clean up filename - remove query parameters
       if (fileName.includes("?")) {
@@ -184,21 +198,33 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
         <>
           {/* Media Header */}
           <div className="relative w-full h-auto pb-4 overflow-hidden">
-            <button onClick={onClose} className="absolute top-4 right-4 p-2 z-10">
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 z-10"
+            >
               <X className="w-6 h-6 text-white dark:text-black" />
             </button>
             {mediaType === "image" ? (
-              <img src={mediaUrl} alt="Preview" className="w-full md:h-72 h-56 object-cover rounded-md" />
+              <img
+                src={mediaUrl}
+                alt="Preview"
+                className="w-full md:h-72 h-56 object-cover rounded-md"
+              />
             ) : (
-              <video src={mediaUrl} className="w-full md:h-72 h-56 object-cover rounded-md" controls={false} muted />
+              <video
+                src={mediaUrl}
+                className="w-full md:h-72 h-56 object-cover rounded-md"
+                controls={false}
+                muted
+              />
             )}
           </div>
 
-          
-
           {/* Social Buttons */}
           <div className="px-6 pb-4">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Share to</h3>
+            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+              Share to
+            </h3>
             <div className="flex flex-wrap justify-center gap-3">
               {socialPlatforms.map((platform) => (
                 <button
@@ -208,8 +234,8 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
                   className={`w-12 h-12 rounded-full ${platform.color} flex items-center justify-center`}
                   title={platform.name}
                 >
-                  <img 
-                    src={platform.icon} 
+                  <img
+                    src={platform.icon}
                     alt={platform.name}
                     className="w-7 h-7 object-contain"
                   />
@@ -220,7 +246,9 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
 
           {/* Caption */}
           <div className="px-6 pb-4">
-            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Add a message</label>
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+              Add a message
+            </label>
             <textarea
               value={shareText}
               onChange={(e) => setShareText(e.target.value)}
@@ -228,7 +256,9 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
               className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm resize-none"
               rows={3}
             />
-            <div className="text-xs text-right text-muted-foreground mt-1">{shareText.length}/280</div>
+            <div className="text-xs text-right text-muted-foreground mt-1">
+              {shareText.length}/280
+            </div>
           </div>
 
           {/* Link + Download */}
@@ -236,7 +266,11 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
             <div className="flex items-center gap-2">
               <Input readOnly value={mediaUrl} className="text-sm" />
               <Button variant="outline" size="sm" onClick={handleCopyLink}>
-                {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                {copied ? (
+                  <Check className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
               </Button>
             </div>
             <Button

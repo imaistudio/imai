@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import React from "react"
-import { Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useShareModal } from "@/contexts/ShareModalContext"
+import React from "react";
+import { Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useShareModal } from "@/contexts/ShareModalContext";
 
 interface ShareButtonProps {
-  mediaUrl: string
-  mediaType: "image" | "video"
-  caption?: string
-  variant?: "default" | "outline" | "ghost"
-  size?: "sm" | "lg"
-  className?: string
-  onShare?: (platform: string, content: any) => void
+  mediaUrl: string;
+  mediaType: "image" | "video";
+  caption?: string;
+  variant?: "default" | "outline" | "ghost";
+  size?: "sm" | "lg";
+  className?: string;
+  onShare?: (platform: string, content: any) => void;
 }
 
 export function ShareButton({
@@ -24,7 +24,7 @@ export function ShareButton({
   className = "",
   onShare,
 }: ShareButtonProps) {
-  const { showShareModal } = useShareModal()
+  const { showShareModal } = useShareModal();
 
   const handleShare = () => {
     showShareModal({
@@ -32,8 +32,8 @@ export function ShareButton({
       mediaType,
       caption,
       onShare,
-    })
-  }
+    });
+  };
 
   return (
     <Button
@@ -45,7 +45,7 @@ export function ShareButton({
       <Share2 className="w-4 h-4" />
       <span className="ml-2">Share</span>
     </Button>
-  )
+  );
 }
 
 // Example usage as an icon-only button
@@ -56,7 +56,7 @@ export function ShareIconButton({
   className = "",
   onShare,
 }: Omit<ShareButtonProps, "variant" | "size">) {
-  const { showShareModal } = useShareModal()
+  const { showShareModal } = useShareModal();
 
   const handleShare = () => {
     showShareModal({
@@ -64,8 +64,8 @@ export function ShareIconButton({
       mediaType,
       caption,
       onShare,
-    })
-  }
+    });
+  };
 
   return (
     <Button
@@ -77,5 +77,5 @@ export function ShareIconButton({
     >
       <Share2 className="w-4 h-4" />
     </Button>
-  )
-} 
+  );
+}
