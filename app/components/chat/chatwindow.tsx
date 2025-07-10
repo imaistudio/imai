@@ -1445,7 +1445,7 @@ export default function ChatWindow({
                                 key={`${index}-video-${i}`}
                                 className="relative group/video"
                               >
-                                <div className="w-96 h-56 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+                                <div className="w-96 h-auto rounded-lg overflow-hidden flex items-center justify-center">
                                   <VideoZoomModal
                                     src={video}
                                     className="w-full h-full object-cover"
