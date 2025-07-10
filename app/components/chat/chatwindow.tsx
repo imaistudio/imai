@@ -1165,6 +1165,15 @@ export default function ChatWindow({
                 <div className="flex justify-end group">
                   <div className="flex items-end gap-2">
                     <div className="max-w-4xl">
+                      {/* 🔧 NEW: Reply icon indicator - always on top */}
+                      {msg.isReferenced && (
+                        <div className="flex justify-end mb-1">
+                          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                            <Undo2 size={16} />
+                            <span>Replied</span>
+                          </div>
+                        </div>
+                      )}
                       {msg.images && msg.images.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-2 justify-end">
                           {msg.images.map((img, i) => (
@@ -1183,15 +1192,6 @@ export default function ChatWindow({
                       )}
                       {msg.text && (
                         <div className="relative">
-                          {/* 🔧 NEW: Reply icon indicator */}
-                          {msg.isReferenced && (
-                            <div className="flex justify-end mb-1">
-                              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <Undo2 size={16} />
-                                <span>Replied</span>
-                              </div>
-                            </div>
-                          )}
                           <div className="text-sm  text-white bg-primary rounded-full py-2 px-4 leading-relaxed text-left">
                             <p>{msg.text}</p>
                           </div>
