@@ -26,14 +26,14 @@ const socialPlatforms: SocialPlatform[] = [
   {
     name: "Twitter",
     icon: "/logos/shareicons/twitter.svg",
-    color: "bg-[#ffffff]",
+    color: "bg-[#000000]",
     shareUrl: (url, text) =>
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
   },
   {
     name: "Facebook",
     icon: "/logos/shareicons/facebook.svg",
-    color: "bg-[#ffffff]",
+    color: "bg-[#fff]",
     shareUrl: (url, text) =>
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
   },
@@ -188,9 +188,9 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
               <X className="w-6 h-6 text-white dark:text-black" />
             </button>
             {mediaType === "image" ? (
-              <img src={mediaUrl} alt="Preview" className="w-full md:h-72 h-48 object-cover rounded-md" />
+              <img src={mediaUrl} alt="Preview" className="w-full md:h-72 h-56 object-cover rounded-md" />
             ) : (
-              <video src={mediaUrl} className="w-full md:h-72 h-48 object-cover rounded-md" controls={false} muted />
+              <video src={mediaUrl} className="w-full md:h-72 h-56 object-cover rounded-md" controls={false} muted />
             )}
           </div>
 
@@ -205,7 +205,7 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
                   key={platform.name}
                   onClick={() => handleShare(platform)}
                   disabled={isSharing}
-                  className={`w-12 h-12 rounded-full ${platform.color} flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-md`}
+                  className={`w-12 h-12 rounded-full ${platform.color} flex items-center justify-center`}
                   title={platform.name}
                 >
                   <img 
