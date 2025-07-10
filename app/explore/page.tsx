@@ -41,7 +41,7 @@ export default function Masonry() {
         setLoading(true);
       }
 
-      const exploreRef = ref(storage, 'explore');
+      const exploreRef = ref(storage, 'expolore');
       const result = await listAll(exploreRef);
       
       // Get all files and their download URLs
