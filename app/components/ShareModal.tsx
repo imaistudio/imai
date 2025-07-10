@@ -1,27 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Facebook,
-  Twitter,
-  Linkedin,
-  MessageCircle,
-  X,
-  Check,
-  Copy,
-  Download,
-  MessageSquare,
-  Camera,
-  Instagram,
-  Music,
-  MapPin,
-  Send,
-  Gamepad2,
-  Hash,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal, ModalContent, ModalBody } from "@heroui/modal";
+import { X, Check, Copy } from "lucide-react";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -34,7 +17,7 @@ interface ShareModalProps {
 
 interface SocialPlatform {
   name: string;
-  icon: React.ReactNode;
+  icon: string;
   color: string;
   shareUrl: (url: string, text: string) => string;
 }
@@ -42,81 +25,61 @@ interface SocialPlatform {
 const socialPlatforms: SocialPlatform[] = [
   {
     name: "Twitter",
-    icon: <Twitter className="w-5 h-5" />,
-    color: "bg-[#1DA1F2] hover:bg-[#1A91DA]",
+    icon: "/logos/shareicons/twitter.svg",
+    color: "bg-[#ffffff]",
     shareUrl: (url, text) =>
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
   },
   {
     name: "Facebook",
-    icon: <Facebook className="w-5 h-5" />,
-    color: "bg-[#1877F2] hover:bg-[#165CD9]",
+    icon: "/logos/shareicons/facebook.svg",
+    color: "bg-[#ffffff]",
     shareUrl: (url, text) =>
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
   },
   {
     name: "LinkedIn",
-    icon: <Linkedin className="w-5 h-5" />,
-    color: "bg-[#0077b5] hover:bg-[#00669e]",
+    icon: "/logos/shareicons/linkedin.svg",
+    color: "bg-[#0077b5]",
     shareUrl: (url, text) =>
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`,
   },
   {
     name: "WhatsApp",
-    icon: <MessageCircle className="w-5 h-5" />,
-    color: "bg-[#25D366] hover:bg-[#1EBE5E]",
+    icon: "/logos/shareicons/whatsapp.svg",
+    color: "bg-[#29a71a]",
     shareUrl: (url, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
   },
   {
     name: "Reddit",
-    icon: <MessageSquare className="w-5 h-5" />,
-    color: "bg-[#FF4500] hover:bg-[#E63E00]",
+    icon: "/logos/shareicons/reddit.svg",
+    color: "bg-[#FF4500]",
     shareUrl: (url, text) =>
       `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`,
   },
   {
-    name: "Snapchat",
-    icon: <Camera className="w-5 h-5" />,
-    color: "bg-[#FFFC00] hover:bg-[#F0ED00] text-black",
-    shareUrl: (url, text) => `https://www.snapchat.com/share?url=${encodeURIComponent(url)}`,
-  },
-  {
     name: "Instagram",
-    icon: <Instagram className="w-5 h-5" />,
-    color: "bg-gradient-to-r from-[#405DE6] via-[#5851DB] via-[#833AB4] via-[#C13584] via-[#E1306C] to-[#FD1D1D] hover:opacity-90",
+    icon: "/logos/shareicons/instagram.svg",
+    color: "bg-[#ffffff]",
     shareUrl: (url, text) => `https://www.instagram.com/share?url=${encodeURIComponent(url)}`,
   },
   {
     name: "TikTok",
-    icon: <Music className="w-5 h-5" />,
-    color: "bg-[#000000] hover:bg-[#161823]",
+    icon: "/logos/shareicons/tik-tok.svg",
+    color: "bg-[#000000]",
     shareUrl: (url, text) => `https://www.tiktok.com/share?url=${encodeURIComponent(url)}`,
   },
   {
-    name: "Pinterest",
-    icon: <MapPin className="w-5 h-5" />,
-    color: "bg-[#BD081C] hover:bg-[#A00713]",
-    shareUrl: (url, text) =>
-      `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent(text)}`,
-  },
-  {
     name: "Telegram",
-    icon: <Send className="w-5 h-5" />,
-    color: "bg-[#0088cc] hover:bg-[#0077b3]",
+    icon: "/logos/shareicons/telegram.svg",
+    color: "bg-[#039be5]",
     shareUrl: (url, text) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
   },
   {
     name: "Discord",
-    icon: <Gamepad2 className="w-5 h-5" />,
-    color: "bg-[#5865F2] hover:bg-[#4752C4]",
+    icon: "/logos/shareicons/discord.svg",
+    color: "bg-[#5c6bc0]",
     shareUrl: (url, text) => `https://discord.com/channels/@me?message=${encodeURIComponent(`${text} ${url}`)}`,
-  },
-  {
-    name: "Tumblr",
-    icon: <Hash className="w-5 h-5" />,
-    color: "bg-[#00cf35] hover:bg-[#00b82f]",
-    shareUrl: (url, text) =>
-      `https://www.tumblr.com/widgets/share/tool?canonicalUrl=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`,
   },
 ];
 
@@ -242,10 +205,14 @@ export function ShareModal({ isOpen, onClose, mediaUrl, mediaType, caption = "",
                   key={platform.name}
                   onClick={() => handleShare(platform)}
                   disabled={isSharing}
-                  className={`w-10 h-10 rounded-full ${platform.color} flex items-center justify-center text-white transition-transform hover:scale-110`}
+                  className={`w-12 h-12 rounded-full ${platform.color} flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-md`}
                   title={platform.name}
                 >
-                  {platform.icon}
+                  <img 
+                    src={platform.icon} 
+                    alt={platform.name}
+                    className="w-7 h-7 object-contain"
+                  />
                 </button>
               ))}
             </div>
