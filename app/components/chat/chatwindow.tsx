@@ -34,6 +34,8 @@ import {
   Clapperboard,
   Undo2,
   AudioWaveform,
+  Proportions,
+  RectangleVertical
 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
@@ -1523,13 +1525,26 @@ export default function ChatWindow({
                                   </button>
                                   <button
                                     className="p-1 rounded-full "
-                                    title="Landscape Video"
+                                    title="Landscape"
                                   >
-                                    <UnfoldHorizontal
+                                    <Proportions
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
                                   </button>
+
+                                  <button
+                                    className="p-1 rounded-full "
+                                    title="Portrait"
+                                  >
+                                    <RectangleVertical
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+
+
+
                                   <button
                                     className="p-1 rounded-full "
                                     title="Upscale Video"
@@ -1539,16 +1554,6 @@ export default function ChatWindow({
                                       className="text-black dark:text-white"
                                     />
                                   </button>
-                                  <button
-                                    className="p-1 rounded-full "
-                                    title="Video to Prompt"
-                                  >
-                                    <LetterText
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
-
                                   <button
                                     onClick={() => handleDownload(video)}
                                     className="p-1 rounded-full"
