@@ -1,0 +1,125 @@
+## Video Sound Effects API Test
+
+### Endpoint: /api/videosound
+
+### Description
+Add sound effects to an existing video using the FAL AI Pixverse sound effects API.
+
+### Parameters
+- `video_url` (required): URL of the input video to add sound effects to
+- `prompt` (optional): Description of the sound effect to generate. If empty, a random sound effect will be generated
+- `original_sound_switch` (optional): Whether to keep the original audio from the video (default: true)
+
+### Test Examples
+
+#### Example 1: Basic sound effects
+```bash
+curl -X POST "http://localhost:3000/api/videosound" \
+  -F "video_url=https://example.com/video.mp4" \
+  -F "prompt=ocean waves crashing" \
+  -F "original_sound_switch=false"
+```
+
+#### Example 2: Ambient sound with original audio
+```bash
+curl -X POST "http://localhost:3000/api/videosound" \
+  -F "video_url=https://example.com/video.mp4" \
+  -F "prompt=birds chirping in forest" \
+  -F "original_sound_switch=true"
+```
+
+#### Example 3: Music soundtrack
+```bash
+curl -X POST "http://localhost:3000/api/videosound" \
+  -F "video_url=https://example.com/video.mp4" \
+  -F "prompt=cinematic background music" \
+  -F "original_sound_switch=false"
+```
+
+#### Example 4: Random sound effects
+```bash
+curl -X POST "http://localhost:3000/api/videosound" \
+  -F "video_url=https://example.com/video.mp4" \
+  -F "prompt=" \
+  -F "original_sound_switch=true"
+```
+
+### Expected Response
+```json
+{
+  "success": true,
+  "video_url": "https://v3.fal.media/files/kangaroo/bBQr_DUeICo6_Ty_b_Y0I_output.mp4",
+  "video": {
+    "file_size": 1534052,
+    "file_name": "output.mp4",
+    "content_type": "video/mp4",
+    "url": "https://v3.fal.media/files/kangaroo/bBQr_DUeICo6_Ty_b_Y0I_output.mp4"
+  },
+  "request_id": "12345-abcde-67890",
+  "prompt": "ocean waves crashing",
+  "original_sound_switch": false,
+  "original_video_url": "https://example.com/video.mp4",
+  "can_continue": true,
+  "next_steps": {
+    "upscale_video": {
+      "endpoint": "/api/videoupscaler",
+      "description": "Upscale the video with sound effects",
+      "params": {
+        "video_url": "https://v3.fal.media/files/kangaroo/bBQr_DUeICo6_Ty_b_Y0I_output.mp4"
+      }
+    },
+    "reframe_video": {
+      "endpoint": "/api/videoreframe",
+      "description": "Reframe the video with sound effects",
+      "params": {
+        "video_url": "https://v3.fal.media/files/kangaroo/bBQr_DUeICo6_Ty_b_Y0I_output.mp4"
+      }
+    },
+    "outpaint_video": {
+      "endpoint": "/api/videooutpainting",
+      "description": "Extend the video with sound effects",
+      "params": {
+        "video_url": "https://v3.fal.media/files/kangaroo/bBQr_DUeICo6_Ty_b_Y0I_output.mp4"
+      }
+    }
+  }
+}
+```
+
+### Intent Recognition Examples
+
+The following messages will automatically trigger the video sound effects endpoint when there's a video in the conversation context:
+
+- "add sound effects to this video"
+- "add background music"
+- "add ocean sounds"
+- "add ambient sound"
+- "add audio to this"
+- "make this video have sound"
+- "add rain sounds"
+- "add dramatic music"
+- "add sound effects with birds chirping"
+- "add cinematic soundtrack"
+
+### Multi-step Operations
+
+After adding sound effects, you can continue with other video operations:
+- **Upscale**: "upscale this video" → routes to /api/videoupscaler
+- **Reframe**: "make this 16:9" → routes to /api/videoreframe  
+- **Outpaint**: "expand this video" → routes to /api/videooutpainting
+
+### Error Handling
+
+Common error responses:
+- 400: Missing video_url parameter
+- 400: Video URL not accessible
+- 429: Rate limit exceeded
+- 500: Internal server error
+
+### Integration Notes
+
+This endpoint is fully integrated with the intent routing system (`/api/intentroute`), which means:
+1. It can be triggered automatically by conversational messages
+2. It works with conversation context (previous video results)
+3. It supports multi-step operations
+4. It provides proactive recommendations for next steps 
