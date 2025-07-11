@@ -1292,157 +1292,7 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
-  // Handle inpainting
-  const handleInpainting = useCallback(
-    async (imageUrl: string, maskDataUrl: string, prompt: string) => {
-      if (!userId || !chatId) {
-        console.error("User not authenticated or no chat ID");
-        return;
-      }
 
-      console.log("🎨 Starting inpainting for:", imageUrl);
-
-      // Create loading message
-      const loadingMessage: ChatMessage = {
-        id: `inpaint-${Date.now()}`,
-        sender: "agent",
-        type: "images",
-        text: `Inpainting: "${prompt}"...`,
-        chatId: chatId,
-        createdAt: Timestamp.now(),
-        isLoading: true,
-      };
-
-      try {
-        // Add loading message to Firestore
-        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-        await updateDoc(chatRef, {
-          messages: arrayUnion(loadingMessage),
-        });
-
-        // Call inpainting API
-        const formData = new FormData();
-        formData.append("userid", userId);
-        formData.append("image_url", imageUrl);
-        formData.append("mask", maskDataUrl);
-        formData.append("prompt", prompt);
-        // Let the API determine the best size based on image dimensions
-
-        const response = await fetch("/api/inpainting", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`API request failed: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-
-        if (result.status === "success" && result.imageUrl) {
-          let finalImageUrl = result.imageUrl;
-
-          // Convert base64 to Firebase Storage URL if needed
-          if (result.imageUrl.startsWith("data:image/")) {
-            console.log("🔄 Converting base64 inpainting result to Firebase Storage...");
-            try {
-              // Extract base64 data
-              const base64Data = result.imageUrl.split(',')[1];
-              const buffer = Buffer.from(base64Data, 'base64');
-              
-              // Create a File object
-              const fileName = `inpaint_${Date.now()}.png`;
-              const file = new File([buffer], fileName, { type: 'image/png' });
-              
-              // Upload to Firebase Storage
-              const storageRef = ref(storage, `${userId}/output/${fileName}`);
-              const snapshot = await uploadBytes(storageRef, file);
-              finalImageUrl = await getDownloadURL(snapshot.ref);
-              
-              console.log("✅ Converted base64 to Firebase Storage URL:", finalImageUrl);
-            } catch (conversionError) {
-              console.error("❌ Failed to convert base64 to Firebase Storage:", conversionError);
-              // Keep original base64 URL as fallback
-            }
-          }
-
-          // Create inpainted image message
-          const inpaintMessage: ChatMessage = {
-            id: `inpaint-result-${Date.now()}`,
-            sender: "agent",
-            type: "images",
-            text: `Inpainted: "${prompt}"`,
-            images: [finalImageUrl],
-            chatId: chatId,
-            createdAt: Timestamp.now(),
-          };
-
-          // Update Firestore with the inpainted image
-          const chatDoc = await getDocs(
-            query(
-              collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId),
-            ),
-          );
-
-          if (!chatDoc.empty) {
-            const chatData = chatDoc.docs[0].data();
-            const currentMessages = chatData.messages || [];
-
-            // Replace loading message with inpaint result
-            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? inpaintMessage : msg,
-            );
-
-            await updateDoc(chatRef, {
-              messages: updatedMessages,
-            });
-          }
-
-          console.log("✅ Inpainted image saved to chat");
-          return result.imageUrl;
-        } else {
-          throw new Error("Invalid response from inpainting API");
-        }
-      } catch (error) {
-        console.error("❌ Inpainting failed:", error);
-
-        // Create error message
-        const errorMessage: ChatMessage = {
-          id: `inpaint-error-${Date.now()}`,
-          sender: "agent",
-          type: "prompt",
-          text: "Sorry, I couldn't complete the inpainting. Please try again later.",
-          chatId: chatId,
-          createdAt: Timestamp.now(),
-        };
-
-        // Update Firestore with error message
-        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-        const chatDoc = await getDocs(
-          query(
-            collection(firestore, `chats/${userId}/prompts`),
-            where("__name__", "==", chatId),
-          ),
-        );
-
-        if (!chatDoc.empty) {
-          const chatData = chatDoc.docs[0].data();
-          const currentMessages = chatData.messages || [];
-
-          // Replace loading message with error message
-          const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-            msg.id === loadingMessage.id ? errorMessage : msg,
-          );
-
-          await updateDoc(chatRef, {
-            messages: updatedMessages,
-          });
-        }
-      }
-    },
-    [userId, chatId],
-  );
 
   // Handle video reframe to portrait
   const handleVideoreframe = useCallback(
@@ -2208,7 +2058,6 @@ export default function ChatWindow({
                                 src={img}
                                 alt={`image-${i}`}
                                 className="min-w-20 max-h-20 object-cover rounded-lg"
-                                onInpaint={handleInpainting}
                               />
                             </div>
                           ))}
@@ -2278,7 +2127,6 @@ export default function ChatWindow({
                                   src={img}
                                   alt={`image-${i}`}
                                   className="w-auto h-36 md:h-96 object-cover rounded-lg"
-                                  onInpaint={handleInpainting}
                                 />
                                 {/* Icon row below the image */}
                                 <div className="flex items-start justify-start gap-1 mt-2">
