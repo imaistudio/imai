@@ -1583,6 +1583,141 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
+  // Handle video sound effects
+  const handleVideoSound = useCallback(
+    async (videoUrl: string) => {
+      if (!userId || !chatId) {
+        console.error("User not authenticated or no chat ID");
+        return;
+      }
+
+      console.log("🎵 Starting video sound effects for:", videoUrl);
+
+      // Create loading message
+      const loadingMessage: ChatMessage = {
+        id: `sound-video-${Date.now()}`,
+        sender: "agent",
+        type: "videos",
+        text: "Adding sound effects to video...",
+        chatId: chatId,
+        createdAt: Timestamp.now(),
+        isLoading: true,
+      };
+
+      try {
+        // Add loading message to Firestore
+        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+        await updateDoc(chatRef, {
+          messages: arrayUnion(loadingMessage),
+        });
+
+        // Call video sound effects API
+        const formData = new FormData();
+        formData.append("video_url", videoUrl);
+        formData.append("prompt", "Generate realistic ambient and foreground sounds that match the visual content, timing, environment, and actions in the video. Ensure the audio reflects the correct atmosphere, object interactions, materials, spatial depth, and motion. Maintain temporal alignment and avoid adding unrelated sounds.");
+        formData.append("original_sound_switch", "false"); // Default to false
+
+        const response = await fetch("/api/videosound", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.video_url) {
+          // Create sound effects video message
+          const soundMessage: ChatMessage = {
+            id: `sound-video-result-${Date.now()}`,
+            sender: "agent",
+            type: "videos",
+            text: "Here's your video with sound effects:",
+            videos: [result.video_url],
+            chatId: chatId,
+            createdAt: Timestamp.now(),
+          };
+
+          // Update Firestore with the sound effects video
+          // First, get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with sound effects video result
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? soundMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          }
+
+          console.log("✅ Video with sound effects saved to chat");
+        } else {
+          throw new Error("Invalid response from video sound effects API");
+        }
+      } catch (error) {
+        console.error("❌ Video sound effects failed:", error);
+
+        // Create error message
+        const errorMessage: ChatMessage = {
+          id: `sound-video-error-${Date.now()}`,
+          sender: "agent",
+          type: "prompt",
+          text: "Sorry, I couldn't add sound effects to the video. Please try again later.",
+          chatId: chatId,
+          createdAt: Timestamp.now(),
+        };
+
+        // Update Firestore with error message
+        try {
+          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
+
+          // Get current messages to replace loading message
+          const chatDoc = await getDocs(
+            query(
+              collection(firestore, `chats/${userId}/prompts`),
+              where("__name__", "==", chatId),
+            ),
+          );
+
+          if (!chatDoc.empty) {
+            const chatData = chatDoc.docs[0].data();
+            const currentMessages = chatData.messages || [];
+
+            // Replace loading message with error message
+            const updatedMessages = currentMessages.map((msg: ChatMessage) =>
+              msg.id === loadingMessage.id ? errorMessage : msg,
+            );
+
+            await updateDoc(chatRef, {
+              messages: updatedMessages,
+            });
+          } else {
+            // If no chat found, just add the error message
+            await updateDoc(chatRef, {
+              messages: arrayUnion(errorMessage),
+            });
+          }
+        } catch (updateError) {
+          console.error("❌ Failed to save error message:", updateError);
+        }
+      }
+    },
+    [userId, chatId],
+  );
+
   // Handle video upscale
   const handleVideoUpscale = useCallback(
     async (videoUrl: string) => {
@@ -2408,6 +2543,7 @@ export default function ChatWindow({
                                   </button>
 
                                   <button
+                                    onClick={() => handleVideoSound(video)}
                                     className="p-1 rounded-full "
                                     title="Add Audio"
                                   >

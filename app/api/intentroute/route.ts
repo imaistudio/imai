@@ -1505,6 +1505,118 @@ async function analyzeIntent(
       };
     }
 
+    // 🎯 PRIORITY: Check for video sound effects requests
+    const videoSoundEffectsKeywords = [
+      "add sound",
+      "add audio",
+      "add sound effects",
+      "sound effects",
+      "audio effects",
+      "video sound",
+      "video audio",
+      "add music",
+      "background music",
+      "soundtrack",
+      "audio track",
+      "sound track",
+      "add sounds",
+      "sound to video",
+      "audio to video",
+      "video with sound",
+      "video with audio",
+      "add noise",
+      "ambient sound",
+      "background sound",
+      "voice over",
+      "narration",
+      "audio overlay",
+      "sound overlay",
+    ];
+    const hasVideoSoundEffectsRequest = videoSoundEffectsKeywords.some((keyword) =>
+      message.includes(keyword),
+    );
+
+    // Check if we have a video URL in the context (from previous video generation or video operations)
+    const hasVideoContextForSoundEffects = lastGeneratedResult?.endpoint === "/api/seedancevideo" || 
+                                          lastGeneratedResult?.endpoint === "/api/videoupscaler" ||
+                                          lastGeneratedResult?.endpoint === "/api/videoreframe" ||
+                                          lastGeneratedResult?.endpoint === "/api/videooutpainting" ||
+                                          lastGeneratedResult?.endpoint === "/api/videosound" ||
+                                          (lastGeneratedResult?.imageUrl && 
+                                           (lastGeneratedResult.imageUrl.includes(".mp4") || 
+                                            lastGeneratedResult.imageUrl.includes("seedancevideo") ||
+                                            lastGeneratedResult.imageUrl.includes("videoupscaler") ||
+                                            lastGeneratedResult.imageUrl.includes("videoreframe") ||
+                                            lastGeneratedResult.imageUrl.includes("videooutpainting") ||
+                                            lastGeneratedResult.imageUrl.includes("videosound") ||
+                                            lastGeneratedResult.imageUrl.includes("video")));
+
+    // 🔧 ENHANCED: Also check for context-based video sound effects (when user says "add sound to this" after video generation)
+    const hasContextBasedVideoSoundEffects = hasVideoContextForSoundEffects && 
+                                            (message.includes("add sound") || message.includes("add audio") || 
+                                             message.includes("sound effects") || message.includes("music") || 
+                                             message.includes("audio") || message.includes("sound")) &&
+                                            (message.includes("this") || message.includes("it") || message.includes("that"));
+
+    // Debug video sound effects context detection
+    if (hasVideoSoundEffectsRequest || hasContextBasedVideoSoundEffects) {
+      console.log("🎬 VIDEO SOUND EFFECTS REQUEST DEBUG:");
+      console.log(`  - Has video sound effects keywords: ${hasVideoSoundEffectsRequest}`);
+      console.log(`  - Has context-based video sound effects: ${hasContextBasedVideoSoundEffects}`);
+      console.log(`  - Last result endpoint: ${lastGeneratedResult?.endpoint}`);
+      console.log(`  - Last result URL: ${lastGeneratedResult?.imageUrl?.substring(0, 80)}...`);
+      console.log(`  - Has video context: ${hasVideoContextForSoundEffects}`);
+    }
+
+    if ((hasVideoSoundEffectsRequest || hasContextBasedVideoSoundEffects) && hasVideoContextForSoundEffects) {
+      console.log(
+        "Smart fallback detected video sound effects request with video context",
+      );
+      
+      // Extract sound effect description from message
+      let soundPrompt = "";
+      const soundDescriptors = [
+        "rain", "wind", "ocean", "forest", "city", "traffic", "birds", "nature",
+        "ambient", "peaceful", "energetic", "dramatic", "calm", "intense",
+        "music", "melody", "beat", "rhythm", "classical", "electronic", "cinematic"
+      ];
+      
+      soundDescriptors.forEach(descriptor => {
+        if (message.includes(descriptor)) {
+          soundPrompt += descriptor + " ";
+        }
+      });
+      
+      // If no specific sound mentioned, extract from general context
+      if (!soundPrompt.trim()) {
+        const words = message.split(" ");
+        const soundRelatedWords = words.filter(word => 
+          word.includes("sound") || word.includes("audio") || word.includes("music")
+        );
+        if (soundRelatedWords.length > 0) {
+          soundPrompt = "ambient sound effects";
+        }
+      }
+      
+      // Determine if original audio should be kept
+      const keepOriginalAudio = message.includes("keep original") || 
+                               message.includes("preserve audio") || 
+                               message.includes("maintain audio") ||
+                               !message.includes("replace");
+
+      return {
+        intent: "add_sound_effects",
+        confidence: 0.95,
+        endpoint: "/api/videosound",
+        parameters: { 
+          prompt: soundPrompt.trim(),
+          original_sound_switch: keepOriginalAudio
+        },
+        requiresFiles: false,
+        explanation: "User wants to add sound effects to video from conversation context",
+      };
+    }
+
     // 🎯 PRIORITY: Check for upscale/enhance requests even without new images (conversation context)
     const upscaleKeywords = [
       "enhance",
@@ -2802,9 +2914,9 @@ For multi-step operations:
 
 For single operations:
 {
-          "intent": "casual_conversation|create_design|design|upscale_image|upscale_video|reframe_video|outpaint_video|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background|change_time_of_day|scene_composition|create_dance_video|remove_object|chain_of_zoom",
+          "intent": "casual_conversation|create_design|design|upscale_image|upscale_video|reframe_video|outpaint_video|add_sound_effects|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background|change_time_of_day|scene_composition|create_dance_video|remove_object|chain_of_zoom",
   "confidence": 0.8-0.95,
-      "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/videoupscaler|/api/videoreframe|/api/videooutpainting|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/seedancevideo|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg|/api/timeofday|/api/scenecomposition|/api/objectremoval|/api/chainofzoom",
+      "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/videoupscaler|/api/videoreframe|/api/videooutpainting|/api/videosound|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/seedancevideo|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg|/api/timeofday|/api/scenecomposition|/api/objectremoval|/api/chainofzoom",
   "parameters": {
     "workflow_type": "prompt_only|product_prompt|design_prompt|color_prompt|product_design|product_color|color_design|full_composition|preset_design",
     "size": "1024x1024|1536x1024|1024x1536", // AUTO-SELECT: portrait (1024x1536) for tall items/clothing, landscape (1536x1024) for wide scenes/pants, square (1024x1024) for products/general
@@ -5392,6 +5504,17 @@ async function routeToAPI(
 
       const response = await videooutpaintingPOST(mockRequest as any);
       return await response.json();
+    } else if (endpoint === "/api/videosound") {
+      // Import and call the videosound API logic directly
+      const { POST: videosoundPOST } = await import("../videosound/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/videosound`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await videosoundPOST(mockRequest as any);
+      return await response.json();
     } else if (endpoint === "/api/objectremoval") {
       // Import and call the objectremoval API logic directly
       const { POST: objectremovalPOST } = await import(
@@ -6010,7 +6133,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           msg.images.forEach((url: string) => {
             const isVideo = url.includes('.mp4') || url.includes('video') || 
                            url.includes('seedancevideo') || url.includes('videoupscaler') || 
-                           url.includes('videoreframe') || url.includes('videooutpainting');
+                           url.includes('videoreframe') || url.includes('videooutpainting') || 
+                           url.includes('videosound');
             urls.push({
               url,
               type: isVideo ? 'video' : 'image',
@@ -6038,7 +6162,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             // Override type detection for video patterns
             if (url.includes('.mp4') || url.includes('video') || 
                 url.includes('seedancevideo') || url.includes('videoupscaler') || 
-                url.includes('videoreframe') || url.includes('videooutpainting')) {
+                url.includes('videoreframe') || url.includes('videooutpainting') || 
+                url.includes('videosound')) {
               detectedType = 'video';
             }
             
