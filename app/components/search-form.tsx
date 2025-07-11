@@ -29,7 +29,38 @@ export function SearchForm({
   const { createNewChat } = useChat();
   const [libraryCount, setLibraryCount] = useState<number>(0);
   const [latestImageUrl, setLatestImageUrl] = useState<string | null>(null);
+  const [latestFileType, setLatestFileType] = useState<"image" | "video" | null>(null);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
+
+  const getFileType = (fileName: string): "image" | "video" => {
+    const imageExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".bmp",
+      ".svg",
+    ];
+    const videoExtensions = [
+      ".mp4",
+      ".webm",
+      ".mov",
+      ".avi",
+      ".mkv",
+      ".flv",
+      ".wmv",
+    ];
+
+    const extension = fileName
+      .toLowerCase()
+      .substring(fileName.lastIndexOf("."));
+
+    if (imageExtensions.includes(extension)) return "image";
+    if (videoExtensions.includes(extension)) return "video";
+
+    return "image"; // default to image
+  };
 
   const handleNewChatClick = async () => {
     if (isCreatingChat) return; // Prevent multiple clicks
@@ -72,6 +103,7 @@ export function SearchForm({
         console.log("Using cached data:", parsed);
         setLibraryCount(parsed.count);
         setLatestImageUrl(parsed.url);
+        setLatestFileType(parsed.type || "image");
         return;
       }
 
@@ -92,18 +124,22 @@ export function SearchForm({
 
         const url =
           sortedItems.length > 0 ? await getDownloadURL(sortedItems[0]) : null;
+        const fileType = sortedItems.length > 0 ? getFileType(sortedItems[0].name) : "image";
 
         console.log("Download URL:", url);
+        console.log("File type:", fileType);
 
         const result = {
           count: items.items.length,
           url,
+          type: fileType,
         };
 
         console.log("Final result:", result);
         sessionStorage.setItem("libraryCache", JSON.stringify(result));
         setLibraryCount(result.count);
         setLatestImageUrl(result.url);
+        setLatestFileType(fileType);
       } catch (error) {
         console.error("Error fetching latest library image:", error);
         console.error(
@@ -168,7 +204,7 @@ export function SearchForm({
           Explore
         </button>
 
-        {/* Library - only render if user ID exists and has images */}
+        {/* Library - only render if user ID exists and has media files */}
         {user?.uid && libraryCount > 0 && latestImageUrl && (
           <button
             type="button"
@@ -176,11 +212,24 @@ export function SearchForm({
             className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white hover:font-semibold"
           >
             <span>
-              <img
-                src={latestImageUrl}
-                alt="Library"
-                className="p-0.5 h-8 w-8 object-cover rounded-md"
-              />
+              {latestFileType === "video" ? (
+                <video
+                  src={latestImageUrl}
+                  className="p-0.5 h-8 w-8 object-cover rounded-md"
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  onMouseEnter={(e) => e.currentTarget.play()}
+                  onMouseLeave={(e) => e.currentTarget.pause()}
+                />
+              ) : (
+                <img
+                  src={latestImageUrl}
+                  alt="Library"
+                  className="p-0.5 h-8 w-8 object-cover rounded-md"
+                />
+              )}
             </span>
             Library
           </button>
