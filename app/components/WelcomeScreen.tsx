@@ -45,40 +45,39 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
     { key: "notebook", name: "Notebook", placeholder: "notebook.svg" },
     { key: "vehicles", name: "Vehicle", placeholder: "vehicles.svg" },
     { key: "toys", name: "Toy", placeholder: "toys.svg" },
-    { key: "bags", name: "Handbag", placeholder: "bags.svg" },
-    { key: "footwear", name: "Shoes", placeholder: "footwear.svg" },
-    {
-      key: "kitchenware",
-      name: "Kitchen Utensils",
-      placeholder: "kitchenware.svg",
-    },
-    { key: "homedecor", name: "Home Decor", placeholder: "homedecor.svg" },
-    {
-      key: "officesupplies",
-      name: "Office Supplies",
-      placeholder: "officesupplies.svg",
-    },
-    { key: "furniture", name: "Furniture", placeholder: "furniture.svg" },
+    { key: "totebag", name: "Tote Bag", placeholder: "totebag.svg" },
+    { key: "shoulderbag", name: "Shoulder Bag", placeholder: "shoulderbag.svg" },
+    { key: "shoes", name: "Shoes", placeholder: "shoes.svg" },
+    { key: "plate", name: "Plate", placeholder: "plate.svg" },
+    { key: "lamp", name: "Lamp", placeholder: "lamp.svg" },
+    { key: "vase", name: "Vase", placeholder: "vase.svg" },
+    { key: "backpack", name: "Backpack", placeholder: "backpack.svg" },
+    { key: "hoodie", name: "Hoodie", placeholder: "hoodie.svg" },
+    { key: "pillow", name: "Pillow", placeholder: "pillow.svg" },
+    { key: "wallart", name: "Wall Art", placeholder: "wallart.svg" },
   ];
 
   const designStyles = [
-    { key: "minimalist", name: "Minimalist", folder: "fashion" },
-    { key: "luxury", name: "Luxury", folder: "fashion" },
+    { key: "minimalist", name: "Minimalist", folder: "fashions" },
+    { key: "luxury", name: "Luxury", folder: "fashions" },
     { key: "artistic", name: "Artistic", folder: "general" },
     { key: "futuristic", name: "Futuristic", folder: "general" },
     { key: "romantic", name: "Romantic", folder: "general" },
     { key: "minimalsleek", name: "Minimal Sleek", folder: "general" },
-    { key: "vintagefeel", name: "Vintage Feel", folder: "fashion" },
+    { key: "vintagefeel", name: "Vintage Feel", folder: "fashions" },
     { key: "bold", name: "Bold", folder: "general" },
     { key: "sportysleek", name: "Sporty Sleek", folder: "general" },
     { key: "funcoolquriky", name: "Fun & Quirky", folder: "general" },
     {
-      key: "elegantandsophesticated",
+      key: "elegantandsophisticated",
       name: "Elegant & Sophisticated",
       folder: "bags",
     },
-    { key: "professional", name: "Professional", folder: "general" },
-    { key: "cozy", name: "Cozy", folder: "general" },
+    { key: "mystical", name: "Mystical", folder: "general" },
+    { key: "vintage", name: "Vintage", folder: "Jewelry" },
+    { key: "bohemian", name: "Bohemian", folder: "Jewelry" },
+    { key: "industrial", name: "Industrial", folder: "Jewelry" },
+    { key: "animeinspired", name: "Anime Inspired", folder: "general" },
   ];
 
   const colorPalettes = [
@@ -92,10 +91,14 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
     { key: "vibrant", name: "Vibrant" },
     { key: "cyberpunk", name: "Cyberpunk" },
     { key: "tropical", name: "Tropical" },
-    { key: "monochrome", name: "Monochrome" },
-    { key: "electric", name: "Electric" },
     { key: "warm", name: "Warm" },
-    { key: "corporate", name: "Corporate" },
+    { key: "pastel", name: "Pastel" },
+    { key: "fall", name: "Fall" },
+    { key: "moody", name: "Moody" },
+    { key: "spring", name: "Spring" },
+    { key: "winter", name: "Winter" },
+    { key: "summer", name: "Summer" },
+    { key: "analogous", name: "Analogous" },
   ];
 
   const generateRandomPresetCombination = (): ExamplePrompt => {
@@ -129,18 +132,18 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
         "Create a sleek, modern backpack design with minimalist aesthetics and functional compartments",
     },
     {
-      title: "Generate color palette",
+      title: "Design a ceramic coffee mug",
       prompt:
-        "Create a warm autumn color palette for a cozy fashion collection",
+        "Create a unique ceramic coffee mug with ergonomic handle and artistic patterns",
     },
     {
-      title: "Style a living room",
+      title: "Create luxury handbag",
       prompt:
-        "Design a contemporary living room with neutral tones and natural materials",
+        "Design a sophisticated leather handbag with premium hardware and functional compartments",
     },
     {
-      title: "Product photography",
-      prompt: "Create a professional product photo setup for luxury jewelry",
+      title: "Design running shoes",
+      prompt: "Create athletic running shoes with advanced cushioning and breathable materials",
     },
     {
       title: "Wedding dress design",
@@ -153,9 +156,9 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
         "Create a futuristic smartwatch design with health monitoring features",
     },
     {
-      title: "Kitchen renovation",
+      title: "Design a desk organizer",
       prompt:
-        "Design a modern kitchen with smart appliances and sustainable materials",
+        "Create a modular desk organizer with compartments for pens, papers, and office supplies",
     },
     {
       title: "Streetwear collection",
@@ -183,9 +186,9 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
         "Create a futuristic electric car design with aerodynamic styling and sustainable materials",
     },
     {
-      title: "Coffee shop interior",
+      title: "Create a children's toy",
       prompt:
-        "Design a cozy coffee shop with industrial elements and warm lighting",
+        "Design an educational toy that promotes creativity and learning through play",
     },
     {
       title: "Designer sunglasses",
@@ -203,29 +206,19 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
         "Create a protective phone case with artistic patterns and wireless charging compatibility",
     },
     {
-      title: "Ultrabook concept",
+      title: "Design a leather wallet",
       prompt:
-        "Design a lightweight laptop with long battery life and premium build quality",
+        "Create a premium leather wallet with RFID protection and card organization",
     },
     {
-      title: "Smart lighting system",
+      title: "Design a modern lamp",
       prompt:
-        "Create an intelligent lighting solution with mood settings and energy efficiency",
+        "Create a contemporary table lamp with adjustable brightness and sleek design",
     },
     {
-      title: "Garden landscape",
+      title: "Design kitchen utensils",
       prompt:
-        "Design a sustainable garden with native plants and water-efficient irrigation",
-    },
-    {
-      title: "Art studio setup",
-      prompt:
-        "Create an inspiring art studio with optimal lighting and organized storage",
-    },
-    {
-      title: "Salon interior design",
-      prompt:
-        "Design a modern hair salon with comfortable seating and premium finishes",
+        "Create a set of modern kitchen utensils with ergonomic handles and durable materials",
     },
     {
       title: "Hiking gear collection",
@@ -253,7 +246,7 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
     const shuffledBasicPrompts = [...allExamplePrompts].sort(
       () => Math.random() - 0.5,
     );
-    const basicPrompts = shuffledBasicPrompts.slice(0, 4);
+    const basicPrompts = shuffledBasicPrompts.slice(0, 2);
     const randomPresetPrompts = Array.from({ length: 4 }, () =>
       generateRandomPresetCombination(),
     );
@@ -269,30 +262,32 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
           Explore IMAI's Features
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 w-full">
-          {examplePrompts.slice(0, 6).map((example, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              className="w-full h-auto p-4 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              onClick={() =>
-                onExampleClick(
-                  example.prompt,
-                  example.presets,
-                  example.defaultImages,
-                )
-              }
-            >
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <div className="font-medium text-gray-900 dark:text-white mb-1">
-                  {example.title}
+        <div className="w-full overflow-x-auto pb-4">
+          <div className="flex gap-4 w-max">
+            {examplePrompts.slice(0, 6).map((example, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                className="flex-shrink-0 w-80 h-auto p-4 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                onClick={() =>
+                  onExampleClick(
+                    example.prompt,
+                    example.presets,
+                    example.defaultImages,
+                  )
+                }
+              >
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  <div className="font-medium text-gray-900 dark:text-white mb-1">
+                    {example.title}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 break-words">
+                    {example.prompt}
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 break-words">
-                  {example.prompt}
-                </div>
-              </div>
-            </Button>
-          ))}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
