@@ -187,7 +187,7 @@ export default function Masonry() {
   }, []);
 
   const renderMediaItem = (item: MediaItem, index: number) => {
-    const key = `${item.name}-${index}`;
+    const key = `${encodeURIComponent(item.url)}-${index}`;
 
     const handleDownload = async (url: string) => {
       console.log("🔄 Starting download for:", url);
