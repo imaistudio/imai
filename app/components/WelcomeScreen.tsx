@@ -324,9 +324,6 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
           Explore IMAI's Features
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center max-w-2xl">
-          Try these examples to discover image generation, upscaling, video creation, reframing, lighting changes, and multi-step operations.
-        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 w-full">
           {examplePrompts.map((example, index) => (
@@ -336,9 +333,6 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
               className="w-full h-auto p-4 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               onClick={() => onExampleClick(example.prompt, example.presets, example.defaultImages)}
             >
-              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                {example.icon}
-              </div>
               <div className="flex-1 min-w-0 overflow-hidden">
                 <div className="font-medium text-gray-900 dark:text-white mb-1">
                   {example.title}
