@@ -206,15 +206,7 @@ export const ImageZoomModal = ({
               className="max-h-[60vh] max-w-[90vw] object-contain"
               onClick={(e) => e.stopPropagation()}
             />
-          </div>
-
-          {/* Unified Prompt Container */}
-          <div className="w-full max-w-4xl px-4 pb-4" onClick={(e) => e.stopPropagation()}>
-            <UnifiedPromptContainer
-              placeholder="Design something new based on this image..."
-              maxLength={1000}
-            />
-          </div>
+          </div>        
         </div>
       )}
     </>

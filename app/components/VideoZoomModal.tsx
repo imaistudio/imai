@@ -212,14 +212,6 @@ export const VideoZoomModal = ({
               controls={false}
             />
           </div>
-
-          {/* Unified Prompt Container */}
-          <div className="w-full max-w-4xl px-4 pb-4" onClick={(e) => e.stopPropagation()}>
-            <UnifiedPromptContainer
-              placeholder="Design something new based on this video..."
-              maxLength={1000}
-            />
-          </div>
         </div>
       )}
     </>
