@@ -2127,15 +2127,130 @@ export default function ChatWindow({
                                   src={img}
                                   alt={`image-${i}`}
                                   className="w-auto h-36 md:h-96 object-cover rounded-lg"
-                                  onLike={handleLike}
-                                  onDislike={handleDislike}
-                                  onDownload={handleDownload}
-                                  onShare={handleShare}
-                                  onPaint={handleAnalyzeImage}
-                                  userId={userId || undefined}
-                                  likedImages={likedImages}
-                                  dislikedImages={dislikedImages}
                                 />
+                                {/* Icon row below the image */}
+                                <div className="flex items-start justify-start gap-1 mt-2">
+                                  <button
+                                    onClick={() => handleLike(img)}
+                                    className="p-1"
+                                    title={
+                                      likedImages.has(img) ? "Unlike" : "Like"
+                                    }
+                                  >
+                                    <ThumbsUp
+                                      size={16}
+                                      className={`${
+                                        likedImages.has(img)
+                                          ? "text-green-600 dark:text-green-400 "
+                                          : "text-black dark:text-white"
+                                      }`}
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDislike(img)}
+                                    className="p-1"
+                                    title={
+                                      dislikedImages.has(img)
+                                        ? "Remove dislike"
+                                        : "Dislike"
+                                    }
+                                  >
+                                    <ThumbsDown
+                                      size={16}
+                                      className={`${
+                                        dislikedImages.has(img)
+                                          ? "text-red-600 dark:text-red-400"
+                                          : "text-black dark:text-white"
+                                      }`}
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => console.log("Refresh:", img)}
+                                    className="p-1 rounded-full "
+                                    title="Retry"
+                                  >
+                                    <RefreshCcw
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleVideo(img)}
+                                    className="p-1 rounded-full "
+                                    title="Generate Video"
+                                  >
+                                    <Clapperboard
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleReframe(img)}
+                                    className="p-1 rounded-full "
+                                    title="Landscape"
+                                  >
+                                    <UnfoldHorizontal
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleUpscale(img)}
+                                    className="p-1 rounded-full "
+                                    title="Upscale Image"
+                                  >
+                                    <Sparkles
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleAnalyzeImage(img)}
+                                    className="p-1 rounded-full "
+                                    title="Image to Prompt"
+                                  >
+                                    <LetterText
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={(event) => {
+                                      handleDownload(img);
+                                      // Optional: Add visual feedback
+                                      const button =
+                                        event.currentTarget as HTMLElement;
+                                      button.style.transform = "scale(0.95)";
+                                      setTimeout(() => {
+                                        button.style.transform = "scale(1)";
+                                      }, 150);
+                                    }}
+                                    className="p-1 rounded-full"
+                                    title="Download Image"
+                                  >
+                                    <Download
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      showShareModal({
+                                        mediaUrl: img,
+                                        mediaType: "image",
+                                        caption: msg.text,
+                                        onShare: handleShare,
+                                      });
+                                    }}
+                                    className="p-1 rounded-full "
+                                    title="Share"
+                                  >
+                                    <Share2
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -2221,15 +2336,128 @@ export default function ChatWindow({
                                   <VideoZoomModal
                                     src={video}
                                     className="w-full h-full object-cover"
-                                    onLike={handleLike}
-                                    onDislike={handleDislike}
-                                    onDownload={handleDownload}
-                                    onShare={handleShare}
-                                    onPaint={handleVideoUpscale}
-                                    userId={userId || undefined}
-                                    likedImages={likedImages}
-                                    dislikedImages={dislikedImages}
                                   />
+                                </div>
+                                {/* Icon row below the video */}
+                                <div className="flex items-start justify-start gap-1 mt-2">
+                                  <button
+                                    onClick={() => handleLike(video)}
+                                    className="p-1"
+                                    title={
+                                      likedImages.has(video) ? "Unlike" : "Like"
+                                    }
+                                  >
+                                    <ThumbsUp
+                                      size={16}
+                                      className={`${
+                                        likedImages.has(video)
+                                          ? "text-green-600 dark:text-green-400 "
+                                          : "text-black dark:text-white"
+                                      }`}
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDislike(video)}
+                                    className="p-1"
+                                    title={
+                                      dislikedImages.has(video)
+                                        ? "Remove dislike"
+                                        : "Dislike"
+                                    }
+                                  >
+                                    <ThumbsDown
+                                      size={16}
+                                      className={`${
+                                        dislikedImages.has(video)
+                                          ? "text-red-600 dark:text-red-400"
+                                          : "text-black dark:text-white"
+                                      }`}
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      console.log("Refresh:", video)
+                                    }
+                                    className="p-1 rounded-full "
+                                    title="Retry"
+                                  >
+                                    <RefreshCcw
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleVideoSound(video)}
+                                    className="p-1 rounded-full "
+                                    title="Add Audio"
+                                  >
+                                    <AudioWaveform
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handlelandscapevideo(video)}
+                                    className="p-1 rounded-full "
+                                    title="Landscape"
+                                  >
+                                    <Proportions
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleVideoreframe(video)}
+                                    className="p-1 rounded-full "
+                                    title="Portrait"
+                                  >
+                                    <RectangleVertical
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+
+
+
+                                  <button
+                                    onClick={() => handleVideoUpscale(video)}
+                                    className="p-1 rounded-full "
+                                    title="Upscale Video"
+                                  >
+                                    <Sparkles
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDownload(video)}
+                                    className="p-1 rounded-full"
+                                    title="Download Video"
+                                  >
+                                    <Download
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      showShareModal({
+                                        mediaUrl: video,
+                                        mediaType: "video",
+                                        caption: msg.text,
+                                        onShare: handleShare,
+                                      });
+                                    }}
+                                    className="p-1 rounded-full"
+                                    title="Share Video"
+                                  >
+                                    <Share2
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
                                 </div>
                               </div>
                             ))}
