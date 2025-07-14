@@ -316,7 +316,7 @@
     "jewelrybag": ["/inputs/designs/bags/jewelrybag/jewelrybag1.webp"],
     "retroeleganc": ["/inputs/designs/bags/Retroelegance/Retroelegance1.webp"],
     "romanticandsoft": [
-      "/inputs/designs/bags/romantic&soft/romantic&soft1.webp"
+      "/inputs/designs/bags/romanticsoft/romanticsoft1.webp"
     ],
     "funchicpieces": [
       "/inputs/designs/bags/funchicpieces/funchicpieces1.webp",
@@ -382,7 +382,7 @@
       "/inputs/designs/Jewelry/retrotouch/retrotouch1.webp",
       "/inputs/designs/Jewelry/retrotouch/retrotouch2.webp"
     ],
-    "edgypunk": ["/inputs/designs/Jewelry/edgy punk/edgy punk1.webp"],
+    "edgypunk": ["/inputs/designs/Jewelry/edgypunk/edgypunk1.webp"],
     "gothic": ["/inputs/designs/Jewelry/gothic/gothic1.webp"],
     "tribalethnic": [
       "/inputs/designs/Jewelry/tribalethnic/tribalethnic1.webp",
@@ -425,14 +425,14 @@
       "/inputs/designs/officesupplies/classicmood/classicmood2.webp"
     ],
     "nostalgic": [
-      "/inputs/designs/officesupplies/nostalgic/nostalgic1.webp",
-      "/inputs/designs/officesupplies/nostalgic/nostalgic2.webp"
+      "/inputs/designs/officesupplies/nostalgia/nostalgia1.webp",
+      "/inputs/designs/officesupplies/nostalgia/nostalgia2.webp"
     ],
     "retroencounters": [
       "/inputs/designs/officesupplies/retroencounters/retroencounters1.webp"
     ],
     "mediterraneanfeel": [
-      "/inputs/designs/officesupplies/mediterraneanfeel/mediterraneanfeel1.webp"
+      "/inputs/designs/officesupplies/mediteraneanfeel/mediteraneanfeel1.webp"
     ],
     "aroundtheglobe": [
       "/inputs/designs/officesupplies/aroundtheglobe/aroundtheglobe1.webp"
@@ -442,7 +442,7 @@
       "/inputs/designs/officesupplies/animalworld/animalworld2.webp"
     ],
     "nautical": ["/inputs/designs/officesupplies/nautical/nautical1.webp"],
-    "mozaiq": ["/inputs/designs/officesupplies/mozaiq/mozaiq1.webp"],
+    "mozaiq": ["/inputs/designs/officesupplies/mozaique/mozaique1.webp"],
     "tuttifrutti": [
       "/inputs/designs/officesupplies/tuttifrutti/tuttifrutti1.webp",
       "/inputs/designs/officesupplies/tuttifrutti/tuttifrutti2.webp"
@@ -917,7 +917,7 @@
     "naturalescape": "/inputs/placeholders/officesupplies/naturalescape.webp",
     "popart": "/inputs/placeholders/officesupplies/popart.webp",
     "classicmood": "/inputs/placeholders/officesupplies/classicmood.webp",
-    "nostalgic": "/inputs/placeholders/officesupplies/nostalgic.webp",
+    "nostalgic": "/inputs/placeholders/officesupplies/nostalgia.webp",
     "retroencounters": "/inputs/placeholders/officesupplies/retroencounters.webp",
     "mediterraneanfeel": "/inputs/placeholders/officesupplies/mediterraneanfeel.webp",
     "aroundtheglobe": "/inputs/placeholders/officesupplies/aroundtheglobe.webp",
