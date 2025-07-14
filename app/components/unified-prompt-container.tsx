@@ -105,6 +105,8 @@ export default function UnifiedPromptContainer({
   const [images, setImages] = useState<ImageAsset[]>([]);
   const [drawerType, setDrawerType] = useState<DrawerType | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
   const [selectedProductType, setSelectedProductType] =
     useState<ProductType | null>(null);
   const [uploadingImages, setUploadingImages] = useState<Set<DrawerType>>(
@@ -121,6 +123,68 @@ export default function UnifiedPromptContainer({
   );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationIdRef = useRef<number | null>(null);
+
+  // Handle drag events
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Prevent handling if no files are being dragged
+    if (!e.dataTransfer.types.includes('Files')) {
+      return;
+    }
+
+    dragCounter.current += 1;
+    
+    if (drawerType && dragCounter.current === 1) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dragCounter.current -= 1;
+    
+    if (dragCounter.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Prevent default to stop browser from opening the image
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    dragCounter.current = 0;
+    setIsDragging(false);
+
+    if (!drawerType || !e.dataTransfer.files.length) return;
+
+    const file = e.dataTransfer.files[0];
+    if (!file.type.startsWith('image/')) {
+      // You might want to show an error toast here
+      console.error('Please drop an image file');
+      return;
+    }
+
+    // Create a synthetic event object to reuse existing upload logic
+    const syntheticEvent = {
+      target: {
+        files: [file]
+      }
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+    await handleUpload(drawerType, syntheticEvent);
+  };
 
   // 🔧 NEW: Handle click outside to close drawer
   useEffect(() => {
@@ -142,6 +206,14 @@ export default function UnifiedPromptContainer({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, [drawerOpen]);
+
+  // Add cleanup for drag counter when drawer closes
+  useEffect(() => {
+    if (!drawerOpen) {
+      dragCounter.current = 0;
+      setIsDragging(false);
+    }
   }, [drawerOpen]);
 
   useEffect(() => {
@@ -576,7 +648,21 @@ export default function UnifiedPromptContainer({
     const reordered = [first, "UPLOAD_MARKER", ...presetKeys.slice(1)];
 
     return (
-      <div className="w-full bg-default-100 rounded-t-lg shadow-sm pl-4 py-2 pr-4 z-10 mb-4">
+      <div 
+        className="w-full bg-default-100 rounded-t-lg shadow-sm pl-4 py-2 pr-4 z-10 mb-4 relative"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg z-50 flex items-center justify-center">
+            <div className="text-primary flex items-center gap-2">
+              <Icon icon="lucide:upload" width={24} />
+              <span>Drop to upload</span>
+            </div>
+          </div>
+        )}
         <div className="flex overflow-x-auto gap-4 pb-2 hide-scrollbar">
           <div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
             {reordered.map((label, index) => {
