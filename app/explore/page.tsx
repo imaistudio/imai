@@ -107,7 +107,6 @@ export default function Masonry() {
           setMediaItems(initialItems);
           setHasMore(initialItems.length < supportedFiles.length);
         }
-
         setError(null);
       } catch (err) {
         console.error("Error fetching media items:", err);
@@ -201,7 +200,7 @@ export default function Masonry() {
     <>
       <Header />
       <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
-        <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-6 gap-2 space-y-4">
+        <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4  gap-2 space-y-4">
           {mediaItems.map((item, index) => renderMediaItem(item, index))}
         </div>
       </main>
