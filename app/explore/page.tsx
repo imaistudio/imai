@@ -186,8 +186,8 @@ export default function Masonry() {
     return () => window.removeEventListener("resize", updateColumns);
   }, []);
 
-  const renderMediaItem = (item: MediaItem, index: number) => {
-    const key = `${encodeURIComponent(item.url)}-${index}`;
+  const renderMediaItem = (item: MediaItem, uniqueKey: string) => {
+    const key = `media-${uniqueKey}`;
 
     const handleDownload = async (url: string) => {
       console.log("🔄 Starting download for:", url);
@@ -263,7 +263,7 @@ export default function Masonry() {
         >
           <ImageZoomModal
             src={item.url}
-            alt={`Gallery ${index + 1}`}
+            alt={`Gallery ${uniqueKey.split('-')[2] + 1}`}
             className="w-full h-auto rounded-lg lg:rounded-2xl object-cover cursor-pointer"
             onDownload={handleDownload}
             onShare={(platform, content) => {}}
@@ -301,10 +301,10 @@ export default function Masonry() {
       <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
         <div className="flex gap-2">
           {distributeItemsAcrossColumns(mediaItems, numColumns).map((columnItems, columnIndex) => (
-            <div key={columnIndex} className="flex-1 flex flex-col">
+            <div key={`column-${columnIndex}`} className="flex-1 flex flex-col">
               {columnItems.map((item, itemIndex) => {
-                const originalIndex = mediaItems.findIndex(mediaItem => mediaItem.name === item.name);
-                return renderMediaItem(item, originalIndex);
+                const originalIndex = mediaItems.findIndex(mediaItem => mediaItem.url === item.url);
+                return renderMediaItem(item, `${columnIndex}-${itemIndex}-${originalIndex}`);
               })}
             </div>
           ))}
