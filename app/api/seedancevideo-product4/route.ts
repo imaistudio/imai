@@ -43,7 +43,7 @@ interface SeedanceVideoResponse {
 
 // Fashion/clothing preset prompts
 const FASHION_PROMPTS = [
-  "Scene: 360° turntable-style rotation in slow motion, full black background. Lighting: Low side lighting to cast soft gradients and rim highlights. Camera: Begins wide → zooms into curves and ridges → fades into black between cuts. Detail Shots: Surface transitions, bevels, seams, or buttons fading into focus. Mood: Industrial, precision-focused. Ideal for hardware, tools, minimalist fashion."
+  "Scene: 360° turntable-style rotation in slow motion, full black background. Lighting: Low side lighting to cast soft gradients and rim highlights. Camera: Begins wide → zooms into curves and ridges → fades into black between cuts. Detail Shots: Surface transitions, bevels, seams, or buttons fading into focus. Mood: Industrial, precision-focused. Ideal for hardware, tools, minimalist fashion.",
 ];
 
 // 🔧 VIDEO FIREBASE STORAGE FUNCTIONS
@@ -205,8 +205,9 @@ export async function POST(request: NextRequest) {
     console.log("🔑 FAL_KEY status: Set");
 
     // 🎯 FASHION PRESET: Select random fashion-optimized prompt
-    const selectedPrompt = FASHION_PROMPTS[Math.floor(Math.random() * FASHION_PROMPTS.length)];
-    
+    const selectedPrompt =
+      FASHION_PROMPTS[Math.floor(Math.random() * FASHION_PROMPTS.length)];
+
     const options: SeedanceVideoOptions = {
       prompt: selectedPrompt,
       resolution: "1080p",
@@ -218,9 +219,7 @@ export async function POST(request: NextRequest) {
     };
 
     console.log("Starting Fashion Showcase video generation...");
-    console.log(
-      `🎯 FASHION PRESET: "${options.prompt}"`,
-    );
+    console.log(`🎯 FASHION PRESET: "${options.prompt}"`);
     console.log(`Image to process: ${imageUrl}`);
 
     const isAccessible = await testImageUrl(imageUrl);
@@ -329,4 +328,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-} 
+}

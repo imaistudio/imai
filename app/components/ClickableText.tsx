@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ClickableTextProps {
   text: string;
@@ -6,11 +6,15 @@ interface ClickableTextProps {
   className?: string;
 }
 
-export function ClickableText({ text, onActionClick, className = "" }: ClickableTextProps) {
+export function ClickableText({
+  text,
+  onActionClick,
+  className = "",
+}: ClickableTextProps) {
   // Parse text for clickable links in format **[text](action:type:param)**
   const parseText = (text: string) => {
     console.log("🔍 ClickableText - Parsing text:", text);
-    
+
     const parts: React.ReactNode[] = [];
     // More robust pattern that only matches valid action types (word characters)
     const linkPattern = /\*\*\[([^\]]+)\]\(action:(\w+)(?::([^)]+))?\)\*\*/g;
@@ -25,16 +29,17 @@ export function ClickableText({ text, onActionClick, className = "" }: Clickable
       matchCount++;
       const [fullMatch, linkText, actionType, actionParam] = match;
       const beforeText = text.slice(lastIndex, match.index);
-      
+
       console.log(`🔍 Match ${matchCount}:`, {
         fullMatch,
         linkText,
         actionType,
         actionParam,
-        beforeText: beforeText.substring(0, 50) + (beforeText.length > 50 ? "..." : ""),
+        beforeText:
+          beforeText.substring(0, 50) + (beforeText.length > 50 ? "..." : ""),
         matchIndex: match.index,
         lastIndex,
-        regexLastIndex: linkPattern.lastIndex
+        regexLastIndex: linkPattern.lastIndex,
       });
 
       // SAFETY CHECK: Prevent infinite loops
@@ -44,18 +49,23 @@ export function ClickableText({ text, onActionClick, className = "" }: Clickable
       }
 
       // VALIDATION: Ensure clean action type
-      if (!actionType || actionType.includes(')') || actionType.includes('*') || actionType.includes('[')) {
+      if (
+        !actionType ||
+        actionType.includes(")") ||
+        actionType.includes("*") ||
+        actionType.includes("[")
+      ) {
         console.error("🚨 Invalid action type detected:", actionType);
         console.error("🚨 Skipping malformed link");
         lastIndex = match.index + fullMatch.length;
         continue;
       }
-      
+
       // Add text before the link
       if (beforeText) {
         parts.push(beforeText);
       }
-      
+
       // Add the clickable link
       parts.push(
         <button
@@ -67,21 +77,25 @@ export function ClickableText({ text, onActionClick, className = "" }: Clickable
           className="font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 decoration-2 capitalize transition-colors duration-200"
         >
           {linkText}
-        </button>
+        </button>,
       );
-      
+
       lastIndex = match.index + fullMatch.length;
     }
-    
+
     console.log(`🔍 Found ${matchCount} clickable links`);
-    
+
     // Add remaining text after the last link
     if (lastIndex < text.length) {
       const remainingText = text.slice(lastIndex);
-      console.log("🔍 Remaining text:", remainingText.substring(0, 50) + (remainingText.length > 50 ? "..." : ""));
+      console.log(
+        "🔍 Remaining text:",
+        remainingText.substring(0, 50) +
+          (remainingText.length > 50 ? "..." : ""),
+      );
       parts.push(remainingText);
     }
-    
+
     return parts.length > 0 ? parts : [text];
   };
 
@@ -94,4 +108,4 @@ export function ClickableText({ text, onActionClick, className = "" }: Clickable
       ))}
     </div>
   );
-} 
+}

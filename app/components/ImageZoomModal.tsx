@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ThumbsUp, ThumbsDown, Download, Share2, Paintbrush } from "lucide-react";
+import {
+  X,
+  ThumbsUp,
+  ThumbsDown,
+  Download,
+  Share2,
+  Paintbrush,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useShareModal } from "@/contexts/ShareModalContext";
 import UnifiedPromptContainer from "./unified-prompt-container";
@@ -96,14 +103,19 @@ export const ImageZoomModal = ({
 
   // Determine like/dislike states
   const currentlyLiked = likedImages ? likedImages.has(src) : isLiked;
-  const currentlyDisliked = dislikedImages ? dislikedImages.has(src) : isDisliked;
+  const currentlyDisliked = dislikedImages
+    ? dislikedImages.has(src)
+    : isDisliked;
 
   return (
     <>
       <img
         src={src}
         alt={alt}
-        className={cn("cursor-pointer hover:opacity-90 transition-opacity", className)}
+        className={cn(
+          "cursor-pointer hover:opacity-90 transition-opacity",
+          className,
+        )}
         onClick={() => setIsOpen(true)}
       />
 
@@ -187,13 +199,13 @@ export const ImageZoomModal = ({
           </div>
 
           {/* Left close area */}
-          <div 
+          <div
             className="absolute left-0 top-0 w-20 h-full cursor-pointer"
             onClick={handleClose}
           />
 
           {/* Right close area */}
-          <div 
+          <div
             className="absolute right-0 top-0 w-20 h-full cursor-pointer"
             onClick={handleClose}
           />
@@ -206,7 +218,7 @@ export const ImageZoomModal = ({
               className="max-h-[60vh] max-w-[90vw] object-contain"
               onClick={(e) => e.stopPropagation()}
             />
-          </div>        
+          </div>
         </div>
       )}
     </>

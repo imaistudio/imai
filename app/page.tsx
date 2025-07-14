@@ -200,7 +200,7 @@ export default function Home() {
 
   // 🔧 NEW: Function to handle example button clicks from WelcomeScreen
   const handleExampleClick = async (
-    prompt: string, 
+    prompt: string,
     presets?: {
       preset_product_type?: string;
       preset_design_style?: string;
@@ -210,7 +210,7 @@ export default function Home() {
       product?: string;
       design?: string;
       color?: string;
-    }
+    },
   ) => {
     if (!currentUser) {
       openModal();

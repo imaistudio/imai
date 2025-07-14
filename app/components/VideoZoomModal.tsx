@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ThumbsUp, ThumbsDown, Download, Share2, Paintbrush } from "lucide-react";
+import {
+  X,
+  ThumbsUp,
+  ThumbsDown,
+  Download,
+  Share2,
+  Paintbrush,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useShareModal } from "@/contexts/ShareModalContext";
 import UnifiedPromptContainer from "./unified-prompt-container";
@@ -95,13 +102,18 @@ export const VideoZoomModal = ({
 
   // Determine like/dislike states
   const currentlyLiked = likedImages ? likedImages.has(src) : isLiked;
-  const currentlyDisliked = dislikedImages ? dislikedImages.has(src) : isDisliked;
+  const currentlyDisliked = dislikedImages
+    ? dislikedImages.has(src)
+    : isDisliked;
 
   return (
     <>
       <video
         src={src}
-        className={cn("cursor-pointer hover:opacity-90 transition-opacity", className)}
+        className={cn(
+          "cursor-pointer hover:opacity-90 transition-opacity",
+          className,
+        )}
         onClick={() => setIsOpen(true)}
         autoPlay
         loop
@@ -189,13 +201,13 @@ export const VideoZoomModal = ({
           </div>
 
           {/* Left close area */}
-          <div 
+          <div
             className="absolute left-0 top-0 w-20 h-full cursor-pointer"
             onClick={handleClose}
           />
 
           {/* Right close area */}
-          <div 
+          <div
             className="absolute right-0 top-0 w-20 h-full cursor-pointer"
             onClick={handleClose}
           />

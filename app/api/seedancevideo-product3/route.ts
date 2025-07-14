@@ -43,7 +43,7 @@ interface SeedanceVideoResponse {
 
 // Fashion/clothing preset prompts
 const FASHION_PROMPTS = [
-  "Scene: The product slowly descends into frame from above, rotating gently in mid-air. Lighting: Single overhead spotlight with a foggy ambient glow; sharp edge highlights. Camera: Slowly circles upward from below, revealing bottom textures → sides → top silhouette. Detail Shots: Macro zoom into textures (e.g., matte finish, brushed metal, fabric grain). Mood: Mysterious, sleek, almost surreal — like a luxury product entering a void."
+  "Scene: The product slowly descends into frame from above, rotating gently in mid-air. Lighting: Single overhead spotlight with a foggy ambient glow; sharp edge highlights. Camera: Slowly circles upward from below, revealing bottom textures → sides → top silhouette. Detail Shots: Macro zoom into textures (e.g., matte finish, brushed metal, fabric grain). Mood: Mysterious, sleek, almost surreal — like a luxury product entering a void.",
 ];
 
 // 🔧 VIDEO FIREBASE STORAGE FUNCTIONS
@@ -205,8 +205,9 @@ export async function POST(request: NextRequest) {
     console.log("🔑 FAL_KEY status: Set");
 
     // 🎯 FASHION PRESET: Select random fashion-optimized prompt
-    const selectedPrompt = FASHION_PROMPTS[Math.floor(Math.random() * FASHION_PROMPTS.length)];
-    
+    const selectedPrompt =
+      FASHION_PROMPTS[Math.floor(Math.random() * FASHION_PROMPTS.length)];
+
     const options: SeedanceVideoOptions = {
       prompt: selectedPrompt,
       resolution: "1080p",
@@ -218,9 +219,7 @@ export async function POST(request: NextRequest) {
     };
 
     console.log("Starting Fashion Showcase video generation...");
-    console.log(
-      `🎯 FASHION PRESET: "${options.prompt}"`,
-    );
+    console.log(`🎯 FASHION PRESET: "${options.prompt}"`);
     console.log(`Image to process: ${imageUrl}`);
 
     const isAccessible = await testImageUrl(imageUrl);
@@ -329,4 +328,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
-} 
+}

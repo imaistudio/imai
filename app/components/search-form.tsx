@@ -29,7 +29,9 @@ export function SearchForm({
   const { createNewChat } = useChat();
   const [libraryCount, setLibraryCount] = useState<number>(0);
   const [latestImageUrl, setLatestImageUrl] = useState<string | null>(null);
-  const [latestFileType, setLatestFileType] = useState<"image" | "video" | null>(null);
+  const [latestFileType, setLatestFileType] = useState<
+    "image" | "video" | null
+  >(null);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
 
   const getFileType = (fileName: string): "image" | "video" => {
@@ -124,7 +126,8 @@ export function SearchForm({
 
         const url =
           sortedItems.length > 0 ? await getDownloadURL(sortedItems[0]) : null;
-        const fileType = sortedItems.length > 0 ? getFileType(sortedItems[0].name) : "image";
+        const fileType =
+          sortedItems.length > 0 ? getFileType(sortedItems[0].name) : "image";
 
         console.log("Download URL:", url);
         console.log("File type:", fileType);

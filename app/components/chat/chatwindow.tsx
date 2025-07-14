@@ -36,7 +36,7 @@ import {
   Undo2,
   AudioWaveform,
   Proportions,
-  RectangleVertical
+  RectangleVertical,
 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
@@ -889,7 +889,10 @@ export default function ChatWindow({
 
   // Handle proactive recommendation clicks
   const handleRecommendationClick = useCallback(
-    async (recommendation: ProactiveRecommendation, targetImageUrl?: string) => {
+    async (
+      recommendation: ProactiveRecommendation,
+      targetImageUrl?: string,
+    ) => {
       if (!userId || !chatId) {
         console.error("User not authenticated or no chat ID");
         return;
@@ -949,7 +952,9 @@ export default function ChatWindow({
             sender: "agent",
             type: result.result?.imageUrl ? "images" : "prompt",
             text: result.message,
-            images: result.result?.imageUrl ? [result.result.imageUrl] : undefined,
+            images: result.result?.imageUrl
+              ? [result.result.imageUrl]
+              : undefined,
             chatId: chatId,
             createdAt: Timestamp.now(),
           };
@@ -1292,8 +1297,6 @@ export default function ChatWindow({
     [userId, chatId],
   );
 
-
-
   // Handle video reframe to portrait
   const handleVideoreframe = useCallback(
     async (videoUrl: string) => {
@@ -1464,7 +1467,10 @@ export default function ChatWindow({
         // Call video sound effects API
         const formData = new FormData();
         formData.append("video_url", videoUrl);
-        formData.append("prompt", "Generate realistic ambient and foreground sounds that match the visual content, timing, environment, and actions in the video. Ensure the audio reflects the correct atmosphere, object interactions, materials, spatial depth, and motion. Maintain temporal alignment and avoid adding unrelated sounds.");
+        formData.append(
+          "prompt",
+          "Generate realistic ambient and foreground sounds that match the visual content, timing, environment, and actions in the video. Ensure the audio reflects the correct atmosphere, object interactions, materials, spatial depth, and motion. Maintain temporal alignment and avoid adding unrelated sounds.",
+        );
         formData.append("original_sound_switch", "false"); // Default to false
 
         const response = await fetch("/api/videosound", {
@@ -1720,11 +1726,12 @@ export default function ChatWindow({
       const recentImage = messages
         .slice()
         .reverse()
-        .find(m => m.images && m.images.length > 0)
-        ?.images?.[0];
+        .find((m) => m.images && m.images.length > 0)?.images?.[0];
 
       if (!recentImage) {
-        alert("No recent image found to process. Please ensure there's an image in the conversation.");
+        alert(
+          "No recent image found to process. Please ensure there's an image in the conversation.",
+        );
         return;
       }
 
@@ -1734,7 +1741,9 @@ export default function ChatWindow({
       if (type === "upscale") {
         loadingText = "Upscaling image to higher resolution...";
       } else if (type === "reframe") {
-        loadingText = param ? `Reframing to ${param} format...` : "Reframing image...";
+        loadingText = param
+          ? `Reframing to ${param} format...`
+          : "Reframing image...";
       } else if (type === "design") {
         loadingText = "Creating new design...";
       } else if (type === "removebg") {
@@ -1758,7 +1767,6 @@ export default function ChatWindow({
       };
 
       try {
-
         // Add loading message to Firestore
         const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
         await updateDoc(chatRef, {
@@ -1770,15 +1778,20 @@ export default function ChatWindow({
         formData.append("userid", userId);
         formData.append("chatId", chatId);
         formData.append("image_url", recentImage);
-        
+
         let finalMessage = "";
         if (type === "upscale") {
           finalMessage = "upscale this image to higher resolution";
         } else if (type === "reframe") {
-          finalMessage = param ? `change to ${param} format` : "reframe this image";
+          finalMessage = param
+            ? `change to ${param} format`
+            : "reframe this image";
           if (param) formData.append("aspect_ratio", param);
         } else if (type === "design") {
-          finalMessage = param === "similar" ? "create similar design" : "create new design based on this";
+          finalMessage =
+            param === "similar"
+              ? "create similar design"
+              : "create new design based on this";
         } else if (type === "removebg") {
           finalMessage = "remove background from this image";
         } else if (type === "scene") {
@@ -1809,9 +1822,13 @@ export default function ChatWindow({
           const successMessage: ChatMessage = {
             id: `action-result-${Date.now()}`,
             sender: "agent",
-            type: result.images && result.images.length > 0 ? "images" : "prompt",
+            type:
+              result.images && result.images.length > 0 ? "images" : "prompt",
             text: result.message,
-            images: result.images && result.images.length > 0 ? result.images : undefined,
+            images:
+              result.images && result.images.length > 0
+                ? result.images
+                : undefined,
             chatId: chatId,
             createdAt: Timestamp.now(),
             recommendations: result.recommendations,
@@ -1843,10 +1860,9 @@ export default function ChatWindow({
         } else {
           throw new Error(result.error || "Failed to process action");
         }
-
       } catch (error) {
         console.error("❌ Error processing action:", error);
-        
+
         // Create error message
         const errorMessage: ChatMessage = {
           id: `action-error-${Date.now()}`,
@@ -1881,7 +1897,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId, messages]
+    [userId, chatId, messages],
   );
 
   // Initialize auth state
@@ -2103,11 +2119,10 @@ export default function ChatWindow({
                               onActionClick={handleActionClick}
                               className="text-black dark:text-white no-underline capitalize"
                             />
-                              {(msg as any).isStreaming && (
-                                <span className="animate-pulse">▊</span>
-                              )}
+                            {(msg as any).isStreaming && (
+                              <span className="animate-pulse">▊</span>
+                            )}
                           </div>
-
                         </div>
                       </div>
                     </div>
@@ -2418,8 +2433,6 @@ export default function ChatWindow({
                                       className="text-black dark:text-white"
                                     />
                                   </button>
-
-
 
                                   <button
                                     onClick={() => handleVideoUpscale(video)}
