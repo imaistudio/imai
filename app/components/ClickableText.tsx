@@ -74,7 +74,6 @@ export function ClickableText({
             console.log("🔗 Button clicked:", { actionType, actionParam });
             onActionClick(actionType, actionType, actionParam);
           }}
-          className="font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 decoration-2 capitalize transition-colors duration-200"
         >
           {linkText}
         </button>,
