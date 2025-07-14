@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useShareModal } from "@/contexts/ShareModalContext";
-import UnifiedPromptContainer from "./unified-prompt-container";
 
 interface VideoZoomModalProps {
   src: string;
@@ -137,7 +136,7 @@ export const VideoZoomModal = ({
             </button>
 
             {/* Action icons - top right */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0">
               {onLike && (
                 <button
                   onClick={handleLike}
@@ -148,7 +147,7 @@ export const VideoZoomModal = ({
                     size={20}
                     className={`${
                       currentlyLiked
-                        ? "text-green-400 fill-green-400"
+                        ? "text-green-400 "
                         : "text-white"
                     }`}
                   />
@@ -165,7 +164,7 @@ export const VideoZoomModal = ({
                     size={20}
                     className={`${
                       currentlyDisliked
-                        ? "text-red-400 fill-red-400"
+                        ? "text-red-400 "
                         : "text-white"
                     }`}
                   />

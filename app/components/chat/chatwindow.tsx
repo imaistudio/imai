@@ -2001,6 +2001,13 @@ export default function ChatWindow({
                                   src={img}
                                   alt={`image-${i}`}
                                   className="w-auto h-36 md:h-96 object-cover rounded-lg"
+                                  onLike={handleLike}
+                                  onDislike={handleDislike}
+                                  likedImages={likedImages}
+                                  dislikedImages={dislikedImages}
+                                  onPaint={() => console.log("Paint:", img)}
+                                  onDownload={handleDownload}
+                                  onShare={handleShare}
                                 />
                                 {/* Icon row below the image */}
                                 <div className="flex items-start justify-start gap-1 mt-2">
@@ -2210,6 +2217,13 @@ export default function ChatWindow({
                                   <VideoZoomModal
                                     src={video}
                                     className="w-full h-full object-cover"
+                                    onLike={handleLike}
+                                    onDislike={handleDislike}
+                                    likedImages={likedImages}
+                                    dislikedImages={dislikedImages}
+                                    onPaint={() => console.log("Paint:", video)}
+                                    onDownload={handleDownload}
+                                    onShare={handleShare}
                                   />
                                 </div>
                                 {/* Icon row below the video */}
