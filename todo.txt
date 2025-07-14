@@ -1,13 +1,12 @@
 Current Task 
 
-1. Explore Page - Fix Flickering| Add Cache 
-2. Modal - Remove The close button to explore page 
-3. Fix everything in the mobile view purshase the UI Kit
-4. Make it Exactly likke the PDF
-5. Stripe Payment Gateway 
-6. add sharing system model | public link | shareable chat window 
-7. copy paste drag and drop system in chat window
-8. Add More Modals Enchemnets  
+1. Modal - Remove The close button to explore page 
+2. Fix everything in the mobile view purshase the UI Kit
+3. Make it Exactly likke the PDF
+4. Stripe Payment Gateway 
+5. add sharing system model | public link | shareable chat window 
+6. copy paste drag and drop system in chat window
+7. Add More Modals Enchemnets  
 
 Pixel Perfect UI - Page By Page 
 
