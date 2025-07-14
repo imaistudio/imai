@@ -14,6 +14,7 @@ interface ImageZoomModalProps {
   onDislike?: (imageUrl: string) => void;
   onDownload?: (imageUrl: string) => void;
   onShare?: (platform: string, content: any) => void;
+  onPaint?: (imageUrl: string) => void;
   isLiked?: boolean;
   isDisliked?: boolean;
   userId?: string;
@@ -29,6 +30,7 @@ export const ImageZoomModal = ({
   onDislike,
   onDownload,
   onShare,
+  onPaint,
   isLiked = false,
   isDisliked = false,
   likedImages,
@@ -83,7 +85,9 @@ export const ImageZoomModal = ({
   };
 
   const handlePaint = () => {
-    console.log(src);
+    if (onPaint) {
+      onPaint(src);
+    }
   };
 
   const handleClose = () => {
