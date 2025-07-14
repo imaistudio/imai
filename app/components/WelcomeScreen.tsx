@@ -270,7 +270,7 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 w-full">
-          {examplePrompts.slice(0, 4).map((example, index) => (
+          {examplePrompts.slice(0, 6).map((example, index) => (
             <Button
               key={index}
               variant="outline"

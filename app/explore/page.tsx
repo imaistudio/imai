@@ -189,6 +189,58 @@ export default function Masonry() {
   const renderMediaItem = (item: MediaItem, index: number) => {
     const key = `${item.name}-${index}`;
 
+    const handleDownload = async (url: string) => {
+      console.log("🔄 Starting download for:", url);
+
+      try {
+        // Extract filename from URL
+        let fileName = url.split("/").pop() || `download-${Date.now()}.jpg`;
+
+        // Clean up filename - remove query parameters
+        if (fileName.includes("?")) {
+          fileName = fileName.split("?")[0];
+        }
+
+        // Ensure filename has an extension
+        if (!fileName.includes(".")) {
+          fileName += ".jpg";
+        }
+
+        console.log("📁 Using filename:", fileName);
+
+        // Use server-side proxy for ALL URLs (most reliable approach)
+        const proxyUrl = `/api/download-image?url=${encodeURIComponent(url)}`;
+
+        console.log("🔗 Proxy URL:", proxyUrl);
+
+        // Create download link and trigger immediately
+        const link = document.createElement("a");
+        link.href = proxyUrl;
+        link.download = fileName;
+        link.style.display = "none";
+        document.body.appendChild(link);
+
+        // Force click
+        link.click();
+
+        // Clean up after a short delay
+        setTimeout(() => {
+          try {
+            document.body.removeChild(link);
+            console.log("🗑️ Cleaned up download link");
+          } catch (e) {
+            console.warn("⚠️ Could not clean up link:", e);
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("❌ Download failed:", error);
+
+        // Simple fallback: direct window.open
+        console.log("🔄 Fallback: Opening in new tab");
+        window.open(url, "_blank");
+      }
+    };
+
     if (item.type === "video") {
       return (
         <div
@@ -198,6 +250,8 @@ export default function Masonry() {
           <VideoZoomModal
             src={item.url}
             className="w-full h-auto rounded-lg lg:rounded-2xl object-cover cursor-pointer"
+            onDownload={handleDownload}
+            onShare={(platform, content) => {}}
           />
         </div>
       );
@@ -211,6 +265,8 @@ export default function Masonry() {
             src={item.url}
             alt={`Gallery ${index + 1}`}
             className="w-full h-auto rounded-lg lg:rounded-2xl object-cover cursor-pointer"
+            onDownload={handleDownload}
+            onShare={(platform, content) => {}}
           />
         </div>
       );

@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useShareModal } from "@/contexts/ShareModalContext";
-import UnifiedPromptContainer from "./unified-prompt-container";
 
 interface ImageZoomModalProps {
   src: string;
@@ -170,13 +169,13 @@ export const ImageZoomModal = ({
                 </button>
               )}
 
-              <button
+              {/* <button
                 onClick={handlePaint}
                 className="p-2 rounded-full hover:bg-white/20 transition-colors"
                 title="Paint/Edit"
               >
                 <Paintbrush size={20} className="text-white" />
-              </button>
+              </button> */}
 
               {onDownload && (
                 <button
