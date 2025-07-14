@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
     // Extract parameters
     const videoUrl = formData.get("video_url") as string;
     const prompt = (formData.get("prompt") as string) || "";
-    const originalSoundSwitch = formData.get("original_sound_switch") === "true";
+    const originalSoundSwitch =
+      formData.get("original_sound_switch") === "true";
 
     console.log("🔑 FAL_KEY status:", process.env.FAL_KEY ? "Set" : "Missing");
 
@@ -35,7 +36,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Starting video sound effects generation...");
-    console.log(`Parameters: video_url="${videoUrl}", prompt="${prompt}", original_sound_switch=${originalSoundSwitch}`);
+    console.log(
+      `Parameters: video_url="${videoUrl}", prompt="${prompt}", original_sound_switch=${originalSoundSwitch}`,
+    );
     console.log(`Video to process: ${videoUrl}`);
 
     // Test video URL accessibility
@@ -64,7 +67,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Submitting request to FAL AI Pixverse Sound Effects...");
-    console.log(`Arguments: video_url="${videoUrl}", prompt="${prompt}", original_sound_switch=${originalSoundSwitch}`);
+    console.log(
+      `Arguments: video_url="${videoUrl}", prompt="${prompt}", original_sound_switch=${originalSoundSwitch}`,
+    );
 
     // Submit to fal.ai pixverse sound effects
     const result = await fal.subscribe("fal-ai/pixverse/sound-effects", {
@@ -146,4 +151,4 @@ export async function POST(request: NextRequest) {
       { status: statusCode },
     );
   }
-} 
+}
