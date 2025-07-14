@@ -13,6 +13,7 @@ interface VideoZoomModalProps {
   onDislike?: (videoUrl: string) => void;
   onDownload?: (videoUrl: string) => void;
   onShare?: (platform: string, content: any) => void;
+  onPaint?: (videoUrl: string) => void;
   isLiked?: boolean;
   isDisliked?: boolean;
   userId?: string;
@@ -27,6 +28,7 @@ export const VideoZoomModal = ({
   onDislike,
   onDownload,
   onShare,
+  onPaint,
   isLiked = false,
   isDisliked = false,
   userId,
@@ -82,7 +84,9 @@ export const VideoZoomModal = ({
   };
 
   const handlePaint = () => {
-    console.log(src);
+    if (onPaint) {
+      onPaint(src);
+    }
   };
 
   const handleClose = () => {
