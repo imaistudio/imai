@@ -1,21 +1,41 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, ThumbsUp, ThumbsDown, Download, Share2, Paintbrush } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useShareModal } from "@/contexts/ShareModalContext";
+import UnifiedPromptContainer from "./unified-prompt-container";
 
 interface ImageZoomModalProps {
   src: string;
   alt?: string;
   className?: string;
+  onLike?: (imageUrl: string) => void;
+  onDislike?: (imageUrl: string) => void;
+  onDownload?: (imageUrl: string) => void;
+  onShare?: (platform: string, content: any) => void;
+  isLiked?: boolean;
+  isDisliked?: boolean;
+  userId?: string;
+  likedImages?: Set<string>;
+  dislikedImages?: Set<string>;
 }
 
 export const ImageZoomModal = ({
   src,
   alt = "",
   className,
+  onLike,
+  onDislike,
+  onDownload,
+  onShare,
+  isLiked = false,
+  isDisliked = false,
+  likedImages,
+  dislikedImages,
 }: ImageZoomModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { showShareModal } = useShareModal();
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -35,32 +55,162 @@ export const ImageZoomModal = ({
     };
   }, [isOpen]);
 
+  const handleLike = () => {
+    if (onLike) {
+      onLike(src);
+    }
+  };
+
+  const handleDislike = () => {
+    if (onDislike) {
+      onDislike(src);
+    }
+  };
+
+  const handleDownload = () => {
+    if (onDownload) {
+      onDownload(src);
+    }
+  };
+
+  const handleShare = () => {
+    showShareModal({
+      mediaUrl: src,
+      mediaType: "image",
+      caption: alt,
+      onShare,
+    });
+  };
+
+  const handlePaint = () => {
+    console.log(src);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  // Determine like/dislike states
+  const currentlyLiked = likedImages ? likedImages.has(src) : isLiked;
+  const currentlyDisliked = dislikedImages ? dislikedImages.has(src) : isDisliked;
+
   return (
     <>
       <img
         src={src}
         alt={alt}
-        className={cn(className)}
+        className={cn("cursor-pointer hover:opacity-90 transition-opacity", className)}
         onClick={() => setIsOpen(true)}
       />
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
-          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90"
+          onClick={handleClose}
         >
-          <button
-            className="absolute right-4 top-4 text-white hover:text-gray-300"
-            onClick={() => setIsOpen(false)}
-          >
-            <X size={24} />
-          </button>
-          <img
-            src={src}
-            alt={alt}
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-            onClick={(e) => e.stopPropagation()}
+          {/* Header with close button and action icons */}
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+            {/* Close button - top left */}
+            <button
+              className="p-2 text-white hover:text-gray-300 hover:bg-white/20 rounded-full transition-colors"
+              onClick={handleClose}
+            >
+              <X size={20} />
+            </button>
+
+            {/* Action icons - top right */}
+            <div className="flex items-center gap-1">
+              {onLike && (
+                <button
+                  onClick={handleLike}
+                  className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                  title={currentlyLiked ? "Unlike" : "Like"}
+                >
+                  <ThumbsUp
+                    size={20}
+                    className={`${
+                      currentlyLiked
+                        ? "text-green-400 fill-green-400"
+                        : "text-white"
+                    }`}
+                  />
+                </button>
+              )}
+
+              {onDislike && (
+                <button
+                  onClick={handleDislike}
+                  className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                  title={currentlyDisliked ? "Remove dislike" : "Dislike"}
+                >
+                  <ThumbsDown
+                    size={20}
+                    className={`${
+                      currentlyDisliked
+                        ? "text-red-400 fill-red-400"
+                        : "text-white"
+                    }`}
+                  />
+                </button>
+              )}
+
+              <button
+                onClick={handlePaint}
+                className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                title="Paint/Edit"
+              >
+                <Paintbrush size={20} className="text-white" />
+              </button>
+
+              {onDownload && (
+                <button
+                  onClick={handleDownload}
+                  className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                  title="Download"
+                >
+                  <Download size={20} className="text-white" />
+                </button>
+              )}
+
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                title="Share"
+              >
+                <Share2 size={20} className="text-white" />
+              </button>
+            </div>
+          </div>
+
+          {/* Left close area */}
+          <div 
+            className="absolute left-0 top-0 w-20 h-full cursor-pointer"
+            onClick={handleClose}
           />
+
+          {/* Right close area */}
+          <div 
+            className="absolute right-0 top-0 w-20 h-full cursor-pointer"
+            onClick={handleClose}
+          />
+
+          {/* Image container */}
+          <div className="flex-1 flex items-center justify-center p-4 pt-20">
+            <img
+              src={src}
+              alt={alt}
+              className="max-h-[60vh] max-w-[90vw] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          {/* Unified Prompt Container */}
+          <div className="w-full max-w-4xl px-4 pb-4" onClick={(e) => e.stopPropagation()}>
+            <UnifiedPromptContainer
+              placeholder="Design something new based on this image..."
+              maxLength={1000}
+            />
+          </div>
         </div>
       )}
     </>
