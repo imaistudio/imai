@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { storage, auth } from "@/lib/firebase";
+import { useSVGTheme } from "@/hooks/use-svg-theme";
 
 import {
   ProductType,
@@ -115,6 +116,9 @@ export default function UnifiedPromptContainer({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLFormElement>(null); // 🔧 NEW: Ref for click outside detection
   const [user, loading, error] = useAuthState(auth);
+
+  // Use SVG theme hook to handle product placeholder styling
+  useSVGTheme();
 
   // Voice state
   const [isRecording, setIsRecording] = useState(false);
