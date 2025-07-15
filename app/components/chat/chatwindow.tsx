@@ -1941,7 +1941,7 @@ export default function ChatWindow({
                       )}
                       {msg.text && (
                         <div className="relative">
-                          <div className="text-sm  text-white bg-primary rounded-full py-2 px-4 leading-relaxed text-left">
+                          <div className="text-sm w-full text-white bg-primary rounded-2xl py-3 px-4 leading-relaxed text-left">
                             <p>{msg.text}</p>
                           </div>
                         </div>

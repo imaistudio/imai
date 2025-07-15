@@ -1,14 +1,19 @@
 Current Task 
 
 1. Modal - Remove The close button to explore page 
-2. Fix everything in the mobile view purshase the UI Kit
-3. Stripe Payment Gateway with criedts systems 
+2. Fix Layout Shift in mobile 
+3. Fix Scrolls Taps in Explore page 
+4. Add Seprate Header for Non Main Pages
+5. Fix Scrolling Inside the Unfied Promot Container 
+6. Fix Bubble Chat UI Looks 
+7. Better Icons in Zoom Modal 
+8. Stripe Payment Gateway with criedts systems 
 
 Extras 
 1.Phone Auth 
 2.Apple Auth 
 3.Reset Email
 4.Rotate the Keys
-5.Fix Safari Issues 
+5.Fix Safari Issues  (SVG Logs)
 6.Url Shorterner 
  
