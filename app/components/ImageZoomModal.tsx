@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   ThumbsUp,
@@ -44,6 +44,9 @@ export const ImageZoomModal = ({
 }: ImageZoomModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { showShareModal } = useShareModal();
+  const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
+  const touchThreshold = 10; // pixels
+  const touchTimeThreshold = 200; // milliseconds
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -62,6 +65,36 @@ export const ImageZoomModal = ({
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+
+    // Only open modal if:
+    // 1. Touch movement was minimal (not scrolling)
+    // 2. Touch duration was short (quick tap)
+    if (deltaX < touchThreshold && deltaY < touchThreshold && deltaTime < touchTimeThreshold) {
+      setIsOpen(true);
+    }
+  };
+
+  const handleClick = (e: React.PointerEvent) => {
+    // Only handle click events from mouse (not touch events)
+    if (e.pointerType !== 'touch') {
+      setIsOpen(true);
+    }
+  };
 
   const handleLike = () => {
     if (onLike) {
@@ -115,7 +148,10 @@ export const ImageZoomModal = ({
           "cursor-pointer hover:opacity-90 transition-opacity",
           className,
         )}
-        onClick={() => setIsOpen(true)}
+        onPointerDown={handleClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        loading="lazy"
       />
 
       {isOpen && (
