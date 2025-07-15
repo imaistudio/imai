@@ -20,6 +20,7 @@ import { frequencies, tiers } from "@/types/pricing-tiers";
 import Header from "../components/header";
 import Footer from "../components/footer";
 import FAQ from "../components/faq";
+import MobileNavRest from "@/app/components/MobileNavRest";
 
 export default function Pricing() {
   const [selectedFrequency, setSelectedFrequency] = React.useState(
@@ -33,6 +34,7 @@ export default function Pricing() {
   return (
     <>
       <Header></Header>
+      <MobileNavRest />
       <div className="w-full flex justify-center align-middle min-h-full bg-white dark:bg-black">
         <div className="flex max-w-5xl flex-col items-center py-24">
           <div className="flex max-w-xl flex-col text-center">

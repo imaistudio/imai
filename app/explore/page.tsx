@@ -6,6 +6,7 @@ import { VideoZoomModal } from "../components/VideoZoomModal";
 import { useState, useEffect, useCallback } from "react";
 import { storage } from "@/lib/firebase";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
+import MobileNavRest from "@/app/components/MobileNavRest";
 
 interface MediaItem {
   url: string;
@@ -277,6 +278,8 @@ export default function Masonry() {
     return (
       <>
         <Header />
+        <MobileNavRest />
+        <MobileNavRest />
         <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
           <div className="flex justify-center items-center min-h-[50vh]">
             <div className="text-center">
@@ -298,6 +301,7 @@ export default function Masonry() {
   return (
     <>
       <Header />
+      <MobileNavRest />
       <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
         <div className="flex gap-2">
           {distributeItemsAcrossColumns(mediaItems, numColumns).map((columnItems, columnIndex) => (

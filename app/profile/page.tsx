@@ -17,6 +17,7 @@ import Footer from "../components/footer";
 import Header from "../components/header";
 import { CalendarDate } from "@internationalized/date";
 import { Spinner } from "@heroui/react";
+import MobileNavRest from "@/app/components/MobileNavRest";
 
 export default function Profile() {
   const { user: currentUser } = useAuth();
@@ -116,6 +117,7 @@ export default function Profile() {
     return (
       <>
         <Header />
+        <MobileNavRest />
         <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
           <video
             className="w-50 h-50"
