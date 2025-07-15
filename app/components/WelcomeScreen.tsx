@@ -255,14 +255,18 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
   }, [Math.floor(Date.now() / 10000)]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-auto md:max-w-4xlmx-auto px-4">
-      <div className="w-full md:max-w-4xl flex flex-col items-center justify-center">
-        <IMAIIcon className="text-black dark:text-white" size={32} />
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
+    <div className="flex flex-col items-center justify-center h-auto md:max-w-4xl mx-auto px-4">
+      {/* Static header section */}
+      <div className="w-full flex flex-col items-center justify-center mb-6">
+        <IMAIIcon className="text-black dark:text-white mb-3" size={32} />
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 text-center">
           Explore IMAI's Features
         </h2>
+      </div>
 
-        <div className="w-full overflow-x-auto pb-4">
+      {/* Scrollable content section */}
+      <div className="w-full">
+        <div className="overflow-x-auto pb-4">
           <div className="flex gap-4 w-max">
             {examplePrompts.slice(0, 6).map((example, index) => (
               <Button
