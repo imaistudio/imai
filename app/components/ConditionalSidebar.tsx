@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/app/components/app-sidebar";
 import { useChat } from "@/contexts/ChatContext";
 
@@ -29,8 +29,10 @@ export default function ConditionalSidebar({
   return (
     <SidebarProvider>
       <AppSidebar onNewChatClick={handleNewChatClick} />
-      <SidebarTrigger />
-      {children}
+      <SidebarInset>
+        <SidebarTrigger />
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }
