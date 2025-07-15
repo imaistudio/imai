@@ -1,11 +1,9 @@
 Current Task 
 
-1. Modal - Remove The close button to explore page 
-2. Fix Layout Shift in mobile 
-3. Add Seprate Header for Non Main Pages
-4. Fix Scrolling Inside the Unfied Promot Container 
-5. Better Icons in Zoom Modal 
-6. Stripe Payment Gateway with criedts systems 
+1. Fix Layout Shift in mobile 
+2. Add Seprate Header for Non Main Pages
+3. Fix Scrolling Inside the Unfied Promot Container 
+4. Stripe Payment Gateway with criedts systems 
 
 Extras 
 1.Phone Auth 
