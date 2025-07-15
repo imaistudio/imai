@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useEffect } from "react";
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IMAIIcon } from "@/app/components/imai";
 import UnifiedPromptContainer from "@/app/components/unified-prompt-container";
@@ -43,6 +43,9 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const exampleCardsRef = useRef<HTMLButtonElement[]>([]);
   const promptContainerRef = useRef<HTMLDivElement>(null);
+
+  // Add stable state for preset generation
+  const [presetSeed, setPresetSeed] = useState<number>(() => Date.now());
 
   // Set up scroll animations
   useFadeInAnimation(logoRef, { duration: 1.2, delay: 0.2, y: 50 });
@@ -135,13 +138,21 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
     { key: "analogous", name: "Analogous" },
   ];
 
-  const generateRandomPresetCombination = (): ExamplePrompt => {
-    const randomProduct =
-      productTypes[Math.floor(Math.random() * productTypes.length)];
-    const randomDesign =
-      designStyles[Math.floor(Math.random() * designStyles.length)];
-    const randomColor =
-      colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
+  // Create a seeded random function to ensure consistent results
+  const seededRandom = (seed: number) => {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  };
+
+  // Generate stable random preset combinations using the seed
+  const generateRandomPresetCombination = (index: number): ExamplePrompt => {
+    const productSeed = presetSeed + index * 3;
+    const designSeed = presetSeed + index * 3 + 1;
+    const colorSeed = presetSeed + index * 3 + 2;
+
+    const randomProduct = productTypes[Math.floor(seededRandom(productSeed) * productTypes.length)];
+    const randomDesign = designStyles[Math.floor(seededRandom(designSeed) * designStyles.length)];
+    const randomColor = colorPalettes[Math.floor(seededRandom(colorSeed) * colorPalettes.length)];
 
     return {
       title: `${randomDesign.name} ${randomProduct.name}`,
@@ -276,22 +287,39 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
     },
   ];
 
+  // Fixed: Use stable preset generation with proper dependencies
   const examplePrompts = useMemo(() => {
-    const shuffledBasicPrompts = [...allExamplePrompts].sort(
-      () => Math.random() - 0.5,
-    );
+    // Use seeded random for consistent shuffling
+    const shuffledBasicPrompts = [...allExamplePrompts].sort((a, b) => {
+      const aHash = a.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const bHash = b.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return seededRandom(presetSeed + aHash) - seededRandom(presetSeed + bHash);
+    });
+    
     const basicPrompts = shuffledBasicPrompts.slice(0, 2);
-    const randomPresetPrompts = Array.from({ length: 4 }, () =>
-      generateRandomPresetCombination(),
+    const randomPresetPrompts = Array.from({ length: 4 }, (_, index) =>
+      generateRandomPresetCombination(index),
     );
+    
     const allPrompts = [...basicPrompts, ...randomPresetPrompts];
-    return allPrompts.sort(() => Math.random() - 0.5);
-  }, [Math.floor(Date.now() / 10000)]);
+    
+    // Stable sort using the same seed
+    return allPrompts.sort((a, b) => {
+      const aHash = a.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const bHash = b.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return seededRandom(presetSeed + aHash + 1000) - seededRandom(presetSeed + bHash + 1000);
+    });
+  }, [presetSeed]); // Only depends on presetSeed, not time
 
   // Update refs array when example prompts change
   useEffect(() => {
     exampleCardsRef.current = exampleCardsRef.current.slice(0, examplePrompts.length);
   }, [examplePrompts]);
+
+  // Function to regenerate presets (called manually if needed)
+  const regeneratePresets = () => {
+    setPresetSeed(Date.now());
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full max-w-4xl mx-auto px-4 py-8">
@@ -322,7 +350,7 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
           <div className="flex gap-4 pb-4" style={{ width: 'max-content' }}>
             {examplePrompts.slice(0, 6).map((example, index) => (
               <Button
-                key={index}
+                key={`${presetSeed}-${index}`} // Use presetSeed in key for consistency
                 ref={(el) => {
                   if (el) exampleCardsRef.current[index] = el;
                 }}
