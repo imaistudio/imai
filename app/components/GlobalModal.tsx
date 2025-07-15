@@ -3,9 +3,16 @@
 import { Modal, ModalContent } from "@heroui/react";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function GlobalModal() {
   const { isOpen, closeModal } = useGlobalModal();
+  const router = useRouter();
+
+  const handleClose = () => {
+    closeModal();
+    router.push("/explore");
+  };
 
   return (
     <Modal
@@ -14,7 +21,9 @@ export default function GlobalModal() {
       shouldBlockScroll
       backdrop="blur"
       onOpenChange={(open) => {
-        if (!open) closeModal();
+        if (!open) {
+          handleClose();
+        }
       }}
       className="m-4 md:m-0 lg:p-0 max-w-md rounded-2xl overflow-hidden bg-white dark:bg-black"
     >
@@ -23,7 +32,7 @@ export default function GlobalModal() {
           {/* Image Collage Header */}
           <div className="relative w-full h-auto  pb-4  overflow-hidden">
             <button
-              onClick={closeModal}
+              onClick={handleClose}
               className="absolute top-4 right-4 p-2  z-10"
             >
               <X className="w-8 h-8 text-white dark:text-black" />
@@ -55,12 +64,6 @@ export default function GlobalModal() {
                 Log in
               </button>
             </a>
-
-            {/* <a href="/signup" onClick={closeModal} className="w-full">
-              <button className="border border-gray-300 w-full rounded-full py-3 ">
-                Sign up for free
-              </button>
-            </a> */}
 
             <a href="/invite" onClick={closeModal} className="w-full">
               <button className="border border-gray-300 w-full rounded-full py-3 ">
