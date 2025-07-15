@@ -1,11 +1,17 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // Register ScrollTrigger plugin
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
@@ -13,30 +19,40 @@ interface ScrollTriggerContextType {
   gsap: typeof gsap;
   ScrollTrigger: typeof ScrollTrigger;
   isReady: boolean;
-  createAnimation: (element: string | Element, animation: gsap.TweenVars, scrollTriggerConfig?: ScrollTrigger.Vars) => gsap.core.Tween;
-  createTimeline: (scrollTriggerConfig?: ScrollTrigger.Vars) => gsap.core.Timeline;
+  createAnimation: (
+    element: string | Element,
+    animation: gsap.TweenVars,
+    scrollTriggerConfig?: ScrollTrigger.Vars,
+  ) => gsap.core.Tween;
+  createTimeline: (
+    scrollTriggerConfig?: ScrollTrigger.Vars,
+  ) => gsap.core.Timeline;
   refresh: () => void;
   killAll: () => void;
 }
 
-const ScrollTriggerContext = createContext<ScrollTriggerContextType | undefined>(undefined);
+const ScrollTriggerContext = createContext<
+  ScrollTriggerContextType | undefined
+>(undefined);
 
 interface ScrollTriggerProviderProps {
   children: React.ReactNode;
 }
 
-export const ScrollTriggerProvider: React.FC<ScrollTriggerProviderProps> = ({ children }) => {
+export const ScrollTriggerProvider: React.FC<ScrollTriggerProviderProps> = ({
+  children,
+}) => {
   const [isReady, setIsReady] = useState(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     // Initialize ScrollTrigger
     const initScrollTrigger = () => {
       try {
         gsap.registerPlugin(ScrollTrigger);
-        
+
         // Configure ScrollTrigger defaults
         ScrollTrigger.defaults({
           toggleActions: "restart pause resume pause",
@@ -45,12 +61,12 @@ export const ScrollTriggerProvider: React.FC<ScrollTriggerProviderProps> = ({ ch
 
         // Enable ScrollTrigger
         ScrollTrigger.refresh();
-        
+
         if (mountedRef.current) {
           setIsReady(true);
         }
       } catch (error) {
-        console.error('Failed to initialize ScrollTrigger:', error);
+        console.error("Failed to initialize ScrollTrigger:", error);
       }
     };
 
@@ -62,12 +78,12 @@ export const ScrollTriggerProvider: React.FC<ScrollTriggerProviderProps> = ({ ch
       ScrollTrigger.refresh();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // Cleanup on unmount
     return () => {
       mountedRef.current = false;
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       ScrollTrigger.killAll();
     };
   }, []);
@@ -76,31 +92,37 @@ export const ScrollTriggerProvider: React.FC<ScrollTriggerProviderProps> = ({ ch
   const createAnimation = (
     element: string | Element,
     animation: gsap.TweenVars,
-    scrollTriggerConfig?: ScrollTrigger.Vars
+    scrollTriggerConfig?: ScrollTrigger.Vars,
   ): gsap.core.Tween => {
     const tween = gsap.to(element, {
       ...animation,
-      scrollTrigger: scrollTriggerConfig ? {
-        trigger: element,
-        start: "top 80%",
-        end: "bottom 20%",
-        toggleActions: "play none none reverse",
-        ...scrollTriggerConfig,
-      } : scrollTriggerConfig,
+      scrollTrigger: scrollTriggerConfig
+        ? {
+            trigger: element,
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse",
+            ...scrollTriggerConfig,
+          }
+        : scrollTriggerConfig,
     });
 
     return tween;
   };
 
   // Helper function to create timeline with ScrollTrigger
-  const createTimeline = (scrollTriggerConfig?: ScrollTrigger.Vars): gsap.core.Timeline => {
+  const createTimeline = (
+    scrollTriggerConfig?: ScrollTrigger.Vars,
+  ): gsap.core.Timeline => {
     const timeline = gsap.timeline({
-      scrollTrigger: scrollTriggerConfig ? {
-        start: "top 80%",
-        end: "bottom 20%",
-        toggleActions: "play none none reverse",
-        ...scrollTriggerConfig,
-      } : scrollTriggerConfig,
+      scrollTrigger: scrollTriggerConfig
+        ? {
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse",
+            ...scrollTriggerConfig,
+          }
+        : scrollTriggerConfig,
     });
 
     return timeline;
@@ -137,7 +159,9 @@ export const ScrollTriggerProvider: React.FC<ScrollTriggerProviderProps> = ({ ch
 export const useScrollTrigger = () => {
   const context = useContext(ScrollTriggerContext);
   if (context === undefined) {
-    throw new Error('useScrollTrigger must be used within a ScrollTriggerProvider');
+    throw new Error(
+      "useScrollTrigger must be used within a ScrollTriggerProvider",
+    );
   }
   return context;
 };
@@ -147,7 +171,7 @@ export const useScrollAnimation = (
   elementRef: React.RefObject<HTMLElement>,
   animation: gsap.TweenVars,
   scrollTriggerConfig?: ScrollTrigger.Vars,
-  dependencies: React.DependencyList = []
+  dependencies: React.DependencyList = [],
 ) => {
   const { createAnimation, isReady } = useScrollTrigger();
   const animationRef = useRef<gsap.core.Tween | null>(null);
@@ -164,7 +188,7 @@ export const useScrollAnimation = (
     animationRef.current = createAnimation(
       elementRef.current,
       animation,
-      scrollTriggerConfig
+      scrollTriggerConfig,
     );
 
     // Cleanup on unmount
@@ -181,7 +205,7 @@ export const useScrollAnimation = (
 // Custom hook for creating timeline animations
 export const useScrollTimeline = (
   scrollTriggerConfig?: ScrollTrigger.Vars,
-  dependencies: React.DependencyList = []
+  dependencies: React.DependencyList = [],
 ) => {
   const { createTimeline, isReady } = useScrollTrigger();
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
@@ -217,7 +241,7 @@ export const useFadeInAnimation = (
     y?: number;
     start?: string;
     end?: string;
-  } = {}
+  } = {},
 ) => {
   const {
     duration = 1,
@@ -241,7 +265,7 @@ export const useFadeInAnimation = (
       start,
       end,
       toggleActions: "play none none reverse",
-    }
+    },
   );
 };
 
@@ -250,13 +274,14 @@ export const useStaggerAnimation = (
   elementsRef: React.RefObject<HTMLElement[]>,
   animation: gsap.TweenVars,
   scrollTriggerConfig?: ScrollTrigger.Vars,
-  staggerAmount: number = 0.1
+  staggerAmount: number = 0.1,
 ) => {
   const { gsap, isReady } = useScrollTrigger();
   const animationRef = useRef<gsap.core.Tween | null>(null);
 
   useEffect(() => {
-    if (!isReady || !elementsRef.current || elementsRef.current.length === 0) return;
+    if (!isReady || !elementsRef.current || elementsRef.current.length === 0)
+      return;
 
     // Kill existing animation
     if (animationRef.current) {
@@ -267,13 +292,15 @@ export const useStaggerAnimation = (
     animationRef.current = gsap.to(elementsRef.current, {
       ...animation,
       stagger: staggerAmount,
-      scrollTrigger: scrollTriggerConfig ? {
-        trigger: elementsRef.current[0],
-        start: "top 80%",
-        end: "bottom 20%",
-        toggleActions: "play none none reverse",
-        ...scrollTriggerConfig,
-      } : scrollTriggerConfig,
+      scrollTrigger: scrollTriggerConfig
+        ? {
+            trigger: elementsRef.current[0],
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse",
+            ...scrollTriggerConfig,
+          }
+        : scrollTriggerConfig,
     });
 
     // Cleanup on unmount
@@ -285,4 +312,4 @@ export const useStaggerAnimation = (
   }, [isReady, elementsRef.current]);
 
   return animationRef.current;
-}; 
+};

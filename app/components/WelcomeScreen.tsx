@@ -4,7 +4,10 @@ import React, { useMemo, useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IMAIIcon } from "@/app/components/imai";
 import UnifiedPromptContainer from "@/app/components/unified-prompt-container";
-import { useFadeInAnimation, useStaggerAnimation } from "@/contexts/ScrollTriggerContext";
+import {
+  useFadeInAnimation,
+  useStaggerAnimation,
+} from "@/contexts/ScrollTriggerContext";
 
 interface PresetCombination {
   preset_product_type?: string;
@@ -36,7 +39,10 @@ interface WelcomeScreenProps {
   onPromptSubmit?: (data: any) => void;
 }
 
-export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: WelcomeScreenProps) {
+export default function WelcomeScreen({
+  onExampleClick,
+  onPromptSubmit,
+}: WelcomeScreenProps) {
   // Refs for animations
   const logoRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -68,7 +74,7 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
       end: "bottom 15%",
       toggleActions: "play none none reverse",
     },
-    0.1
+    0.1,
   );
 
   const productTypes = [
@@ -83,7 +89,11 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
     { key: "vehicles", name: "Vehicle", placeholder: "vehicles.svg" },
     { key: "toys", name: "Toy", placeholder: "toys.svg" },
     { key: "totebag", name: "Tote Bag", placeholder: "totebag.svg" },
-    { key: "shoulderbag", name: "Shoulder Bag", placeholder: "shoulderbag.svg" },
+    {
+      key: "shoulderbag",
+      name: "Shoulder Bag",
+      placeholder: "shoulderbag.svg",
+    },
     { key: "shoes", name: "Shoes", placeholder: "shoes.svg" },
     { key: "plate", name: "Plate", placeholder: "plate.svg" },
     { key: "lamp", name: "Lamp", placeholder: "lamp.svg" },
@@ -150,9 +160,12 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
     const designSeed = presetSeed + index * 3 + 1;
     const colorSeed = presetSeed + index * 3 + 2;
 
-    const randomProduct = productTypes[Math.floor(seededRandom(productSeed) * productTypes.length)];
-    const randomDesign = designStyles[Math.floor(seededRandom(designSeed) * designStyles.length)];
-    const randomColor = colorPalettes[Math.floor(seededRandom(colorSeed) * colorPalettes.length)];
+    const randomProduct =
+      productTypes[Math.floor(seededRandom(productSeed) * productTypes.length)];
+    const randomDesign =
+      designStyles[Math.floor(seededRandom(designSeed) * designStyles.length)];
+    const randomColor =
+      colorPalettes[Math.floor(seededRandom(colorSeed) * colorPalettes.length)];
 
     return {
       title: `${randomDesign.name} ${randomProduct.name}`,
@@ -188,7 +201,8 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
     },
     {
       title: "Design running shoes",
-      prompt: "Create ultra-lightweight performance running shoes with responsive foam soles, knit mesh uppers for breathability, and an adaptive lacing system. Combine performance-driven engineering with futuristic streetwear styling.",
+      prompt:
+        "Create ultra-lightweight performance running shoes with responsive foam soles, knit mesh uppers for breathability, and an adaptive lacing system. Combine performance-driven engineering with futuristic streetwear styling.",
     },
     {
       title: "Wedding dress design",
@@ -291,29 +305,45 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
   const examplePrompts = useMemo(() => {
     // Use seeded random for consistent shuffling
     const shuffledBasicPrompts = [...allExamplePrompts].sort((a, b) => {
-      const aHash = a.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const bHash = b.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      return seededRandom(presetSeed + aHash) - seededRandom(presetSeed + bHash);
+      const aHash = a.title
+        .split("")
+        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const bHash = b.title
+        .split("")
+        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return (
+        seededRandom(presetSeed + aHash) - seededRandom(presetSeed + bHash)
+      );
     });
-    
+
     const basicPrompts = shuffledBasicPrompts.slice(0, 2);
     const randomPresetPrompts = Array.from({ length: 4 }, (_, index) =>
       generateRandomPresetCombination(index),
     );
-    
+
     const allPrompts = [...basicPrompts, ...randomPresetPrompts];
-    
+
     // Stable sort using the same seed
     return allPrompts.sort((a, b) => {
-      const aHash = a.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const bHash = b.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      return seededRandom(presetSeed + aHash + 1000) - seededRandom(presetSeed + bHash + 1000);
+      const aHash = a.title
+        .split("")
+        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const bHash = b.title
+        .split("")
+        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return (
+        seededRandom(presetSeed + aHash + 1000) -
+        seededRandom(presetSeed + bHash + 1000)
+      );
     });
   }, [presetSeed]); // Only depends on presetSeed, not time
 
   // Update refs array when example prompts change
   useEffect(() => {
-    exampleCardsRef.current = exampleCardsRef.current.slice(0, examplePrompts.length);
+    exampleCardsRef.current = exampleCardsRef.current.slice(
+      0,
+      examplePrompts.length,
+    );
   }, [examplePrompts]);
 
   // Function to regenerate presets (called manually if needed)
@@ -325,20 +355,23 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
     <div className="flex flex-col items-center justify-center min-h-screen w-full max-w-4xl mx-auto px-4 py-8">
       {/* Logo and Header - Top */}
       <div className="flex flex-col items-center justify-center mb-8">
-        <div ref={logoRef} style={{ opacity: 0, transform: 'translateY(50px)' }}>
+        <div
+          ref={logoRef}
+          style={{ opacity: 0, transform: "translateY(50px)" }}
+        >
           <IMAIIcon className="text-black dark:text-white mb-4" size={48} />
         </div>
-        <h1 
+        <h1
           ref={titleRef}
           className="text-3xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2"
-          style={{ opacity: 0, transform: 'translateY(30px)' }}
+          style={{ opacity: 0, transform: "translateY(30px)" }}
         >
           Welcome to IMAI
         </h1>
-        <p 
+        <p
           ref={subtitleRef}
           className="text-lg text-gray-600 dark:text-gray-400 text-center"
-          style={{ opacity: 0, transform: 'translateY(20px)' }}
+          style={{ opacity: 0, transform: "translateY(20px)" }}
         >
           Explore IMAI's Features
         </p>
@@ -347,7 +380,7 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
       {/* Example Prompts - Upper Middle */}
       <div className="w-full mb-8">
         <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex gap-4 pb-4" style={{ width: 'max-content' }}>
+          <div className="flex gap-4 pb-4" style={{ width: "max-content" }}>
             {examplePrompts.slice(0, 6).map((example, index) => (
               <Button
                 key={`${presetSeed}-${index}`} // Use presetSeed in key for consistency
@@ -356,7 +389,7 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
                 }}
                 variant="outline"
                 className="flex-shrink-0 w-80 h-auto p-4 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                style={{ opacity: 0, transform: 'translateY(30px)' }}
+                style={{ opacity: 0, transform: "translateY(30px)" }}
                 onClick={() =>
                   onExampleClick(
                     example.prompt,
@@ -380,10 +413,10 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
       </div>
 
       {/* Unified Prompt Container - Center */}
-      <div 
+      <div
         ref={promptContainerRef}
         className="w-full max-w-2xl"
-        style={{ opacity: 0, transform: 'translateY(30px)' }}
+        style={{ opacity: 0, transform: "translateY(30px)" }}
       >
         <UnifiedPromptContainer
           onSubmit={onPromptSubmit}

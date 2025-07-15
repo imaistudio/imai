@@ -128,14 +128,14 @@ export default function UnifiedPromptContainer({
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Prevent handling if no files are being dragged
-    if (!e.dataTransfer.types.includes('Files')) {
+    if (!e.dataTransfer.types.includes("Files")) {
       return;
     }
 
     dragCounter.current += 1;
-    
+
     if (drawerType && dragCounter.current === 1) {
       setIsDragging(true);
     }
@@ -146,7 +146,7 @@ export default function UnifiedPromptContainer({
     e.stopPropagation();
 
     dragCounter.current -= 1;
-    
+
     if (dragCounter.current === 0) {
       setIsDragging(false);
     }
@@ -155,32 +155,32 @@ export default function UnifiedPromptContainer({
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Prevent default to stop browser from opening the image
-    e.dataTransfer.dropEffect = 'copy';
+    e.dataTransfer.dropEffect = "copy";
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     dragCounter.current = 0;
     setIsDragging(false);
 
     if (!drawerType || !e.dataTransfer.files.length) return;
 
     const file = e.dataTransfer.files[0];
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       // You might want to show an error toast here
-      console.error('Please drop an image file');
+      console.error("Please drop an image file");
       return;
     }
 
     // Create a synthetic event object to reuse existing upload logic
     const syntheticEvent = {
       target: {
-        files: [file]
-      }
+        files: [file],
+      },
     } as unknown as React.ChangeEvent<HTMLInputElement>;
 
     await handleUpload(drawerType, syntheticEvent);
@@ -648,7 +648,7 @@ export default function UnifiedPromptContainer({
     const reordered = [first, "UPLOAD_MARKER", ...presetKeys.slice(1)];
 
     return (
-      <div 
+      <div
         className="w-full bg-default-100 rounded-t-lg shadow-sm pl-4 py-2 pr-4 z-10 mb-4 relative"
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}

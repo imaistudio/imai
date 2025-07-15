@@ -63,11 +63,11 @@ export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
         <button onClick={() => setIsOpen(true)} className="p-2">
           <Menu size={24} />
         </button>
-        
+
         {isAuthenticated ? (
-        <div className="text-lg font-semibold pl-2">
-        <IMAIIcon size={32} />
-        </div>
+          <div className="text-lg font-semibold pl-2">
+            <IMAIIcon size={32} />
+          </div>
         ) : (
           <button
             onClick={handleLoginClick}

@@ -1,6 +1,10 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/app/components/app-sidebar";
 import { useChat } from "@/contexts/ChatContext";
 

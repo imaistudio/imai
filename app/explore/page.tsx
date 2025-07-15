@@ -57,15 +57,18 @@ export default function Masonry() {
     return match ? parseInt(match[1], 10) : 0;
   };
 
-  const distributeItemsAcrossColumns = (items: MediaItem[], numColumns: number): MediaItem[][] => {
+  const distributeItemsAcrossColumns = (
+    items: MediaItem[],
+    numColumns: number,
+  ): MediaItem[][] => {
     const columns: MediaItem[][] = Array.from({ length: numColumns }, () => []);
-    
+
     // Distribute items across columns in round-robin fashion to maintain horizontal order
     items.forEach((item, index) => {
       const columnIndex = index % numColumns;
       columns[columnIndex].push(item);
     });
-    
+
     return columns;
   };
 
@@ -264,7 +267,7 @@ export default function Masonry() {
         >
           <ImageZoomModal
             src={item.url}
-            alt={`Gallery ${uniqueKey.split('-')[2] + 1}`}
+            alt={`Gallery ${uniqueKey.split("-")[2] + 1}`}
             className="w-full h-auto rounded-lg lg:rounded-2xl object-cover cursor-pointer"
             onDownload={handleDownload}
             onShare={(platform, content) => {}}
@@ -304,14 +307,24 @@ export default function Masonry() {
       <MobileNavRest />
       <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
         <div className="flex gap-2">
-          {distributeItemsAcrossColumns(mediaItems, numColumns).map((columnItems, columnIndex) => (
-            <div key={`column-${columnIndex}`} className="flex-1 flex flex-col">
-              {columnItems.map((item, itemIndex) => {
-                const originalIndex = mediaItems.findIndex(mediaItem => mediaItem.url === item.url);
-                return renderMediaItem(item, `${columnIndex}-${itemIndex}-${originalIndex}`);
-              })}
-            </div>
-          ))}
+          {distributeItemsAcrossColumns(mediaItems, numColumns).map(
+            (columnItems, columnIndex) => (
+              <div
+                key={`column-${columnIndex}`}
+                className="flex-1 flex flex-col"
+              >
+                {columnItems.map((item, itemIndex) => {
+                  const originalIndex = mediaItems.findIndex(
+                    (mediaItem) => mediaItem.url === item.url,
+                  );
+                  return renderMediaItem(
+                    item,
+                    `${columnIndex}-${itemIndex}-${originalIndex}`,
+                  );
+                })}
+              </div>
+            ),
+          )}
         </div>
       </main>
       <Footer />

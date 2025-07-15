@@ -887,7 +887,6 @@ export default function ChatWindow({
     [userId],
   );
 
-
   // Handle upscale image
   const handleUpscale = useCallback(
     async (imageUrl: string) => {
