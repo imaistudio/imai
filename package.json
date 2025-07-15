@@ -60,6 +60,7 @@
     "firebase-admin": "^13.4.0",
     "formidable": "^3.5.4",
     "framer-motion": "11.13.1",
+    "gsap": "^3.13.0",
     "intl-messageformat": "10.7.16",
     "jsonwebtoken": "^9.0.2",
     "lottie-react": "^2.4.1",

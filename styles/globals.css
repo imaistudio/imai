@@ -272,4 +272,44 @@ body::-webkit-scrollbar {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
+
+  /* ScrollTrigger animation utilities */
+  .scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .scroll-animate-up {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+
+  .scroll-animate-left {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  .scroll-animate-right {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  .scroll-animate-scale {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  .scroll-animate-rotate {
+    opacity: 0;
+    transform: rotate(10deg);
+  }
+
+  /* Prevent flash of unstyled content */
+  .gsap-loading {
+    visibility: hidden;
+  }
+  
+  .gsap-ready {
+    visibility: visible;
+  }
 }
