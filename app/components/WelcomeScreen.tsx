@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { IMAIIcon } from "@/app/components/imai";
 import UnifiedPromptContainer from "@/app/components/unified-prompt-container";
+import { useFadeInAnimation, useStaggerAnimation } from "@/contexts/ScrollTriggerContext";
 
 interface PresetCombination {
   preset_product_type?: string;
@@ -36,6 +37,37 @@ interface WelcomeScreenProps {
 }
 
 export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: WelcomeScreenProps) {
+  // Refs for animations
+  const logoRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const exampleCardsRef = useRef<HTMLButtonElement[]>([]);
+  const promptContainerRef = useRef<HTMLDivElement>(null);
+
+  // Set up scroll animations
+  useFadeInAnimation(logoRef, { duration: 1.2, delay: 0.2, y: 50 });
+  useFadeInAnimation(titleRef, { duration: 1, delay: 0.4, y: 30 });
+  useFadeInAnimation(subtitleRef, { duration: 1, delay: 0.6, y: 20 });
+  useFadeInAnimation(promptContainerRef, { duration: 1, delay: 1, y: 30 });
+
+  // Stagger animation for example cards
+  useStaggerAnimation(
+    { current: exampleCardsRef.current },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out",
+    },
+    {
+      trigger: exampleCardsRef.current[0],
+      start: "top 85%",
+      end: "bottom 15%",
+      toggleActions: "play none none reverse",
+    },
+    0.1
+  );
+
   const productTypes = [
     { key: "tshirt", name: "T-shirt", placeholder: "t-shirt.svg" },
     { key: "watches", name: "Watch", placeholder: "watches.svg" },
@@ -256,15 +288,30 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
     return allPrompts.sort(() => Math.random() - 0.5);
   }, [Math.floor(Date.now() / 10000)]);
 
+  // Update refs array when example prompts change
+  useEffect(() => {
+    exampleCardsRef.current = exampleCardsRef.current.slice(0, examplePrompts.length);
+  }, [examplePrompts]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full max-w-4xl mx-auto px-4 py-8">
       {/* Logo and Header - Top */}
       <div className="flex flex-col items-center justify-center mb-8">
-        <IMAIIcon className="text-black dark:text-white mb-4" size={48} />
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2">
+        <div ref={logoRef} style={{ opacity: 0, transform: 'translateY(50px)' }}>
+          <IMAIIcon className="text-black dark:text-white mb-4" size={48} />
+        </div>
+        <h1 
+          ref={titleRef}
+          className="text-3xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2"
+          style={{ opacity: 0, transform: 'translateY(30px)' }}
+        >
           Welcome to IMAI
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 text-center">
+        <p 
+          ref={subtitleRef}
+          className="text-lg text-gray-600 dark:text-gray-400 text-center"
+          style={{ opacity: 0, transform: 'translateY(20px)' }}
+        >
           Explore IMAI's Features
         </p>
       </div>
@@ -276,8 +323,12 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
             {examplePrompts.slice(0, 6).map((example, index) => (
               <Button
                 key={index}
+                ref={(el) => {
+                  if (el) exampleCardsRef.current[index] = el;
+                }}
                 variant="outline"
                 className="flex-shrink-0 w-80 h-auto p-4 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                style={{ opacity: 0, transform: 'translateY(30px)' }}
                 onClick={() =>
                   onExampleClick(
                     example.prompt,
@@ -301,7 +352,11 @@ export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: Welcom
       </div>
 
       {/* Unified Prompt Container - Center */}
-      <div className="w-full max-w-2xl">
+      <div 
+        ref={promptContainerRef}
+        className="w-full max-w-2xl"
+        style={{ opacity: 0, transform: 'translateY(30px)' }}
+      >
         <UnifiedPromptContainer
           onSubmit={onPromptSubmit}
           placeholder="What would you like to design today?"

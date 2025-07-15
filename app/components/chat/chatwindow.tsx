@@ -18,6 +18,7 @@ import {
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/app/components/ImageZoomModal";
 import { useShareModal } from "@/contexts/ShareModalContext";
+import { useFadeInAnimation } from "@/contexts/ScrollTriggerContext";
 import {
   Reply,
   ThumbsUp,

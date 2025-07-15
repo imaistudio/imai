@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GlobalModalProvider } from "@/contexts/GlobalModalContext";
 import { ShareModalProvider } from "@/contexts/ShareModalContext";
+import { ScrollTriggerProvider } from "@/contexts/ScrollTriggerContext";
 import GlobalModal from "@/app/components/GlobalModal";
 import ConditionalSidebar from "./components/ConditionalSidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -199,10 +200,12 @@ export default function RootLayout({
             <AuthProvider>
               <ChatProvider>
                 <ShareModalProvider>
-                  <GlobalModalProvider>
-                    <ConditionalSidebar>{children}</ConditionalSidebar>
-                    <GlobalModal />
-                  </GlobalModalProvider>
+                  <ScrollTriggerProvider>
+                    <GlobalModalProvider>
+                      <ConditionalSidebar>{children}</ConditionalSidebar>
+                      <GlobalModal />
+                    </GlobalModalProvider>
+                  </ScrollTriggerProvider>
                 </ShareModalProvider>
               </ChatProvider>
             </AuthProvider>
