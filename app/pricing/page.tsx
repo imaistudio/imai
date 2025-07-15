@@ -35,7 +35,7 @@ export default function Pricing() {
     <>
       <Header></Header>
       <MobileNavRest />
-      <div className="w-full flex justify-center align-middle min-h-full bg-white dark:bg-black">
+      <div className="w-full flex justify-center align-middle min-h-full bg-white dark:bg-black p-4">
         <div className="flex max-w-5xl flex-col items-center py-24">
           <div className="flex max-w-xl flex-col text-center">
             <h2 className="font-medium text-blue-500">Pricing</h2>

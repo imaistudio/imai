@@ -113,7 +113,7 @@ export default function MobileNavRest({ onNewChatClick }: MobileNavProps = {}) {
           <div className="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
           
           <a 
-            href="/help" 
+            href="/contact" 
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <HelpCircle size={18} className="mr-3" />
