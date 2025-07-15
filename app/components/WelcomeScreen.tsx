@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { IMAIIcon } from "@/app/components/imai";
+import UnifiedPromptContainer from "@/app/components/unified-prompt-container";
 
 interface PresetCombination {
   preset_product_type?: string;
@@ -31,9 +32,10 @@ interface WelcomeScreenProps {
       color?: string;
     },
   ) => void;
+  onPromptSubmit?: (data: any) => void;
 }
 
-export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
+export default function WelcomeScreen({ onExampleClick, onPromptSubmit }: WelcomeScreenProps) {
   const productTypes = [
     { key: "tshirt", name: "T-shirt", placeholder: "t-shirt.svg" },
     { key: "watches", name: "Watch", placeholder: "watches.svg" },
@@ -229,7 +231,7 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
       title: "Tropical Luxe – Summer Capsule",
       prompt:
         "Create a premium summer capsule collection featuring flowy maxi dresses, linen co-ord sets, relaxed resort shirts, and lightweight jumpsuits. Emphasize breathable fabrics like cotton, linen, and chiffon, using a palette of tropical brights, sunset gradients, and ocean-inspired pastels. laid-back, high-fashion vacation vibe.",
-    },    
+    },
     {
       title: "Evening wear collection",
       prompt:
@@ -255,17 +257,20 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
   }, [Math.floor(Date.now() / 10000)]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-auto w-full max-w-4xl mx-auto px-4">
-      {/* Static header section */}
-      <div className="w-full flex flex-col items-center justify-center mb-6">
-        <IMAIIcon className="text-black dark:text-white mb-3" size={32} />
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 text-center">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full max-w-4xl mx-auto px-4 py-8">
+      {/* Logo and Header - Top */}
+      <div className="flex flex-col items-center justify-center mb-8">
+        <IMAIIcon className="text-black dark:text-white mb-4" size={48} />
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2">
+          Welcome to IMAI
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400 text-center">
           Explore IMAI's Features
-        </h2>
+        </p>
       </div>
 
-      {/* Scrollable content section - properly constrained */}
-      <div className="w-full max-w-full">
+      {/* Example Prompts - Upper Middle */}
+      <div className="w-full mb-8">
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-4 pb-4" style={{ width: 'max-content' }}>
             {examplePrompts.slice(0, 6).map((example, index) => (
@@ -293,6 +298,14 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Unified Prompt Container - Center */}
+      <div className="w-full max-w-2xl">
+        <UnifiedPromptContainer
+          onSubmit={onPromptSubmit}
+          placeholder="What would you like to design today?"
+        />
       </div>
     </div>
   );
