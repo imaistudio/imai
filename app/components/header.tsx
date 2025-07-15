@@ -41,12 +41,10 @@ export default function App() {
     ];
 
     if (user) {
-      // If user is logged in, add logout and remove login/signup
       return [...baseItems, { label: "Logout", href: "/", action: "logout" }];
     } else {
-      // If user is not logged in, show login/signup
       return [
-        { label: "Sign Up", href: "/signup" },
+        { label: "Invite", href: "/invite" },
         { label: "Login", href: "/login" },
         ...baseItems,
       ];

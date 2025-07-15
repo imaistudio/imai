@@ -67,7 +67,7 @@ export default function Profile() {
 
   const handleSubmit = async () => {
     if (!currentUser) {
-      router.push("/signup");
+      router.push("/invite");
       return;
     }
 
