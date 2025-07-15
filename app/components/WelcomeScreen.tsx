@@ -129,116 +129,116 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
     {
       title: "Design a modern backpack",
       prompt:
-        "Create a sleek, modern backpack design with minimalist aesthetics and functional compartments",
+        "Design a premium urban backpack with water-resistant matte textures, anti-theft compartments, magnetic closures, and hidden laptop sleeves. Emphasize a sleek, all-black aesthetic with modular interior organization for tech, travel, and daily use.",
     },
     {
       title: "Design a ceramic coffee mug",
       prompt:
-        "Create a unique ceramic coffee mug with ergonomic handle and artistic patterns",
+        "Create a high-end ceramic mug collection featuring matte-glazed finishes, sculpted ergonomic handles, and artisanal, hand-painted geometric motifs. Designed for both functional comfort and contemporary kitchen display.",
     },
     {
       title: "Create luxury handbag",
       prompt:
-        "Design a sophisticated leather handbag with premium hardware and functional compartments",
+        "Design an elegant, structured luxury handbag crafted from full-grain Italian leather, featuring gold-plated hardware, a detachable crossbody strap, and suede-lined compartments. Style for upscale urban fashion and timeless appeal.",
     },
     {
       title: "Design running shoes",
-      prompt: "Create athletic running shoes with advanced cushioning and breathable materials",
+      prompt: "Create ultra-lightweight performance running shoes with responsive foam soles, knit mesh uppers for breathability, and an adaptive lacing system. Combine performance-driven engineering with futuristic streetwear styling.",
     },
     {
       title: "Wedding dress design",
       prompt:
-        "Design an elegant wedding dress with vintage lace details and modern silhouette",
+        "Design a couture wedding gown featuring delicate Chantilly lace, a sculpted bodice with corset detailing, and a flowing silk chiffon skirt. Embellish with hand-sewn crystals for an ethereal, modern bridal silhouette.",
     },
     {
       title: "Tech gadget concept",
       prompt:
-        "Create a futuristic smartwatch design with health monitoring features",
+        "Envision a next-gen smartwatch with a frameless holographic display, biometric sensors for full-body analytics, gesture control, and modular AI-driven personalization. Combine utility with sleek wearable design.",
     },
     {
       title: "Design a desk organizer",
       prompt:
-        "Create a modular desk organizer with compartments for pens, papers, and office supplies",
+        "Create a modular desk organizer system made of sustainable bamboo and anodized aluminum, featuring magnetic connectors, stackable trays, and cable management zones. Tailored for productivity and minimalism.",
     },
     {
       title: "Streetwear collection",
       prompt:
-        "Create a bold streetwear clothing line with urban graphics and comfortable fits",
+        "Design a rebellious streetwear drop featuring oversized silhouettes, techwear layering, graffiti-inspired digital prints, and eco-conscious materials. Target youth culture and drop culture aesthetics.",
     },
     {
       title: "Luxury timepiece",
       prompt:
-        "Design a sophisticated luxury watch with Swiss movement and premium materials",
+        "Design an heirloom-grade luxury watch with skeleton dial, Swiss tourbillon movement, sapphire crystal casing, and interchangeable alligator straps. Inspired by architectural precision and timeless masculinity.",
     },
     {
       title: "Gemstone jewelry",
       prompt:
-        "Create an elegant necklace featuring emeralds and diamonds in an Art Deco style",
+        "Create a statement jewelry piece—a platinum necklace featuring a radiant-cut emerald centerpiece surrounded by pavé diamonds, inspired by vintage Art Deco geometry with a modern, clean finish.",
     },
     {
       title: "Ergonomic office chair",
       prompt:
-        "Design a comfortable office chair with lumbar support and breathable materials",
+        "Design a premium ergonomic office chair with dynamic lumbar support, mesh airflow zones, memory foam seating, and minimalist frame aesthetics. Focus on posture science blended with executive design.",
     },
     {
       title: "Electric vehicle concept",
       prompt:
-        "Create a futuristic electric car design with aerodynamic styling and sustainable materials",
+        "Create a concept design for an electric SUV with solar roof integration, aerodynamic glass curves, plant-based leather interiors, and intelligent AI driving interface. Style it for luxury, range, and sustainability.",
     },
     {
       title: "Create a children's toy",
       prompt:
-        "Design an educational toy that promotes creativity and learning through play",
+        "Design a STEM-based educational toy for kids aged 5–10 that merges storytelling.",
     },
     {
       title: "Designer sunglasses",
       prompt:
-        "Create trendy sunglasses with unique frame shapes and premium lenses",
+        "Create an avant-garde sunglasses line with sculptural acetate frames, gradient polarized lenses, and bold architectural silhouettes. Emphasize both high fashion and functional UV tech.",
     },
     {
       title: "Premium headphones",
       prompt:
-        "Design noise-cancelling headphones with premium audio quality and comfort",
+        "Design wireless over-ear headphones with adaptive noise cancelation, spatial audio processing, vegan leather cushions, and a minimal titanium finish. Blend studio-grade performance with lifestyle aesthetics.",
     },
     {
       title: "Phone case design",
       prompt:
-        "Create a protective phone case with artistic patterns and wireless charging compatibility",
+        "Create a series of shock-absorbing, MagSafe-compatible phone cases with 3D-printed textures, soft microfiber interiors, and artistic overlays inspired by abstract and pop culture design trends.",
     },
     {
       title: "Design a leather wallet",
       prompt:
-        "Create a premium leather wallet with RFID protection and card organization",
+        "Design a bi-fold wallet using hand-tanned leather, RFID shielding layers, precision stitching, and pull-tab card access. Focus on luxury craftsmanship and modern slim profiles.",
     },
     {
       title: "Design a modern lamp",
       prompt:
-        "Create a contemporary table lamp with adjustable brightness and sleek design",
+        "Create a smart LED table lamp, a pivoting metallic armature, and integrated wireless charging base. Designed with Scandinavian minimalism and modular lighting zones.",
     },
     {
       title: "Design kitchen utensils",
       prompt:
-        "Create a set of modern kitchen utensils with ergonomic handles and durable materials",
+        "Design a curated set of high-end kitchen utensils crafted from matte stainless steel. Each tool should feature ergonomic shaping, seamless joints, and a sculptural aesthetic.",
     },
     {
       title: "Hiking gear collection",
       prompt:
-        "Create durable outdoor gear for mountain hiking with weather protection",
+        "Develop a rugged hiking gear collection featuring waterproof layers, lightweight insulated jackets, modular backpacks with hydration ports, and ultragrip boots. Built for alpine weather and high-altitude terrain.",
     },
     {
-      title: "Summer fashion line",
+      title: "Tropical Luxe – Summer Capsule",
       prompt:
-        "Design a breezy summer collection with light fabrics and vibrant colors",
-    },
+        "Create a premium summer capsule collection featuring flowy maxi dresses, linen co-ord sets, relaxed resort shirts, and lightweight jumpsuits. Emphasize breathable fabrics like cotton, linen, and chiffon, using a palette of tropical brights, sunset gradients, and ocean-inspired pastels. laid-back, high-fashion vacation vibe.",
+    },    
     {
       title: "Evening wear collection",
       prompt:
-        "Create elegant evening dresses with sophisticated silhouettes and luxurious fabrics",
+        "Design an eveningwear collection for luxury galas and high-society events. Include floor-length satin gowns, plunging necklines, tailored velvet suits, and intricate beadwork. Focus on elegance, movement, and cinematic impact.",
     },
     {
       title: "Celebrity red carpet look",
       prompt:
-        "Design a show-stopping red carpet outfit with dramatic details and perfect fit",
+        "Create a one-of-a-kind red carpet look for a global A-list celebrity. Combine sculptural couture tailoring with dramatic high-slits, sequin layering, and a rich color story. Photogenic under flash, with maximum press impact.",
     },
   ];
 
@@ -255,7 +255,7 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
   }, [Math.floor(Date.now() / 10000)]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-auto md:max-w-4xl mx-auto px-4">
+    <div className="flex flex-col items-center justify-center h-auto w-full max-w-4xl mx-auto px-4">
       {/* Static header section */}
       <div className="w-full flex flex-col items-center justify-center mb-6">
         <IMAIIcon className="text-black dark:text-white mb-3" size={32} />
@@ -264,10 +264,10 @@ export default function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {
         </h2>
       </div>
 
-      {/* Scrollable content section */}
-      <div className="w-full">
-        <div className="overflow-x-auto pb-4">
-          <div className="flex gap-4 w-max">
+      {/* Scrollable content section - properly constrained */}
+      <div className="w-full max-w-full">
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex gap-4 pb-4" style={{ width: 'max-content' }}>
             {examplePrompts.slice(0, 6).map((example, index) => (
               <Button
                 key={index}
