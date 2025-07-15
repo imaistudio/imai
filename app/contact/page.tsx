@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Header from "../components/header";
 import Footer from "../components/footer";
 import { Icon } from "@iconify/react";
+import MobileNavRest from "@/app/components/MobileNavRest";
 
 export default function PromptContainer() {
   const [prompt, setPrompt] = useState<string>("");
@@ -122,6 +123,7 @@ export default function PromptContainer() {
   return (
     <>
       <Header />
+      <MobileNavRest />
       <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-black p-4">
         {submitted ? (
           <div className="flex flex-col items-center justify-center text-center min-h-screen">

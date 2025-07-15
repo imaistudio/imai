@@ -9,6 +9,8 @@ import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { ImageZoomModal } from "@/app/components/ImageZoomModal";
 import { VideoZoomModal } from "@/app/components/VideoZoomModal";
+import MobileNavRest from "@/app/components/MobileNavRest";
+
 const ITEMS_PER_PAGE = 50;
 
 interface MediaFile {
@@ -160,6 +162,7 @@ export default function Reset() {
   return (
     <>
       <Header />
+      <MobileNavRest />
       <main className="p-4 min-h-screen">
         {isLoading ? (
           <div className="flex justify-center items-center h-[50vh]">

@@ -2,10 +2,8 @@
 
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
-import { Menu } from "lucide-react";
+import { Menu, Home, Compass, CreditCard, HelpCircle, FileText, X } from "lucide-react";
 import { IMAIIcon } from "./imai";
-import { SearchForm } from "./search-form";
-import SidebarData from "./SidebarData";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -14,12 +12,10 @@ interface MobileNavProps {
   onNewChatClick?: () => Promise<void>;
 }
 
-export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
+export default function MobileNavRest({ onNewChatClick }: MobileNavProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [searchTerm, setSearchTerm] = React.useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
   // Track authentication state
@@ -59,7 +55,7 @@ export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
 
   return (
     <>
-      <nav className="md:hidden flex items-center justify-between px-4 py-2 bg-white dark:bg-black">
+      <nav className="md:hidden flex items-center justify-between px-4 py-2 bg-white dark:bg-black sticky top-0 z-50">
         <button onClick={() => setIsOpen(true)} className="p-2">
           <Menu size={24} />
         </button>
@@ -88,12 +84,48 @@ export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <SearchForm
-          onSearchChange={setSearchTerm}
-          onNewChatClick={onNewChatClick}
-        />
-        <div className="flex-1 overflow-y-auto">
-          <SidebarData searchTerm={searchTerm} />
+
+        {/* Navigation Links */}
+        <div className="flex flex-col space-y-2 p-4">
+          <a 
+            href="/" 
+            className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <Home size={18} className="mr-3" />
+            IMAI
+          </a>
+          <a 
+            href="/explore" 
+            className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <Compass size={18} className="mr-3" />
+            Explore
+          </a>
+          <a 
+            href="/pricing" 
+            className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <CreditCard size={18} className="mr-3" />
+            Pricing
+          </a>
+          
+          {/* Separator */}
+          <div className="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
+          
+          <a 
+            href="/help" 
+            className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <HelpCircle size={18} className="mr-3" />
+            Help
+          </a>
+          <a 
+            href="/terms" 
+            className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <FileText size={18} className="mr-3" />
+            Terms
+          </a>
         </div>
       </div>
     </>

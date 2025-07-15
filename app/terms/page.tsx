@@ -3,11 +3,13 @@ import Spline from "@splinetool/react-spline";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import { HyperText } from "@/components/magicui/hyper-text";
+import MobileNavRest from "@/app/components/MobileNavRest";
 
 export default function TermsAndConditions() {
   return (
     <>
       <Header />
+      <MobileNavRest />
       <main className="bg-white text-black dark:bg-black  dark:text-white min-h-screen flex flex-col items-center px-4">
         <section className="flex flex-col items-center max-w-5xl w-full space-y-8 py-12">
           <HyperText className="hidden lg:block">Terms & Conditions</HyperText>
