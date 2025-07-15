@@ -77,7 +77,7 @@ export default function PromptContainer() {
 
   const handleSubmit = async () => {
     if (!currentUser) {
-      router.push("/signup");
+      router.push("/invite");
       return;
     }
 

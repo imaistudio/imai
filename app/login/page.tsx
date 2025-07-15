@@ -187,12 +187,6 @@ export default function Login() {
               Continue with Apple
             </Button> */}
           </div>
-          {/* <p className="text-center text-small">
-            Need to create an account?&nbsp;
-            <Link className="text-blue-500" href="/signup" size="sm">
-              Sign Up
-            </Link>
-          </p> */}
         </div>
       </div>
 

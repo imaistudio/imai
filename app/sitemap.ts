@@ -60,7 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/signup`,
+      url: `${baseUrl}/invite`,
       lastModified: currentDate,
       changeFrequency: "monthly",
       priority: 0.7,
