@@ -83,14 +83,18 @@ export const VideoZoomModal = ({
     // Only open modal if:
     // 1. Touch movement was minimal (not scrolling)
     // 2. Touch duration was short (quick tap)
-    if (deltaX < touchThreshold && deltaY < touchThreshold && deltaTime < touchTimeThreshold) {
+    if (
+      deltaX < touchThreshold &&
+      deltaY < touchThreshold &&
+      deltaTime < touchTimeThreshold
+    ) {
       setIsOpen(true);
     }
   };
 
   const handleClick = (e: React.PointerEvent) => {
     // Only handle click events from mouse (not touch events)
-    if (e.pointerType !== 'touch') {
+    if (e.pointerType !== "touch") {
       setIsOpen(true);
     }
   };
@@ -182,9 +186,7 @@ export const VideoZoomModal = ({
                   <ThumbsUp
                     size={20}
                     className={`${
-                      currentlyLiked
-                        ? "text-green-400 "
-                        : "text-white"
+                      currentlyLiked ? "text-green-400 " : "text-white"
                     }`}
                   />
                 </button>
@@ -199,9 +201,7 @@ export const VideoZoomModal = ({
                   <ThumbsDown
                     size={20}
                     className={`${
-                      currentlyDisliked
-                        ? "text-red-400 "
-                        : "text-white"
+                      currentlyDisliked ? "text-red-400 " : "text-white"
                     }`}
                   />
                 </button>

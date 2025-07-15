@@ -2,7 +2,15 @@
 
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
-import { Menu, Home, Compass, CreditCard, HelpCircle, FileText, X } from "lucide-react";
+import {
+  Menu,
+  Home,
+  Compass,
+  CreditCard,
+  HelpCircle,
+  FileText,
+  X,
+} from "lucide-react";
 import { IMAIIcon } from "./imai";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -59,11 +67,11 @@ export default function MobileNavRest({ onNewChatClick }: MobileNavProps = {}) {
         <button onClick={() => setIsOpen(true)} className="p-2">
           <Menu size={24} />
         </button>
-        
+
         {isAuthenticated ? (
-        <div className="text-lg font-semibold pl-2">
-        <IMAIIcon size={32} />
-        </div>
+          <div className="text-lg font-semibold pl-2">
+            <IMAIIcon size={32} />
+          </div>
         ) : (
           <button
             onClick={handleLoginClick}
@@ -84,43 +92,42 @@ export default function MobileNavRest({ onNewChatClick }: MobileNavProps = {}) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-
         {/* Navigation Links */}
         <div className="flex flex-col space-y-2 p-4">
-          <a 
-            href="/" 
+          <a
+            href="/"
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <Home size={18} className="mr-3" />
             IMAI
           </a>
-          <a 
-            href="/explore" 
+          <a
+            href="/explore"
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <Compass size={18} className="mr-3" />
             Explore
           </a>
-          <a 
-            href="/pricing" 
+          <a
+            href="/pricing"
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <CreditCard size={18} className="mr-3" />
             Pricing
           </a>
-          
+
           {/* Separator */}
           <div className="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
-          
-          <a 
-            href="/contact" 
+
+          <a
+            href="/contact"
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <HelpCircle size={18} className="mr-3" />
             Help
           </a>
-          <a 
-            href="/terms" 
+          <a
+            href="/terms"
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <FileText size={18} className="mr-3" />

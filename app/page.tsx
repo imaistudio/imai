@@ -968,7 +968,7 @@ export default function Home() {
             </div>
           ) : !hasMessages ? (
             <div className="flex items-center justify-center h-full">
-              <WelcomeScreen 
+              <WelcomeScreen
                 onExampleClick={handleExampleClick}
                 onPromptSubmit={handleFormSubmission}
               />
