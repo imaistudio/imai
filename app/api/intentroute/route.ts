@@ -2566,6 +2566,42 @@ async function analyzeIntent(
       };
     }
 
+    // Check for pairing requests
+    if (
+      message.includes("pair") ||
+      message.includes("complement") ||
+      message.includes("match") ||
+      message.includes("goes with") ||
+      message.includes("pair this") ||
+      message.includes("complementary") ||
+      message.includes("pairing") ||
+      message.includes("what goes with") ||
+      message.includes("pair with") ||
+      message.includes("match with") ||
+      message.includes("complement this") ||
+      message.includes("find a complement") ||
+      message.includes("create a pairing") ||
+      message.includes("paired image") ||
+      message.includes("companion item") ||
+      message.includes("accompanying product") ||
+      message.includes("styling") ||
+      message.includes("product styling") ||
+      message.includes("gift set") ||
+      message.includes("bundle") ||
+      message.includes("coordinating") ||
+      message.includes("matching item")
+    ) {
+      console.log("Smart fallback routing to pairing");
+      return {
+        intent: "pairing",
+        confidence: 0.9,
+        endpoint: "/api/pairing",
+        parameters: {},
+        requiresFiles: true,
+        explanation: "User wants to create a paired product image with complementary items",
+      };
+    }
+
     if (
       isCasualConversation &&
       !hasProductImage &&
@@ -3007,6 +3043,46 @@ MODIFICATION WITH NEW UPLOADS (previous result + new images):
       - "zoom progression"
       - "zoom into this"
 
+   Q. PRODUCT PAIRING → /api/pairing
+      - "pair this product"
+      - "pair this"
+      - "pair with"
+      - "what goes with this"
+      - "complement this"
+      - "complementary item"
+      - "matching item"
+      - "find a complement"
+      - "create a pairing"
+      - "paired image"
+      - "companion item"
+      - "accompanying product"
+      - "product styling"
+      - "styling"
+      - "gift set"
+      - "bundle"
+      - "coordinating"
+      - "matching"
+      - "goes with"
+      - "complement"
+      - "pairing"
+      - "product pairing"
+      - "pair product"
+      - "create pairing"
+      - "product complement"
+      - "complementary product"
+      - "matching product"
+      - "coordinating product"
+      - "product bundle"
+      - "product styling"
+      - "style this product"
+      - "find matching item"
+      - "what matches this"
+      - "pair this with something"
+      - "complement this product"
+      - "create product pairing"
+      - "product combination"
+      - "product match"
+
 CRITICAL RULES:
 1. ALWAYS route to "none" for: greetings ONLY (without design requests), general questions about the platform, vague help requests
 2. ANALYSIS TAKES PRIORITY: If someone asks "tell me about", "describe", "what is", "analyze" + mentions an image → /api/analyzeimage (NOT design!)
@@ -3147,9 +3223,9 @@ For multi-step operations:
 
 For single operations:
 {
-          "intent": "casual_conversation|create_design|design|upscale_image|upscale_video|reframe_video|outpaint_video|add_sound_effects|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background|change_time_of_day|scene_composition|create_dance_video|remove_object|chain_of_zoom",
+          "intent": "casual_conversation|create_design|design|upscale_image|upscale_video|reframe_video|outpaint_video|add_sound_effects|clarity_upscale|analyze_image|reframe_image|create_video|mirror_magic|enhance_prompt|generate_title|remove_background|pairing|change_time_of_day|scene_composition|create_dance_video|remove_object|chain_of_zoom",
   "confidence": 0.8-0.95,
-      "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/videoupscaler|/api/videoreframe|/api/videooutpainting|/api/videosound|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/seedancevideo|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg|/api/timeofday|/api/scenecomposition|/api/objectremoval|/api/chainofzoom",
+      "endpoint": "none|/api/flowdesign|/api/design|/api/upscale|/api/videoupscaler|/api/videoreframe|/api/videooutpainting|/api/videosound|/api/clarityupscaler|/api/analyzeimage|/api/reframe|/api/seedancevideo|/api/mirrormagic|/api/promptenhancer|/api/titlerenamer|/api/removebg|/api/pairing|/api/timeofday|/api/scenecomposition|/api/objectremoval|/api/chainofzoom",
   "parameters": {
     "workflow_type": "prompt_only|product_prompt|design_prompt|color_prompt|product_design|product_color|color_design|full_composition|preset_design",
     "size": "1024x1024|1536x1024|1024x1536", // AUTO-SELECT: portrait (1024x1536) for tall items/clothing, landscape (1536x1024) for wide scenes/pants, square (1024x1024) for products/general
@@ -6033,6 +6109,46 @@ async function routeToAPI(
 
       const response = await clarityupscalerPOST(mockRequest as any);
       return await response.json();
+    } else if (endpoint === "/api/pairing") {
+      // Handle pairing-specific parameters and image URLs
+      formData.append("prompt", originalMessage);
+      
+      // Add pairing-specific parameters
+      if (parameters.workflow_type) {
+        formData.append("workflow_type", parameters.workflow_type);
+      }
+      if (parameters.size) {
+        formData.append("size", parameters.size);
+      }
+      if (parameters.quality) {
+        formData.append("quality", parameters.quality);
+      }
+      
+      // 🔧 CRITICAL FIX: Handle image URLs for pairing route
+      // The pairing route expects product_image_url parameter
+      const productImageUrl = 
+        imageUrls.product_image ||
+        imageUrls.product_image_image ||
+        imageUrls.image_image ||
+        parameters.reference_image_url;
+      
+      if (productImageUrl) {
+        formData.append("product_image_url", productImageUrl);
+        console.log("🔗 Added product_image_url for pairing:", productImageUrl);
+      } else {
+        console.log("🔍 Available imageUrls keys for pairing:", Object.keys(imageUrls));
+      }
+      
+      // Import and call the pairing API logic directly
+      const { POST: pairingPOST } = await import("../pairing/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/pairing`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await pairingPOST(mockRequest as any);
+      return await response.json();
     } else {
       // For endpoints not yet implemented with direct imports
       throw new Error(
@@ -7998,7 +8114,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             apiResult.data_url ||
             apiResult.outputUrl ||
             apiResult.output_image ||
-            apiResult.imageUrl;
+            apiResult.imageUrl ||
+            apiResult.pairedImage; // 🔧 ADD: Handle pairing route output
 
           if (outputUrl && typeof outputUrl === "string") {
             if (outputUrl.startsWith("data:image/")) {
@@ -8024,6 +8141,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 if (apiResult.output_image)
                   apiResult.output_image = firebaseUrl;
                 if (apiResult.imageUrl) apiResult.imageUrl = firebaseUrl;
+                if (apiResult.pairedImage) apiResult.pairedImage = firebaseUrl; // 🔧 ADD: Update pairedImage field
 
                 console.log(
                   "✅ Converted base64 to Firebase Storage URL:",
@@ -8053,6 +8171,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 if (apiResult.output_image)
                   apiResult.output_image = firebaseUrl;
                 if (apiResult.imageUrl) apiResult.imageUrl = firebaseUrl;
+                if (apiResult.pairedImage) apiResult.pairedImage = firebaseUrl; // 🔧 ADD: Update pairedImage field
 
                 console.log(
                   "✅ Output image saved to Firebase Storage:",
@@ -8083,6 +8202,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       "design_image",
       "elemental_design",
       "flow_design",
+      "pairing", // 🔧 ADD: Include pairing as an image operation
     ];
     const isImageOperation = imageOperations.includes(intentAnalysis.intent);
 
@@ -8140,6 +8260,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             apiResult?.result?.imageUrl || // Nested result.imageUrl (reframe format)
             apiResult?.firebaseOutputUrl || // Firebase output URL
             apiResult?.result?.firebaseOutputUrl || // Nested Firebase URL
+            apiResult?.pairedImage || // 🔧 ADD: Pairing route output
             null;
 
           if (imageUrl) {
@@ -8207,6 +8328,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         apiResult?.result?.imageUrl || // Nested result.imageUrl (reframe format)
         apiResult?.firebaseOutputUrl || // Firebase output URL
         apiResult?.result?.firebaseOutputUrl || // Nested Firebase URL
+        apiResult?.pairedImage || // 🔧 ADD: Pairing route output
         null;
 
       if (imageUrl) {

@@ -668,6 +668,7 @@ export default function Home() {
             apiResult.imageUrl ||
             apiResult.url ||
             apiResult.image_url ||
+            apiResult.pairedImage || // 🔧 ADD: Handle pairing route output
             // Handle nested result structure (for reframe/upscale)
             (apiResult.result && apiResult.result.imageUrl) ||
             (apiResult.result && apiResult.result.upscaled_image_url) ||

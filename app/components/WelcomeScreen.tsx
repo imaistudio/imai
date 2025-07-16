@@ -114,11 +114,7 @@ export default function WelcomeScreen({
     { key: "bold", name: "Bold", folder: "general" },
     { key: "sportysleek", name: "Sporty Sleek", folder: "general" },
     { key: "funcoolquriky", name: "Fun & Quirky", folder: "general" },
-    {
-      key: "elegantandsophisticated",
-      name: "Elegant & Sophisticated",
-      folder: "bags",
-    },
+    { key: "elegantandsophisticated", name: "Elegant & Sophisticated", folder: "bags"},
     { key: "mystical", name: "Mystical", folder: "general" },
     { key: "vintage", name: "Vintage", folder: "Jewelry" },
     { key: "bohemian", name: "Bohemian", folder: "Jewelry" },
