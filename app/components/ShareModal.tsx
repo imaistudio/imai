@@ -245,7 +245,7 @@ export function ShareModal({
           </div>
 
           {/* Caption */}
-          <div className="px-6 pb-4">
+          <div className="hidden md:block px-6 pb-4">
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
               Add a message
             </label>
