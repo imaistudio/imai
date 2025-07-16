@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   ThumbsUp,
@@ -43,10 +44,16 @@ export const ImageZoomModal = ({
   dislikedImages,
 }: ImageZoomModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { showShareModal } = useShareModal();
   const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
   const touchThreshold = 10; // pixels
   const touchTimeThreshold = 200; // milliseconds
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -143,6 +150,106 @@ export const ImageZoomModal = ({
     ? dislikedImages.has(src)
     : isDisliked;
 
+  // Modal content
+  const modalContent = (
+    <div
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/90"
+      onClick={handleClose}
+    >
+      {/* Header with close button and action icons */}
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+        {/* Close button - top left */}
+        <button
+          className="p-2 text-white hover:text-gray-300 hover:bg-white/20 rounded-full transition-colors"
+          onClick={handleClose}
+        >
+          <X size={20} />
+        </button>
+
+        {/* Action icons - top right */}
+        <div className="flex items-center gap-0">
+          {onLike && (
+            <button
+              onClick={handleLike}
+              className="p-2 rounded-full hover:bg-white/20 transition-colors"
+              title={currentlyLiked ? "Unlike" : "Like"}
+            >
+              <ThumbsUp
+                size={20}
+                className={`${
+                  currentlyLiked ? "text-green-400 " : "text-white"
+                }`}
+              />
+            </button>
+          )}
+
+          {onDislike && (
+            <button
+              onClick={handleDislike}
+              className="p-2 rounded-full hover:bg-white/20 transition-colors"
+              title={currentlyDisliked ? "Remove dislike" : "Dislike"}
+            >
+              <ThumbsDown
+                size={20}
+                className={`${
+                  currentlyDisliked ? "text-red-400 " : "text-white"
+                }`}
+              />
+            </button>
+          )}
+
+          {/* <button
+            onClick={handlePaint}
+            className="p-2 rounded-full hover:bg-white/20 transition-colors"
+            title="Paint/Edit"
+          >
+            <Paintbrush size={20} className="text-white" />
+          </button> */}
+
+          {onDownload && (
+            <button
+              onClick={handleDownload}
+              className="p-2 rounded-full hover:bg-white/20 transition-colors"
+              title="Download"
+            >
+              <Download size={20} className="text-white" />
+            </button>
+          )}
+
+          <button
+            onClick={handleShare}
+            className="p-2 rounded-full hover:bg-white/20 transition-colors"
+            title="Share"
+          >
+            <Share2 size={20} className="text-white" />
+          </button>
+        </div>
+      </div>
+
+      {/* Left close area */}
+      <div
+        className="absolute left-0 top-0 w-20 h-full cursor-pointer"
+        onClick={handleClose}
+      />
+
+      {/* Right close area */}
+      <div
+        className="absolute right-0 top-0 w-20 h-full cursor-pointer"
+        onClick={handleClose}
+      />
+
+      {/* Image container */}
+      <div className="flex-1 flex items-center justify-center p-4 pt-20">
+        <img
+          src={src}
+          alt={alt}
+          className="max-h-[60vh] max-w-[90vw] object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <>
       <img
@@ -158,104 +265,8 @@ export const ImageZoomModal = ({
         loading="lazy"
       />
 
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/90"
-          onClick={handleClose}
-        >
-          {/* Header with close button and action icons */}
-          <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-            {/* Close button - top left */}
-            <button
-              className="p-2 text-white hover:text-gray-300 hover:bg-white/20 rounded-full transition-colors"
-              onClick={handleClose}
-            >
-              <X size={20} />
-            </button>
-
-            {/* Action icons - top right */}
-            <div className="flex items-center gap-0">
-              {onLike && (
-                <button
-                  onClick={handleLike}
-                  className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                  title={currentlyLiked ? "Unlike" : "Like"}
-                >
-                  <ThumbsUp
-                    size={20}
-                    className={`${
-                      currentlyLiked ? "text-green-400 " : "text-white"
-                    }`}
-                  />
-                </button>
-              )}
-
-              {onDislike && (
-                <button
-                  onClick={handleDislike}
-                  className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                  title={currentlyDisliked ? "Remove dislike" : "Dislike"}
-                >
-                  <ThumbsDown
-                    size={20}
-                    className={`${
-                      currentlyDisliked ? "text-red-400 " : "text-white"
-                    }`}
-                  />
-                </button>
-              )}
-
-              {/* <button
-                onClick={handlePaint}
-                className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                title="Paint/Edit"
-              >
-                <Paintbrush size={20} className="text-white" />
-              </button> */}
-
-              {onDownload && (
-                <button
-                  onClick={handleDownload}
-                  className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                  title="Download"
-                >
-                  <Download size={20} className="text-white" />
-                </button>
-              )}
-
-              <button
-                onClick={handleShare}
-                className="p-2 rounded-full hover:bg-white/20 transition-colors"
-                title="Share"
-              >
-                <Share2 size={20} className="text-white" />
-              </button>
-            </div>
-          </div>
-
-          {/* Left close area */}
-          <div
-            className="absolute left-0 top-0 w-20 h-full cursor-pointer"
-            onClick={handleClose}
-          />
-
-          {/* Right close area */}
-          <div
-            className="absolute right-0 top-0 w-20 h-full cursor-pointer"
-            onClick={handleClose}
-          />
-
-          {/* Image container */}
-          <div className="flex-1 flex items-center justify-center p-4 pt-20">
-            <img
-              src={src}
-              alt={alt}
-              className="max-h-[60vh] max-w-[90vw] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        </div>
-      )}
+      {/* Render modal using portal to bypass mobile layout constraints */}
+      {isOpen && isMounted && createPortal(modalContent, document.body)}
     </>
   );
 };
