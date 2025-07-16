@@ -257,7 +257,7 @@ body::-webkit-scrollbar {
     position: fixed;
     width: 100%;
     height: 100%;
-    touch-action: manipulation;
+    touch-action: pan-x manipulation;
   }
   
   .mobile-layout-grid {
@@ -395,6 +395,23 @@ body::-webkit-scrollbar {
   .mobile-input-area .grid.grid-rows-2.auto-cols-max.gap-4.grid-flow-col.min-w-max {
     touch-action: pan-x pan-y !important;
     min-width: max-content !important;
+  }
+
+  /* Ultra-specific override for drawer scrolling */
+  .mobile-layout-grid .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.hide-scrollbar {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    touch-action: pan-x pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    overscroll-behavior-y: none !important;
+    pointer-events: auto !important;
+  }
+
+  /* Force horizontal scrolling for drawer */
+  .mobile-layout-grid .mobile-input-area .bg-default-100 .flex {
+    touch-action: pan-x pan-y !important;
+    overflow-x: auto !important;
   }
 }
 
