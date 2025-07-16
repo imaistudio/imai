@@ -198,13 +198,6 @@ export const ImageZoomModal = ({
             </button>
           )}
 
-          {/* <button
-            onClick={handlePaint}
-            className="p-2 rounded-full hover:bg-white/20 transition-colors"
-            title="Paint/Edit"
-          >
-            <Paintbrush size={20} className="text-white" />
-          </button> */}
 
           {onDownload && (
             <button
