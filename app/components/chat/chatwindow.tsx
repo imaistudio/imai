@@ -2072,7 +2072,7 @@ export default function ChatWindow({
                                       className="text-black dark:text-white"
                                     />
                                   </button>
-                                  <button
+                                  {/* <button
                                     onClick={() => handleAnalyzeImage(img)}
                                     className="p-1 rounded-full "
                                     title="Image to Prompt"
@@ -2081,7 +2081,7 @@ export default function ChatWindow({
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
-                                  </button>
+                                  </button> */}
                                   <button
                                     onClick={(event) => {
                                       handleDownload(img);
