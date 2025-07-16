@@ -945,7 +945,7 @@ export default function Home() {
   };
 
   return (
-    <div className="mobile-layout-grid h-[100dvh] w-full">
+    <div className="mobile-layout-grid h-[100svh] overflow-hidden w-full">
       {/* Fixed MobileNav at the top */}
       <div className="mobile-nav-area">
         <MobileNav onNewChatClick={handleNewChatClick} />
