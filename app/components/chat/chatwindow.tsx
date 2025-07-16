@@ -2044,16 +2044,6 @@ export default function ChatWindow({
                                     />
                                   </button>
                                   <button
-                                    onClick={() => console.log("Refresh:", img)}
-                                    className="p-1 rounded-full "
-                                    title="Retry"
-                                  >
-                                    <RefreshCcw
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
-                                  <button
                                     onClick={() => handleVideo(img)}
                                     className="p-1 rounded-full "
                                     title="Generate Video"
@@ -2260,19 +2250,7 @@ export default function ChatWindow({
                                       }`}
                                     />
                                   </button>
-                                  <button
-                                    onClick={() =>
-                                      console.log("Refresh:", video)
-                                    }
-                                    className="p-1 rounded-full "
-                                    title="Retry"
-                                  >
-                                    <RefreshCcw
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
-
+                                  
                                   <button
                                     onClick={() => handleVideoSound(video)}
                                     className="p-1 rounded-full "
