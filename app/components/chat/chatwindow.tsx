@@ -88,7 +88,6 @@ interface ChatWindowProps {
 export default function ChatWindow({
   chatId,
   onReplyToMessage,
-  onTitleRenamed,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -1303,8 +1302,6 @@ export default function ChatWindow({
         return;
       }
 
-      console.log("🎵 Starting video sound effects for:", videoUrl);
-
       // Create loading message
       const loadingMessage: ChatMessage = {
         id: `sound-video-${Date.now()}`,
@@ -1900,7 +1897,7 @@ export default function ChatWindow({
   }, []);
 
   return (
-    <div className="w-full flex flex-col h-full hide-scrollbar">
+    <div className="w-full flex flex-col h-full overflow-hidden hide-scrollbar">
       <div
         ref={chatContainerRef}
         className="flex-1 w-full md:pl-6 md:pr-6 p-4 overflow-y-auto hide-scrollbar"
