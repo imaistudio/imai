@@ -667,7 +667,7 @@ export default function UnifiedPromptContainer({
             </div>
           </div>
         )}
-        <div className="flex overflow-x-auto gap-4 pb-2 hide-scrollbar">
+        <div className="flex overflow-x-auto gap-4 pb-2 drawer-scroll-horizontal">
           <div className="grid grid-rows-2 auto-cols-max gap-4 grid-flow-col min-w-max">
             {reordered.map((label, index) => {
               if (label === "UPLOAD_MARKER") {

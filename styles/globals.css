@@ -312,6 +312,56 @@ body::-webkit-scrollbar {
     overscroll-behavior: none !important;
     touch-action: pan-y;
   }
+
+  /* Exception: Allow horizontal scrolling in drawer - More specific selector */
+  .mobile-input-area .bg-default-100 .hide-scrollbar,
+  .mobile-input-area .flex.overflow-x-auto.hide-scrollbar,
+  .mobile-layout-grid .mobile-input-area .hide-scrollbar {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    touch-action: pan-x pan-y !important;
+    overscroll-behavior-x: contain !important;
+    overscroll-behavior-y: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    pointer-events: auto !important;
+  }
+
+  /* Ultra-specific override for drawer scrolling - target exact classes */
+  .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.hide-scrollbar {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    touch-action: pan-x pan-y !important;
+    overscroll-behavior-x: contain !important;
+    overscroll-behavior-y: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    pointer-events: auto !important;
+    scroll-behavior: smooth !important;
+  }
+
+  /* Drawer-specific scrolling class - Ultra high specificity */
+  .drawer-scroll-horizontal,
+  .mobile-input-area .drawer-scroll-horizontal,
+  .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal,
+  .mobile-layout-grid .mobile-input-area .bg-default-100 .drawer-scroll-horizontal,
+  div.mobile-input-area div.bg-default-100 div.drawer-scroll-horizontal {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    touch-action: pan-x pan-y !important;
+    overscroll-behavior-x: contain !important;
+    overscroll-behavior-y: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    pointer-events: auto !important;
+    scroll-behavior: smooth !important;
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  .drawer-scroll-horizontal::-webkit-scrollbar,
+  .mobile-input-area .drawer-scroll-horizontal::-webkit-scrollbar,
+  .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal::-webkit-scrollbar {
+    display: none !important;
+  }
   
   /* Ensure content doesn't exceed viewport width */
   .mobile-chat-area * {
@@ -339,79 +389,16 @@ body::-webkit-scrollbar {
     overflow-x: hidden;
   }
 
-  /* Exception for UnifiedPromptContainer drawer - allow horizontal scrolling */
-  .mobile-input-area .flex.overflow-x-auto {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    overscroll-behavior-x: contain !important;
-    overscroll-behavior-y: none !important;
-    touch-action: pan-x pan-y !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
   /* Allow horizontal scrolling for the drawer grid */
   .mobile-input-area .grid.grid-flow-col {
     touch-action: pan-x pan-y !important;
     min-width: max-content !important;
   }
 
-  /* Override hide-scrollbar for drawer scrollable area */
-  .mobile-input-area .hide-scrollbar {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    touch-action: pan-x pan-y !important;
-    overscroll-behavior-x: contain !important;
-  }
-
   /* Ensure drawer container allows horizontal overflow */
   .mobile-input-area .relative.w-full.bg-default-100 {
     overflow-x: visible !important;
     overflow-y: visible !important;
-  }
-
-  /* Specifically target the drawer content area */
-  .mobile-input-area .w-full.bg-default-100 * {
-    touch-action: pan-x pan-y !important;
-  }
-
-  /* Make sure the drawer itself can scroll horizontally */
-  .mobile-input-area .bg-default-100 .flex.overflow-x-auto,
-  .mobile-input-area .bg-default-100 .flex.gap-4 {
-    touch-action: pan-x pan-y !important;
-    overflow-x: auto !important;
-  }
-
-  /* Very specific targeting for the drawer scrollable area */
-  .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.hide-scrollbar {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    touch-action: pan-x pan-y !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-x: contain !important;
-    overscroll-behavior-y: none !important;
-  }
-
-  /* Allow scrolling on the grid inside the drawer */
-  .mobile-input-area .grid.grid-rows-2.auto-cols-max.gap-4.grid-flow-col.min-w-max {
-    touch-action: pan-x pan-y !important;
-    min-width: max-content !important;
-  }
-
-  /* Ultra-specific override for drawer scrolling */
-  .mobile-layout-grid .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.hide-scrollbar {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    touch-action: pan-x pan-y !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-x: contain !important;
-    overscroll-behavior-y: none !important;
-    pointer-events: auto !important;
-  }
-
-  /* Force horizontal scrolling for drawer */
-  .mobile-layout-grid .mobile-input-area .bg-default-100 .flex {
-    touch-action: pan-x pan-y !important;
-    overflow-x: auto !important;
   }
 }
 
