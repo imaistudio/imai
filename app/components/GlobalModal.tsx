@@ -40,10 +40,13 @@ export default function GlobalModal() {
               >
                 <X className="w-8 h-8 text-white dark:text-black" />
               </button>
-              <img
-                src="/popup.webp"
-                alt="Design Collage"
+              <video
+                src="/videos/Demo.mp4"
                 className="object-cover w-full h-auto rounded-md"
+                autoPlay
+                loop
+                muted
+                playsInline
               />
             </div>
 
