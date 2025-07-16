@@ -18,12 +18,11 @@ import {
 import { onAuthStateChanged, User } from "firebase/auth";
 import { ImageZoomModal } from "@/app/components/ImageZoomModal";
 import { useShareModal } from "@/contexts/ShareModalContext";
-import { useFadeInAnimation } from "@/contexts/ScrollTriggerContext";
+
 import {
   Reply,
   ThumbsUp,
   ThumbsDown,
-  RefreshCcw,
   UnfoldHorizontal,
   Sparkles,
   LetterText,
@@ -1998,7 +1997,7 @@ export default function ChatWindow({
                                 <ImageZoomModal
                                   src={img}
                                   alt={`image-${i}`}
-                                  className="w-auto h-36 md:h-96 object-cover rounded-lg"
+                                  className="w-auto  h-36 md:h-96 object-cover rounded-lg"
                                   onLike={handleLike}
                                   onDislike={handleDislike}
                                   likedImages={likedImages}
@@ -2204,7 +2203,7 @@ export default function ChatWindow({
                                 <div className="w-96 h-auto rounded-lg overflow-hidden flex items-center justify-center">
                                   <VideoZoomModal
                                     src={video}
-                                    className="w-full h-full object-cover"
+                                    className="w-auto h-36 md:h-96 object-cover rounded-lg"
                                     onLike={handleLike}
                                     onDislike={handleDislike}
                                     likedImages={likedImages}
