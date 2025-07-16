@@ -162,7 +162,7 @@ export const VideoZoomModal = ({
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90"
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/90"
           onClick={handleClose}
         >
           {/* Header with close button and action icons */}
