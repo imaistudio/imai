@@ -240,14 +240,12 @@ body::-webkit-scrollbar {
 .mobile-input-area {
   grid-area: input;
   flex-shrink: 0;
-  padding-top: 0.5rem;
-  padding-bottom: 1rem;
 }
 
 /* iOS Safe Area for mobile input */
 @supports (padding: max(0px)) {
   .mobile-input-area {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
 }
 
@@ -256,6 +254,9 @@ body::-webkit-scrollbar {
   .mobile-layout-grid {
     touch-action: none;
     overscroll-behavior: none;
+    position: relative;
+    height: 100vh;
+    height: 100svh;
   }
 
   .mobile-nav-area,

@@ -952,8 +952,8 @@ export default function Home() {
       </div>
 
       {/* Main content area - switches between WelcomeScreen and ChatWindow */}
-      <div className="mobile-chat-area overflow-hidden px-2">
-        <div className="h-full overflow-y-auto hide-scrollbar">
+      <div className="mobile-chat-area overflow-hidden">
+        <div className="h-full overflow-y-auto hide-scrollbar px-2">
           {loading || chatLoading || isSwitching || isCheckingMessages ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-gray-500 dark:text-gray-400">
@@ -985,22 +985,24 @@ export default function Home() {
 
       {/* Fixed Prompt Input at the bottom - Only show in chat mode */}
       {hasMessages && (
-        <div className="mobile-input-area px-2">
-          <UnifiedPromptContainer
-            onSubmit={handleFormSubmission}
-            placeholder="Design starts here.."
-            maxLength={500}
-            referencedMessage={referencedMessage}
-            onClearReference={clearReference}
-            isSubmitting={isSubmitting}
-          />
-          <small className="hidden md:block text-xs text-center mt-2">
-            AI-generated content may not be perfect. Review{" "}
-            <a href="/terms" className="text-blue-600 hover:underline">
-              Terms & Conditions
-            </a>
-            .
-          </small>
+        <div className="mobile-input-area">
+          <div className="px-2">
+            <UnifiedPromptContainer
+              onSubmit={handleFormSubmission}
+              placeholder="Design starts here.."
+              maxLength={500}
+              referencedMessage={referencedMessage}
+              onClearReference={clearReference}
+              isSubmitting={isSubmitting}
+            />
+            <small className="hidden md:block text-xs text-center mt-2">
+              AI-generated content may not be perfect. Review{" "}
+              <a href="/terms" className="text-blue-600 hover:underline">
+                Terms & Conditions
+              </a>
+              .
+            </small>
+          </div>
         </div>
       )}
     </div>
