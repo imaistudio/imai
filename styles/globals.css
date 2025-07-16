@@ -338,6 +338,30 @@ body::-webkit-scrollbar {
     max-width: 100%;
     overflow-x: hidden;
   }
+
+  /* Exception for UnifiedPromptContainer drawer - allow horizontal scrolling */
+  .mobile-input-area .flex.overflow-x-auto {
+    overflow-x: auto !important;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Allow horizontal scrolling for the drawer grid */
+  .mobile-input-area .grid.grid-flow-col {
+    touch-action: pan-x;
+  }
+
+  /* Override hide-scrollbar for drawer scrollable area */
+  .mobile-input-area .hide-scrollbar {
+    overflow-x: auto !important;
+    touch-action: pan-x !important;
+  }
+
+  /* Ensure drawer container allows horizontal overflow */
+  .mobile-input-area .relative.w-full.bg-default-100 {
+    overflow-x: visible;
+  }
 }
 
 /* Scrollbar hiding utility */
