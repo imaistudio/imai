@@ -1,0 +1,301 @@
+# Pairing API Test Guide
+
+## Overview
+The Pairing API analyzes a product image and generates a complementary product image with contrasting colors and thoughtful design differences. It intelligently respects user requests for specific product types (e.g., "what pants would complement this shirt") and returns only the complementary product image.
+
+## Base URL
+```
+POST http://localhost:3000/api/pairing
+```
+
+## Required Parameters
+- `userid` (string): User identifier for authentication
+- `product_image` (File) OR `product_image_url` (string): Product image to pair
+
+## Response Format
+```json
+{
+  "status": "success",
+  "pairedImage": "https://storage.googleapis.com/...",
+  "description": "This elegant pairing combines...",
+  "pairingReason": "These items create visual harmony through...",
+  "suggestedUseCases": [
+    "Perfect for gifting sets",
+    "Great for home office setups",
+    "Ideal for lifestyle photography"
+  ]
+}
+```
+
+---
+
+## CURL Examples
+
+### 1. Basic Pairing (via IntentRoute - Recommended)
+```bash
+curl -X POST http://localhost:3000/api/intentroute \
+  -F "userid=test-user-123" \
+  -F "message=pair this product with something complementary" \
+  -F "product_image=@wallet.jpg"
+```
+
+### 2. Direct API Call with File Upload
+```bash
+curl -X POST http://localhost:3000/api/pairing \
+  -F "userid=test-user-123" \
+  -F "product_image=@watch.jpg"
+```
+
+### 3. Direct API Call with URL
+```bash
+curl -X POST http://localhost:3000/api/pairing \
+  -F "userid=test-user-123" \
+  -F "product_image_url=https://example.com/product-image.jpg"
+```
+
+### 4. API Status Check
+```bash
+curl -X GET http://localhost:3000/api/pairing
+```
+
+---
+
+## Postman Examples
+
+### Collection Setup
+1. Create new collection: "Pairing API Tests"
+2. Set collection variable: `baseUrl` = `http://localhost:3000`
+
+### 1. Via IntentRoute (Recommended Flow)
+```
+POST {{baseUrl}}/api/intentroute
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- message: create a paired product image
+- product_image: [file] leather-bag.jpg
+```
+
+### 2. Direct API Call with File
+```
+POST {{baseUrl}}/api/pairing
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- product_image: [file] coffee-mug.jpg
+```
+
+### 3. Direct API Call with URL
+```
+POST {{baseUrl}}/api/pairing
+Content-Type: multipart/form-data
+
+Body (form-data):
+- userid: test-user-123
+- product_image_url: https://res.cloudinary.com/example/laptop.jpg
+```
+
+### 4. API Health Check
+```
+GET {{baseUrl}}/api/pairing
+```
+
+---
+
+## Expected Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "pairedImage": "https://storage.googleapis.com/imai-studio/output/paired_product_12345.jpg",
+  "description": "This sophisticated pairing brings together modern technology and timeless elegance, creating a workspace that reflects both functionality and style.",
+  "pairingReason": "The sleek laptop and premium leather accessories share a minimalist aesthetic while serving complementary functions in a professional setting.",
+  "suggestedUseCases": [
+    "Perfect for executive gifting",
+    "Great for home office photography",
+    "Ideal for lifestyle brand marketing",
+    "Suitable for workspace styling"
+  ]
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": "Missing product image. Please provide either product_image file or product_image_url."
+}
+```
+
+### API Info Response (GET)
+```json
+{
+  "status": "ok",
+  "message": "Pairing API is running",
+  "description": "Generate AI-paired product images with complementary items",
+  "endpoints": {
+    "POST": {
+      "description": "Create a paired product image with complementary item",
+      "parameters": {
+        "userid": "string (required) - User ID for authentication",
+        "product_image": "File (optional) - Product image file to pair",
+        "product_image_url": "string (optional) - Product image URL to pair"
+      },
+      "note": "Either product_image or product_image_url is required"
+    }
+  }
+}
+```
+
+---
+
+## Testing Scenarios
+
+### 1. Product Category Tests
+- [ ] Fashion accessories (bags, watches, jewelry)
+- [ ] Tech products (phones, laptops, headphones)
+- [ ] Home decor items (vases, candles, plants)
+- [ ] Stationery (notebooks, pens, desk accessories)
+- [ ] Kitchen items (mugs, utensils, appliances)
+
+### 2. Pairing Strategy Tests
+- [ ] Color harmony pairings (matching tones)
+- [ ] Contrast pairings (complementary colors)
+- [ ] Functional pairings (related use cases)
+- [ ] Aesthetic pairings (similar design language)
+- [ ] Lifestyle pairings (contextual relationships)
+
+### 3. Image Format Tests
+- [ ] JPG input images
+- [ ] PNG input images
+- [ ] WebP input images
+- [ ] Different resolutions (small, medium, large)
+- [ ] Different aspect ratios (square, portrait, landscape)
+
+### 4. Error Handling Tests
+- [ ] Missing userid parameter
+- [ ] Missing product image
+- [ ] Invalid image formats
+- [ ] Network timeout scenarios
+- [ ] Invalid Firebase user ID
+
+### 5. Performance Tests
+- [ ] Large image processing (>5MB)
+- [ ] Multiple concurrent requests
+- [ ] Processing time measurement
+- [ ] Memory usage monitoring
+
+---
+
+## Common Use Cases
+
+### 1. E-commerce Product Styling
+```bash
+# Pair a handbag with matching accessories
+curl -X POST http://localhost:3000/api/pairing \
+  -F "userid=ecommerce-user" \
+  -F "product_image=@designer-handbag.jpg"
+```
+
+### 2. Gift Set Creation
+```bash
+# Create a gift set pairing for a watch
+curl -X POST http://localhost:3000/api/pairing \
+  -F "userid=gift-curator" \
+  -F "product_image=@luxury-watch.jpg"
+```
+
+### 3. Lifestyle Photography
+```bash
+# Pair a coffee mug with breakfast items
+curl -X POST http://localhost:3000/api/pairing \
+  -F "userid=lifestyle-photographer" \
+  -F "product_image=@artisan-mug.jpg"
+```
+
+### 4. Social Media Content
+```bash
+# Create appealing product combinations for Instagram
+curl -X POST http://localhost:3000/api/pairing \
+  -F "userid=social-media-manager" \
+  -F "product_image=@phone-case.jpg"
+```
+
+### 5. Marketing Materials
+```bash
+# Generate product pairings for marketing campaigns
+curl -X POST http://localhost:3000/api/pairing \
+  -F "userid=marketing-team" \
+  -F "product_image=@laptop-stand.jpg"
+```
+
+---
+
+## AI Pairing Logic
+
+### Analysis Process
+1. **Product Recognition**: Identifies product category, materials, and style
+2. **Visual Analysis**: Analyzes colors, shapes, and design elements
+3. **Context Understanding**: Determines intended use and target audience
+4. **Complementary Selection**: Chooses items that enhance appeal and functionality
+
+### Pairing Strategies
+- **Visual Harmony**: Colors, textures, and styles that work together
+- **Functional Synergy**: Items that serve related purposes
+- **Aesthetic Coherence**: Consistent design language and quality level
+- **Lifestyle Context**: Products that naturally appear together in use
+
+### Composition Guidelines
+- Professional product photography lighting
+- Balanced visual arrangement
+- Clear visibility of both items
+- Suggested use-case scenarios
+- Clean, uncluttered backgrounds
+
+---
+
+## Troubleshooting
+
+### Common Issues
+1. **"Missing product image"** - Provide either product_image file or product_image_url
+2. **Processing timeout** - Try smaller image files or check network connectivity
+3. **Poor pairing quality** - Ensure product image is clear and well-lit
+4. **Firebase errors** - Check user authentication and permissions
+
+### Debugging Tips
+- Check console logs for processing steps
+- Verify image URL accessibility
+- Test with high-quality product images
+- Monitor API response structure
+- Validate user authentication
+
+### Best Practices
+- Use high-resolution, well-lit product images
+- Ensure products are clearly visible and in focus
+- Test with various product categories
+- Review pairing suggestions for relevance
+- Consider cultural and market context
+
+---
+
+## Response Analysis
+
+### Description Quality
+- Clear, engaging explanations of the pairing
+- Professional tone suitable for marketing
+- Specific details about visual and functional relationships
+
+### Suggested Use Cases
+- Practical scenarios for the pairing
+- Marketing and presentation opportunities
+- Gift and lifestyle suggestions
+- Commercial applications
+
+### Visual Quality
+- Professional product photography style
+- Proper lighting and composition
+- Clean, commercial-grade presentation
+- Brand-safe, generic product designs 
