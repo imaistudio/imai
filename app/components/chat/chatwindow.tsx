@@ -1900,9 +1900,10 @@ export default function ChatWindow({
     <div className="w-full flex flex-col h-full overflow-hidden hide-scrollbar">
       <div
         ref={chatContainerRef}
-        className="flex-1 w-full md:pl-6 md:pr-6 p-4 overflow-y-auto hide-scrollbar"
+        className="flex-1 w-full md:pl-6 md:pr-6 p-4 overflow-y-auto overflow-x-hidden hide-scrollbar"
+        style={{ touchAction: 'pan-y', overscrollBehaviorX: 'none' }}
       >
-        <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto">
+        <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto overflow-x-hidden">
           {messages.map((msg, index) => (
             <div key={`${msg.id || msg.chatId}-${index}`}>
               {/* User messages */}
