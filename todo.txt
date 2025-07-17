@@ -1,12 +1,9 @@
-Current Task 
+current tasks: 
 
-1. Fix Scrolling Inside the Unfied Promot Container 
-2. Stripe Payment Gateway with criedts systems 
-
-Extras 
-1.Phone Auth 
-2.Apple Auth 
-3.Reset Email
-4.Rotate the Keys
-5.Url Shorterner 
- 
+1. ✅ FIXED - MOBILE HORIZONTAL SCROLL BUG: Moved UnifiedPromptContainer to same rendering context as WelcomeScreen
+   - WelcomeScreen: ✅ Horizontal scroll works  
+   - ChatWindow: ✅ Horizontal scroll now works
+   - Root cause: UnifiedPromptContainer was in mobile-input-area (constrained) vs mobile-chat-area (free)
+   - Solution: Moved ChatWindow's UnifiedPromptContainer into mobile-chat-area context in page.tsx
+2. Stripe Payment Gateway with credits systems 
+3. to be continued. 
