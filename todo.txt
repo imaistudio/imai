@@ -1,15 +1,12 @@
 Current Task 
 
-1. Fix Layout Shift in mobile 
-2. Add Seprate Header for Non Main Pages
-3. Fix Scrolling Inside the Unfied Promot Container 
-4. Stripe Payment Gateway with criedts systems 
+1. Fix Scrolling Inside the Unfied Promot Container 
+2. Stripe Payment Gateway with criedts systems 
 
 Extras 
 1.Phone Auth 
 2.Apple Auth 
 3.Reset Email
 4.Rotate the Keys
-5.Fix Safari Issues  (SVG Logs)
-6.Url Shorterner 
+5.Url Shorterner 
  
