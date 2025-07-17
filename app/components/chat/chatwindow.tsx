@@ -36,6 +36,7 @@ import {
   AudioWaveform,
   Proportions,
   RectangleVertical,
+  Wrench,
 } from "lucide-react";
 import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
@@ -63,6 +64,8 @@ interface ChatMessage {
   isStreaming?: boolean;
   isLoading?: boolean;
   isReferenced?: boolean; // 🔧 NEW: Boolean to track if this message is a reply to another message
+  isTool?: boolean; // 🔧 NEW: Boolean to track if this message used a tool
+  toolName?: string; // 🔧 NEW: Name of the tool used
   updatedAt?: Timestamp | { seconds: number; nanoseconds: number };
   recommendations?: ProactiveRecommendation[]; // NEW: Proactive recommendations
 }
@@ -1915,7 +1918,16 @@ export default function ChatWindow({
                         <div className="flex justify-end mb-1">
                           <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                             <Undo2 size={16} />
-                            <span>Replied</span>
+                            <span className="capitalize">Replied</span>
+                          </div>
+                        </div>
+                      )}
+                      {/* 🔧 NEW: Tool icon indicator - show when tool was used */}
+                      {msg.isTool && msg.toolName && (
+                        <div className="flex justify-end mb-1">
+                          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                            <Wrench size={16} />
+                            <span className="capitalize">{msg.toolName}</span>
                           </div>
                         </div>
                       )}
