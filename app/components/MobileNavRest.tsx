@@ -23,7 +23,7 @@ interface MobileNavProps {
 export default function MobileNavRest({ onNewChatClick }: MobileNavProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Default to true to show logo first
   const router = useRouter();
 
   // Track authentication state
