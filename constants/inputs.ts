@@ -31,6 +31,24 @@ export type ProductType =
   | "glasses"
   | "watches";
 
+// 🔧 NEW: Tool types
+export type ToolType =
+  | "analyzeimage"
+  | "upscale"
+  | "removebg"
+  | "inpainting"
+  | "clarityupscaler"
+  | "objectremoval"
+  | "mirrormagic"
+  | "reframe"
+  | "timeofday"
+  | "promptenhancer"
+  | "elementaldesign"
+  | "scenecomposition"
+  | "flowdesign"
+  | "chainofzoom"
+  | "pairing";
+
 export interface ProductImages {
   [key: string]: string[];
 }
@@ -83,3 +101,60 @@ export const designLabels: Record<string, string> = labelsData.designs;
 
 // Color Labels (supports HTML tags like <br>)
 export const colorLabels: Record<string, string> = labelsData.colors;
+
+// 🔧 NEW: Tools data structure
+export const defaultToolImages: Record<ToolType, string[]> = {
+  analyzeimage: ["lucide:eye"],
+  upscale: ["lucide:zoom-in"],
+  removebg: ["lucide:scissors"],
+  inpainting: ["lucide:paintbrush"],
+  clarityupscaler: ["lucide:focus"],
+  objectremoval: ["lucide:eraser"],
+  mirrormagic: ["lucide:copy"],
+  reframe: ["lucide:crop"],
+  timeofday: ["lucide:clock"],
+  promptenhancer: ["lucide:wand"],
+  elementaldesign: ["lucide:layers"],
+  scenecomposition: ["lucide:layout"],
+  flowdesign: ["lucide:git-branch"],
+  chainofzoom: ["lucide:search"],
+  pairing: ["lucide:link"],
+};
+
+// 🔧 NEW: Tool placeholders (icon names for lucide icons)
+export const toolPlaceholders: Record<ToolType, string> = {
+  analyzeimage: "lucide:eye",
+  upscale: "lucide:zoom-in", 
+  removebg: "lucide:scissors",
+  inpainting: "lucide:paintbrush",
+  clarityupscaler: "lucide:focus",
+  objectremoval: "lucide:eraser",
+  mirrormagic: "lucide:copy",
+  reframe: "lucide:crop",
+  timeofday: "lucide:clock",
+  promptenhancer: "lucide:wand",
+  elementaldesign: "lucide:layers",
+  scenecomposition: "lucide:layout",
+  flowdesign: "lucide:git-branch",
+  chainofzoom: "lucide:search",
+  pairing: "lucide:link",
+};
+
+// 🔧 NEW: Tool labels for display
+export const toolLabels: Record<ToolType, string> = {
+  analyzeimage: "Analyze<br>Image",
+  upscale: "Upscale<br>Image",
+  removebg: "Remove<br>Background", 
+  inpainting: "InPainting",
+  clarityupscaler: "Clarity<br>Upscaler",
+  objectremoval: "Object<br>Removal",
+  mirrormagic: "Mirror<br>Magic",
+  reframe: "ReFrame",
+  timeofday: "Time of<br>Day",
+  promptenhancer: "Prompt<br>Enhancer",
+  elementaldesign: "Elemental<br>Design",
+  scenecomposition: "Scene<br>Composition",
+  flowdesign: "Flow<br>Design",
+  chainofzoom: "Chain of<br>Zoom",
+  pairing: "AI<br>Pairing",
+};
