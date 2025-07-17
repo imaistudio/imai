@@ -10,17 +10,21 @@ import { useSVGTheme } from "@/hooks/use-svg-theme";
 
 import {
   ProductType,
+  ToolType, // 🔧 NEW: Import ToolType
   ProductImages,
   defaultProductImages,
   productSpecificDesigns,
   generalDesignImages,
   defaultColorImages,
+  defaultToolImages, // 🔧 NEW: Import tool images
   defaultPlaceholders,
   designPlaceholders,
   colorPlaceholders,
+  toolPlaceholders, // 🔧 NEW: Import tool placeholders
   productLabels,
   designLabels,
   colorLabels,
+  toolLabels, // 🔧 NEW: Import tool labels
 } from "@/constants/inputs";
 
 interface SpeechRecognitionEvent extends Event {
@@ -55,14 +59,15 @@ declare global {
 }
 
 export interface ImageAsset {
-  type: "product" | "design" | "color";
+  type: "product" | "design" | "color" | "tool"; // 🔧 NEW: Add "tool" type
   path: string;
   productType?: string;
   designCategory?: string;
   colorIndex?: number;
+  toolType?: ToolType; // 🔧 NEW: Add tool type
 }
 
-type DrawerType = "product" | "design" | "color";
+type DrawerType = "product" | "design" | "color" | "tool"; // 🔧 NEW: Add "tool" to drawer types
 
 interface SubmissionData {
   prompt: string;
@@ -72,6 +77,7 @@ interface SubmissionData {
   productplaceholder: string;
   designplaceholder: string[];
   colorplaceholder: string[];
+  toolcall?: string; // 🔧 NEW: Add toolcall parameter
   referencemode?: "product" | "color" | "design"; // 🔧 NEW: Reference mode
 }
 
@@ -220,6 +226,20 @@ export default function UnifiedPromptContainer({
     }
   }, [drawerOpen]);
 
+  // 🔧 NEW: Close tools drawer if uploaded product is removed
+  useEffect(() => {
+    const hasUploadedProduct = images.some(
+      (img) => img.type === "product" && img.productType === "custom"
+    );
+    
+    if (drawerOpen && drawerType === "tool" && !hasUploadedProduct) {
+      setDrawerOpen(false);
+      setDrawerType(null);
+      // Also remove any selected tool
+      setImages((prev) => prev.filter((img) => img.type !== "tool"));
+    }
+  }, [images, drawerOpen, drawerType]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognitionConstructor =
@@ -343,6 +363,7 @@ export default function UnifiedPromptContainer({
     const productImage = images.find((img) => img.type === "product");
     const designImages = images.filter((img) => img.type === "design");
     const colorImages = images.filter((img) => img.type === "color");
+    const toolImage = images.find((img) => img.type === "tool"); // 🔧 NEW: Get selected tool
 
     // Helper function to get placeholder for an image
     const getImagePlaceholder = (image: ImageAsset): string => {
@@ -375,6 +396,9 @@ export default function UnifiedPromptContainer({
         );
         return label ? colorPlaceholders[label] : "";
       }
+      if (image.type === "tool" && image.toolType) { // 🔧 NEW: Handle tool placeholders
+        return toolPlaceholders[image.toolType] || "";
+      }
       return "";
     };
 
@@ -389,6 +413,7 @@ export default function UnifiedPromptContainer({
       productplaceholder: productImage ? getImagePlaceholder(productImage) : "",
       designplaceholder: designImages.map((img) => getImagePlaceholder(img)),
       colorplaceholder: colorImages.map((img) => getImagePlaceholder(img)),
+      toolcall: toolImage?.toolType, // 🔧 NEW: Include selected tool
       referencemode: referencedMessage?.referencemode, // 🔧 NEW: Include reference mode from referenced message
     };
 
@@ -584,22 +609,37 @@ export default function UnifiedPromptContainer({
       ...(type === "color" && {
         colorIndex: images.filter((img) => img.type === "color").length,
       }),
+      ...(type === "tool" && { toolType: label as ToolType }), // 🔧 NEW: Handle tool type
     };
 
     if (type === "color") {
-      // Keep only the two most recent color selections
+      // Keep only the two most recent color selections and clear tool selection
       const colorImages = images.filter((img) => img.type === "color");
       if (colorImages.length >= 2) {
         setImages((prev) => [
-          ...prev.filter((img) => img.type !== "color"),
+          ...prev.filter((img) => img.type !== "color" && img.type !== "tool"), // Clear all colors and tools
           newImage,
         ]);
       } else {
-        setImages((prev) => [...prev, newImage]);
+        setImages((prev) => [
+          ...prev.filter((img) => img.type !== "tool"), // Clear tools but keep existing colors
+          newImage,
+        ]);
       }
+    } else if (type === "design") {
+      // Clear tool selection when selecting design
+      setImages((prev) => [
+        ...prev.filter((img) => img.type !== type && img.type !== "tool"), // Clear existing design and tools
+        newImage,
+      ]);
+    } else if (type === "tool") { // 🔧 NEW: Only allow one tool selection at a time and clear design/color
+      setImages((prev) => [
+        ...prev.filter((img) => img.type !== "tool" && img.type !== "design" && img.type !== "color"), // Clear design/color when selecting tool
+        newImage,
+      ]);
     } else {
       setImages((prev) => [
-        ...prev.filter((img) => img.type !== type),
+        ...prev.filter((img) => img.type !== type && img.type !== "tool"), // Clear same type and tools
         newImage,
       ]);
     }
@@ -632,24 +672,33 @@ export default function UnifiedPromptContainer({
       );
       return label ? colorPlaceholders[label] : image.path;
     }
+    if (image.type === "tool" && image.toolType) { // 🔧 NEW: Handle tool placeholders
+      return toolPlaceholders[image.toolType] || image.path;
+    }
     return image.path;
   };
 
   const renderDrawer = () => {
     if (!drawerOpen || !drawerType) return null;
 
-    let presetMap: ProductImages;
+    let presetMap: ProductImages | Record<ToolType, string[]>; // 🔧 NEW: Update type to include tools
     if (drawerType === "product") {
       presetMap = defaultProductImages;
     } else if (drawerType === "design") {
       presetMap = getDesignCategories();
+    } else if (drawerType === "color") {
+      presetMap = defaultColorImages;
+    } else if (drawerType === "tool") { // 🔧 NEW: Handle tools drawer
+      presetMap = defaultToolImages;
     } else {
       presetMap = defaultColorImages;
     }
 
     const presetKeys = Object.keys(presetMap);
-    const first = presetKeys[0];
-    const reordered = [first, "UPLOAD_MARKER", ...presetKeys.slice(1)];
+    // 🔧 NEW: Don't add UPLOAD_MARKER for tools since tools don't support uploads
+    const reordered = drawerType === "tool" 
+      ? presetKeys 
+      : [presetKeys[0], "UPLOAD_MARKER", ...presetKeys.slice(1)];
 
     return (
       <div
@@ -659,7 +708,7 @@ export default function UnifiedPromptContainer({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        {isDragging && (
+        {isDragging && drawerType !== "tool" && ( // 🔧 NEW: Don't show drag overlay for tools
           <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg z-50 flex items-center justify-center">
             <div className="text-primary flex items-center gap-2">
               <Icon icon="lucide:upload" width={24} />
@@ -704,13 +753,20 @@ export default function UnifiedPromptContainer({
                 );
               }
 
-              const urls = presetMap[label];
-              const imageSrc =
-                drawerType === "product"
-                  ? (defaultPlaceholders as Record<string, string>)[label]
-                  : drawerType === "design"
-                    ? (designPlaceholders as Record<string, string>)[label]
-                    : (colorPlaceholders as Record<string, string>)[label];
+              const urls = (presetMap as Record<string, string[]>)[label];
+              
+              // 🔧 NEW: Handle tool icons differently
+              let imageSrc: string;
+              if (drawerType === "tool") {
+                imageSrc = ""; // We'll render Icon component instead
+              } else {
+                imageSrc =
+                  drawerType === "product"
+                    ? (defaultPlaceholders as Record<string, string>)[label]
+                    : drawerType === "design"
+                      ? (designPlaceholders as Record<string, string>)[label]
+                      : (colorPlaceholders as Record<string, string>)[label];
+              }
 
               // Get custom label or fallback to original label
               const customLabel =
@@ -718,7 +774,11 @@ export default function UnifiedPromptContainer({
                   ? productLabels[label as ProductType] || label
                   : drawerType === "design"
                     ? designLabels[label] || label
-                    : colorLabels[label] || label;
+                    : drawerType === "color"
+                      ? colorLabels[label] || label
+                      : drawerType === "tool" // 🔧 NEW: Handle tool labels
+                        ? toolLabels[label as ToolType] || label
+                        : label;
 
               return (
                 <div
@@ -731,10 +791,20 @@ export default function UnifiedPromptContainer({
                     }
                     className="w-24 h-24 flex items-center justify-center"
                   >
-                    <img
-                      src={imageSrc}
-                      className="w-full h-full object-cover rounded-md text-white bg-[#fafafa] dark:bg-transparent"
-                    />
+                    {drawerType === "tool" ? ( // 🔧 NEW: Render Icon for tools
+                      <div className="w-full h-full bg-[#fafafa] dark:bg-[#18181b] border rounded-md flex items-center justify-center">
+                        <Icon 
+                          icon={toolPlaceholders[label as ToolType]} 
+                          width={32} 
+                          className="text-default-600"
+                        />
+                      </div>
+                    ) : (
+                      <img
+                        src={imageSrc}
+                        className="w-full h-full object-cover rounded-md text-white bg-[#fafafa] dark:bg-transparent"
+                      />
+                    )}
                   </button>
                   <span
                     className="mt-1 text-xs text-center"
@@ -837,11 +907,21 @@ export default function UnifiedPromptContainer({
           }
         >
           <div className="relative">
-            <Image
-              alt={`${image.type} image`}
-              className="h-14 w-14 rounded-small border-small border-default-200/50 object-cover"
-              src={getPlaceholder(image)}
-            />
+            {image.type === "tool" ? ( // 🔧 NEW: Render Icon for tool chips
+              <div className="h-14 w-14 rounded-small border-small border-default-200/50 bg-[#fafafa] dark:bg-[#18181b] flex items-center justify-center">
+                <Icon 
+                  icon={getPlaceholder(image)}
+                  width={24} 
+                  className="text-default-600"
+                />
+              </div>
+            ) : (
+              <Image
+                alt={`${image.type} image`}
+                className="h-14 w-14 rounded-small border-small border-default-200/50 object-cover"
+                src={getPlaceholder(image)}
+              />
+            )}
             {image.type === "color" && image.colorIndex !== undefined && (
               <div className="absolute -top-2 -right-2  text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                 {image.colorIndex + 1}
@@ -855,8 +935,9 @@ export default function UnifiedPromptContainer({
 
   const buttonTypes: readonly DrawerType[] = [
     "product",
-    "design",
+    "design", 
     "color",
+    "tool", // 🔧 NEW: Add tools button
   ] as const;
 
   // Cleanup animation frame on unmount
@@ -921,16 +1002,33 @@ export default function UnifiedPromptContainer({
                       ? "lucide:package"
                       : type === "design"
                         ? "lucide:palette"
-                        : "lucide:droplets";
+                        : type === "color"
+                          ? "lucide:droplets"
+                          : "lucide:wrench"; // 🔧 NEW: Tools icon
+
+                  // 🔧 NEW: Check if tools should be enabled (only when custom product is uploaded)
+                  const hasUploadedProduct = images.some(
+                    (img) => img.type === "product" && img.productType === "custom"
+                  );
+                  const isToolsDisabled = type === "tool" && !hasUploadedProduct;
 
                   return (
-                    <Tooltip key={type} content={`Select ${type}`}>
+                    <Tooltip 
+                      key={type} 
+                      content={
+                        isToolsDisabled 
+                          ? "Upload a product image to enable tools" 
+                          : `Select ${type}`
+                      }
+                    >
                       <Button
                         isIconOnly
                         radius="full"
                         size="sm"
                         variant="light"
+                        isDisabled={isToolsDisabled}
                         onPress={() => {
+                          if (isToolsDisabled) return;
                           if (drawerType === type && drawerOpen) {
                             setDrawerOpen(false);
                           } else {
@@ -939,9 +1037,11 @@ export default function UnifiedPromptContainer({
                           }
                         }}
                         className={
-                          isActive
-                            ? "bg-primary text-white dark:text-white"
-                            : "text-black dark:text-white"
+                          isToolsDisabled
+                            ? "text-default-300 cursor-not-allowed"
+                            : isActive
+                              ? "bg-primary text-white dark:text-white"
+                              : "text-black dark:text-white"
                         }
                       >
                         <Icon icon={iconName} width={20} />
