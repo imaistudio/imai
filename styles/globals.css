@@ -249,9 +249,21 @@ body::-webkit-scrollbar {
   }
 }
 
-  /* Additional mobile scroll prevention */
+  /* Mobile scroll prevention - ONLY for chat interface */
 @media (max-width: 768px) {
+  /* Allow normal scrolling on all pages by default */
   html, body {
+    overflow: auto;
+    overscroll-behavior: auto;
+    position: static;
+    width: auto;
+    height: auto;
+    touch-action: auto;
+  }
+
+  /* Specific styles for chat interface pages */
+  body:has(.mobile-layout-grid),
+  body.mobile-chat-interface {
     overflow: hidden;
     overscroll-behavior: none;
     position: fixed;
