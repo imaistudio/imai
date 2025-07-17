@@ -975,37 +975,38 @@ export default function Home() {
               />
             </div>
           ) : (
-            <ChatWindow
-              chatId={currentChatId}
-              onReplyToMessage={handleReplyToMessage}
-              onTitleRenamed={handleTitleRenamed}
-            />
+            <div className="h-full flex flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <ChatWindow
+                  chatId={currentChatId}
+                  onReplyToMessage={handleReplyToMessage}
+                  onTitleRenamed={handleTitleRenamed}
+                />
+              </div>
+              <div className="flex-shrink-0 mt-4">
+                <UnifiedPromptContainer
+                  onSubmit={handleFormSubmission}
+                  placeholder="Design starts here.."
+                  maxLength={500}
+                  referencedMessage={referencedMessage}
+                  onClearReference={clearReference}
+                  isSubmitting={isSubmitting}
+                />
+                <small className="hidden md:block text-xs text-center mt-2 px-2">
+                  AI-generated content may not be perfect. Review{" "}
+                  <a href="/terms" className="text-blue-600 hover:underline">
+                    Terms & Conditions
+                  </a>
+                  .
+                </small>
+              </div>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Fixed Prompt Input at the bottom - Only show in chat mode */}
-      {hasMessages && (
-        <div className="mobile-input-area">
-          <div className="px-2">
-            <UnifiedPromptContainer
-              onSubmit={handleFormSubmission}
-              placeholder="Design starts here.."
-              maxLength={500}
-              referencedMessage={referencedMessage}
-              onClearReference={clearReference}
-              isSubmitting={isSubmitting}
-            />
-            <small className="hidden md:block text-xs text-center mt-2">
-              AI-generated content may not be perfect. Review{" "}
-              <a href="/terms" className="text-blue-600 hover:underline">
-                Terms & Conditions
-              </a>
-              .
-            </small>
-          </div>
-        </div>
-      )}
+      {/* Empty mobile-input-area to maintain grid structure */}
+      <div className="mobile-input-area hidden"></div>
     </div>
   );
 }
