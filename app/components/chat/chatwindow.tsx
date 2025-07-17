@@ -1896,11 +1896,11 @@ export default function ChatWindow({
   }, []);
 
   return (
-    <div className="w-full flex flex-col h-full overflow-hidden hide-scrollbar">
+    <div className="w-full flex flex-col h-full">
       <div
         ref={chatContainerRef}
-        className="flex-1 w-full md:pl-6 md:pr-6 p-4 overflow-y-auto overflow-x-hidden hide-scrollbar"
-        style={{ touchAction: 'pan-y', overscrollBehaviorX: 'none' }}
+        className="flex-1 w-full md:pl-6 md:pr-6 p-4"
+        style={{ touchAction: 'auto', overscrollBehaviorX: 'none' }}
       >
         <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto overflow-x-hidden">
           {messages.map((msg, index) => (
@@ -2043,46 +2043,6 @@ export default function ChatWindow({
                                     />
                                   </button>
                                   <button
-                                    onClick={() => handleVideo(img)}
-                                    className="p-1 rounded-full "
-                                    title="Generate Video"
-                                  >
-                                    <Clapperboard
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
-                                  <button
-                                    onClick={() => handleReframe(img)}
-                                    className="p-1 rounded-full "
-                                    title="Landscape"
-                                  >
-                                    <UnfoldHorizontal
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
-                                  <button
-                                    onClick={() => handleUpscale(img)}
-                                    className="p-1 rounded-full "
-                                    title="Upscale Image"
-                                  >
-                                    <Sparkles
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
-                                  {/* <button
-                                    onClick={() => handleAnalyzeImage(img)}
-                                    className="p-1 rounded-full "
-                                    title="Image to Prompt"
-                                  >
-                                    <LetterText
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button> */}
-                                  <button
                                     onClick={(event) => {
                                       handleDownload(img);
                                       // Optional: Add visual feedback
@@ -2118,6 +2078,42 @@ export default function ChatWindow({
                                       className="text-black dark:text-white"
                                     />
                                   </button>
+
+
+
+                                  <button
+                                    onClick={() => handleVideo(img)}
+                                    className="p-1 rounded-full "
+                                    title="Generate Video"
+                                  >
+                                    <Clapperboard
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleReframe(img)}
+                                    className="p-1 rounded-full "
+                                    title="Landscape"
+                                  >
+                                    <UnfoldHorizontal
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => handleUpscale(img)}
+                                    className="p-1 rounded-full "
+                                    title="Upscale Image"
+                                  >
+                                    <Sparkles
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  
+                                  
+
                                 </div>
                               </div>
                             ))}
@@ -2249,6 +2245,33 @@ export default function ChatWindow({
                                       }`}
                                     />
                                   </button>
+                                  <button
+                                    onClick={() => handleDownload(video)}
+                                    className="p-1 rounded-full"
+                                    title="Download Video"
+                                  >
+                                    <Download
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      showShareModal({
+                                        mediaUrl: video,
+                                        mediaType: "video",
+                                        caption: msg.text,
+                                        onShare: handleShare,
+                                      });
+                                    }}
+                                    className="p-1 rounded-full"
+                                    title="Share Video"
+                                  >
+                                    <Share2
+                                      size={16}
+                                      className="text-black dark:text-white"
+                                    />
+                                  </button>
                                   
                                   <button
                                     onClick={() => handleVideoSound(video)}
@@ -2292,33 +2315,9 @@ export default function ChatWindow({
                                       className="text-black dark:text-white"
                                     />
                                   </button>
-                                  <button
-                                    onClick={() => handleDownload(video)}
-                                    className="p-1 rounded-full"
-                                    title="Download Video"
-                                  >
-                                    <Download
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      showShareModal({
-                                        mediaUrl: video,
-                                        mediaType: "video",
-                                        caption: msg.text,
-                                        onShare: handleShare,
-                                      });
-                                    }}
-                                    className="p-1 rounded-full"
-                                    title="Share Video"
-                                  >
-                                    <Share2
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                  </button>
+
+                                  
+
                                 </div>
                               </div>
                             ))}
