@@ -362,6 +362,8 @@ export default function Home() {
         userId: currentUser.uid,
         chatId: currentChatId,
         isReferenced: !!referencedMessage, // 🔧 NEW: Set to true if user is replying to a message
+        isTool: !!data.toolcall, // 🔧 NEW: Set to true if user selected a tool
+        toolName: data.toolcall || undefined, // 🔧 NEW: Store the tool name
       };
 
       // Get existing messages first
@@ -385,6 +387,8 @@ export default function Home() {
           userId: String(currentUser.uid),
           chatId: String(currentChatId),
           isReferenced: !!referencedMessage, // 🔧 NEW: Set to true if user is replying to a message
+          isTool: !!data.toolcall, // 🔧 NEW: Set to true if user selected a tool
+          toolName: data.toolcall || undefined, // 🔧 NEW: Store the tool name
         };
 
         await setDoc(
@@ -422,6 +426,8 @@ export default function Home() {
             timestamp: Timestamp.now(),
             userId: String(currentUser.uid),
             isReferenced: !!referencedMessage, // 🔧 NEW: Include reference status in fallback
+            isTool: !!data.toolcall, // 🔧 NEW: Include tool status in fallback
+            toolName: data.toolcall || undefined, // 🔧 NEW: Include tool name in fallback
           };
 
           await setDoc(
