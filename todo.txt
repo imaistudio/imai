@@ -5,5 +5,9 @@ current tasks:
    - ChatWindow: ✅ Horizontal scroll now works
    - Root cause: UnifiedPromptContainer was in mobile-input-area (constrained) vs mobile-chat-area (free)
    - Solution: Moved ChatWindow's UnifiedPromptContainer into mobile-chat-area context in page.tsx
-2. Stripe Payment Gateway with credits systems 
-3. to be continued. 
+2. ✅ FIXED - VIDEO SIZE MATCHING IMAGE SIZE: Removed w-96 wrapper div from videos
+   - Problem: Videos had extra w-96 wrapper (384px width) while images used w-auto h-36 
+   - Solution: Removed wrapper div, now both use same className "w-auto h-36 md:h-96 object-cover rounded-lg"
+   - Result: Videos and images now have consistent sizing on mobile and desktop
+3. Stripe Payment Gateway with credits systems 
+4. to be continued. 
