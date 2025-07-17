@@ -2007,10 +2007,10 @@ export default function ChatWindow({
                                   onShare={handleShare}
                                 />
                                 {/* Icon row below the image */}
-                                <div className="flex items-start justify-start gap-1 mt-2">
+                                <div className="flex items-start justify-start gap-0 mt-2 flex-wrap">
                                   <button
                                     onClick={() => handleLike(img)}
-                                    className="p-1"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title={
                                       likedImages.has(img) ? "Unlike" : "Like"
                                     }
@@ -2023,10 +2023,13 @@ export default function ChatWindow({
                                           : "text-black dark:text-white"
                                       }`}
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      {likedImages.has(img) ? "Unlike" : "Like"}
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => handleDislike(img)}
-                                    className="p-1"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title={
                                       dislikedImages.has(img)
                                         ? "Remove dislike"
@@ -2041,6 +2044,9 @@ export default function ChatWindow({
                                           : "text-black dark:text-white"
                                       }`}
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      {dislikedImages.has(img) ? "Remove dislike" : "Dislike"}
+                                    </span>
                                   </button>
                                   <button
                                     onClick={(event) => {
@@ -2053,13 +2059,16 @@ export default function ChatWindow({
                                         button.style.transform = "scale(1)";
                                       }, 150);
                                     }}
-                                    className="p-1 rounded-full"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title="Download Image"
                                   >
                                     <Download
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      Download
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => {
@@ -2070,49 +2079,57 @@ export default function ChatWindow({
                                         onShare: handleShare,
                                       });
                                     }}
-                                    className="p-1 rounded-full "
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title="Share"
                                   >
                                     <Share2
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      Share
+                                    </span>
                                   </button>
-
-
 
                                   <button
                                     onClick={() => handleVideo(img)}
-                                    className="p-1 rounded-full "
-                                    title="Generate Video"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
+                                    title="Videogen"
                                   >
                                     <Clapperboard
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      Videogen
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => handleReframe(img)}
-                                    className="p-1 rounded-full "
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title="Landscape"
                                   >
                                     <UnfoldHorizontal
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      Landscape
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => handleUpscale(img)}
-                                    className="p-1 rounded-full "
-                                    title="Upscale Image"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
+                                    title="Upscale"
                                   >
                                     <Sparkles
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      Upscale 
+                                    </span>
                                   </button>
-                                  
-                                  
 
                                 </div>
                               </div>
@@ -2210,10 +2227,10 @@ export default function ChatWindow({
                                   />
                                 </div>
                                 {/* Icon row below the video */}
-                                <div className="flex items-start justify-start gap-1 mt-2">
+                                <div className="flex items-start justify-start gap-0 mt-2 flex-wrap">
                                   <button
                                     onClick={() => handleLike(video)}
-                                    className="p-1"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title={
                                       likedImages.has(video) ? "Unlike" : "Like"
                                     }
@@ -2226,10 +2243,13 @@ export default function ChatWindow({
                                           : "text-black dark:text-white"
                                       }`}
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
+                                      {likedImages.has(video) ? "Unlike" : "Like"}
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => handleDislike(video)}
-                                    className="p-1"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title={
                                       dislikedImages.has(video)
                                         ? "Remove dislike"
@@ -2244,16 +2264,22 @@ export default function ChatWindow({
                                           : "text-black dark:text-white"
                                       }`}
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
+                                      {dislikedImages.has(video) ? "Remove dislike" : "Dislike"}
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => handleDownload(video)}
-                                    className="p-1 rounded-full"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Download Video"
                                   >
                                     <Download
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
+                                      Download
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => {
@@ -2264,59 +2290,72 @@ export default function ChatWindow({
                                         onShare: handleShare,
                                       });
                                     }}
-                                    className="p-1 rounded-full"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Share Video"
                                   >
                                     <Share2
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
+                                      Share
+                                    </span>
                                   </button>
                                   
                                   <button
                                     onClick={() => handleVideoSound(video)}
-                                    className="p-1 rounded-full "
-                                    title="Add Audio"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
+                                    title="AudioGen"
                                   >
                                     <AudioWaveform
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
+                                      AudioGen
+                                    </span>
                                   </button>
                                   <button
                                     onClick={() => handlelandscapevideo(video)}
-                                    className="p-1 rounded-full "
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Landscape"
                                   >
                                     <Proportions
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
+                                      Landscape
+                                    </span>
                                   </button>
 
                                   <button
                                     onClick={() => handleVideoreframe(video)}
-                                    className="p-1 rounded-full "
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Portrait"
                                   >
                                     <RectangleVertical
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
+                                      Portrait
+                                    </span>
                                   </button>
 
                                   <button
                                     onClick={() => handleVideoUpscale(video)}
-                                    className="p-1 rounded-full "
-                                    title="Upscale Video"
+                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
+                                    title="Upscale"
                                   >
                                     <Sparkles
                                       size={16}
                                       className="text-black dark:text-white"
                                     />
+                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
+                                      Upscale
+                                    </span>
                                   </button>
-
-                                  
 
                                 </div>
                               </div>
