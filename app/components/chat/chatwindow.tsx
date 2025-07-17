@@ -2213,19 +2213,17 @@ export default function ChatWindow({
                                 key={`${index}-video-${i}`}
                                 className="relative group/video"
                               >
-                                <div className="w-96 h-auto rounded-lg overflow-hidden flex items-center justify-center">
-                                  <VideoZoomModal
-                                    src={video}
-                                    className="w-auto h-36 md:h-96 object-cover rounded-lg"
-                                    onLike={handleLike}
-                                    onDislike={handleDislike}
-                                    likedImages={likedImages}
-                                    dislikedImages={dislikedImages}
-                                    onPaint={() => console.log("Paint:", video)}
-                                    onDownload={handleDownload}
-                                    onShare={handleShare}
-                                  />
-                                </div>
+                                <VideoZoomModal
+                                  src={video}
+                                  className="w-auto h-36 md:h-96 object-cover rounded-lg"
+                                  onLike={handleLike}
+                                  onDislike={handleDislike}
+                                  likedImages={likedImages}
+                                  dislikedImages={dislikedImages}
+                                  onPaint={() => console.log("Paint:", video)}
+                                  onDownload={handleDownload}
+                                  onShare={handleShare}
+                                />
                                 {/* Icon row below the video */}
                                 <div className="flex items-start justify-start gap-0 mt-2 flex-wrap">
                                   <button
