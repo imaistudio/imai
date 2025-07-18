@@ -593,6 +593,18 @@ export default function Home() {
         });
       }
 
+      // 🔧 CRITICAL FIX: Add toolcall parameter for direct tool routing
+      if (data.toolcall) {
+        formData.append("toolcall", data.toolcall);
+        console.log("🛠️ Added toolcall parameter:", data.toolcall);
+        
+        // Also add product parameter that toolcall router expects
+        if (data.product) {
+          formData.append("product", data.product);
+          console.log("🛠️ Added product parameter for toolcall:", data.product);
+        }
+      }
+
       let response, result;
 
       try {
