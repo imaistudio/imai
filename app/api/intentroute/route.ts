@@ -8296,8 +8296,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           intent: intentAnalysis,
           result: apiResult,
           conversation_id: `${userid}_${Date.now()}`,
-          images: allImages.length > 0 ? allImages : undefined,
-          recommendations: responseData.recommendations,
+          ...(allImages.length > 0 && { images: allImages }),
+          ...(responseData.recommendations && { recommendations: responseData.recommendations }),
         };
 
         // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)
@@ -8358,8 +8358,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       intent: intentAnalysis,
       result: apiResult,
       conversation_id: `${userid}_${Date.now()}`,
-      images: allImages.length > 0 ? allImages : undefined,
-      recommendations: responseData.recommendations,
+      ...(allImages.length > 0 && { images: allImages }),
+      ...(responseData.recommendations && { recommendations: responseData.recommendations }),
     };
 
     // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)

@@ -182,7 +182,7 @@ export const toolLabels: Record<ToolType, string> = {
   pairing: "AI<br>Pairing",
   reframe: "ReFrame",
   removebg: "Remove<br>Background",
-  scenecomposition: "Scene<br>Composition",
+  scenecomposition: "Scene<br>Changer",
   timeofday: "Time of<br>Day",
   upscale: "Upscale<br>Image",
   // Image to Video Tools

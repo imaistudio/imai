@@ -1,5 +1,15 @@
 {
   "defaultImages": {
+    "industrial": [
+      "/inputs/designs/general/bold/bold1.webp",
+      "/inputs/designs/general/bold/bold2.webp",
+      "/inputs/designs/general/bold/bold3.webp"
+    ],
+    "sportysleek": [
+      "/inputs/designs/general/sportysleek/sportysleek1.webp",
+      "/inputs/designs/general/sportysleek/sportysleek2.webp",
+      "/inputs/designs/general/sportysleek/sportysleek3.webp"
+    ],
     "minimalsleek": [
       "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated1.webp",
       "/inputs/designs/general/minimalsleek&sophisticated/minimalsleek&sophisticated2.webp"
@@ -819,6 +829,8 @@
     ]
   },
   "placeholders": {
+    "industrial": "/inputs/placeholders/general/bold.webp",
+    "sportysleek": "/inputs/placeholders/general/sportysleek.webp",
     "minimalsleek": "/inputs/placeholders/bags/minimalsleeksophisticated.webp",
     "animeinspired": "/inputs/placeholders/general/animeinspired.webp",
     "undersun": "/inputs/placeholders/general/underthesun.webp",
