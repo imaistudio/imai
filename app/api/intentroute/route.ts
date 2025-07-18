@@ -2599,7 +2599,8 @@ async function analyzeIntent(
         endpoint: "/api/pairing",
         parameters: {},
         requiresFiles: true,
-        explanation: "User wants to create a paired product image with complementary items",
+        explanation:
+          "User wants to create a paired product image with complementary items",
       };
     }
 
@@ -6113,7 +6114,7 @@ async function routeToAPI(
     } else if (endpoint === "/api/pairing") {
       // Handle pairing-specific parameters and image URLs
       formData.append("prompt", originalMessage);
-      
+
       // Add pairing-specific parameters
       if (parameters.workflow_type) {
         formData.append("workflow_type", parameters.workflow_type);
@@ -6124,22 +6125,25 @@ async function routeToAPI(
       if (parameters.quality) {
         formData.append("quality", parameters.quality);
       }
-      
+
       // 🔧 CRITICAL FIX: Handle image URLs for pairing route
       // The pairing route expects product_image_url parameter
-      const productImageUrl = 
+      const productImageUrl =
         imageUrls.product_image ||
         imageUrls.product_image_image ||
         imageUrls.image_image ||
         parameters.reference_image_url;
-      
+
       if (productImageUrl) {
         formData.append("product_image_url", productImageUrl);
         console.log("🔗 Added product_image_url for pairing:", productImageUrl);
       } else {
-        console.log("🔍 Available imageUrls keys for pairing:", Object.keys(imageUrls));
+        console.log(
+          "🔍 Available imageUrls keys for pairing:",
+          Object.keys(imageUrls),
+        );
       }
-      
+
       // Import and call the pairing API logic directly
       const { POST: pairingPOST } = await import("../pairing/route");
 

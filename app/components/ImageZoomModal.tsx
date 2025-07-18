@@ -198,7 +198,6 @@ export const ImageZoomModal = ({
             </button>
           )}
 
-
           {onDownload && (
             <button
               onClick={handleDownload}

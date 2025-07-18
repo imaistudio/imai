@@ -58,8 +58,8 @@ export default function GlobalModal() {
                 Imagination and the new Reality
               </h2>
               <p className="text-gray-600 dark:text-gray-300 mt-2">
-                Create an account to design products, edit visuals, and bring your
-                illustrations to life.
+                Create an account to design products, edit visuals, and bring
+                your illustrations to life.
               </p>
             </div>
 
@@ -97,7 +97,7 @@ export default function GlobalModal() {
               >
                 <X className="w-6 h-6 text-transparent" />
               </button>
-              
+
               <div className="mb-6">
                 <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-sm text-sm font-medium mb-4">
                   NEW
@@ -114,46 +114,81 @@ export default function GlobalModal() {
               <div className="space-y-6 mb-8">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <svg
+                      className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
                     </svg>
                   </div>
                   <div>
                     <p className="text-black dark:text-white font-medium">
-                      IMAI studio is an AI-powered product <br></br> designer and empowers you to become <br></br> an extraordinary designer.
+                      IMAI studio is an AI-powered product <br></br> designer
+                      and empowers you to become <br></br> an extraordinary
+                      designer.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    <svg
+                      className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                      />
                     </svg>
                   </div>
                   <div>
                     <p className="text-black dark:text-white font-medium">
-                      Anytime it enables you to design products, <br></br> create visuals, manage imagery and bring <br></br> your illustrations to life.
+                      Anytime it enables you to design products, <br></br>{" "}
+                      create visuals, manage imagery and bring <br></br> your
+                      illustrations to life.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    <svg
+                      className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      />
                     </svg>
                   </div>
                   <div>
                     <p className="text-black dark:text-white font-medium">
-                      World's most advanced image models <br></br> and up-to-date with the latest trends
+                      World's most advanced image models <br></br> and
+                      up-to-date with the latest trends
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* CTA Button */}
-              <button 
+              <button
                 onClick={() => {
                   closeModal();
                   router.push("/invite");
@@ -162,7 +197,7 @@ export default function GlobalModal() {
               >
                 Try IMAI Studio
               </button>
-              <button 
+              <button
                 onClick={() => {
                   closeModal();
                   router.push("/explore");
