@@ -113,7 +113,7 @@ export default function ChatWindow({
   // Memoized cache functions
   const cacheKey = useMemo(
     () => (userId && chatId ? `chat_messages_${userId}_${chatId}` : null),
-    [userId, chatId]
+    [userId, chatId],
   );
 
   const saveToCache = useCallback(
@@ -125,7 +125,7 @@ export default function ChatWindow({
         console.warn("Failed to save to cache:", error);
       }
     },
-    [cacheKey]
+    [cacheKey],
   );
 
   const loadFromCache = useCallback((): ChatMessage[] | null => {
@@ -153,7 +153,7 @@ export default function ChatWindow({
     (
       msg: ChatMessage,
       index: number,
-      customReferenceMode?: "product" | "color" | "design"
+      customReferenceMode?: "product" | "color" | "design",
     ) => {
       if (!onReplyToMessage) return;
 
@@ -166,7 +166,7 @@ export default function ChatWindow({
         timestamp:
           msg.createdAt && typeof msg.createdAt === "object"
             ? new Date(
-                (msg.createdAt as Timestamp).seconds * 1000
+                (msg.createdAt as Timestamp).seconds * 1000,
               ).toISOString()
             : new Date().toISOString(),
         referencemode: customReferenceMode || referenceMode, // 🔧 NEW: Use custom reference mode if provided
@@ -174,7 +174,7 @@ export default function ChatWindow({
 
       onReplyToMessage(referencedMessage);
     },
-    [onReplyToMessage, referenceMode]
+    [onReplyToMessage, referenceMode],
   );
 
   // Load user preferences (likes and dislikes)
@@ -184,7 +184,7 @@ export default function ChatWindow({
     try {
       const preferencesRef = collection(
         firestore,
-        `users/${userId}/preferences`
+        `users/${userId}/preferences`,
       );
       const snapshot = await getDocs(preferencesRef);
 
@@ -224,11 +224,11 @@ export default function ChatWindow({
           // Unlike the image - remove from Firestore
           const preferencesRef = collection(
             firestore,
-            `users/${userId}/preferences`
+            `users/${userId}/preferences`,
           );
           const q = query(
             preferencesRef,
-            where("likedimageurl", "==", imageUrl)
+            where("likedimageurl", "==", imageUrl),
           );
           const querySnapshot = await getDocs(q);
 
@@ -248,11 +248,11 @@ export default function ChatWindow({
             // Remove from disliked first
             const preferencesRef = collection(
               firestore,
-              `users/${userId}/preferences`
+              `users/${userId}/preferences`,
             );
             const q = query(
               preferencesRef,
-              where("dislikedimageurl", "==", imageUrl)
+              where("dislikedimageurl", "==", imageUrl),
             );
             const querySnapshot = await getDocs(q);
 
@@ -283,7 +283,7 @@ export default function ChatWindow({
           // Store in Firestore at users/{userId}/preferences/{likeId}
           const preferencesRef = doc(
             firestore,
-            `users/${userId}/preferences/${likeId}`
+            `users/${userId}/preferences/${likeId}`,
           );
           await setDoc(preferencesRef, likeData);
 
@@ -298,7 +298,7 @@ export default function ChatWindow({
         console.error("❌ Error handling like:", error);
       }
     },
-    [userId, likedImages, dislikedImages]
+    [userId, likedImages, dislikedImages],
   );
 
   // Handle dislike action
@@ -317,11 +317,11 @@ export default function ChatWindow({
           // Remove dislike - remove from Firestore
           const preferencesRef = collection(
             firestore,
-            `users/${userId}/preferences`
+            `users/${userId}/preferences`,
           );
           const q = query(
             preferencesRef,
-            where("dislikedimageurl", "==", imageUrl)
+            where("dislikedimageurl", "==", imageUrl),
           );
           const querySnapshot = await getDocs(q);
 
@@ -341,11 +341,11 @@ export default function ChatWindow({
             // Remove from liked first
             const preferencesRef = collection(
               firestore,
-              `users/${userId}/preferences`
+              `users/${userId}/preferences`,
             );
             const q = query(
               preferencesRef,
-              where("likedimageurl", "==", imageUrl)
+              where("likedimageurl", "==", imageUrl),
             );
             const querySnapshot = await getDocs(q);
 
@@ -376,7 +376,7 @@ export default function ChatWindow({
           // Store in Firestore at users/{userId}/preferences/{dislikeId}
           const preferencesRef = doc(
             firestore,
-            `users/${userId}/preferences/${dislikeId}`
+            `users/${userId}/preferences/${dislikeId}`,
           );
           await setDoc(preferencesRef, dislikeData);
 
@@ -391,7 +391,7 @@ export default function ChatWindow({
         console.error("❌ Error handling dislike:", error);
       }
     },
-    [userId, likedImages, dislikedImages]
+    [userId, likedImages, dislikedImages],
   );
 
   // Handle download action
@@ -513,8 +513,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -523,7 +523,7 @@ export default function ChatWindow({
 
             // Replace loading message with reframe result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? reframeMessage : msg
+              msg.id === loadingMessage.id ? reframeMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -556,8 +556,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -566,7 +566,7 @@ export default function ChatWindow({
 
             // Replace loading message with error message
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? errorMessage : msg
+              msg.id === loadingMessage.id ? errorMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -583,7 +583,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId]
+    [userId, chatId],
   );
 
   // Handle video generation from image
@@ -647,8 +647,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -657,7 +657,7 @@ export default function ChatWindow({
 
             // Replace loading message with video result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? videoMessage : msg
+              msg.id === loadingMessage.id ? videoMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -690,8 +690,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -700,7 +700,7 @@ export default function ChatWindow({
 
             // Replace loading message with error message
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? errorMessage : msg
+              msg.id === loadingMessage.id ? errorMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -717,7 +717,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId]
+    [userId, chatId],
   );
 
   // Handle share action
@@ -727,7 +727,7 @@ export default function ChatWindow({
       // You can add analytics tracking here
       // Example: track('media_shared', { platform, mediaType: content.mediaType, userId });
     },
-    [userId]
+    [userId],
   );
 
   // Handle upscale image
@@ -794,8 +794,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -804,7 +804,7 @@ export default function ChatWindow({
 
             // Replace loading message with upscale result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? upscaleMessage : msg
+              msg.id === loadingMessage.id ? upscaleMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -837,8 +837,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -847,7 +847,7 @@ export default function ChatWindow({
 
             // Replace loading message with error message
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? errorMessage : msg
+              msg.id === loadingMessage.id ? errorMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -864,7 +864,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId]
+    [userId, chatId],
   );
 
   // Handle video landscape (outpainting)
@@ -937,8 +937,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -947,7 +947,7 @@ export default function ChatWindow({
 
             // Replace loading message with landscape video result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? landscapeMessage : msg
+              msg.id === loadingMessage.id ? landscapeMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -977,8 +977,8 @@ export default function ChatWindow({
         const chatDoc = await getDocs(
           query(
             collection(firestore, `chats/${userId}/prompts`),
-            where("__name__", "==", chatId)
-          )
+            where("__name__", "==", chatId),
+          ),
         );
 
         if (!chatDoc.empty) {
@@ -987,7 +987,7 @@ export default function ChatWindow({
 
           // Replace loading message with error message
           const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-            msg.id === loadingMessage.id ? errorMessage : msg
+            msg.id === loadingMessage.id ? errorMessage : msg,
           );
 
           await updateDoc(chatRef, {
@@ -996,7 +996,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId]
+    [userId, chatId],
   );
 
   // Handle video reframe to portrait
@@ -1065,8 +1065,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -1075,7 +1075,7 @@ export default function ChatWindow({
 
             // Replace loading message with reframe video result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? reframeMessage : msg
+              msg.id === loadingMessage.id ? reframeMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -1108,8 +1108,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -1118,7 +1118,7 @@ export default function ChatWindow({
 
             // Replace loading message with error message
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? errorMessage : msg
+              msg.id === loadingMessage.id ? errorMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -1135,7 +1135,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId]
+    [userId, chatId],
   );
 
   // Handle video sound effects
@@ -1169,7 +1169,7 @@ export default function ChatWindow({
         formData.append("video_url", videoUrl);
         formData.append(
           "prompt",
-          "Generate realistic ambient and foreground sounds that match the visual content, timing, environment, and actions in the video. Ensure the audio reflects the correct atmosphere, object interactions, materials, spatial depth, and motion. Maintain temporal alignment and avoid adding unrelated sounds."
+          "Generate realistic ambient and foreground sounds that match the visual content, timing, environment, and actions in the video. Ensure the audio reflects the correct atmosphere, object interactions, materials, spatial depth, and motion. Maintain temporal alignment and avoid adding unrelated sounds.",
         );
         formData.append("original_sound_switch", "false"); // Default to false
 
@@ -1201,8 +1201,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -1211,7 +1211,7 @@ export default function ChatWindow({
 
             // Replace loading message with sound effects video result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? soundMessage : msg
+              msg.id === loadingMessage.id ? soundMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -1244,8 +1244,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -1254,7 +1254,7 @@ export default function ChatWindow({
 
             // Replace loading message with error message
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? errorMessage : msg
+              msg.id === loadingMessage.id ? errorMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -1271,7 +1271,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId]
+    [userId, chatId],
   );
 
   // Handle video upscale
@@ -1334,8 +1334,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -1344,7 +1344,7 @@ export default function ChatWindow({
 
             // Replace loading message with upscale video result
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? upscaleMessage : msg
+              msg.id === loadingMessage.id ? upscaleMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -1377,8 +1377,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -1387,7 +1387,7 @@ export default function ChatWindow({
 
             // Replace loading message with error message
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? errorMessage : msg
+              msg.id === loadingMessage.id ? errorMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -1404,7 +1404,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId]
+    [userId, chatId],
   );
 
   // Handle clickable action links
@@ -1430,7 +1430,7 @@ export default function ChatWindow({
 
       if (!recentImage) {
         alert(
-          "No recent image found to process. Please ensure there's an image in the conversation."
+          "No recent image found to process. Please ensure there's an image in the conversation.",
         );
         return;
       }
@@ -1538,8 +1538,8 @@ export default function ChatWindow({
           const chatDoc = await getDocs(
             query(
               collection(firestore, `chats/${userId}/prompts`),
-              where("__name__", "==", chatId)
-            )
+              where("__name__", "==", chatId),
+            ),
           );
 
           if (!chatDoc.empty) {
@@ -1548,7 +1548,7 @@ export default function ChatWindow({
 
             // Replace loading message with success message
             const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-              msg.id === loadingMessage.id ? successMessage : msg
+              msg.id === loadingMessage.id ? successMessage : msg,
             );
 
             await updateDoc(chatRef, {
@@ -1578,8 +1578,8 @@ export default function ChatWindow({
         const chatDoc = await getDocs(
           query(
             collection(firestore, `chats/${userId}/prompts`),
-            where("__name__", "==", chatId)
-          )
+            where("__name__", "==", chatId),
+          ),
         );
 
         if (!chatDoc.empty) {
@@ -1588,7 +1588,7 @@ export default function ChatWindow({
 
           // Replace loading message with error message
           const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-            msg.id === loadingMessage.id ? errorMessage : msg
+            msg.id === loadingMessage.id ? errorMessage : msg,
           );
 
           await updateDoc(chatRef, {
@@ -1597,7 +1597,7 @@ export default function ChatWindow({
         }
       }
     },
-    [userId, chatId, messages]
+    [userId, chatId, messages],
   );
 
   // Initialize auth state
@@ -1641,7 +1641,7 @@ export default function ChatWindow({
       console.log(
         "📦 ChatWindow: Loaded",
         cachedMessages.length,
-        "messages from cache"
+        "messages from cache",
       );
       setMessages(cachedMessages);
       setInitialLoad(false);
@@ -1690,7 +1690,7 @@ export default function ChatWindow({
             console.log(
               "🔄 ChatWindow: Loaded",
               sortedMessages.length,
-              "messages from Firestore"
+              "messages from Firestore",
             );
           } else {
             // No messages
@@ -1710,7 +1710,7 @@ export default function ChatWindow({
       (error) => {
         console.error("❌ ChatWindow: Error loading messages:", error);
         setInitialLoad(false);
-      }
+      },
     );
 
     // Cleanup function

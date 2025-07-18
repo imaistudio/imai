@@ -145,7 +145,6 @@ export function NavUser() {
                 Login
               </DropdownMenuItem>
 
-
               <DropdownMenuItem onClick={() => router.push("/invite")}>
                 <UserPlus />
                 Request Early Access

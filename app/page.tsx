@@ -44,11 +44,11 @@ export default function Home() {
   // 🔧 NEW: Add mobile-chat-interface class for CSS fallback
   useEffect(() => {
     // Add class to body for mobile CSS fallback (browsers that don't support :has())
-    document.body.classList.add('mobile-chat-interface');
-    
+    document.body.classList.add("mobile-chat-interface");
+
     // Cleanup function to remove the class when component unmounts
     return () => {
-      document.body.classList.remove('mobile-chat-interface');
+      document.body.classList.remove("mobile-chat-interface");
     };
   }, []);
 
