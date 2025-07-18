@@ -43,7 +43,7 @@ interface SeedanceVideoResponse {
 
 // Fashion/clothing preset prompts
 const FASHION_PROMPTS = [
-  "Scene: Product seemingly submerged in a viscous black liquid (or floating above glass). Lighting: Top and bottom diffused lighting with animated caustic reflections. Camera: Moves slowly on Y-axis, orbiting and occasionally tilting. Detail Shots: Water ripple lighting mimicking reflections on the product surface. Mood: Futuristic, sensual, luxurious. Perfect for perfumes, speakers, or luxury gadgets.",
+  "Scene: Product seemingly submerged in a viscous black liquid (or floating above glass). Lighting: Top and bottom diffused lighting with animated caustic reflections. Camera: Moves slowly on Y-axis, orbiting and occasionally tilting. Detail Shots: Water ripple lighting mimicking reflections on the product surface. Mood: Futuristic, sensual, luxurious.",
 ];
 
 // 🔧 VIDEO FIREBASE STORAGE FUNCTIONS

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getStorage as getAdminStorage } from "firebase-admin/storage";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -9,6 +12,57 @@ fal.config({
   credentials: process.env.FAL_KEY,
 });
 
+// Initialize Firebase Admin (for server-side operations)
+if (!getApps().length) {
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}');
+    initializeApp({
+      credential: cert(serviceAccount),
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    });
+    console.log('🔥 Firebase Admin initialized for removebg tool');
+  } catch (error) {
+    console.error('❌ Firebase Admin initialization failed:', error);
+  }
+}
+
+/**
+ * Upload buffer to Firebase Storage and return permanent URL
+ */
+async function uploadBufferToFirebase(buffer: Buffer, userid: string, filename: string): Promise<string> {
+  try {
+    const storage = getAdminStorage();
+    const bucket = storage.bucket();
+    const filePath = `${userid}/output/${filename}`;
+    const file = bucket.file(filePath);
+    
+    console.log(`📤 Uploading to Firebase Storage: ${filePath}`);
+    
+    // Upload the buffer
+    await file.save(buffer, {
+      metadata: {
+        contentType: 'image/png',
+        metadata: {
+          source: 'removebg_tool',
+          uploadedAt: new Date().toISOString(),
+        },
+      },
+    });
+    
+    // Make the file publicly accessible
+    await file.makePublic();
+    
+    // Get the public URL
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+    console.log(`✅ File uploaded successfully: ${publicUrl}`);
+    
+    return publicUrl;
+  } catch (error) {
+    console.error('❌ Firebase upload failed:', error);
+    throw error;
+  }
+}
+
 interface RemBGOptions {
   syncMode?: boolean;
 }
@@ -16,6 +70,7 @@ interface RemBGOptions {
 interface RemBGResponse {
   status: string;
   imageUrl?: string;
+  firebaseOutputUrl?: string;
   error?: string;
 }
 
@@ -135,14 +190,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.log("Background removal completed!");
     console.log("Processed image URL:", processedImageUrl);
 
-    // Convert the output image to base64 for intentroute to handle
-    let outputBase64: string;
+    // 🔥 NEW: Upload to Firebase Storage for permanent URL
+    let finalImageUrl: string;
 
     if (processedImageUrl.startsWith("data:image")) {
-      // Already base64
-      outputBase64 = processedImageUrl;
+      // Already base64 - extract buffer and upload
+      const base64Data = processedImageUrl.split(',')[1];
+      const buffer = Buffer.from(base64Data, 'base64');
+      const filename = `removebg_${Date.now()}.png`;
+      finalImageUrl = await uploadBufferToFirebase(buffer, userid, filename);
     } else {
-      // Download and convert URL to base64
+      // Download from temporary URL and upload to Firebase
+      console.log("📥 Downloading from temporary FAL AI URL...");
       const response = await fetch(processedImageUrl);
       if (!response.ok) {
         throw new Error(
@@ -151,12 +210,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      outputBase64 = bufferToBase64DataUrl(buffer);
+      const filename = `removebg_${Date.now()}.png`;
+      
+      console.log("📤 Uploading to Firebase Storage...");
+      finalImageUrl = await uploadBufferToFirebase(buffer, userid, filename);
     }
 
     const response: RemBGResponse = {
       status: "success",
-      imageUrl: outputBase64, // Base64 data URL for intentroute to handle
+      imageUrl: finalImageUrl, // Firebase Storage URL (permanent)
+      firebaseOutputUrl: finalImageUrl, // For consistency with other tools
     };
 
     return NextResponse.json(response);

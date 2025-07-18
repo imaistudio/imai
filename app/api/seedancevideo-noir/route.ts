@@ -43,7 +43,7 @@ interface SeedanceVideoResponse {
 
 // Fashion/clothing preset prompts
 const FASHION_PROMPTS = [
-  "Scene: Product sits on a textured pedestal in near-total darkness. Lighting: A narrow slit of light (as from blinds) pans across the surface, revealing parts. Camera: Lock-off shot that tilts and slowly creeps forward. Detail Shots: Light glints catching curves, high-contrast reflections on materials. Mood: Quiet intensity, perfect for tech or fashion accessories (e.g., headphones, watches).",
+  "Scene: Product sits on a textured pedestal in near-total darkness. Lighting: A narrow slit of light (as from blinds) pans across the surface, revealing parts. Camera: Lock-off shot that tilts and slowly creeps forward. Detail Shots: Light glints catching curves, high-contrast reflections on materials. Mood: Quiet intensity",
 ];
 
 // 🔧 VIDEO FIREBASE STORAGE FUNCTIONS

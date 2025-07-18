@@ -43,7 +43,7 @@ interface SeedanceVideoResponse {
 
 // Fashion/clothing preset prompts
 const FASHION_PROMPTS = [
-  "Create a cinematic product video from this image. The product should be the sole focus, showcased against a dark, minimal background. Use dramatic, moody lighting with soft shadows to highlight the product’s shape and texture. Include smooth camera movements — rotating 360° around the product, slow zoom-ins on surface details, and elegant panning shots from multiple angles. No text, no branding. Keep the visuals sleek, high-contrast, and premium. Final output should be resembling a high-end commercial for a tech, fashion, or lifestyle product",
+  "Create a cinematic product video from this image. The product should be the sole focus, showcased against a dark, minimal background. Use dramatic, moody lighting with soft shadows to highlight the product’s shape and texture. Include smooth camera movements — rotating 360° around the product, slow zoom-ins on surface details, and elegant panning shots from multiple angles. No text, no branding. Keep the visuals sleek, high-contrast, and premium. Final output should be resembling a high-end commercial",
 ];
 
 // 🔧 VIDEO FIREBASE STORAGE FUNCTIONS
