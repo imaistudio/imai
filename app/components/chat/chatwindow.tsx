@@ -1518,6 +1518,23 @@ export default function ChatWindow({
         console.log("✅ Action processed:", result);
 
         if (result.status === "success") {
+          // 🔧 CRITICAL FIX: Sanitize recommendations for Firebase
+          const sanitizeRecommendations = (recommendations: any[]) => {
+            if (!Array.isArray(recommendations)) return [];
+            
+            return recommendations.map((rec) => ({
+              id: String(rec.id || ""),
+              label: String(rec.label || ""),
+              intent: String(rec.intent || ""),
+              endpoint: String(rec.endpoint || ""),
+              // 🔧 FIX: Convert parameters object to simple string to avoid nested entity issues
+              parameters: typeof rec.parameters === 'object' 
+                ? JSON.stringify(rec.parameters || {}) 
+                : String(rec.parameters || "{}"),
+              icon: String(rec.icon || ""),
+            }));
+          };
+
           // Create success message
           const successMessage: ChatMessage = {
             id: `action-result-${Date.now()}`,
@@ -1531,7 +1548,7 @@ export default function ChatWindow({
                 : undefined,
             chatId: chatId,
             createdAt: Timestamp.now(),
-            recommendations: result.recommendations,
+            recommendations: sanitizeRecommendations(result.recommendations || []) as any, // 🔧 FIX: Type assertion for Firebase-safe version
           };
 
           // Replace loading message with success message

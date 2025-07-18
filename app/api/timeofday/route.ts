@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { getStorage } from "firebase-admin/storage";
+import { v4 as uuidv4 } from "uuid";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -7,6 +9,62 @@ export const maxDuration = 300;
 fal.config({
   credentials: process.env.FAL_KEY,
 });
+
+// 🔧 Firebase initialization check
+const firebaseInitialized = !!process.env.FIREBASE_PRIVATE_KEY;
+console.log("🔥 Firebase initialized -", firebaseInitialized ? "using Firebase Storage for image handling" : "using direct URLs");
+
+/**
+ * Uploads a Buffer to Firebase Storage under the given path, and returns a signed URL.
+ */
+async function uploadBufferToFirebase(
+  buffer: Buffer,
+  destinationPath: string,
+): Promise<string> {
+  try {
+    if (!firebaseInitialized) {
+      throw new Error(
+        "Firebase is not initialized - cannot upload to Firebase Storage",
+      );
+    }
+
+    if (!buffer || buffer.length === 0) {
+      throw new Error("Invalid buffer: Buffer is empty or undefined");
+    }
+
+    if (!destinationPath) {
+      throw new Error("Invalid destination path: Path is empty or undefined");
+    }
+
+    console.log(
+      `📤 Uploading to Firebase Storage: ${destinationPath}, size: ${buffer.length} bytes`,
+    );
+
+    const bucket = getStorage().bucket();
+
+    const file = bucket.file(destinationPath);
+
+    // Save the buffer as a JPEG with optimized settings
+    await file.save(buffer, {
+      metadata: {
+        contentType: "image/jpeg",
+        cacheControl: "public, max-age=3600",
+      },
+      resumable: false,
+      validation: false, // Skip MD5 hash validation for faster uploads
+    });
+
+    await file.makePublic();
+
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${destinationPath}`;
+
+    console.log("✅ Firebase Storage upload successful:", publicUrl);
+    return publicUrl;
+  } catch (error: any) {
+    console.error("❌ Firebase Storage upload failed:", error);
+    throw new Error(`Failed to upload to Firebase Storage: ${error.message}`);
+  }
+}
 
 interface TimeOfDayOptions {
   guidance_scale?: number;
@@ -30,7 +88,7 @@ interface TimeOfDayOptions {
 
 interface TimeOfDayResponse {
   status: string;
-  imageUrl?: string; // FAL AI URL (following reframe pattern)
+  imageUrl?: string; // Firebase Storage URL (permanent) with FAL AI URL fallback
   seed?: number;
   error?: string;
 }
@@ -270,13 +328,39 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.log("Time of day change completed!");
     console.log("Transformed image URL:", result.imageUrl);
 
-    // 🔧 REFRAME PATTERN: Return FAL AI URL directly (no base64 conversion)
-    // This prevents Firebase document size overflow and is much more efficient
-    console.log("✅ Using FAL AI URL directly (following reframe pattern)");
+    // 🔧 FIREBASE STORAGE UPLOAD: Save result to Firebase Storage for permanent access
+    let finalImageUrl = result.imageUrl;
+
+    if (firebaseInitialized) {
+      try {
+        console.log("🔄 Uploading result to Firebase Storage for permanent storage...");
+        
+        // Fetch the FAL AI result
+        const response = await fetch(result.imageUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch result: ${response.statusText}`);
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        
+        // Upload to Firebase Storage
+        const outputPath = `${userid}/output/${uuidv4()}_timeofday.jpg`;
+        finalImageUrl = await uploadBufferToFirebase(buffer, outputPath);
+        
+        console.log("✅ Result uploaded to Firebase Storage:", finalImageUrl);
+      } catch (error) {
+        console.error("❌ Failed to upload to Firebase Storage:", error);
+        console.log("🔄 Falling back to FAL AI URL");
+        // Keep the original FAL AI URL as fallback
+      }
+    } else {
+      console.log("✅ Using FAL AI URL directly (Firebase not initialized)");
+    }
 
     const apiResponse: TimeOfDayResponse = {
       status: "success",
-      imageUrl: result.imageUrl, // Direct FAL AI URL (not base64)
+      imageUrl: finalImageUrl, // Firebase Storage URL (permanent) with FAL AI URL fallback
       seed: result.seed,
     };
 

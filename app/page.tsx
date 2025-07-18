@@ -374,7 +374,7 @@ export default function Home() {
         chatId: currentChatId,
         isReferenced: !!referencedMessage, // 🔧 NEW: Set to true if user is replying to a message
         isTool: !!data.toolcall, // 🔧 NEW: Set to true if user selected a tool
-        toolName: data.toolcall || undefined, // 🔧 NEW: Store the tool name
+        ...(data.toolcall && { toolName: data.toolcall }), // 🔧 FIX: Only include toolName if it exists
       };
 
       // Get existing messages first
@@ -399,7 +399,7 @@ export default function Home() {
           chatId: String(currentChatId),
           isReferenced: !!referencedMessage, // 🔧 NEW: Set to true if user is replying to a message
           isTool: !!data.toolcall, // 🔧 NEW: Set to true if user selected a tool
-          toolName: data.toolcall || undefined, // 🔧 NEW: Store the tool name
+          ...(data.toolcall && { toolName: data.toolcall }), // 🔧 FIX: Only include toolName if it exists
         };
 
         await setDoc(
@@ -438,7 +438,7 @@ export default function Home() {
             userId: String(currentUser.uid),
             isReferenced: !!referencedMessage, // 🔧 NEW: Include reference status in fallback
             isTool: !!data.toolcall, // 🔧 NEW: Include tool status in fallback
-            toolName: data.toolcall || undefined, // 🔧 NEW: Include tool name in fallback
+            ...(data.toolcall && { toolName: data.toolcall }), // 🔧 FIX: Only include toolName if it exists
           };
 
           await setDoc(
@@ -755,6 +755,23 @@ export default function Home() {
 
         // Update Firestore with the agent response
         try {
+          // 🔧 CRITICAL FIX: Sanitize recommendations for Firebase
+          const sanitizeRecommendations = (recommendations: any[]) => {
+            if (!Array.isArray(recommendations)) return [];
+            
+            return recommendations.map((rec) => ({
+              id: String(rec.id || ""),
+              label: String(rec.label || ""),
+              intent: String(rec.intent || ""),
+              endpoint: String(rec.endpoint || ""),
+              // 🔧 FIX: Convert parameters object to simple string to avoid nested entity issues
+              parameters: typeof rec.parameters === 'object' 
+                ? JSON.stringify(rec.parameters || {}) 
+                : String(rec.parameters || "{}"),
+              icon: String(rec.icon || ""),
+            }));
+          };
+
           // Create a completely safe agent message for Firestore
           const safeAgentMessage = {
             sender: "agent",
@@ -771,7 +788,7 @@ export default function Home() {
             videos: agentMessage.videos.filter(
               (video) => typeof video === "string" && video.length > 0,
             ), // 🔧 NEW: Added videos array
-            recommendations: result.recommendations || [], // 🔧 NEW: Added recommendations array
+            recommendations: sanitizeRecommendations(result.recommendations || []) as any, // 🔧 FIX: Sanitized recommendations
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
             userId: String(currentUser.uid),
