@@ -168,10 +168,6 @@ body::-webkit-scrollbar {
   --icon-color: #fff; /* White in dark mode */
 }
 
-
-
-
-
 /* Safari h-screen fix for iOS viewport issues */
 @supports (-webkit-touch-callout: none) {
   .h-screen {
@@ -249,9 +245,22 @@ body::-webkit-scrollbar {
   }
 }
 
-  /* Additional mobile scroll prevention */
+/* Mobile scroll prevention - ONLY for chat interface */
 @media (max-width: 768px) {
-  html, body {
+  /* Allow normal scrolling on all pages by default */
+  html,
+  body {
+    overflow: auto;
+    overscroll-behavior: auto;
+    position: static;
+    width: auto;
+    height: auto;
+    touch-action: auto;
+  }
+
+  /* Specific styles for chat interface pages */
+  body:has(.mobile-layout-grid),
+  body.mobile-chat-interface {
     overflow: hidden;
     overscroll-behavior: none;
     position: fixed;
@@ -264,7 +273,10 @@ body::-webkit-scrollbar {
   .mobile-input-area .drawer-scroll-horizontal,
   .mobile-input-area .bg-default-100 .drawer-scroll-horizontal,
   .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal,
-  .mobile-layout-grid .mobile-input-area .bg-default-100 .drawer-scroll-horizontal {
+  .mobile-layout-grid
+    .mobile-input-area
+    .bg-default-100
+    .drawer-scroll-horizontal {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     touch-action: pan-x pan-y !important;
@@ -293,7 +305,7 @@ body::-webkit-scrollbar {
     grid-column: unset !important;
     grid-row: unset !important;
   }
-  
+
   .mobile-layout-grid {
     position: fixed;
     top: 0;
@@ -328,7 +340,7 @@ body::-webkit-scrollbar {
     flex-shrink: 0;
     touch-action: pan-x pan-y !important;
   }
-  
+
   .mobile-chat-area {
     position: relative;
     width: 100%;
@@ -337,7 +349,7 @@ body::-webkit-scrollbar {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Ensure the scrollable div inside chat area behaves properly */
   .mobile-chat-area > div {
     height: 100%;
@@ -346,7 +358,7 @@ body::-webkit-scrollbar {
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Prevent horizontal scrolling in chat window */
   .hide-scrollbar {
     overflow-x: hidden !important;
@@ -358,7 +370,9 @@ body::-webkit-scrollbar {
   /* Critical override: Allow horizontal scrolling in drawer even with hide-scrollbar */
   .mobile-input-area .drawer-scroll-horizontal.hide-scrollbar,
   .mobile-input-area .bg-default-100 .drawer-scroll-horizontal.hide-scrollbar,
-  .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal.hide-scrollbar,
+  .mobile-layout-grid
+    .mobile-input-area
+    .drawer-scroll-horizontal.hide-scrollbar,
   .drawer-scroll-horizontal.hide-scrollbar {
     overflow-x: auto !important;
     overflow-y: hidden !important;
@@ -401,10 +415,15 @@ body::-webkit-scrollbar {
   .drawer-scroll-horizontal,
   .mobile-input-area .drawer-scroll-horizontal,
   .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal,
-  .mobile-layout-grid .mobile-input-area .bg-default-100 .drawer-scroll-horizontal,
+  .mobile-layout-grid
+    .mobile-input-area
+    .bg-default-100
+    .drawer-scroll-horizontal,
   div.mobile-input-area div.bg-default-100 div.drawer-scroll-horizontal,
   .mobile-input-area .drawer-scroll-horizontal.hide-scrollbar,
-  .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal.hide-scrollbar {
+  .mobile-layout-grid
+    .mobile-input-area
+    .drawer-scroll-horizontal.hide-scrollbar {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     touch-action: pan-x pan-y !important;
@@ -422,7 +441,9 @@ body::-webkit-scrollbar {
 
   .drawer-scroll-horizontal::-webkit-scrollbar,
   .mobile-input-area .drawer-scroll-horizontal::-webkit-scrollbar,
-  .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal::-webkit-scrollbar,
+  .mobile-layout-grid
+    .mobile-input-area
+    .drawer-scroll-horizontal::-webkit-scrollbar,
   .drawer-scroll-horizontal.hide-scrollbar::-webkit-scrollbar {
     display: none !important;
   }
@@ -438,7 +459,9 @@ body::-webkit-scrollbar {
   .mobile-input-area .bg-default-100 .drawer-scroll-horizontal,
   .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal,
   .mobile-input-area .drawer-scroll-horizontal.hide-scrollbar,
-  .mobile-layout-grid .mobile-input-area .drawer-scroll-horizontal.hide-scrollbar {
+  .mobile-layout-grid
+    .mobile-input-area
+    .drawer-scroll-horizontal.hide-scrollbar {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     touch-action: pan-x pan-y !important;
@@ -509,7 +532,8 @@ body::-webkit-scrollbar {
   .drawer-scroll-horizontal .grid,
   .drawer-scroll-horizontal .grid.grid-rows-2,
   .drawer-scroll-horizontal .grid.grid-flow-col,
-  .drawer-scroll-horizontal .grid.grid-rows-2.auto-cols-max.gap-4.grid-flow-col.min-w-max {
+  .drawer-scroll-horizontal
+    .grid.grid-rows-2.auto-cols-max.gap-4.grid-flow-col.min-w-max {
     touch-action: pan-x pan-y !important;
     pointer-events: auto !important;
     overflow: visible !important;
@@ -536,9 +560,16 @@ body::-webkit-scrollbar {
 
   /* Target the exact class combination used in the drawer */
   .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
-  .mobile-input-area .bg-default-100 .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
-  .mobile-layout-grid .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
-  .mobile-layout-grid .mobile-input-area .bg-default-100 .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal {
+  .mobile-input-area
+    .bg-default-100
+    .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
+  .mobile-layout-grid
+    .mobile-input-area
+    .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
+  .mobile-layout-grid
+    .mobile-input-area
+    .bg-default-100
+    .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     touch-action: pan-x pan-y !important;
@@ -599,8 +630,12 @@ body::-webkit-scrollbar {
 
   /* Ensure flex container with gap allows horizontal scrolling */
   .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
-  .mobile-input-area .bg-default-100 .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
-  .mobile-layout-grid .mobile-input-area .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal {
+  .mobile-input-area
+    .bg-default-100
+    .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal,
+  .mobile-layout-grid
+    .mobile-input-area
+    .flex.overflow-x-auto.gap-4.pb-2.drawer-scroll-horizontal {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     touch-action: pan-x pan-y !important;
@@ -612,19 +647,19 @@ body::-webkit-scrollbar {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
   }
-  
+
   /* Ensure content doesn't exceed viewport width */
   .mobile-chat-area * {
     max-width: 100vw;
     box-sizing: border-box;
   }
-  
+
   /* Prevent horizontal movement in chat messages */
   .mobile-chat-area .max-w-4xl,
   .mobile-chat-area .max-w-\[75\%\] {
     max-width: calc(100vw - 2rem) !important;
   }
-  
+
   /* Prevent images and videos from causing horizontal overflow */
   .mobile-chat-area img,
   .mobile-chat-area video {
@@ -632,7 +667,7 @@ body::-webkit-scrollbar {
     height: auto !important;
     object-fit: contain !important;
   }
-  
+
   /* Ensure message containers don't exceed viewport */
   .mobile-chat-area .group {
     max-width: 100%;
@@ -659,10 +694,10 @@ body::-webkit-scrollbar {
     &::-webkit-scrollbar {
       display: none;
     }
-    
+
     /* Hide scrollbar for IE, Edge and Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   /* ScrollTrigger animation utilities */
@@ -700,7 +735,7 @@ body::-webkit-scrollbar {
   .gsap-loading {
     visibility: hidden;
   }
-  
+
   .gsap-ready {
     visibility: visible;
   }

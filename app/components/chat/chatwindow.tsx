@@ -25,7 +25,6 @@ import {
   ThumbsDown,
   UnfoldHorizontal,
   Sparkles,
-  LetterText,
   Download,
   Share2,
   Package,
@@ -447,163 +446,6 @@ export default function ChatWindow({
       window.open(imageUrl, "_blank");
     }
   }, []);
-
-  // Format analysis object into readable text
-  const formatAnalysisObject = (analysisObj: any): string => {
-    let formattedText = "";
-
-    Object.entries(analysisObj).forEach(([category, details]) => {
-      // Capitalize category name
-      const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
-      formattedText += `🎨 **${categoryName}:**\n`;
-
-      if (typeof details === "object" && details !== null) {
-        // Handle nested objects
-        Object.entries(details).forEach(([key, value]) => {
-          const keyName = key.charAt(0).toUpperCase() + key.slice(1);
-
-          if (Array.isArray(value)) {
-            formattedText += `• ${keyName}: ${value.join(", ")}\n`;
-          } else {
-            formattedText += `• ${keyName}: ${value}\n`;
-          }
-        });
-      } else {
-        // Handle simple values
-        formattedText += `• ${details}\n`;
-      }
-
-      formattedText += "\n";
-    });
-
-    return formattedText;
-  };
-
-  // Handle analyze image action
-  const handleAnalyzeImage = useCallback(
-    async (imageUrl: string) => {
-      if (!userId || !chatId) {
-        console.error("User not authenticated or no chat ID");
-        return;
-      }
-
-      console.log("🔍 Starting image analysis for:", imageUrl);
-
-      try {
-        // Create loading message
-        const loadingMessage: ChatMessage = {
-          id: `analysis-${Date.now()}`,
-          sender: "agent",
-          type: "prompt",
-          text: "Analyzing image...",
-          chatId: chatId,
-          createdAt: Timestamp.now(),
-          isLoading: true,
-        };
-
-        // Add loading message to Firestore
-        const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-        await updateDoc(chatRef, {
-          messages: arrayUnion(loadingMessage),
-        });
-
-        // Call analyze image API
-        const formData = new FormData();
-        formData.append("userid", userId);
-        formData.append("image_url", imageUrl);
-
-        const response = await fetch("/api/analyzeimage", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`API request failed: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-
-        // Format the analysis result
-        let analysisText = "Image Analysis:\n\n";
-
-        if (result.status === "success" && result.result) {
-          if (result.result.raw_analysis) {
-            // Try to parse JSON from raw_analysis
-            try {
-              const parsedAnalysis = JSON.parse(result.result.raw_analysis);
-              analysisText += formatAnalysisObject(parsedAnalysis);
-            } catch {
-              // If not JSON, use as is
-              analysisText += result.result.raw_analysis;
-            }
-          } else {
-            // Format structured analysis
-            analysisText += formatAnalysisObject(result.result);
-          }
-        } else {
-          analysisText += "Unable to analyze the image at this time.";
-        }
-
-        // Create analysis result message
-        const analysisMessage: ChatMessage = {
-          id: `analysis-result-${Date.now()}`,
-          sender: "agent",
-          type: "prompt",
-          text: analysisText,
-          chatId: chatId,
-          createdAt: Timestamp.now(),
-        };
-
-        // Update Firestore with the analysis result
-        // First, get current messages to replace loading message
-        const chatDoc = await getDocs(
-          query(
-            collection(firestore, `chats/${userId}/prompts`),
-            where("__name__", "==", chatId),
-          ),
-        );
-
-        if (!chatDoc.empty) {
-          const chatData = chatDoc.docs[0].data();
-          const currentMessages = chatData.messages || [];
-
-          // Replace loading message with analysis result
-          const updatedMessages = currentMessages.map((msg: ChatMessage) =>
-            msg.id === loadingMessage.id ? analysisMessage : msg,
-          );
-
-          await updateDoc(chatRef, {
-            messages: updatedMessages,
-          });
-        }
-
-        console.log("✅ Analysis message saved to chat");
-      } catch (error) {
-        console.error("❌ Image analysis failed:", error);
-
-        // Create error message
-        const errorMessage: ChatMessage = {
-          id: `analysis-error-${Date.now()}`,
-          sender: "agent",
-          type: "prompt",
-          text: "Sorry, I couldn't analyze the image. Please try again later.",
-          chatId: chatId,
-          createdAt: Timestamp.now(),
-        };
-
-        // Update Firestore with error message
-        try {
-          const chatRef = doc(firestore, `chats/${userId}/prompts/${chatId}`);
-          await updateDoc(chatRef, {
-            messages: arrayUnion(errorMessage),
-          });
-        } catch (updateError) {
-          console.error("❌ Failed to save error message:", updateError);
-        }
-      }
-    },
-    [userId, chatId],
-  );
 
   // Handle reframe image to landscape
   const handleReframe = useCallback(
@@ -1903,7 +1745,7 @@ export default function ChatWindow({
       <div
         ref={chatContainerRef}
         className="flex-1 w-full md:pl-6 md:pr-6 p-4"
-        style={{ touchAction: 'auto', overscrollBehaviorX: 'none' }}
+        style={{ touchAction: "auto", overscrollBehaviorX: "none" }}
       >
         <div className="flex flex-col gap-6 min-h-full justify-end w-full md:max-w-4xl mx-auto overflow-x-hidden">
           {messages.map((msg, index) => (
@@ -2019,130 +1861,84 @@ export default function ChatWindow({
                                   onShare={handleShare}
                                 />
                                 {/* Icon row below the image */}
-                                <div className="flex items-start justify-start gap-0 mt-2 flex-wrap">
+                                <div className="flex items-start justify-start gap-2 mt-2 flex-wrap">
                                   <button
-                                    onClick={() => handleLike(img)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title={
                                       likedImages.has(img) ? "Unlike" : "Like"
                                     }
+                                    className={`cursor-pointer transition-all ${
+                                      likedImages.has(img)
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-black dark:text-white"
+                                    }`}
+                                    onClick={() => handleLike(img)}
                                   >
-                                    <ThumbsUp
-                                      size={16}
-                                      className={`${
-                                        likedImages.has(img)
-                                          ? "text-green-600 dark:text-green-400 "
-                                          : "text-black dark:text-white"
-                                      }`}
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      {likedImages.has(img) ? "Unlike" : "Like"}
-                                    </span>
+                                    <ThumbsUp size={16} />
                                   </button>
                                   <button
-                                    onClick={() => handleDislike(img)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title={
                                       dislikedImages.has(img)
                                         ? "Remove dislike"
                                         : "Dislike"
                                     }
+                                    className={`cursor-pointer transition-all ${
+                                      dislikedImages.has(img)
+                                        ? "text-red-600 dark:text-red-400"
+                                        : "text-black dark:text-white"
+                                    }`}
+                                    onClick={() => handleDislike(img)}
                                   >
-                                    <ThumbsDown
-                                      size={16}
-                                      className={`${
-                                        dislikedImages.has(img)
-                                          ? "text-red-600 dark:text-red-400"
-                                          : "text-black dark:text-white"
-                                      }`}
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      {dislikedImages.has(img) ? "Remove dislike" : "Dislike"}
-                                    </span>
+                                    <ThumbsDown size={16} />
                                   </button>
                                   <button
+                                    title="Download Image"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
                                     onClick={(event) => {
                                       handleDownload(img);
-                                      // Optional: Add visual feedback
-                                      const button =
-                                        event.currentTarget as HTMLElement;
-                                      button.style.transform = "scale(0.95)";
+                                      const icon = event.currentTarget;
+                                      icon.style.transform = "scale(0.95)";
                                       setTimeout(() => {
-                                        button.style.transform = "scale(1)";
+                                        icon.style.transform = "scale(1)";
                                       }, 150);
                                     }}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
-                                    title="Download Image"
                                   >
-                                    <Download
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      Download
-                                    </span>
+                                    <Download size={16} />
                                   </button>
                                   <button
-                                    onClick={() => {
+                                    title="Share"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() =>
                                       showShareModal({
                                         mediaUrl: img,
                                         mediaType: "image",
                                         caption: msg.text,
                                         onShare: handleShare,
-                                      });
-                                    }}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
-                                    title="Share"
+                                      })
+                                    }
                                   >
-                                    <Share2
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      Share
-                                    </span>
+                                    <Share2 size={16} />
                                   </button>
-
                                   <button
-                                    onClick={() => handleVideo(img)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title="Videogen"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() => handleVideo(img)}
                                   >
-                                    <Clapperboard
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      Videogen
-                                    </span>
+                                    <Clapperboard size={16} />
                                   </button>
                                   <button
-                                    onClick={() => handleReframe(img)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title="Landscape"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() => handleReframe(img)}
                                   >
-                                    <UnfoldHorizontal
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      Landscape
-                                    </span>
+                                    <UnfoldHorizontal size={16} />
                                   </button>
                                   <button
-                                    onClick={() => handleUpscale(img)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title="Upscale"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() => handleUpscale(img)}
                                   >
-                                    <Sparkles
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      Upscale 
-                                    </span>
+                                    <Sparkles size={16} />
                                   </button>
-
                                 </div>
                               </div>
                             ))}
@@ -2237,136 +2033,92 @@ export default function ChatWindow({
                                   onShare={handleShare}
                                 />
                                 {/* Icon row below the video */}
-                                <div className="flex items-start justify-start gap-0 mt-2 flex-wrap">
+
+                                <div className="flex items-start justify-start gap-2 mt-2 flex-wrap">
                                   <button
-                                    onClick={() => handleLike(video)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out"
                                     title={
                                       likedImages.has(video) ? "Unlike" : "Like"
                                     }
+                                    className={`cursor-pointer transition-all ${
+                                      likedImages.has(video)
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-black dark:text-white"
+                                    }`}
+                                    onClick={() => handleLike(video)}
                                   >
-                                    <ThumbsUp
-                                      size={16}
-                                      className={`${
-                                        likedImages.has(video)
-                                          ? "text-green-600 dark:text-green-400 "
-                                          : "text-black dark:text-white"
-                                      }`}
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-300 ease-in-out text-sm text-black dark:text-white">
-                                      {likedImages.has(video) ? "Unlike" : "Like"}
-                                    </span>
+                                    <ThumbsUp size={16} />
                                   </button>
                                   <button
-                                    onClick={() => handleDislike(video)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title={
                                       dislikedImages.has(video)
                                         ? "Remove dislike"
                                         : "Dislike"
                                     }
+                                    className={`cursor-pointer transition-all ${
+                                      dislikedImages.has(video)
+                                        ? "text-red-600 dark:text-red-400"
+                                        : "text-black dark:text-white"
+                                    }`}
+                                    onClick={() => handleDislike(video)}
                                   >
-                                    <ThumbsDown
-                                      size={16}
-                                      className={`${
-                                        dislikedImages.has(video)
-                                          ? "text-red-600 dark:text-red-400"
-                                          : "text-black dark:text-white"
-                                      }`}
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
-                                      {dislikedImages.has(video) ? "Remove dislike" : "Dislike"}
-                                    </span>
+                                    <ThumbsDown size={16} />
                                   </button>
                                   <button
-                                    onClick={() => handleDownload(video)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Download Video"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={(event) => {
+                                      handleDownload(video);
+                                      const icon = event.currentTarget;
+                                      icon.style.transform = "scale(0.95)";
+                                      setTimeout(() => {
+                                        icon.style.transform = "scale(1)";
+                                      }, 150);
+                                    }}
                                   >
-                                    <Download
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
-                                      Download
-                                    </span>
+                                    <Download size={16} />
                                   </button>
                                   <button
-                                    onClick={() => {
+                                    title="Share Video"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() =>
                                       showShareModal({
                                         mediaUrl: video,
                                         mediaType: "video",
                                         caption: msg.text,
                                         onShare: handleShare,
-                                      });
-                                    }}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
-                                    title="Share Video"
+                                      })
+                                    }
                                   >
-                                    <Share2
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
-                                      Share
-                                    </span>
+                                    <Share2 size={16} />
                                   </button>
-                                  
                                   <button
-                                    onClick={() => handleVideoSound(video)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="AudioGen"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() => handleVideoSound(video)}
                                   >
-                                    <AudioWaveform
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
-                                      AudioGen
-                                    </span>
+                                    <AudioWaveform size={16} />
                                   </button>
                                   <button
-                                    onClick={() => handlelandscapevideo(video)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Landscape"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() => handlelandscapevideo(video)}
                                   >
-                                    <Proportions
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
-                                      Landscape
-                                    </span>
+                                    <Proportions size={16} />
                                   </button>
-
                                   <button
-                                    onClick={() => handleVideoreframe(video)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Portrait"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() => handleVideoreframe(video)}
                                   >
-                                    <RectangleVertical
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
-                                      Portrait
-                                    </span>
+                                    <RectangleVertical size={16} />
                                   </button>
-
                                   <button
-                                    onClick={() => handleVideoUpscale(video)}
-                                    className="group/chip flex items-center gap-1 px-2 py-1.5 rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
                                     title="Upscale"
+                                    className="cursor-pointer text-black dark:text-white transition-all"
+                                    onClick={() => handleVideoUpscale(video)}
                                   >
-                                    <Sparkles
-                                      size={16}
-                                      className="text-black dark:text-white"
-                                    />
-                                    <span className="hidden group-hover/chip:inline whitespace-nowrap transition-all duration-200 ease-in-out text-sm text-black dark:text-white">
-                                      Upscale
-                                    </span>
+                                    <Sparkles size={16} />
                                   </button>
-
                                 </div>
                               </div>
                             ))}

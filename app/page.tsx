@@ -41,6 +41,17 @@ export default function Home() {
     // Removed debug log
   }, [currentChatId]);
 
+  // 🔧 NEW: Add mobile-chat-interface class for CSS fallback
+  useEffect(() => {
+    // Add class to body for mobile CSS fallback (browsers that don't support :has())
+    document.body.classList.add("mobile-chat-interface");
+
+    // Cleanup function to remove the class when component unmounts
+    return () => {
+      document.body.classList.remove("mobile-chat-interface");
+    };
+  }, []);
+
   // 🔧 NEW: Check if current chat has messages
   useEffect(() => {
     // 🔧 OPTIMIZED: Immediately reset hasMessages when chatId changes to prevent glitches
