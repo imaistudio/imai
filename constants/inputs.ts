@@ -31,23 +31,33 @@ export type ProductType =
   | "glasses"
   | "watches";
 
-// 🔧 NEW: Tool types
+// 🔧 Tool types organized by category
 export type ToolType =
+  // Image to Image Tools
   | "analyzeimage"
-  | "upscale"
-  | "removebg"
-  | "inpainting"
-  | "clarityupscaler"
-  | "objectremoval"
-  | "mirrormagic"
-  | "reframe"
-  | "timeofday"
-  | "promptenhancer"
-  | "elementaldesign"
-  | "scenecomposition"
-  | "flowdesign"
   | "chainofzoom"
-  | "pairing";
+  | "clarityupscaler"
+  | "elementaldesign"
+  | "flowdesign"
+  | "mirrormagic"
+  | "pairing"
+  | "reframe"
+  | "removebg"
+  | "scenecomposition"
+  | "timeofday"
+  | "upscale"
+  // Image to Video Tools
+  | "seedancevideo-floating"
+  | "seedancevideo-liquid"
+  | "seedancevideo-misty"
+  | "seedancevideo-noir"
+  | "seedancevideo-premium"
+  | "seedancevideo-turntable"
+  // Video to Video Tools
+  | "videooutpainting"
+  | "videoreframe"
+  | "videosound"
+  | "videoupscaler";
 
 export interface ProductImages {
   [key: string]: string[];
@@ -102,59 +112,89 @@ export const designLabels: Record<string, string> = labelsData.designs;
 // Color Labels (supports HTML tags like <br>)
 export const colorLabels: Record<string, string> = labelsData.colors;
 
-// 🔧 NEW: Tools data structure
+// 🔧 Tools data structure organized by category
 export const defaultToolImages: Record<ToolType, string[]> = {
+  // Image to Image Tools
   analyzeimage: ["lucide:eye"],
-  upscale: ["lucide:zoom-in"],
-  removebg: ["lucide:scissors"],
-  inpainting: ["lucide:paintbrush"],
-  clarityupscaler: ["lucide:focus"],
-  objectremoval: ["lucide:eraser"],
-  mirrormagic: ["lucide:copy"],
-  reframe: ["lucide:crop"],
-  timeofday: ["lucide:clock"],
-  promptenhancer: ["lucide:wand"],
-  elementaldesign: ["lucide:layers"],
-  scenecomposition: ["lucide:layout"],
-  flowdesign: ["lucide:git-branch"],
   chainofzoom: ["lucide:search"],
+  clarityupscaler: ["lucide:focus"],
+  elementaldesign: ["lucide:layers"],
+  flowdesign: ["lucide:git-branch"],
+  mirrormagic: ["lucide:copy"],
   pairing: ["lucide:link"],
+  reframe: ["lucide:crop"],
+  removebg: ["lucide:scissors"],
+  scenecomposition: ["lucide:layout"],
+  timeofday: ["lucide:clock"],
+  upscale: ["lucide:zoom-in"],
+  // Image to Video Tools
+  "seedancevideo-floating": ["lucide:video"],
+  "seedancevideo-liquid": ["lucide:video"],
+  "seedancevideo-misty": ["lucide:video"],
+  "seedancevideo-noir": ["lucide:video"],
+  "seedancevideo-premium": ["lucide:video"],
+  "seedancevideo-turntable": ["lucide:video"],
+  // Video to Video Tools
+  videooutpainting: ["lucide:expand"],
+  videoreframe: ["lucide:crop"],
+  videosound: ["lucide:volume-2"],
+  videoupscaler: ["lucide:zoom-in"],
 };
 
-// 🔧 NEW: Tool placeholders (icon names for lucide icons)
+// 🔧 Tool placeholders (icon names for lucide icons)
 export const toolPlaceholders: Record<ToolType, string> = {
+  // Image to Image Tools
   analyzeimage: "lucide:eye",
-  upscale: "lucide:zoom-in", 
-  removebg: "lucide:scissors",
-  inpainting: "lucide:paintbrush",
-  clarityupscaler: "lucide:focus",
-  objectremoval: "lucide:eraser",
-  mirrormagic: "lucide:copy",
-  reframe: "lucide:crop",
-  timeofday: "lucide:clock",
-  promptenhancer: "lucide:wand",
-  elementaldesign: "lucide:layers",
-  scenecomposition: "lucide:layout",
-  flowdesign: "lucide:git-branch",
   chainofzoom: "lucide:search",
+  clarityupscaler: "lucide:focus",
+  elementaldesign: "lucide:layers",
+  flowdesign: "lucide:git-branch",
+  mirrormagic: "lucide:copy",
   pairing: "lucide:link",
+  reframe: "lucide:crop",
+  removebg: "lucide:scissors",
+  scenecomposition: "lucide:layout",
+  timeofday: "lucide:clock",
+  upscale: "lucide:zoom-in",
+  // Image to Video Tools
+  "seedancevideo-floating": "lucide:video",
+  "seedancevideo-liquid": "lucide:video",
+  "seedancevideo-misty": "lucide:video",
+  "seedancevideo-noir": "lucide:video",
+  "seedancevideo-premium": "lucide:video",
+  "seedancevideo-turntable": "lucide:video",
+  // Video to Video Tools
+  videooutpainting: "lucide:expand",
+  videoreframe: "lucide:crop",
+  videosound: "lucide:volume-2",
+  videoupscaler: "lucide:zoom-in",
 };
 
-// 🔧 NEW: Tool labels for display
+// 🔧 Tool labels for display
 export const toolLabels: Record<ToolType, string> = {
+  // Image to Image Tools
   analyzeimage: "Analyze<br>Image",
-  upscale: "Upscale<br>Image",
-  removebg: "Remove<br>Background", 
-  inpainting: "InPainting",
-  clarityupscaler: "Clarity<br>Upscaler",
-  objectremoval: "Object<br>Removal",
-  mirrormagic: "Mirror<br>Magic",
-  reframe: "ReFrame",
-  timeofday: "Time of<br>Day",
-  promptenhancer: "Prompt<br>Enhancer",
-  elementaldesign: "Elemental<br>Design",
-  scenecomposition: "Scene<br>Composition",
-  flowdesign: "Flow<br>Design",
   chainofzoom: "Chain of<br>Zoom",
+  clarityupscaler: "Clarity<br>Upscaler",
+  elementaldesign: "Elemental<br>Design",
+  flowdesign: "Flow<br>Design",
+  mirrormagic: "Mirror<br>Magic",
   pairing: "AI<br>Pairing",
+  reframe: "ReFrame",
+  removebg: "Remove<br>Background",
+  scenecomposition: "Scene<br>Composition",
+  timeofday: "Time of<br>Day",
+  upscale: "Upscale<br>Image",
+  // Image to Video Tools
+  "seedancevideo-floating": "Floating<br>Video",
+  "seedancevideo-liquid": "Liquid<br>Video",
+  "seedancevideo-misty": "Misty<br>Video",
+  "seedancevideo-noir": "Noir<br>Video",
+  "seedancevideo-premium": "Premium<br>Video",
+  "seedancevideo-turntable": "Turntable<br>Video",
+  // Video to Video Tools
+  videooutpainting: "Video<br>Outpainting",
+  videoreframe: "Video<br>Reframe",
+  videosound: "Video<br>Sound",
+  videoupscaler: "Video<br>Upscaler",
 };

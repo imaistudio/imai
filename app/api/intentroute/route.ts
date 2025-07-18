@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { claudeLLM } from "@/lib/claudeLLM";
+import { handleToolcall } from "./toolcall-router";
 
 import { getAuth } from "firebase-admin/auth";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
@@ -6166,6 +6167,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
     const entries = Array.from(formData.entries());
+
+    // 🛠️ Check for direct toolcall routing (bypass all complex logic)
+    const toolcall = formData.get("toolcall") as string | null;
+    if (toolcall) {
+      console.log(`🎯 Direct toolcall detected: ${toolcall} - routing to toolcall handler`);
+      return await handleToolcall(formData);
+    }
 
     // 1) Extract and validate userid and chatId
     let userid = (formData.get("userid") as string | null)?.trim();
