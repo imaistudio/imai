@@ -215,17 +215,42 @@ export async function handleToolcall(formData: FormData): Promise<NextResponse> 
       message = "Image enhanced with improved clarity and resolution";
     }
     
-    // Return standardized response
+    // 🔧 CRITICAL FIX: Sanitize result for Firebase-safe storage
+    const sanitizeForFirebase = (obj: any): any => {
+      if (!obj || typeof obj !== 'object') return obj;
+      
+      const sanitized: any = {};
+      
+      for (const [key, value] of Object.entries(obj)) {
+        if (value === null || value === undefined) {
+          continue;
+        } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          sanitized[key] = value;
+        } else if (Array.isArray(value)) {
+          // Sanitize array elements
+          sanitized[key] = value
+            .filter(item => item !== null && item !== undefined)
+            .map(item => typeof item === 'object' ? JSON.stringify(item).substring(0, 500) : String(item));
+        } else if (typeof value === 'object') {
+          // Convert complex objects to JSON strings to avoid nested entity issues
+          sanitized[key] = JSON.stringify(value).substring(0, 1000);
+        }
+      }
+      
+      return sanitized;
+    };
+
+    // Return standardized response with sanitized result
     return NextResponse.json({
       status: result.status || "success",
       message: message,
-      result: result,
+      result: sanitizeForFirebase(result), // 🔧 FIX: Sanitized result
       images: images.length > 0 ? images : (result.images || (result.imageUrl ? [result.imageUrl] : [])),
       videos: result.videos || (result.videoUrl ? [result.videoUrl] : []),
       intent: {
         intent: `Execute ${toolcall} tool`,
         endpoint: toolcall,
-        parameters: toolParams || {},
+        parameters: JSON.stringify(toolParams || {}), // 🔧 FIX: Convert to JSON string
         confidence: 1.0,
         explanation: `Direct tool execution: ${toolcall}`,
       },
