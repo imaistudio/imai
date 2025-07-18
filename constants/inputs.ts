@@ -124,7 +124,7 @@ export const defaultToolImages: Record<ToolType, string[]> = {
 // 🔧 NEW: Tool placeholders (icon names for lucide icons)
 export const toolPlaceholders: Record<ToolType, string> = {
   analyzeimage: "lucide:eye",
-  upscale: "lucide:zoom-in", 
+  upscale: "lucide:zoom-in",
   removebg: "lucide:scissors",
   inpainting: "lucide:paintbrush",
   clarityupscaler: "lucide:focus",
@@ -144,7 +144,7 @@ export const toolPlaceholders: Record<ToolType, string> = {
 export const toolLabels: Record<ToolType, string> = {
   analyzeimage: "Analyze<br>Image",
   upscale: "Upscale<br>Image",
-  removebg: "Remove<br>Background", 
+  removebg: "Remove<br>Background",
   inpainting: "InPainting",
   clarityupscaler: "Clarity<br>Upscaler",
   objectremoval: "Object<br>Removal",

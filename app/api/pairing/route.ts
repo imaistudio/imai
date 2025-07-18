@@ -30,7 +30,9 @@ if (!getApps().length) {
       firebaseInitialized = true;
       console.log("🔥 Firebase initialized successfully for pairing route");
     } else {
-      console.log("🔥 Firebase disabled in pairing route - missing credentials");
+      console.log(
+        "🔥 Firebase disabled in pairing route - missing credentials",
+      );
     }
   } catch (error) {
     console.error("🔥 Firebase initialization error in pairing route:", error);
@@ -92,12 +94,10 @@ async function uploadBufferToFirebase(
 async function fileToJpegBuffer(file: File): Promise<Buffer> {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
-  
+
   // Convert to JPEG using sharp
-  const jpegBuffer = await sharp(buffer)
-    .jpeg({ quality: 90 })
-    .toBuffer();
-  
+  const jpegBuffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+
   return jpegBuffer;
 }
 
@@ -153,14 +153,17 @@ Be specific about materials, colors, shapes, and positioning for the complementa
     });
 
     const analysisResult = response.choices[0].message.content || "";
-    
+
     // Parse the analysis to extract structured information
     const sections = analysisResult.split(/\d\.\s\*\*[^*]+\*\*:/);
-    
+
     return {
       productAnalysis: sections[1]?.trim() || analysisResult,
-      pairingStrategy: sections[2]?.trim() || "Create visual balance and functional harmony",
-      suggestedComplement: sections[3]?.trim() || "Complementary item that enhances the product's appeal",
+      pairingStrategy:
+        sections[2]?.trim() || "Create visual balance and functional harmony",
+      suggestedComplement:
+        sections[3]?.trim() ||
+        "Complementary item that enhances the product's appeal",
     };
   } catch (error) {
     console.error("Error analyzing product for pairing:", error);
@@ -173,16 +176,16 @@ Be specific about materials, colors, shapes, and positioning for the complementa
  */
 function extractProductRequest(message: string, formData: FormData): string {
   const messageLC = message.toLowerCase();
-  
+
   // Check form data parameters first
   const productType = formData.get("product_type") as string;
   const complementTarget = formData.get("complement_target") as string;
   const pairingContext = formData.get("pairing_context") as string;
-  
+
   if (productType && productType !== "undefined") {
     return productType;
   }
-  
+
   // Extract from message
   const productPatterns = [
     /what\s+(?:type\s+of\s+)?(\w+)\s+would\s+complement/i,
@@ -191,42 +194,42 @@ function extractProductRequest(message: string, formData: FormData): string {
     /(\w+)\s+(?:that\s+)?(?:would\s+)?(?:complement|match|pair)/i,
     /find\s+(?:a\s+)?(\w+)\s+(?:that\s+)?(?:goes\s+with|matches)/i,
   ];
-  
+
   for (const pattern of productPatterns) {
     const match = messageLC.match(pattern);
     if (match && match[1]) {
       const product = match[1];
       // Map common variations
       const productMap: { [key: string]: string } = {
-        'pants': 'pants',
-        'pant': 'pants',
-        'trousers': 'pants',
-        'jeans': 'pants',
-        'shirt': 'shirt',
-        'tshirt': 'shirt',
-        't-shirt': 'shirt',
-        'shoes': 'shoes',
-        'shoe': 'shoes',
-        'bag': 'bag',
-        'handbag': 'bag',
-        'purse': 'bag',
-        'jacket': 'jacket',
-        'coat': 'jacket',
-        'accessory': 'accessory',
-        'accessories': 'accessory',
-        'jewelry': 'jewelry',
-        'jewellery': 'jewelry',
-        'watch': 'watch',
-        'belt': 'belt',
-        'scarf': 'scarf',
-        'hat': 'hat',
-        'cap': 'hat',
+        pants: "pants",
+        pant: "pants",
+        trousers: "pants",
+        jeans: "pants",
+        shirt: "shirt",
+        tshirt: "shirt",
+        "t-shirt": "shirt",
+        shoes: "shoes",
+        shoe: "shoes",
+        bag: "bag",
+        handbag: "bag",
+        purse: "bag",
+        jacket: "jacket",
+        coat: "jacket",
+        accessory: "accessory",
+        accessories: "accessory",
+        jewelry: "jewelry",
+        jewellery: "jewelry",
+        watch: "watch",
+        belt: "belt",
+        scarf: "scarf",
+        hat: "hat",
+        cap: "hat",
       };
-      
+
       return productMap[product] || product;
     }
   }
-  
+
   // Default fallback
   return "complementary item";
 }
@@ -241,9 +244,10 @@ function generatePairingPrompt(
   specificRequest: string,
   userMessage: string,
 ): string {
-  const specificProductInstruction = specificRequest && specificRequest !== "complementary item" 
-    ? `\n🎯 SPECIFIC REQUEST: The user specifically asked for "${specificRequest}" - you MUST generate ${specificRequest}, not any other type of product.`
-    : "";
+  const specificProductInstruction =
+    specificRequest && specificRequest !== "complementary item"
+      ? `\n🎯 SPECIFIC REQUEST: The user specifically asked for "${specificRequest}" - you MUST generate ${specificRequest}, not any other type of product.`
+      : "";
 
   return `You are a professional product stylist creating a complementary product that pairs beautifully with the original item.
 
@@ -310,13 +314,13 @@ async function generatePairedImage(
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.statusText}`);
     }
-    
+
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    
+
     // Convert to JPEG if needed
     const jpegBuffer = await sharp(buffer).jpeg({ quality: 95 }).toBuffer();
-    
+
     const file = new File([jpegBuffer], "product.jpg", {
       type: "image/jpeg",
     });
@@ -365,7 +369,8 @@ IMPORTANT: You MUST call the image_generation tool to create ONLY the complement
       throw new Error("No image generation calls found in response");
     }
 
-    const imageData = imageGenerationCalls[0].result || imageGenerationCalls[0].b64_json;
+    const imageData =
+      imageGenerationCalls[0].result || imageGenerationCalls[0].b64_json;
     if (!imageData) {
       throw new Error("No image data found in response");
     }
@@ -415,16 +420,16 @@ Keep the tone professional yet approachable, suitable for product marketing.`;
     });
 
     const result = response.choices[0].message.content || "";
-    
+
     // Parse the structured response
-    const lines = result.split('\n').filter(line => line.trim());
-    
+    const lines = result.split("\n").filter((line) => line.trim());
+
     let description = "";
     let pairingReason = "";
     let useCases: string[] = [];
-    
+
     let currentSection = "";
-    
+
     for (const line of lines) {
       if (line.includes("Description") || line.includes("1.")) {
         currentSection = "description";
@@ -436,7 +441,7 @@ Keep the tone professional yet approachable, suitable for product marketing.`;
         currentSection = "usecases";
         continue;
       }
-      
+
       if (currentSection === "description" && line.trim()) {
         description += line.trim() + " ";
       } else if (currentSection === "reason" && line.trim()) {
@@ -445,18 +450,23 @@ Keep the tone professional yet approachable, suitable for product marketing.`;
         useCases.push(line.trim().replace(/^[-*•]\s*/, ""));
       }
     }
-    
+
     // Fallback if parsing fails
     if (!description) {
       description = result.substring(0, 200) + "...";
     }
     if (!pairingReason) {
-      pairingReason = "These items create visual harmony and functional synergy.";
+      pairingReason =
+        "These items create visual harmony and functional synergy.";
     }
     if (useCases.length === 0) {
-      useCases = ["Perfect for gifting", "Great for home or office", "Ideal for daily use"];
+      useCases = [
+        "Perfect for gifting",
+        "Great for home or office",
+        "Ideal for daily use",
+      ];
     }
-    
+
     return {
       description: description.trim(),
       pairingReason: pairingReason.trim(),
@@ -465,9 +475,15 @@ Keep the tone professional yet approachable, suitable for product marketing.`;
   } catch (error) {
     console.error("Error generating pairing description:", error);
     return {
-      description: "This pairing creates an appealing and functional combination that enhances both products' appeal.",
-      pairingReason: "These items complement each other visually and functionally.",
-      suggestedUseCases: ["Perfect for gifting", "Great for home or office", "Ideal for daily use"],
+      description:
+        "This pairing creates an appealing and functional combination that enhances both products' appeal.",
+      pairingReason:
+        "These items complement each other visually and functionally.",
+      suggestedUseCases: [
+        "Perfect for gifting",
+        "Great for home or office",
+        "Ideal for daily use",
+      ],
     };
   }
 }
@@ -475,7 +491,7 @@ Keep the tone professional yet approachable, suitable for product marketing.`;
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
-    
+
     // Extract and validate userid
     const userid = (formData.get("userid") as string | null)?.trim();
     if (!userid) {
@@ -503,7 +519,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (!productImage && !productImageUrl) {
       return NextResponse.json(
-        { status: "error", error: "Missing product image. Please provide either product_image file or product_image_url." },
+        {
+          status: "error",
+          error:
+            "Missing product image. Please provide either product_image file or product_image_url.",
+        },
         { status: 400 },
       );
     }
@@ -518,17 +538,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Process product image
     let finalProductImageUrl: string;
-    
+
     if (productImage) {
       console.log("📤 Processing uploaded product image file");
       const productBuffer = await fileToJpegBuffer(productImage);
-      
+
       if (firebaseInitialized) {
         const productPath = `${userid}/input/${uuidv4()}.jpg`;
-        finalProductImageUrl = await uploadBufferToFirebase(productBuffer, productPath);
+        finalProductImageUrl = await uploadBufferToFirebase(
+          productBuffer,
+          productPath,
+        );
       } else {
         // Convert to base64 for non-Firebase mode
-        const base64 = productBuffer.toString('base64');
+        const base64 = productBuffer.toString("base64");
         finalProductImageUrl = `data:image/jpeg;base64,${base64}`;
       }
     } else {
@@ -538,7 +561,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Step 1: Analyze the product for pairing
     console.log("🔍 Analyzing product for pairing strategy");
-    const pairingAnalysis = await analyzeProductForPairing(finalProductImageUrl);
+    const pairingAnalysis =
+      await analyzeProductForPairing(finalProductImageUrl);
 
     // Step 2: Generate the pairing prompt with specific request
     console.log("📝 Generating pairing prompt for:", specificRequest);
@@ -552,16 +576,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Step 3: Generate the paired image (complementary product only)
     console.log("🎨 Generating complementary product image with OpenAI");
-    const pairedImageBase64 = await generatePairedImage(pairingPrompt, finalProductImageUrl);
+    const pairedImageBase64 = await generatePairedImage(
+      pairingPrompt,
+      finalProductImageUrl,
+    );
 
     // Step 4: Process the generated image
     let finalPairedImageUrl: string;
-    
+
     if (firebaseInitialized) {
       // Upload to Firebase
-      const pairedImageBuffer = Buffer.from(pairedImageBase64, 'base64');
+      const pairedImageBuffer = Buffer.from(pairedImageBase64, "base64");
       const pairedImagePath = `${userid}/output/${uuidv4()}_pairing.jpg`;
-      finalPairedImageUrl = await uploadBufferToFirebase(pairedImageBuffer, pairedImagePath);
+      finalPairedImageUrl = await uploadBufferToFirebase(
+        pairedImageBuffer,
+        pairedImagePath,
+      );
     } else {
       // Return as base64 data URL
       finalPairedImageUrl = `data:image/jpeg;base64,${pairedImageBase64}`;
@@ -588,7 +618,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(response);
   } catch (error) {
     console.error("❌ PAIRING ROUTE: Error processing pairing request:", error);
-    
+
     const response: PairingResponse = {
       status: "error",
       error: error instanceof Error ? error.message : "Unknown error occurred",
@@ -615,8 +645,10 @@ export async function GET(): Promise<NextResponse> {
       },
     },
     examples: {
-      "Via IntentRoute": "POST /api/intentroute with message='pair this product' and product_image file",
-      "Direct API": "POST /api/pairing with userid and product_image/product_image_url",
+      "Via IntentRoute":
+        "POST /api/intentroute with message='pair this product' and product_image file",
+      "Direct API":
+        "POST /api/pairing with userid and product_image/product_image_url",
     },
   });
-} 
+}

@@ -60,7 +60,7 @@ export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
   return (
     <>
       <nav className="md:hidden flex items-center justify-between px-4 py-2 bg-white dark:bg-black">
-   <button onClick={() => setIsOpen(true)} className="p-2">
+        <button onClick={() => setIsOpen(true)} className="p-2">
           <Menu size={24} />
         </button>
 
