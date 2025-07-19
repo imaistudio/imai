@@ -109,7 +109,9 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
     // Fetch the image to check its size
     const response = await fetch(imageUrl);
     if (!response.ok) {
-      console.warn(`Failed to fetch image for size check: ${response.statusText}`);
+      console.warn(
+        `Failed to fetch image for size check: ${response.statusText}`,
+      );
       return imageUrl; // Return original URL if we can't fetch
     }
 
@@ -139,7 +141,9 @@ async function resizeImageIfNeeded(imageUrl: string): Promise<string> {
     const base64 = resizedBuffer.toString("base64");
     const resizedUrl = `data:image/jpeg;base64,${base64}`;
 
-    console.log(`✅ Image resized from ${sizeMB.toFixed(2)}MB to ${(resizedBuffer.length / (1024 * 1024)).toFixed(2)}MB`);
+    console.log(
+      `✅ Image resized from ${sizeMB.toFixed(2)}MB to ${(resizedBuffer.length / (1024 * 1024)).toFixed(2)}MB`,
+    );
     return resizedUrl;
   } catch (error) {
     console.error("Error checking/resizing image:", error);

@@ -68,9 +68,11 @@ export async function POST(request: NextRequest) {
     console.log(`Arguments: video_url="${videoUrl}", scale=${scale}`);
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('videoupscaler');
+    const rateLimitCheck = await falAILimiter.checkLimit("videoupscaler");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for videoupscaler. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for videoupscaler. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -94,7 +96,7 @@ export async function POST(request: NextRequest) {
           },
         });
       },
-      "Video upscaling is temporarily delayed due to high demand. Please wait..."
+      "Video upscaling is temporarily delayed due to high demand. Please wait...",
     );
 
     console.log("✅ Video upscaling completed successfully");

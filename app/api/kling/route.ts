@@ -68,9 +68,11 @@ export async function POST(request: NextRequest) {
     };
 
     // Check rate limit before making API call
-    const rateLimitCheck = await anthropicLimiter.checkLimit('kling');
+    const rateLimitCheck = await anthropicLimiter.checkLimit("kling");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for kling. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for kling. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -78,19 +80,16 @@ export async function POST(request: NextRequest) {
       anthropicQueue,
       async () => {
         console.log("🚀 Executing Kling AI request");
-        return await fetch(
-          "https://api.klingai.com/v1/videos/image2video",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(klingPayload),
+        return await fetch("https://api.klingai.com/v1/videos/image2video", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify(klingPayload),
+        });
       },
-      "Video generation is temporarily delayed due to high demand. Please wait..."
+      "Video generation is temporarily delayed due to high demand. Please wait...",
     );
 
     const data = await response.json();

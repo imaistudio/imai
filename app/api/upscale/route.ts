@@ -68,9 +68,11 @@ async function upscaleImage(
     }
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('upscale');
+    const rateLimitCheck = await falAILimiter.checkLimit("upscale");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for upscale. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for upscale. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -94,7 +96,7 @@ async function upscaleImage(
           },
         });
       },
-      "Image upscaling is temporarily delayed due to high demand. Please wait..."
+      "Image upscaling is temporarily delayed due to high demand. Please wait...",
     );
 
     console.log("Processing completed successfully!");

@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
-import { openaiQueue, anthropicQueue, queuedAPICall } from "@/lib/request-queue";
+import {
+  openaiQueue,
+  anthropicQueue,
+  queuedAPICall,
+} from "@/lib/request-queue";
 import { openAILimiter, anthropicLimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes)
@@ -50,16 +54,22 @@ async function analyzeImageWithGPT4Vision(imageUrl: string): Promise<string> {
     console.log("[DEBUG] Analyzing image with GPT-4 Vision...");
 
     // Check rate limit before making API call
-    const rateLimitCheck = await openAILimiter.checkLimit('mirrormagic-analyze');
+    const rateLimitCheck = await openAILimiter.checkLimit(
+      "mirrormagic-analyze",
+    );
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for mirrormagic-analyze. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for mirrormagic-analyze. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
     const response = await queuedAPICall(
       openaiQueue,
       async () => {
-        console.log("🚀 Executing OpenAI image analysis request for mirrormagic");
+        console.log(
+          "🚀 Executing OpenAI image analysis request for mirrormagic",
+        );
         return await openai.chat.completions.create({
           model: "gpt-4.1",
           messages: [
@@ -82,7 +92,7 @@ async function analyzeImageWithGPT4Vision(imageUrl: string): Promise<string> {
           max_tokens: 500,
         });
       },
-      "Image analysis is temporarily delayed due to high demand. Please wait..."
+      "Image analysis is temporarily delayed due to high demand. Please wait...",
     );
 
     const analysis =

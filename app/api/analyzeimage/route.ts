@@ -125,9 +125,11 @@ export async function POST(request: NextRequest) {
     console.log("🔍 Starting image analysis with OpenAI GPT-4 Vision...");
 
     // Check rate limit before making API call
-    const rateLimitCheck = await openAILimiter.checkLimit('analyzeimage');
+    const rateLimitCheck = await openAILimiter.checkLimit("analyzeimage");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for analyzeimage. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for analyzeimage. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -152,7 +154,7 @@ export async function POST(request: NextRequest) {
           max_tokens: 500,
         });
       },
-      "Image analysis is temporarily delayed due to high demand. Please wait..."
+      "Image analysis is temporarily delayed due to high demand. Please wait...",
     );
 
     const analysis = response.choices[0]?.message?.content || "{}";

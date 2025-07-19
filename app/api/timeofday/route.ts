@@ -14,7 +14,12 @@ fal.config({
 
 // 🔧 Firebase initialization check
 const firebaseInitialized = !!process.env.FIREBASE_PRIVATE_KEY;
-console.log("🔥 Firebase initialized -", firebaseInitialized ? "using Firebase Storage for image handling" : "using direct URLs");
+console.log(
+  "🔥 Firebase initialized -",
+  firebaseInitialized
+    ? "using Firebase Storage for image handling"
+    : "using direct URLs",
+);
 
 /**
  * Uploads a Buffer to Firebase Storage under the given path, and returns a signed URL.
@@ -151,9 +156,11 @@ async function changeTimeOfDay(
     if (seed !== undefined) input.seed = seed;
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('timeofday');
+    const rateLimitCheck = await falAILimiter.checkLimit("timeofday");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for timeofday. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for timeofday. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -172,7 +179,7 @@ async function changeTimeOfDay(
           },
         });
       },
-      "Time of day adjustment is temporarily delayed due to high demand. Please wait..."
+      "Time of day adjustment is temporarily delayed due to high demand. Please wait...",
     );
 
     console.log("Processing completed successfully!");
@@ -349,21 +356,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (firebaseInitialized) {
       try {
-        console.log("🔄 Uploading result to Firebase Storage for permanent storage...");
-        
+        console.log(
+          "🔄 Uploading result to Firebase Storage for permanent storage...",
+        );
+
         // Fetch the FAL AI result
         const response = await fetch(result.imageUrl);
         if (!response.ok) {
           throw new Error(`Failed to fetch result: ${response.statusText}`);
         }
-        
+
         const arrayBuffer = await response.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        
+
         // Upload to Firebase Storage
         const outputPath = `${userid}/output/${uuidv4()}_timeofday.jpg`;
         finalImageUrl = await uploadBufferToFirebase(buffer, outputPath);
-        
+
         console.log("✅ Result uploaded to Firebase Storage:", finalImageUrl);
       } catch (error) {
         console.error("❌ Failed to upload to Firebase Storage:", error);

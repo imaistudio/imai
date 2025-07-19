@@ -1975,9 +1975,11 @@ async function composeProductWithGPTImage(
       imageParams.output_compression = options.output_compression;
 
     // Check rate limit before making API call
-    const rateLimitCheck = await openAILimiter.checkLimit('imagegeneration');
+    const rateLimitCheck = await openAILimiter.checkLimit("imagegeneration");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for image generation. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for image generation. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -1987,7 +1989,7 @@ async function composeProductWithGPTImage(
         console.log("🚀 Executing OpenAI image generation request");
         return await openai.images.generate(imageParams);
       },
-      "Image generation is temporarily delayed due to high demand. Please wait..."
+      "Image generation is temporarily delayed due to high demand. Please wait...",
     );
 
     if (!response.data || response.data.length === 0) {
@@ -2790,8 +2792,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const hasActualProduct = !!productImage || !!productImageUrl; // Only actual product inputs, not presets
 
     // 🔧 CRITICAL FIX: Handle direct product uploads without reference for product_color workflow
-    if (!actualReferenceUrl && productImageUrl && workflow_type === "product_color") {
-      console.log("🔧 PRODUCT_COLOR FIX: Setting product image for direct upload without reference");
+    if (
+      !actualReferenceUrl &&
+      productImageUrl &&
+      workflow_type === "product_color"
+    ) {
+      console.log(
+        "🔧 PRODUCT_COLOR FIX: Setting product image for direct upload without reference",
+      );
       overrideInputs.useReferenceAsProduct = true;
       overrideInputs.skipProductImageProcessing = false;
     }

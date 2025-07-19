@@ -76,9 +76,11 @@ async function performChainOfZoom(
     };
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('chainofzoom');
+    const rateLimitCheck = await falAILimiter.checkLimit("chainofzoom");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for chainofzoom. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for chainofzoom. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -97,7 +99,7 @@ async function performChainOfZoom(
           },
         });
       },
-      "Chain of zoom processing is temporarily delayed due to high demand. Please wait..."
+      "Chain of zoom processing is temporarily delayed due to high demand. Please wait...",
     );
 
     console.log("Chain of zoom processing completed successfully!");

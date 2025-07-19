@@ -284,9 +284,11 @@ export async function POST(request: NextRequest) {
     );
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('videoreframe');
+    const rateLimitCheck = await falAILimiter.checkLimit("videoreframe");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for videoreframe. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for videoreframe. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -305,7 +307,7 @@ export async function POST(request: NextRequest) {
           },
         });
       },
-      "Video reframing is temporarily delayed due to high demand. Please wait..."
+      "Video reframing is temporarily delayed due to high demand. Please wait...",
     );
 
     console.log("Video reframing completed successfully!");

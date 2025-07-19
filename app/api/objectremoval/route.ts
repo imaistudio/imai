@@ -165,9 +165,11 @@ export async function POST(request: NextRequest) {
     );
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('objectremoval');
+    const rateLimitCheck = await falAILimiter.checkLimit("objectremoval");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for objectremoval. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for objectremoval. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -186,7 +188,7 @@ export async function POST(request: NextRequest) {
           },
         });
       },
-      "Object removal is temporarily delayed due to high demand. Please wait..."
+      "Object removal is temporarily delayed due to high demand. Please wait...",
     );
 
     console.log("Processing completed successfully!");

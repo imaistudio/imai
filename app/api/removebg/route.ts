@@ -15,50 +15,56 @@ fal.config({
 // Initialize Firebase Admin (for server-side operations)
 if (!getApps().length) {
   try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}');
+    const serviceAccount = JSON.parse(
+      process.env.FIREBASE_SERVICE_ACCOUNT_KEY || "{}",
+    );
     initializeApp({
       credential: cert(serviceAccount),
       storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
-    console.log('🔥 Firebase Admin initialized for removebg tool');
+    console.log("🔥 Firebase Admin initialized for removebg tool");
   } catch (error) {
-    console.error('❌ Firebase Admin initialization failed:', error);
+    console.error("❌ Firebase Admin initialization failed:", error);
   }
 }
 
 /**
  * Upload buffer to Firebase Storage and return permanent URL
  */
-async function uploadBufferToFirebase(buffer: Buffer, userid: string, filename: string): Promise<string> {
+async function uploadBufferToFirebase(
+  buffer: Buffer,
+  userid: string,
+  filename: string,
+): Promise<string> {
   try {
     const storage = getAdminStorage();
     const bucket = storage.bucket();
     const filePath = `${userid}/output/${filename}`;
     const file = bucket.file(filePath);
-    
+
     console.log(`📤 Uploading to Firebase Storage: ${filePath}`);
-    
+
     // Upload the buffer
     await file.save(buffer, {
       metadata: {
-        contentType: 'image/png',
+        contentType: "image/png",
         metadata: {
-          source: 'removebg_tool',
+          source: "removebg_tool",
           uploadedAt: new Date().toISOString(),
         },
       },
     });
-    
+
     // Make the file publicly accessible
     await file.makePublic();
-    
+
     // Get the public URL
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
     console.log(`✅ File uploaded successfully: ${publicUrl}`);
-    
+
     return publicUrl;
   } catch (error) {
-    console.error('❌ Firebase upload failed:', error);
+    console.error("❌ Firebase upload failed:", error);
     throw error;
   }
 }
@@ -195,8 +201,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (processedImageUrl.startsWith("data:image")) {
       // Already base64 - extract buffer and upload
-      const base64Data = processedImageUrl.split(',')[1];
-      const buffer = Buffer.from(base64Data, 'base64');
+      const base64Data = processedImageUrl.split(",")[1];
+      const buffer = Buffer.from(base64Data, "base64");
       const filename = `removebg_${Date.now()}.png`;
       finalImageUrl = await uploadBufferToFirebase(buffer, userid, filename);
     } else {
@@ -211,7 +217,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const filename = `removebg_${Date.now()}.png`;
-      
+
       console.log("📤 Uploading to Firebase Storage...");
       finalImageUrl = await uploadBufferToFirebase(buffer, userid, filename);
     }

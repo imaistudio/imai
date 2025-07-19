@@ -1521,16 +1521,17 @@ export default function ChatWindow({
           // 🔧 CRITICAL FIX: Sanitize recommendations for Firebase
           const sanitizeRecommendations = (recommendations: any[]) => {
             if (!Array.isArray(recommendations)) return [];
-            
+
             return recommendations.map((rec) => ({
               id: String(rec.id || ""),
               label: String(rec.label || ""),
               intent: String(rec.intent || ""),
               endpoint: String(rec.endpoint || ""),
               // 🔧 FIX: Convert parameters object to simple string to avoid nested entity issues
-              parameters: typeof rec.parameters === 'object' 
-                ? JSON.stringify(rec.parameters || {}) 
-                : String(rec.parameters || "{}"),
+              parameters:
+                typeof rec.parameters === "object"
+                  ? JSON.stringify(rec.parameters || {})
+                  : String(rec.parameters || "{}"),
               icon: String(rec.icon || ""),
             }));
           };
@@ -1548,7 +1549,9 @@ export default function ChatWindow({
                 : undefined,
             chatId: chatId,
             createdAt: Timestamp.now(),
-            recommendations: sanitizeRecommendations(result.recommendations || []) as any, // 🔧 FIX: Type assertion for Firebase-safe version
+            recommendations: sanitizeRecommendations(
+              result.recommendations || [],
+            ) as any, // 🔧 FIX: Type assertion for Firebase-safe version
           };
 
           // Replace loading message with success message

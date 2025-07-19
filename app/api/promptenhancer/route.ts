@@ -214,9 +214,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check rate limit before making API call
-    const rateLimitCheck = await anthropicLimiter.checkLimit('promptenhancer');
+    const rateLimitCheck = await anthropicLimiter.checkLimit("promptenhancer");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for promptenhancer. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for promptenhancer. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -226,7 +228,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log("🚀 Executing Anthropic prompt enhancement request");
         return await enhancePromptWithClaude(originalPrompt, enhancementType);
       },
-      "Prompt enhancement is temporarily delayed due to high demand. Please wait..."
+      "Prompt enhancement is temporarily delayed due to high demand. Please wait...",
     );
 
     enhancementCache.set(cacheKey, {

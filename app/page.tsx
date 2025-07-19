@@ -608,7 +608,7 @@ export default function Home() {
       if (data.toolcall) {
         formData.append("toolcall", data.toolcall);
         console.log("🛠️ Added toolcall parameter:", data.toolcall);
-        
+
         // Also add product parameter that toolcall router expects
         if (data.product) {
           formData.append("product", data.product);
@@ -758,16 +758,17 @@ export default function Home() {
           // 🔧 CRITICAL FIX: Sanitize recommendations for Firebase
           const sanitizeRecommendations = (recommendations: any[]) => {
             if (!Array.isArray(recommendations)) return [];
-            
+
             return recommendations.map((rec) => ({
               id: String(rec.id || ""),
               label: String(rec.label || ""),
               intent: String(rec.intent || ""),
               endpoint: String(rec.endpoint || ""),
               // 🔧 FIX: Convert parameters object to simple string to avoid nested entity issues
-              parameters: typeof rec.parameters === 'object' 
-                ? JSON.stringify(rec.parameters || {}) 
-                : String(rec.parameters || "{}"),
+              parameters:
+                typeof rec.parameters === "object"
+                  ? JSON.stringify(rec.parameters || {})
+                  : String(rec.parameters || "{}"),
               icon: String(rec.icon || ""),
             }));
           };
@@ -788,7 +789,9 @@ export default function Home() {
             videos: agentMessage.videos.filter(
               (video) => typeof video === "string" && video.length > 0,
             ), // 🔧 NEW: Added videos array
-            recommendations: sanitizeRecommendations(result.recommendations || []) as any, // 🔧 FIX: Sanitized recommendations
+            recommendations: sanitizeRecommendations(
+              result.recommendations || [],
+            ) as any, // 🔧 FIX: Sanitized recommendations
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
             userId: String(currentUser.uid),

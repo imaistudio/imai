@@ -93,9 +93,11 @@ async function composeScene(
     if (seed !== undefined) input.seed = seed;
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('scenecomposition');
+    const rateLimitCheck = await falAILimiter.checkLimit("scenecomposition");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for scenecomposition. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for scenecomposition. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -103,21 +105,18 @@ async function composeScene(
       falQueue,
       async () => {
         console.log("🚀 Executing FAL AI scene composition request");
-        return await fal.subscribe(
-          "fal-ai/image-editing/scene-composition",
-          {
-            input,
-            logs: true,
-            onQueueUpdate: (update) => {
-              if (update.status === "IN_PROGRESS") {
-                console.log("Processing in progress...");
-                update.logs.map((log) => log.message).forEach(console.log);
-              }
-            },
+        return await fal.subscribe("fal-ai/image-editing/scene-composition", {
+          input,
+          logs: true,
+          onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Processing in progress...");
+              update.logs.map((log) => log.message).forEach(console.log);
+            }
           },
-        );
+        });
       },
-      "Scene composition is temporarily delayed due to high demand. Please wait..."
+      "Scene composition is temporarily delayed due to high demand. Please wait...",
     );
 
     console.log("Processing completed successfully!");

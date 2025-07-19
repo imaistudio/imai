@@ -28,9 +28,11 @@ export async function POST(request: Request) {
     }
 
     // Check rate limit before making API call
-    const rateLimitCheck = await falAILimiter.checkLimit('clarityupscaler');
+    const rateLimitCheck = await falAILimiter.checkLimit("clarityupscaler");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for clarityupscaler. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for clarityupscaler. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     // Use queued API call to handle rate limits and retries
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
       falQueue,
       async () => {
         console.log("🚀 Executing FAL AI clarity upscaler request");
-        
+
         // Submit the request to FAL AI
         const response = await fetch(
           "https://110602490-clarity-upscaler.gateway.alpha.fal.ai",
@@ -53,7 +55,8 @@ export async function POST(request: Request) {
               prompt: prompt || "masterpiece, best quality, highres",
               upscale_factor: upscaleFactor || 2,
               negative_prompt:
-                negativePrompt || "(worst quality, low quality, normal quality:2)",
+                negativePrompt ||
+                "(worst quality, low quality, normal quality:2)",
               creativity: creativity || 0.35,
               resemblance: resemblance || 0.6,
               guidance_scale: guidanceScale || 4,
@@ -74,7 +77,7 @@ export async function POST(request: Request) {
 
         return await response.json();
       },
-      "Image clarity enhancement is temporarily delayed due to high demand. Please wait..."
+      "Image clarity enhancement is temporarily delayed due to high demand. Please wait...",
     );
     console.log("FAL AI API response:", result);
 

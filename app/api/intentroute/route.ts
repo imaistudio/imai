@@ -949,8 +949,11 @@ async function analyzeIntent(
 
         // 🔧 PRIORITY 1: If ANY presets are involved with uploads or references, use preset_design workflow
         // EXCEPT for specific product_color cases that should preserve existing designs
-        if (hasDesignPreset || hasProductPreset || 
-            (hasColorPreset && !(workflowType === "product_color"))) {
+        if (
+          hasDesignPreset ||
+          hasProductPreset ||
+          (hasColorPreset && !(workflowType === "product_color"))
+        ) {
           workflowType = "preset_design"; // Preset + upload/reference combinations
           console.log(
             "🎯 Presets detected with uploads/references - using preset_design workflow",
@@ -3761,9 +3764,11 @@ ${
 Follow system instructions and return intent JSON only.`;
 
     // Check rate limit before making API call
-    const rateLimitCheck = await anthropicLimiter.checkLimit('intentanalysis');
+    const rateLimitCheck = await anthropicLimiter.checkLimit("intentanalysis");
     if (!rateLimitCheck.allowed) {
-      console.log(`⚠️ Rate limit hit for intent analysis. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+      console.log(
+        `⚠️ Rate limit hit for intent analysis. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
+      );
     }
 
     let intentAnalysis;
@@ -3785,7 +3790,7 @@ Follow system instructions and return intent JSON only.`;
             ],
           });
         },
-        "Intent analysis is temporarily delayed due to high demand. Please wait..."
+        "Intent analysis is temporarily delayed due to high demand. Please wait...",
       );
 
       intentAnalysis = await parseClaudeIntent(response);
@@ -3807,12 +3812,13 @@ Follow system instructions and return intent JSON only.`;
             messages: [
               {
                 role: "user",
-                content: prompt + "\n\nPlease ensure your response is valid JSON.",
+                content:
+                  prompt + "\n\nPlease ensure your response is valid JSON.",
               },
             ],
           });
         },
-        "Intent analysis retry is temporarily delayed due to high demand. Please wait..."
+        "Intent analysis retry is temporarily delayed due to high demand. Please wait...",
       );
 
       intentAnalysis = await parseClaudeIntent(retryResponse);
@@ -6209,7 +6215,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 🛠️ Check for direct toolcall routing (bypass all complex logic)
     const toolcall = formData.get("toolcall") as string | null;
     if (toolcall) {
-      console.log(`🎯 Direct toolcall detected: ${toolcall} - routing to toolcall handler`);
+      console.log(
+        `🎯 Direct toolcall detected: ${toolcall} - routing to toolcall handler`,
+      );
       return await handleToolcall(formData);
     }
 
@@ -7435,26 +7443,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const finalHasDesign = allImageKeys.some(
           (key) => key.includes("design_image") || key === "design_image",
         );
-        // 🔧 CRITICAL FIX: Include preset detection in color check  
+        // 🔧 CRITICAL FIX: Include preset detection in color check
         const hasColorPreset = !!formData.get("preset_color_palette");
-        const finalHasColor = allImageKeys.some(
-          (key) => key.includes("color_image") || key === "color_image",
-        ) || hasColorPreset;
-        
+        const finalHasColor =
+          allImageKeys.some(
+            (key) => key.includes("color_image") || key === "color_image",
+          ) || hasColorPreset;
+
         console.log(
           `🎯 FINAL WORKFLOW: ${intentAnalysis.parameters.workflow_type} with slots: product=${finalHasProduct}, design=${finalHasDesign}, color=${finalHasColor} (uploaded=${!hasColorPreset}, preset=${hasColorPreset})`,
         );
 
         // 🔧 CRITICAL FIX: Don't override preset-based workflows - they have specific handling logic
-        const isPresetWorkflow = intentAnalysis.parameters.workflow_type === "preset_design" || 
-                                intentAnalysis.parameters.workflow_type === "color_prompt" ||
-                                intentAnalysis.parameters.workflow_type === "design_prompt" ||
-                                intentAnalysis.parameters.workflow_type === "product_color"; // Protect recoloring workflow
-        
+        const isPresetWorkflow =
+          intentAnalysis.parameters.workflow_type === "preset_design" ||
+          intentAnalysis.parameters.workflow_type === "color_prompt" ||
+          intentAnalysis.parameters.workflow_type === "design_prompt" ||
+          intentAnalysis.parameters.workflow_type === "product_color"; // Protect recoloring workflow
+
         if (!isPresetWorkflow) {
           // Only apply workflow override for non-preset workflows
           if (finalHasProduct && finalHasDesign && finalHasColor) {
-            if (intentAnalysis.parameters.workflow_type !== "full_composition") {
+            if (
+              intentAnalysis.parameters.workflow_type !== "full_composition"
+            ) {
               const oldWorkflow = intentAnalysis.parameters.workflow_type;
               intentAnalysis.parameters.workflow_type = "full_composition";
               console.log(
@@ -7479,12 +7491,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             hasColorPreset,
             hasDesignPreset,
             hasDesignImage: !!imageUrls.design_image,
-            imageUrlsCount: Object.keys(imageUrls).length
+            imageUrlsCount: Object.keys(imageUrls).length,
           });
-          
-          if (intentAnalysis.parameters.workflow_type === "preset_design" && 
-              referenceResult?.imageUrl && hasColorPreset &&
-              !hasDesignPreset) {
+
+          if (
+            intentAnalysis.parameters.workflow_type === "preset_design" &&
+            referenceResult?.imageUrl &&
+            hasColorPreset &&
+            !hasDesignPreset
+          ) {
             const oldWorkflow = intentAnalysis.parameters.workflow_type;
             intentAnalysis.parameters.workflow_type = "product_color";
             console.log(
@@ -8366,7 +8381,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           result: apiResult,
           conversation_id: `${userid}_${Date.now()}`,
           ...(allImages.length > 0 && { images: allImages }),
-          ...(responseData.recommendations && { recommendations: responseData.recommendations }),
+          ...(responseData.recommendations && {
+            recommendations: responseData.recommendations,
+          }),
         };
 
         // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)
@@ -8428,7 +8445,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       result: apiResult,
       conversation_id: `${userid}_${Date.now()}`,
       ...(allImages.length > 0 && { images: allImages }),
-      ...(responseData.recommendations && { recommendations: responseData.recommendations }),
+      ...(responseData.recommendations && {
+        recommendations: responseData.recommendations,
+      }),
     };
 
     // 🔧 CRITICAL FIX: Only include allStepResults if it exists (Firebase doesn't accept undefined)
