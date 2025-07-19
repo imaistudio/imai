@@ -892,10 +892,16 @@ async function analyzeIntent(
       if (!hasProductPreset && !hasDesignPreset && hasColorPreset) {
         // 🔧 CRITICAL FIX: Account for auto-referenced images that become product inputs
         if (hasPreviousResult && !hasExplicitReference) {
-          // Auto-referenced product + color preset = preset_design workflow (handles presets)
-          workflowType = "preset_design";
+          // Auto-referenced product + color preset = product_color workflow (RECOLORING ONLY - preserves design elements)
+          workflowType = "product_color";
           console.log(
-            "🎯 PRESET TYPE: Color preset + auto-referenced product → preset_design workflow",
+            "🎯 PRESET TYPE: Color preset + auto-referenced product → product_color workflow (recoloring only)",
+          );
+        } else if (hasProductImage && !hasDesignImage) {
+          // 🔧 NEW FIX: Product upload + color preset = product_color workflow (preserve existing design, only recolor)
+          workflowType = "product_color";
+          console.log(
+            "🎯 PRESET TYPE: Product upload + color preset → product_color workflow (preserve existing design, only recolor)",
           );
         } else {
           // Only color preset + prompt = color_prompt workflow
@@ -940,10 +946,16 @@ async function analyzeIntent(
         // When actual images exist, check for presets FIRST and override workflow
 
         // 🔧 PRIORITY 1: If ANY presets are involved with uploads or references, use preset_design workflow
-        if (hasDesignPreset || hasColorPreset || hasProductPreset) {
+        // EXCEPT for specific product_color cases that should preserve existing designs
+        if (hasDesignPreset || hasProductPreset || 
+            (hasColorPreset && !(workflowType === "product_color"))) {
           workflowType = "preset_design"; // Preset + upload/reference combinations
           console.log(
             "🎯 Presets detected with uploads/references - using preset_design workflow",
+          );
+        } else if (hasColorPreset && workflowType === "product_color") {
+          console.log(
+            "🎯 Preserving product_color workflow - color preset should only recolor, not replace designs",
           );
         }
         // 🔧 PRIORITY 2: Complex reference + upload scenarios (the failing cases!)
@@ -7401,29 +7413,64 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const finalHasDesign = allImageKeys.some(
           (key) => key.includes("design_image") || key === "design_image",
         );
+        // 🔧 CRITICAL FIX: Include preset detection in color check  
+        const hasColorPreset = !!formData.get("preset_color_palette");
         const finalHasColor = allImageKeys.some(
           (key) => key.includes("color_image") || key === "color_image",
-        );
+        ) || hasColorPreset;
+        
         console.log(
-          `🎯 FINAL WORKFLOW: ${intentAnalysis.parameters.workflow_type} with slots: product=${finalHasProduct}, design=${finalHasDesign}, color=${finalHasColor}`,
+          `🎯 FINAL WORKFLOW: ${intentAnalysis.parameters.workflow_type} with slots: product=${finalHasProduct}, design=${finalHasDesign}, color=${finalHasColor} (uploaded=${!hasColorPreset}, preset=${hasColorPreset})`,
         );
 
-        // 🔧 CRITICAL FIX: Additional workflow override for reference-as-design scenarios
-        // When reference is used as design (not product), we need to update workflow type
-        if (finalHasProduct && finalHasDesign && finalHasColor) {
-          if (intentAnalysis.parameters.workflow_type !== "full_composition") {
-            const oldWorkflow = intentAnalysis.parameters.workflow_type;
-            intentAnalysis.parameters.workflow_type = "full_composition";
-            console.log(
-              `🔧 REFERENCE-AS-DESIGN OVERRIDE: Changed workflow from ${oldWorkflow} to full_composition (has all 3: product + design + color)`,
-            );
+        // 🔧 CRITICAL FIX: Don't override preset-based workflows - they have specific handling logic
+        const isPresetWorkflow = intentAnalysis.parameters.workflow_type === "preset_design" || 
+                                intentAnalysis.parameters.workflow_type === "color_prompt" ||
+                                intentAnalysis.parameters.workflow_type === "design_prompt" ||
+                                intentAnalysis.parameters.workflow_type === "product_color"; // Protect recoloring workflow
+        
+        if (!isPresetWorkflow) {
+          // Only apply workflow override for non-preset workflows
+          if (finalHasProduct && finalHasDesign && finalHasColor) {
+            if (intentAnalysis.parameters.workflow_type !== "full_composition") {
+              const oldWorkflow = intentAnalysis.parameters.workflow_type;
+              intentAnalysis.parameters.workflow_type = "full_composition";
+              console.log(
+                `🔧 REFERENCE-AS-DESIGN OVERRIDE: Changed workflow from ${oldWorkflow} to full_composition (has all 3: product + design + color)`,
+              );
+            }
+          } else if (finalHasProduct && finalHasDesign && !finalHasColor) {
+            if (intentAnalysis.parameters.workflow_type !== "product_design") {
+              const oldWorkflow = intentAnalysis.parameters.workflow_type;
+              intentAnalysis.parameters.workflow_type = "product_design";
+              console.log(
+                `🔧 REFERENCE-AS-DESIGN OVERRIDE: Changed workflow from ${oldWorkflow} to product_design (has product + design)`,
+              );
+            }
           }
-        } else if (finalHasProduct && finalHasDesign && !finalHasColor) {
-          if (intentAnalysis.parameters.workflow_type !== "product_design") {
+        } else {
+          // 🔧 SPECIAL CASE: Reference-as-product + color preset should use product_color workflow
+          // to preserve existing designs (not replace them like preset_design does)
+          console.log("🔧 OVERRIDE DEBUG:", {
+            workflow: intentAnalysis.parameters.workflow_type,
+            hasReference: !!referenceResult?.imageUrl,
+            hasColorPreset,
+            hasDesignPreset,
+            hasDesignImage: !!imageUrls.design_image,
+            imageUrlsCount: Object.keys(imageUrls).length
+          });
+          
+          if (intentAnalysis.parameters.workflow_type === "preset_design" && 
+              referenceResult?.imageUrl && hasColorPreset &&
+              !hasDesignPreset) {
             const oldWorkflow = intentAnalysis.parameters.workflow_type;
-            intentAnalysis.parameters.workflow_type = "product_design";
+            intentAnalysis.parameters.workflow_type = "product_color";
             console.log(
-              `🔧 REFERENCE-AS-DESIGN OVERRIDE: Changed workflow from ${oldWorkflow} to product_design (has product + design)`,
+              `🔧 REFERENCE PRODUCT + COLOR PRESET OVERRIDE: Changed workflow from ${oldWorkflow} to product_color (preserve existing design, only recolor)`,
+            );
+          } else {
+            console.log(
+              `🔒 PRESET WORKFLOW PROTECTION: Skipping override for ${intentAnalysis.parameters.workflow_type} - preserving preset handling logic`,
             );
           }
         }

@@ -1596,30 +1596,17 @@ IMPORTANT: You MUST call the image_generation tool to create the image. Do not r
           );
         }
       }
-      if (imageUrls.color) {
-        try {
-          const fileId = await uploadImageToFiles(imageUrls.color, "color.jpg");
-          inputContent.push({
-            type: "input_image",
-            file_id: fileId,
-          });
-        } catch (err) {
-          console.warn(
-            "Failed to upload color image to Files API, skipping:",
-            err,
-          );
-        }
-      }
       if (imageUrls.color2) {
         try {
           const fileId = await uploadImageToFiles(
             imageUrls.color2,
             "color2.jpg",
           );
-          inputContent.push({
-            type: "input_image",
-            file_id: fileId,
-          });
+          // ❌ ALSO REMOVE: Same issue with secondary color images
+          // inputContent.push({
+          //   type: "input_image",
+          //   file_id: fileId,
+          // });
         } catch (err) {
           console.warn(
             "Failed to upload color2 image to Files API, skipping:",
@@ -2785,6 +2772,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const hasActualColor = !!colorImage || !!colorImageUrl; // Only actual color inputs, not presets
     const hasActualDesign = !!designImage || !!designImageUrl; // Only actual design inputs, not presets
     const hasActualProduct = !!productImage || !!productImageUrl; // Only actual product inputs, not presets
+
+    // 🔧 CRITICAL FIX: Handle direct product uploads without reference for product_color workflow
+    if (!actualReferenceUrl && productImageUrl && workflow_type === "product_color") {
+      console.log("🔧 PRODUCT_COLOR FIX: Setting product image for direct upload without reference");
+      overrideInputs.useReferenceAsProduct = true;
+      overrideInputs.skipProductImageProcessing = false;
+    }
 
     // Use different validation logic for modification workflows vs fresh creation
     const isModificationWorkflow = [
