@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { anthropicQueue, queuedAPICall } from "@/lib/request-queue";
+import { anthropicLimiter } from "@/lib/rate-limiter";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -211,9 +213,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(responsePayload);
     }
 
-    const enhancementResult = await enhancePromptWithClaude(
-      originalPrompt,
-      enhancementType,
+    // Check rate limit before making API call
+    const rateLimitCheck = await anthropicLimiter.checkLimit('promptenhancer');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for promptenhancer. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const enhancementResult = await queuedAPICall(
+      anthropicQueue,
+      async () => {
+        console.log("🚀 Executing Anthropic prompt enhancement request");
+        return await enhancePromptWithClaude(originalPrompt, enhancementType);
+      },
+      "Prompt enhancement is temporarily delayed due to high demand. Please wait..."
     );
 
     enhancementCache.set(cacheKey, {

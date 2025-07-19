@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { claudeLLM } from "@/lib/claudeLLM";
 import { handleToolcall } from "./toolcall-router";
+import { anthropicQueue, queuedAPICall } from "@/lib/request-queue";
+import { anthropicLimiter } from "@/lib/rate-limiter";
 
 import { getAuth } from "firebase-admin/auth";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
@@ -3758,20 +3760,33 @@ ${
 
 Follow system instructions and return intent JSON only.`;
 
+    // Check rate limit before making API call
+    const rateLimitCheck = await anthropicLimiter.checkLimit('intentanalysis');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for intent analysis. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
     let intentAnalysis;
     try {
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
-        temperature: 0.1,
-        system: systemPrompt,
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      });
+      const response = await queuedAPICall(
+        anthropicQueue,
+        async () => {
+          console.log("🚀 Executing Anthropic intent analysis request");
+          return await anthropic.messages.create({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 1024,
+            temperature: 0.1,
+            system: systemPrompt,
+            messages: [
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+          });
+        },
+        "Intent analysis is temporarily delayed due to high demand. Please wait..."
+      );
 
       intentAnalysis = await parseClaudeIntent(response);
     } catch (error) {
@@ -3779,19 +3794,26 @@ Follow system instructions and return intent JSON only.`;
         "⚠️ First attempt failed, retrying Claude intent parsing...",
       );
 
-      // Retry with slightly higher temperature for more creative parsing
-      const retryResponse = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
-        temperature: 0.2, // Slightly higher temperature for retry
-        system: systemPrompt,
-        messages: [
-          {
-            role: "user",
-            content: prompt + "\n\nPlease ensure your response is valid JSON.",
-          },
-        ],
-      });
+      // Retry with queued API call as well
+      const retryResponse = await queuedAPICall(
+        anthropicQueue,
+        async () => {
+          console.log("🚀 Executing Anthropic intent analysis retry request");
+          return await anthropic.messages.create({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 1024,
+            temperature: 0.2, // Slightly higher temperature for retry
+            system: systemPrompt,
+            messages: [
+              {
+                role: "user",
+                content: prompt + "\n\nPlease ensure your response is valid JSON.",
+              },
+            ],
+          });
+        },
+        "Intent analysis retry is temporarily delayed due to high demand. Please wait..."
+      );
 
       intentAnalysis = await parseClaudeIntent(retryResponse);
     }

@@ -108,14 +108,14 @@ export default function App() {
               About
             </Link>
           </NavbarItem>
-          <NavbarItem>
+          {/* <NavbarItem>
             <Link
               className="text-black dark:text-white hover:scale-110 hover:font-semibold"
               href="/pricing"
             >
               Pricing
             </Link>
-          </NavbarItem>
+          </NavbarItem> */}
           <NavbarItem>
             <Link
               className="text-black dark:text-white hover:scale-110 hover:font-semibold"
@@ -124,14 +124,14 @@ export default function App() {
               Contact
             </Link>
           </NavbarItem>
-          <NavbarItem>
+          {/* <NavbarItem>
             <Link
               className="text-black dark:text-white hover:scale-110 hover:font-semibold"
               href="/terms"
             >
               Terms
             </Link>
-          </NavbarItem>
+          </NavbarItem> */}
         </NavbarContent>
 
         <NavbarContent justify="end">

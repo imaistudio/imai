@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
+import { openaiQueue, queuedAPICall } from "@/lib/request-queue";
+import { openAILimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -122,22 +124,36 @@ export async function POST(request: NextRequest) {
 
     console.log("🔍 Starting image analysis with OpenAI GPT-4 Vision...");
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4.1",
-      messages: [
-        {
-          role: "user",
-          content: [
+    // Check rate limit before making API call
+    const rateLimitCheck = await openAILimiter.checkLimit('analyzeimage');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for analyzeimage. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const response = await queuedAPICall(
+      openaiQueue,
+      async () => {
+        console.log("🚀 Executing OpenAI image analysis request");
+        return await openai.chat.completions.create({
+          model: process.env.OPENAI_MODEL || "gpt-4.1",
+          messages: [
             {
-              type: "text",
-              text: "Analyze the design elements in this image. Focus on: colors, shapes, patterns, textures, and composition. Do not mention specific objects or types. Format the response as a JSON object with these categories.",
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Analyze the design elements in this image. Focus on: colors, shapes, patterns, textures, and composition. Do not mention specific objects or types. Format the response as a JSON object with these categories.",
+                },
+                imageInput,
+              ],
             },
-            imageInput,
           ],
-        },
-      ],
-      max_tokens: 500,
-    });
+          max_tokens: 500,
+        });
+      },
+      "Image analysis is temporarily delayed due to high demand. Please wait..."
+    );
 
     const analysis = response.choices[0]?.message?.content || "{}";
     console.log("✅ Image analysis completed");

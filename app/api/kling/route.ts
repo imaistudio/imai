@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { anthropicQueue, queuedAPICall } from "@/lib/request-queue";
+import { anthropicLimiter } from "@/lib/rate-limiter";
 
 interface KlingRequest {
   image: string;
@@ -65,17 +67,30 @@ export async function POST(request: NextRequest) {
       cfg_scale: 0.5,
     };
 
-    // Make request to Kling API
-    const response = await fetch(
-      "https://api.klingai.com/v1/videos/image2video",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(klingPayload),
+    // Check rate limit before making API call
+    const rateLimitCheck = await anthropicLimiter.checkLimit('kling');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for kling. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const response = await queuedAPICall(
+      anthropicQueue,
+      async () => {
+        console.log("🚀 Executing Kling AI request");
+        return await fetch(
+          "https://api.klingai.com/v1/videos/image2video",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(klingPayload),
+          },
+        );
       },
+      "Video generation is temporarily delayed due to high demand. Please wait..."
     );
 
     const data = await response.json();

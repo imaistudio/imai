@@ -108,13 +108,13 @@ export default function MobileNavRest({ onNewChatClick }: MobileNavProps = {}) {
             <Compass size={18} className="mr-3" />
             Explore
           </a>
-          <a
+          {/* <a
             href="/pricing"
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <CreditCard size={18} className="mr-3" />
             Pricing
-          </a>
+          </a> */}
 
           {/* Separator */}
           <div className="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
@@ -126,13 +126,13 @@ export default function MobileNavRest({ onNewChatClick }: MobileNavProps = {}) {
             <HelpCircle size={18} className="mr-3" />
             Help
           </a>
-          <a
+          {/* <a
             href="/terms"
             className="flex items-center px-4 py-3 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <FileText size={18} className="mr-3" />
             Terms
-          </a>
+          </a> */}
         </div>
       </div>
     </>

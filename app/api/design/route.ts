@@ -7,6 +7,8 @@ import sharp from "sharp";
 import { getAuth } from "firebase-admin/auth";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
+import { openaiQueue, queuedAPICall } from "@/lib/request-queue";
+import { openAILimiter } from "@/lib/rate-limiter";
 
 // Add configuration for longer timeout
 export const maxDuration = 300; // 5 minute in seconds
@@ -1972,7 +1974,21 @@ async function composeProductWithGPTImage(
     if (options.output_compression)
       imageParams.output_compression = options.output_compression;
 
-    const response = await openai.images.generate(imageParams);
+    // Check rate limit before making API call
+    const rateLimitCheck = await openAILimiter.checkLimit('imagegeneration');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for image generation. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const response = await queuedAPICall(
+      openaiQueue,
+      async () => {
+        console.log("🚀 Executing OpenAI image generation request");
+        return await openai.images.generate(imageParams);
+      },
+      "Image generation is temporarily delayed due to high demand. Please wait..."
+    );
 
     if (!response.data || response.data.length === 0) {
       throw new Error("No images returned from GPT Image");

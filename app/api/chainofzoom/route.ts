@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { falQueue, queuedAPICall } from "@/lib/request-queue";
+import { falAILimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -73,16 +75,30 @@ async function performChainOfZoom(
       sync_mode,
     };
 
-    const result = await fal.subscribe("fal-ai/chain-of-zoom", {
-      input: falParams,
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Chain of zoom processing in progress...");
-          update.logs?.map((log) => log.message).forEach(console.log);
-        }
+    // Check rate limit before making API call
+    const rateLimitCheck = await falAILimiter.checkLimit('chainofzoom');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for chainofzoom. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const result = await queuedAPICall(
+      falQueue,
+      async () => {
+        console.log("🚀 Executing FAL AI chain of zoom request");
+        return await fal.subscribe("fal-ai/chain-of-zoom", {
+          input: falParams,
+          logs: true,
+          onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Chain of zoom processing in progress...");
+              update.logs?.map((log) => log.message).forEach(console.log);
+            }
+          },
+        });
       },
-    });
+      "Chain of zoom processing is temporarily delayed due to high demand. Please wait..."
+    );
 
     console.log("Chain of zoom processing completed successfully!");
     console.log("Result summary:", {

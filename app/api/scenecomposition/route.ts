@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { falQueue, queuedAPICall } from "@/lib/request-queue";
+import { falAILimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -90,18 +92,32 @@ async function composeScene(
     if (aspect_ratio) input.aspect_ratio = aspect_ratio;
     if (seed !== undefined) input.seed = seed;
 
-    const result = await fal.subscribe(
-      "fal-ai/image-editing/scene-composition",
-      {
-        input,
-        logs: true,
-        onQueueUpdate: (update) => {
-          if (update.status === "IN_PROGRESS") {
-            console.log("Processing in progress...");
-            update.logs.map((log) => log.message).forEach(console.log);
-          }
-        },
+    // Check rate limit before making API call
+    const rateLimitCheck = await falAILimiter.checkLimit('scenecomposition');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for scenecomposition. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const result = await queuedAPICall(
+      falQueue,
+      async () => {
+        console.log("🚀 Executing FAL AI scene composition request");
+        return await fal.subscribe(
+          "fal-ai/image-editing/scene-composition",
+          {
+            input,
+            logs: true,
+            onQueueUpdate: (update) => {
+              if (update.status === "IN_PROGRESS") {
+                console.log("Processing in progress...");
+                update.logs.map((log) => log.message).forEach(console.log);
+              }
+            },
+          },
+        );
       },
+      "Scene composition is temporarily delayed due to high demand. Please wait..."
     );
 
     console.log("Processing completed successfully!");

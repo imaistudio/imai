@@ -125,10 +125,10 @@ export function NavUser() {
               sideOffset={4}
             >
               <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => router.push("/pricing")}>
+                {/* <DropdownMenuItem onClick={() => router.push("/pricing")}>
                   <Gem />
                   Pricing
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem onClick={() => router.push("/explore")}>
                   <Compass />
                   Explore

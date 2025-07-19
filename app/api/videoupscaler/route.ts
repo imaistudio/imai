@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { falQueue, queuedAPICall } from "@/lib/request-queue";
+import { falAILimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes) for video processing
 export const maxDuration = 300;
@@ -65,22 +67,35 @@ export async function POST(request: NextRequest) {
     console.log("Submitting request to FAL AI Video Upscaler...");
     console.log(`Arguments: video_url="${videoUrl}", scale=${scale}`);
 
-    // Submit to fal.ai video upscaler
-    const result = await fal.subscribe("fal-ai/video-upscaler", {
-      input: {
-        video_url: videoUrl,
-        scale: scale,
+    // Check rate limit before making API call
+    const rateLimitCheck = await falAILimiter.checkLimit('videoupscaler');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for videoupscaler. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const result = await queuedAPICall(
+      falQueue,
+      async () => {
+        console.log("🚀 Executing FAL AI video upscaler request");
+        return await fal.subscribe("fal-ai/video-upscaler", {
+          input: {
+            video_url: videoUrl,
+            scale: scale,
+          },
+          logs: true,
+          onQueueUpdate: (update: any) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Video upscaling in progress...");
+              if (update.logs) {
+                update.logs.map((log: any) => log.message).forEach(console.log);
+              }
+            }
+          },
+        });
       },
-      logs: true,
-      onQueueUpdate: (update: any) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Video upscaling in progress...");
-          if (update.logs) {
-            update.logs.map((log: any) => log.message).forEach(console.log);
-          }
-        }
-      },
-    });
+      "Video upscaling is temporarily delayed due to high demand. Please wait..."
+    );
 
     console.log("✅ Video upscaling completed successfully");
     console.log("📹 Upscaled video URL:", result.data.video?.url);

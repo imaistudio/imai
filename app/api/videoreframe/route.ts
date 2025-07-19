@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
 import { getStorage } from "firebase-admin/storage";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { falQueue, queuedAPICall } from "@/lib/request-queue";
+import { falAILimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 600 seconds (10 minutes) for video processing
 export const maxDuration = 600;
@@ -281,16 +283,30 @@ export async function POST(request: NextRequest) {
       `Arguments: aspect_ratio=${options.aspect_ratio}, resolution=${options.resolution}, zoom_factor=${options.zoom_factor}`,
     );
 
-    const result = await fal.subscribe("fal-ai/wan-vace-14b/reframe", {
-      input: falParams,
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Video reframing in progress...");
-          update.logs?.map((log) => log.message).forEach(console.log);
-        }
+    // Check rate limit before making API call
+    const rateLimitCheck = await falAILimiter.checkLimit('videoreframe');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for videoreframe. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const result = await queuedAPICall(
+      falQueue,
+      async () => {
+        console.log("🚀 Executing FAL AI video reframe request");
+        return await fal.subscribe("fal-ai/wan-vace-14b/reframe", {
+          input: falParams,
+          logs: true,
+          onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Video reframing in progress...");
+              update.logs?.map((log) => log.message).forEach(console.log);
+            }
+          },
+        });
       },
-    });
+      "Video reframing is temporarily delayed due to high demand. Please wait..."
+    );
 
     console.log("Video reframing completed successfully!");
     console.log("Raw result:", result);

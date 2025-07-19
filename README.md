@@ -60,6 +60,17 @@ To check if all referenced files exist:
 npm run test:paths
 ```
 
+### Smoke Test 
+
+# Basic sequential tests
+node scripts/smoke-test.js
+
+# Include concurrent/queue testing  
+node scripts/smoke-test.js --queue
+
+# Queue testing only
+node scripts/smoke-test.js --queue-only
+
 This will:
 
 - ✅ Validate paths in `colors.json`, `designs.json`, and `products.json`

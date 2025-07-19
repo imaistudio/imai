@@ -19,7 +19,6 @@ export default function MobileNav({ onNewChatClick }: MobileNavProps = {}) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
   // Track authentication state

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
+import { openaiQueue, anthropicQueue, queuedAPICall } from "@/lib/request-queue";
+import { openAILimiter, anthropicLimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -47,27 +49,41 @@ async function analyzeImageWithGPT4Vision(imageUrl: string): Promise<string> {
   try {
     console.log("[DEBUG] Analyzing image with GPT-4 Vision...");
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4.1",
-      messages: [
-        {
-          role: "user",
-          content: [
+    // Check rate limit before making API call
+    const rateLimitCheck = await openAILimiter.checkLimit('mirrormagic-analyze');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for mirrormagic-analyze. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const response = await queuedAPICall(
+      openaiQueue,
+      async () => {
+        console.log("🚀 Executing OpenAI image analysis request for mirrormagic");
+        return await openai.chat.completions.create({
+          model: "gpt-4.1",
+          messages: [
             {
-              type: "text",
-              text: "Analyze this image in detail. Describe the subject, composition, style, colors, mood, and any notable elements. Be descriptive and creative in your analysis.",
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: imageUrl,
-              },
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Analyze this image in detail. Describe the subject, composition, style, colors, mood, and any notable elements. Be descriptive and creative in your analysis.",
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: imageUrl,
+                  },
+                },
+              ],
             },
           ],
-        },
-      ],
-      max_tokens: 500,
-    });
+          max_tokens: 500,
+        });
+      },
+      "Image analysis is temporarily delayed due to high demand. Please wait..."
+    );
 
     const analysis =
       response.choices[0]?.message?.content || "Unable to analyze image";

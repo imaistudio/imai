@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
 import { v4 as uuidv4 } from "uuid";
+import { falQueue, queuedAPICall } from "@/lib/request-queue";
+import { falAILimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -65,21 +67,35 @@ async function upscaleImage(
       console.error("⚠️ Image URL accessibility test failed:", urlError);
     }
 
-    const result = await fal.subscribe("fal-ai/aura-sr", {
-      input: {
-        image_url: imageUrl,
-        upscaling_factor: upscaling_factor as any,
-        overlapping_tiles,
-        checkpoint,
+    // Check rate limit before making API call
+    const rateLimitCheck = await falAILimiter.checkLimit('upscale');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for upscale. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const result = await queuedAPICall(
+      falQueue,
+      async () => {
+        console.log("🚀 Executing FAL AI upscale request");
+        return await fal.subscribe("fal-ai/aura-sr", {
+          input: {
+            image_url: imageUrl,
+            upscaling_factor: upscaling_factor as any,
+            overlapping_tiles,
+            checkpoint,
+          },
+          logs: true,
+          onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Processing in progress...");
+              update.logs.map((log) => log.message).forEach(console.log);
+            }
+          },
+        });
       },
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Processing in progress...");
-          update.logs.map((log) => log.message).forEach(console.log);
-        }
-      },
-    });
+      "Image upscaling is temporarily delayed due to high demand. Please wait..."
+    );
 
     console.log("Processing completed successfully!");
     console.log("Raw result:", result);

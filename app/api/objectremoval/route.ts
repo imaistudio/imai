@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { falQueue, queuedAPICall } from "@/lib/request-queue";
+import { falAILimiter } from "@/lib/rate-limiter";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -162,16 +164,30 @@ export async function POST(request: NextRequest) {
       `Arguments: guidance_scale=${options.guidance_scale}, num_inference_steps=${options.num_inference_steps}, safety_tolerance=${options.safety_tolerance}, output_format=${options.output_format}, prompt="${options.prompt}"`,
     );
 
-    const result = await fal.subscribe("fal-ai/image-editing/object-removal", {
-      input: falParams,
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Processing in progress...");
-          update.logs?.map((log) => log.message).forEach(console.log);
-        }
+    // Check rate limit before making API call
+    const rateLimitCheck = await falAILimiter.checkLimit('objectremoval');
+    if (!rateLimitCheck.allowed) {
+      console.log(`⚠️ Rate limit hit for objectremoval. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`);
+    }
+
+    // Use queued API call to handle rate limits and retries
+    const result = await queuedAPICall(
+      falQueue,
+      async () => {
+        console.log("🚀 Executing FAL AI object removal request");
+        return await fal.subscribe("fal-ai/image-editing/object-removal", {
+          input: falParams,
+          logs: true,
+          onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Processing in progress...");
+              update.logs?.map((log) => log.message).forEach(console.log);
+            }
+          },
+        });
       },
-    });
+      "Object removal is temporarily delayed due to high demand. Please wait..."
+    );
 
     console.log("Processing completed successfully!");
     console.log("Raw result:", result);
