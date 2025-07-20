@@ -161,7 +161,7 @@ async function composeScene(
 }
 
 // 🌍 Scene composition presets
-export const SCENE_PRESETS = [
+const SCENE_PRESETS = [
   "Santorini, Greece – Whitewashed buildings and blue domes with sea cliffs.",
   "Reynisfjara Beach, Iceland – Black sand beach with dramatic basalt columns.",
   "Banff National Park, Canada – Turquoise lakes and snow-capped peaks.",

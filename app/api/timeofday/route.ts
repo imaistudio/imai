@@ -224,7 +224,7 @@ async function changeTimeOfDay(
 }
 
 // 🌤️ Time of day presets for toolbox and link selection
-export const TIMEOFDAY_PRESETS = [
+const TIMEOFDAY_PRESETS = [
   "golden hour",
   "sunrise with warm orange light",
   "midday with bright sunlight",
