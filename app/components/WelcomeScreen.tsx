@@ -418,7 +418,7 @@ export default function WelcomeScreen({
       >
         <UnifiedPromptContainer
           onSubmit={onPromptSubmit}
-          placeholder="What would you like to design today?"
+          placeholder="Design starts here..."
         />
       </div>
     </div>

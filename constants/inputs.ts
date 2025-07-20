@@ -40,7 +40,6 @@ export type ToolType =
   | "elementaldesign"
   | "flowdesign"
   | "mirrormagic"
-  | "pairing"
   | "reframe"
   | "removebg"
   | "scenecomposition"
@@ -121,7 +120,6 @@ export const defaultToolImages: Record<ToolType, string[]> = {
   elementaldesign: ["lucide:layers"],
   flowdesign: ["lucide:git-branch"],
   mirrormagic: ["lucide:copy"],
-  pairing: ["lucide:link"],
   reframe: ["lucide:crop"],
   removebg: ["lucide:scissors"],
   scenecomposition: ["lucide:layout"],
@@ -150,7 +148,6 @@ export const toolPlaceholders: Record<ToolType, string> = {
   elementaldesign: "lucide:layers",
   flowdesign: "lucide:git-branch",
   mirrormagic: "lucide:copy",
-  pairing: "lucide:link",
   reframe: "lucide:crop",
   removebg: "lucide:scissors",
   scenecomposition: "lucide:layout",
@@ -179,7 +176,6 @@ export const toolLabels: Record<ToolType, string> = {
   elementaldesign: "Elemental<br>Design",
   flowdesign: "Flow<br>Design",
   mirrormagic: "Mirror<br>Magic",
-  pairing: "AI<br>Pairing",
   reframe: "ReFrame",
   removebg: "Remove<br>Background",
   scenecomposition: "Scene<br>Changer",

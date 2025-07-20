@@ -53,7 +53,7 @@ async function composeScene(
       aspect_ratio,
       seed,
       sync_mode = false,
-      prompt = "enchanted forest",
+      prompt = "bustlying on a beach",
     } = options;
 
     console.log("Submitting request to FAL AI Scene Composition...");
@@ -160,6 +160,30 @@ async function composeScene(
   }
 }
 
+// 🌍 Scene composition presets
+export const SCENE_PRESETS = [
+  "Santorini, Greece – Whitewashed buildings and blue domes with sea cliffs.",
+  "Reynisfjara Beach, Iceland – Black sand beach with dramatic basalt columns.",
+  "Banff National Park, Canada – Turquoise lakes and snow-capped peaks.",
+  "Sossusvlei, Namibia – Red sand dunes and stark desert landscapes.",
+  "Milford Sound, New Zealand – Deep fjords, waterfalls, and misty cliffs.",
+  "Sedona, Arizona, USA – Red rock formations and desert flora.",
+  "Faroe Islands, Denmark – Rugged cliffs and untouched green valleys.",
+  "Uyuni Salt Flats, Bolivia – Mirror-like reflections after rain.",
+  "Bali Rice Terraces, Indonesia – Lush, layered green paddies.",
+  "Antelope Canyon, USA – Slot canyons with smooth, flowing rock walls.",
+  "Amalfi Coast, Italy – Coastal cliffs with colorful Mediterranean villages.",
+  "Lofoten Islands, Norway – Arctic beaches, mountains, and fishing huts.",
+  "Great Ocean Road, Australia – Coastal rock formations and cliffs.",
+  "Hạ Long Bay, Vietnam – Limestone karsts emerging from emerald waters.",
+  "Atacama Desert, Chile – Moon-like landscapes with vivid sunsets.",
+  "Mount Fuji, Japan – Iconic symmetrical peak with seasonal scenery.",
+  "White Sands, New Mexico, USA – Pure white gypsum dunes.",
+  "Tuscany, Italy – Rolling hills, cypress-lined roads, golden light.",
+  "Plitvice Lakes, Croatia – Cascading waterfalls and turquoise pools.",
+  "Cappadocia, Turkey – Unique rock formations and hot air balloons."
+];
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
@@ -221,7 +245,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const sync_mode_param = formData.get("sync_mode") as string;
     const sync_mode = sync_mode_param?.toLowerCase() === "true";
 
-    const prompt = (formData.get("prompt") as string) || "enchanted forest";
+    let prompt = (formData.get("prompt") as string) || "";
+    if (!prompt.trim()) {
+      // If prompt is missing or empty, pick a random preset
+      const randomIndex = Math.floor(Math.random() * SCENE_PRESETS.length);
+      prompt = SCENE_PRESETS[randomIndex];
+      console.log(`🎲 No prompt provided. Randomly selected preset: "${prompt}"`);
+    }
 
     // Validate safety_tolerance
     const validSafetyLevels = ["1", "2", "3", "4", "5", "6"];
@@ -267,7 +297,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     console.log("Starting scene composition...");
     console.log(
-      `Parameters: guidance_scale=${guidance_scale}, num_inference_steps=${num_inference_steps}, safety_tolerance=${safety_tolerance}, output_format=${output_format}, prompt="${prompt}"`,
+      `Parameters: guidance_scale=${guidance_scale}, num_inference_steps=${num_inference_steps}, safety_tolerance=${safety_tolerance}, output_format=${output_format}, prompt=\"${prompt}\"`,
     );
     console.log(`Image to process: ${imageUrl}`);
 
@@ -333,6 +363,7 @@ export async function GET(): Promise<NextResponse> {
         sync_mode: "Wait for completion (default: false)",
         prompt: "Scene description (default: 'enchanted forest')",
       },
+      presets: SCENE_PRESETS,
     },
     { status: 200 },
   );

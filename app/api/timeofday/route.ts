@@ -223,6 +223,25 @@ async function changeTimeOfDay(
   }
 }
 
+// 🌤️ Time of day presets for toolbox and link selection
+export const TIMEOFDAY_PRESETS = [
+  "golden hour",
+  "sunrise with warm orange light",
+  "midday with bright sunlight",
+  "afternoon with long shadows",
+  "sunset with dramatic colors",
+  "blue hour twilight",
+  "night with city lights",
+  "dawn with soft mist",
+  "dusk with deep blue sky",
+  "stormy evening with dramatic clouds",
+  "overcast midday with diffused light",
+  "early morning with gentle sunbeams",
+  "late night with cool blue ambient light",
+  "evening with warm indoor lighting",
+  "harsh noon light with strong contrast"
+];
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
@@ -287,7 +306,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const sync_mode_param = formData.get("sync_mode") as string;
     const sync_mode = sync_mode_param?.toLowerCase() === "true";
 
-    const prompt = (formData.get("prompt") as string) || "golden hour";
+    let prompt = (formData.get("prompt") as string) || "";
+    if (!prompt.trim()) {
+      // If prompt is missing or empty, pick a random preset
+      const randomIndex = Math.floor(Math.random() * TIMEOFDAY_PRESETS.length);
+      prompt = TIMEOFDAY_PRESETS[randomIndex];
+      console.log(`🎲 No prompt provided. Randomly selected preset: "${prompt}"`);
+    }
 
     // Validate safety_tolerance
     const validSafetyLevels = ["1", "2", "3", "4", "5", "6"];
@@ -424,6 +449,7 @@ export async function GET(): Promise<NextResponse> {
         sync_mode: "Wait for completion (default: false)",
         prompt: "Time of day description (default: 'golden hour')",
       },
+      presets: TIMEOFDAY_PRESETS,
     },
     { status: 200 },
   );
