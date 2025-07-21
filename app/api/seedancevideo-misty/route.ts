@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
 import { getStorage } from "firebase-admin/storage";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getNextFalKey } from '@/lib/falKeyManager';
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Set maximum function duration to 600 seconds (10 minutes) for video processing
 export const maxDuration = 600;

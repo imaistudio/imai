@@ -3,7 +3,7 @@ import { fal } from "@fal-ai/client";
 import { v4 as uuidv4 } from "uuid";
 import { falQueue, queuedAPICall } from "@/lib/request-queue";
 import { falAILimiter } from "@/lib/rate-limiter";
-import { getNextFalKey } from '@/lib/falKeyManager';
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;

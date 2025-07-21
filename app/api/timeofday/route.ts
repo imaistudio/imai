@@ -4,7 +4,7 @@ import { falQueue, queuedAPICall } from "@/lib/request-queue";
 import { falAILimiter } from "@/lib/rate-limiter";
 import { getStorage } from "firebase-admin/storage";
 import { v4 as uuidv4 } from "uuid";
-import { getNextFalKey } from '@/lib/falKeyManager';
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -240,7 +240,7 @@ const TIMEOFDAY_PRESETS = [
   "early morning with gentle sunbeams",
   "late night with cool blue ambient light",
   "evening with warm indoor lighting",
-  "harsh noon light with strong contrast"
+  "harsh noon light with strong contrast",
 ];
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -312,7 +312,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // If prompt is missing or empty, pick a random preset
       const randomIndex = Math.floor(Math.random() * TIMEOFDAY_PRESETS.length);
       prompt = TIMEOFDAY_PRESETS[randomIndex];
-      console.log(`🎲 No prompt provided. Randomly selected preset: "${prompt}"`);
+      console.log(
+        `🎲 No prompt provided. Randomly selected preset: "${prompt}"`,
+      );
     }
 
     // Validate safety_tolerance

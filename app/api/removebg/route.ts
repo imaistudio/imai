@@ -3,7 +3,7 @@ import { fal } from "@fal-ai/client";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getStorage as getAdminStorage } from "firebase-admin/storage";
-import { getNextFalKey } from '@/lib/falKeyManager';
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;

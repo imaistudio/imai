@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
 import { falQueue, queuedAPICall } from "@/lib/request-queue";
 import { falAILimiter } from "@/lib/rate-limiter";
-import { getNextFalKey } from '@/lib/falKeyManager';
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -182,7 +182,7 @@ const SCENE_PRESETS = [
   "White Sands, New Mexico, USA – Pure white gypsum dunes.",
   "Tuscany, Italy – Rolling hills, cypress-lined roads, golden light.",
   "Plitvice Lakes, Croatia – Cascading waterfalls and turquoise pools.",
-  "Cappadocia, Turkey – Unique rock formations and hot air balloons."
+  "Cappadocia, Turkey – Unique rock formations and hot air balloons.",
 ];
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -251,7 +251,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // If prompt is missing or empty, pick a random preset
       const randomIndex = Math.floor(Math.random() * SCENE_PRESETS.length);
       prompt = SCENE_PRESETS[randomIndex];
-      console.log(`🎲 No prompt provided. Randomly selected preset: "${prompt}"`);
+      console.log(
+        `🎲 No prompt provided. Randomly selected preset: "${prompt}"`,
+      );
     }
 
     // Validate safety_tolerance

@@ -6,7 +6,7 @@ import path from "path";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
 import { v4 as uuidv4 } from "uuid";
-import { getNextFalKey } from '@/lib/falKeyManager';
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
