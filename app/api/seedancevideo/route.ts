@@ -30,7 +30,7 @@ fal.config({
 interface SeedanceVideoOptions {
   prompt?: string;
   resolution?: "1080p"; // Always use highest quality
-  duration?: "10"; // Always use longer duration
+  duration?: "5"; // Always use longer duration
   camera_fixed?: boolean;
   seed?: number;
 }
@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
         const options: SeedanceVideoOptions = {
           prompt: formData.get("prompt") as string || "Dynamic motion and natural animation",
           resolution: "1080p", // Always use highest quality
-          duration: "10", // Always use longer duration
+          duration: "5", // Always use longer duration
           camera_fixed: formData.get("camera_fixed") === "true" || false,
           seed: formData.get("seed") ? parseInt(formData.get("seed") as string) : undefined,
         };
