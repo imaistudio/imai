@@ -315,7 +315,7 @@ export default function WelcomeScreen({
     });
 
     const basicPrompts = shuffledBasicPrompts.slice(0, 2);
-    const randomPresetPrompts = Array.from({ length: 4 }, (_, index) =>
+    const randomPresetPrompts = Array.from({ length: 6 }, (_, index) =>
       generateRandomPresetCombination(index),
     );
 
@@ -378,33 +378,37 @@ export default function WelcomeScreen({
       {/* Example Prompts - Upper Middle */}
       <div className="w-full mb-8">
         <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex gap-4 pb-4" style={{ width: "max-content" }}>
-            {examplePrompts.slice(0, 6).map((example, index) => (
-              <Button
-                key={`${presetSeed}-${index}`} // Use presetSeed in key for consistency
-                ref={(el) => {
-                  if (el) exampleCardsRef.current[index] = el;
-                }}
-                variant="outline"
-                className="flex-shrink-0 w-80 h-auto p-4 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                style={{ opacity: 0, transform: "translateY(30px)" }}
-                onClick={() =>
-                  onExampleClick(
-                    example.prompt,
-                    example.presets,
-                    example.defaultImages,
-                  )
-                }
-              >
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="font-medium text-gray-900 dark:text-white mb-1">
-                    {example.title}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 break-words">
-                    {example.prompt}
-                  </div>
-                </div>
-              </Button>
+          <div className="flex flex-col gap-4">
+            {[0, 1].map((rowIdx) => (
+              <div key={rowIdx} className="flex gap-4 pb-0" style={{ width: "max-content" }}>
+                {examplePrompts.slice(rowIdx * 4, rowIdx * 4 + 4).map((example, index) => (
+                  <Button
+                    key={`${presetSeed}-${rowIdx * 4 + index}`}
+                    ref={(el) => {
+                      if (el) exampleCardsRef.current[rowIdx * 4 + index] = el;
+                    }}
+                    variant="outline"
+                    className="flex-shrink-0 w-80 h-auto p-4 text-left flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    style={{ opacity: 0, transform: "translateY(30px)" }}
+                    onClick={() =>
+                      onExampleClick(
+                        example.prompt,
+                        example.presets,
+                        example.defaultImages,
+                      )
+                    }
+                  >
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className="font-medium text-gray-900 dark:text-white mb-1">
+                        {example.title}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 break-words">
+                        {example.prompt}
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             ))}
           </div>
         </div>

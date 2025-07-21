@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
 import { getStorage } from "firebase-admin/storage";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { falQueue, queuedAPICall } from "@/lib/request-queue";
-import { falAILimiter } from "@/lib/rate-limiter";
 import { getNextFalKey } from '@/lib/falKeyManager';
+import { falQueue, queuedAPICall } from '@/lib/request-queue';
+import { falAILimiter } from '@/lib/rate-limiter';
 
 // Set maximum function duration to 600 seconds (10 minutes) for video processing
 export const maxDuration = 600;
@@ -21,9 +21,7 @@ if (!getApps().length) {
   });
 }
 
-console.log(
-  "🔥 Firebase initialized - using Firebase Storage for video handling",
-);
+console.log("🔥 Firebase initialized - using Firebase Storage for video handling");
 
 fal.config({
   credentials: getNextFalKey(),
@@ -32,7 +30,7 @@ fal.config({
 interface SeedanceVideoOptions {
   prompt?: string;
   resolution?: "1080p"; // Always use highest quality
-  duration?: "5"; // Fixed 5-second duration
+  duration?: "10"; // Always use longer duration
   camera_fixed?: boolean;
   seed?: number;
 }
@@ -122,30 +120,28 @@ async function saveOutputVideoToFirebase(
 
     try {
       // Fetch the video from the URL with timeout
-      const response = await fetch(videoUrl, {
+      const response = await fetch(videoUrl, { 
         signal: controller.signal,
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; IMAI/1.0)",
-        },
+          'User-Agent': 'Mozilla/5.0 (compatible; IMAI/1.0)'
+        }
       });
-
+      
       clearTimeout(timeoutId);
-
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch video: ${response.statusText}`);
       }
 
       // Check content length before processing
-      const contentLength = response.headers.get("content-length");
+      const contentLength = response.headers.get('content-length');
       if (contentLength) {
         const sizeInMB = parseInt(contentLength) / (1024 * 1024);
         console.log(`📏 Video size: ${sizeInMB.toFixed(2)}MB`);
-
+        
         // For very large files (>100MB), skip Firebase upload and use original URL
         if (sizeInMB > 100) {
-          console.log(
-            `⚠️ Video too large (${sizeInMB.toFixed(2)}MB) - using original URL`,
-          );
+          console.log(`⚠️ Video too large (${sizeInMB.toFixed(2)}MB) - using original URL`);
           return videoUrl;
         }
       }
@@ -155,17 +151,13 @@ async function saveOutputVideoToFirebase(
       const file = new File([blob], fileName, { type: "video/mp4" });
 
       // Upload to Firebase Storage in the output folder
-      const firebaseUrl = await uploadVideoToFirebaseStorage(
-        file,
-        userid,
-        true,
-      );
+      const firebaseUrl = await uploadVideoToFirebaseStorage(file, userid, true);
 
       console.log(`✅ Output video saved to Firebase Storage: ${firebaseUrl}`);
       return firebaseUrl;
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
-      if (fetchError.name === "AbortError") {
+      if (fetchError.name === 'AbortError') {
         console.log(`⏰ Download timeout for large video - using original URL`);
         return videoUrl;
       }
@@ -185,10 +177,10 @@ async function saveOutputVideoToFirebase(
 async function testImageUrl(imageUrl: string): Promise<boolean> {
   try {
     console.log("🔍 Testing image URL accessibility...");
-    const response = await fetch(imageUrl, { method: "HEAD" });
+    const response = await fetch(imageUrl, { method: 'HEAD' });
     console.log(`📡 Image URL test: ${response.status} ${response.statusText}`);
-    console.log(`📄 Content-Type: ${response.headers.get("content-type")}`);
-    console.log(`📏 Content-Length: ${response.headers.get("content-length")}`);
+    console.log(`📄 Content-Type: ${response.headers.get('content-type')}`);
+    console.log(`📏 Content-Length: ${response.headers.get('content-length')}`);
     return response.ok;
   } catch (error) {
     console.error("❌ Image URL test failed:", error);
@@ -198,164 +190,179 @@ async function testImageUrl(imageUrl: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const imageUrl = formData.get("image_url") as string;
-    const userid = formData.get("userid") as string;
-
-    // Validate required parameters
-    if (!imageUrl) {
-      return NextResponse.json(
-        { error: "Missing image_url parameter" },
-        { status: 400 },
+    // Check rate limit before making API call
+    const rateLimitCheck = await falAILimiter.checkLimit("seedancevideo");
+    if (!rateLimitCheck.allowed) {
+      console.log(
+        `⚠️ Rate limit hit for seedancevideo. Reset in: ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)}s`,
       );
-    }
-
-    if (!userid) {
       return NextResponse.json(
-        { error: "Missing userid parameter" },
-        { status: 400 },
-      );
-    }
-
-    // Check if FAL_KEY is available
-    if (!process.env.FAL_KEY) {
-      console.error("❌ FAL_KEY not found in environment variables");
-      return NextResponse.json(
-        { error: "FAL_KEY not configured" },
-        { status: 500 },
-      );
-    }
-
-    console.log("🔑 FAL_KEY status: Set");
-
-    // Extract optional parameters with defaults - always use highest quality
-    const options: SeedanceVideoOptions = {
-      prompt:
-        (formData.get("prompt") as string) ||
-        "Dynamic motion and natural animation",
-      resolution: "1080p", // Always use highest quality
-      duration: "5", // Fixed 5-second duration
-      camera_fixed: formData.get("camera_fixed") === "true" || false,
-      seed: formData.get("seed")
-        ? parseInt(formData.get("seed") as string)
-        : undefined,
-    };
-
-    console.log("Starting Seedance video generation...");
-    console.log(
-      `Parameters: prompt="${options.prompt}", resolution=${options.resolution}, duration=${options.duration}, camera_fixed=${options.camera_fixed}`,
-    );
-    console.log(`Image to process: ${imageUrl}`);
-
-    // Test image URL accessibility
-    const isAccessible = await testImageUrl(imageUrl);
-    if (!isAccessible) {
-      console.error("❌ Image URL is not accessible");
-      return NextResponse.json(
-        { error: "Image URL is not accessible" },
-        { status: 400 },
-      );
-    }
-
-    console.log("Submitting request to FAL AI Seedance Video...");
-
-    // Prepare FAL AI request parameters
-    const falParams: any = {
-      prompt: options.prompt,
-      image_url: imageUrl,
-      resolution: options.resolution,
-      duration: options.duration,
-      camera_fixed: options.camera_fixed,
-    };
-
-    // Only add seed if provided
-    if (options.seed !== undefined) {
-      falParams.seed = options.seed;
-    }
-
-    console.log(
-      `Arguments: prompt="${options.prompt}", resolution=${options.resolution}, duration=${options.duration}s, camera_fixed=${options.camera_fixed}`,
-    );
-
-    const result = await fal.subscribe(
-      "fal-ai/bytedance/seedance/v1/pro/image-to-video",
-      {
-        input: falParams,
-        logs: true,
-        onQueueUpdate: (update) => {
-          if (update.status === "IN_PROGRESS") {
-            console.log("Video generation in progress...");
-            update.logs?.map((log) => log.message).forEach(console.log);
-          }
+        {
+          error: `Rate limit exceeded. Please wait ${Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000)} seconds and try again.`,
         },
-      },
-    );
+        { status: 429 }
+      );
+    }
 
-    console.log("Video generation completed successfully!");
-    console.log("Raw result:", result);
-
-    if (!result.data || !result.data.video || !result.data.video.url) {
-      console.error("❌ No video returned from FAL AI");
+    // Use queued API call to handle concurrency and queuing
+    const queueStatus = falQueue.getQueueStatus();
+    if (queueStatus.queueLength + queueStatus.activeRequests >= 100) {
       return NextResponse.json(
-        { error: "No video returned from FAL AI" },
-        { status: 500 },
+        {
+          error: 'Server is experiencing high demand. Your request cannot be processed right now. Please try again later.'
+        },
+        { status: 503 }
       );
     }
 
-    const outputVideoUrl = result.data.video.url;
-    console.log(`Seedance video generation completed!`);
-    console.log(`Generated video URL: ${outputVideoUrl}`);
+    return await queuedAPICall(
+      falQueue,
+      async () => {
+        const formData = await request.formData();
+        const imageUrl = formData.get("image_url") as string;
+        const userid = formData.get("userid") as string;
 
-    // 🔧 NEW: Upload video to Firebase Storage for permanent storage
-    console.log(
-      "🔄 Uploading video to Firebase Storage for permanent storage...",
+        // Validate required parameters
+        if (!imageUrl) {
+          return NextResponse.json(
+            { error: "Missing image_url parameter" },
+            { status: 400 }
+          );
+        }
+
+        if (!userid) {
+          return NextResponse.json(
+            { error: "Missing userid parameter" },
+            { status: 400 }
+          );
+        }
+
+        // Check if FAL_KEY is available
+        if (!process.env.FAL_KEY) {
+          console.error("❌ FAL_KEY not found in environment variables");
+          return NextResponse.json(
+            { error: "FAL_KEY not configured" },
+            { status: 500 }
+          );
+        }
+
+        console.log("🔑 FAL_KEY status: Set");
+
+        // Extract optional parameters with defaults - always use highest quality
+        const options: SeedanceVideoOptions = {
+          prompt: formData.get("prompt") as string || "Dynamic motion and natural animation",
+          resolution: "1080p", // Always use highest quality
+          duration: "10", // Always use longer duration
+          camera_fixed: formData.get("camera_fixed") === "true" || false,
+          seed: formData.get("seed") ? parseInt(formData.get("seed") as string) : undefined,
+        };
+
+        console.log("Starting Seedance video generation...");
+        console.log(`Parameters: prompt=\"${options.prompt}\", resolution=${options.resolution}, duration=${options.duration}, camera_fixed=${options.camera_fixed}`);
+        console.log(`Image to process: ${imageUrl}`);
+
+        // Test image URL accessibility
+        const isAccessible = await testImageUrl(imageUrl);
+        if (!isAccessible) {
+          console.error("❌ Image URL is not accessible");
+          return NextResponse.json(
+            { error: "Image URL is not accessible" },
+            { status: 400 }
+          );
+        }
+
+        console.log("Submitting request to FAL AI Seedance Video...");
+        
+        // Prepare FAL AI request parameters
+        const falParams: any = {
+          prompt: options.prompt,
+          image_url: imageUrl,
+          resolution: options.resolution,
+          duration: options.duration,
+          camera_fixed: options.camera_fixed,
+        };
+
+        // Only add seed if provided
+        if (options.seed !== undefined) {
+          falParams.seed = options.seed;
+        }
+
+        console.log(`Arguments: prompt=\"${options.prompt}\", resolution=${options.resolution}, duration=${options.duration}s, camera_fixed=${options.camera_fixed}`);
+
+        const result = await fal.subscribe("fal-ai/bytedance/seedance/v1/pro/image-to-video", {
+          input: falParams,
+          logs: true,
+          onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Video generation in progress...");
+              update.logs?.map((log) => log.message).forEach(console.log);
+            }
+          },
+        });
+
+        console.log("Video generation completed successfully!");
+        console.log("Raw result:", result);
+
+        if (!result.data || !result.data.video || !result.data.video.url) {
+          console.error("❌ No video returned from FAL AI");
+          return NextResponse.json(
+            { error: "No video returned from FAL AI" },
+            { status: 500 }
+          );
+        }
+
+        const outputVideoUrl = result.data.video.url;
+        console.log(`Seedance video generation completed!`);
+        console.log(`Generated video URL: ${outputVideoUrl}`);
+
+        // 🔧 NEW: Upload video to Firebase Storage for permanent storage
+        console.log("🔄 Uploading video to Firebase Storage for permanent storage...");
+        
+        try {
+          const firebaseVideoUrl = await saveOutputVideoToFirebase(
+            outputVideoUrl,
+            userid,
+            "/api/seedancevideo"
+          );
+
+          console.log("✅ Video uploaded to Firebase Storage successfully!");
+
+          const response: SeedanceVideoResponse = {
+            status: "success",
+            videoUrl: firebaseVideoUrl, // Firebase Storage URL (permanent)
+            seed: result.data.seed,
+          };
+
+          return NextResponse.json(response);
+        } catch (uploadError) {
+          console.error("❌ Video upload to Firebase failed, using original URL:", uploadError);
+          
+          // Fallback to original FAL AI URL if Firebase upload fails
+          const response: SeedanceVideoResponse = {
+            status: "success",
+            videoUrl: outputVideoUrl, // Fallback to FAL AI URL
+            seed: result.data.seed,
+          };
+
+          return NextResponse.json(response);
+        }
+      },
+      'Seedance video generation is temporarily delayed due to high demand. Please wait...'
     );
-
-    try {
-      const firebaseVideoUrl = await saveOutputVideoToFirebase(
-        outputVideoUrl,
-        userid,
-        "/api/seedancevideo",
-      );
-
-      console.log("✅ Video uploaded to Firebase Storage successfully!");
-
-      const response: SeedanceVideoResponse = {
-        status: "success",
-        videoUrl: firebaseVideoUrl, // Firebase Storage URL (permanent)
-        seed: result.data.seed,
-      };
-
-      return NextResponse.json(response);
-    } catch (uploadError) {
-      console.error(
-        "❌ Video upload to Firebase failed, using original URL:",
-        uploadError,
-      );
-
-      // Fallback to original FAL AI URL if Firebase upload fails
-      const response: SeedanceVideoResponse = {
-        status: "success",
-        videoUrl: outputVideoUrl, // Fallback to FAL AI URL
-        seed: result.data.seed,
-      };
-
-      return NextResponse.json(response);
-    }
   } catch (error) {
     console.error("❌ Seedance video generation failed:", error);
-
+    
     let errorMessage = "Internal server error";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
 
     return NextResponse.json(
-      {
+      { 
         error: errorMessage,
-        status: "error",
+        status: "error" 
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
-}
+} 
