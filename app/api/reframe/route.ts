@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
 import { getAuth } from "firebase-admin/auth";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getNextFalKey } from '@/lib/falKeyManager';
 
 // Initialize Firebase Admin if not already initialized
 let firebaseInitialized = false;
@@ -27,7 +28,7 @@ try {
 }
 
 fal.config({
-  credentials: process.env.FAL_KEY,
+  credentials: getNextFalKey(),
 });
 
 // Add configuration for longer timeout

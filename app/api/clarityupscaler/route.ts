@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { falQueue, queuedAPICall } from "@/lib/request-queue";
 import { falAILimiter } from "@/lib/rate-limiter";
+import { getNextFalKey } from '@/lib/falKeyManager';
 
 // Set maximum function duration to 300 seconds (5 minutes)
 export const maxDuration = 300;
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
           {
             method: "POST",
             headers: {
-              Authorization: `Key ${process.env.FAL_API_KEY}`,
+              Authorization: `Key ${getNextFalKey()}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({

@@ -106,7 +106,7 @@ export default function GlobalModal() {
                   IMAI studio is here
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mb-2">
-                  Try IMAI Studio today with IMAI Studio <br></br> paid plans.
+                  Product design has never been this easy. <br></br>Join the Waitlist.
                 </p>
               </div>
 
@@ -130,9 +130,9 @@ export default function GlobalModal() {
                   </div>
                   <div>
                     <p className="text-black dark:text-white font-medium">
-                      IMAI studio is an AI-powered product <br></br> designer
-                      and empowers you to become <br></br> an extraordinary
-                      designer.
+                    IMAI is your AI design co-pilot. <br></br> 
+                    No templates, no photoshop, <br></br> 
+                    just your imagination visualized.
                     </p>
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export default function GlobalModal() {
                   </div>
                   <div>
                     <p className="text-black dark:text-white font-medium">
-                      Anytime it enables you to design products, <br></br>{" "}
+                      It enables you to design products, <br></br>{" "}
                       create visuals, manage imagery and bring <br></br> your
                       illustrations to life.
                     </p>

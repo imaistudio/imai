@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fal } from "@fal-ai/client";
+import { getNextFalKey } from '@/lib/falKeyManager';
 
 // Set maximum function duration to 300 seconds (5 minutes) for video processing
 export const maxDuration = 300;
@@ -9,7 +10,7 @@ console.log(
 );
 
 fal.config({
-  credentials: process.env.FAL_KEY,
+  credentials: getNextFalKey(),
 });
 
 export async function POST(request: NextRequest) {

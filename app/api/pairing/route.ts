@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { getAuth } from "firebase-admin/auth";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Add configuration for longer timeout
 export const maxDuration = 300; // 5 minutes in seconds

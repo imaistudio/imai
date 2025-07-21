@@ -4,6 +4,7 @@ import { getStorage } from "firebase-admin/storage";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { falQueue, queuedAPICall } from "@/lib/request-queue";
 import { falAILimiter } from "@/lib/rate-limiter";
+import { getNextFalKey } from '@/lib/falKeyManager';
 
 // Set maximum function duration to 600 seconds (10 minutes) for video processing
 export const maxDuration = 600;
@@ -25,7 +26,7 @@ console.log(
 );
 
 fal.config({
-  credentials: process.env.FAL_KEY,
+  credentials: getNextFalKey(),
 });
 
 interface SeedanceVideoOptions {

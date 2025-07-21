@@ -9,6 +9,7 @@ import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
 import { openaiQueue, queuedAPICall } from "@/lib/request-queue";
 import { openAILimiter } from "@/lib/rate-limiter";
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Add configuration for longer timeout
 export const maxDuration = 300; // 5 minute in seconds

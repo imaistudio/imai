@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStorage } from "firebase-admin/storage";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getNextFalKey } from "@/lib/falKeyManager";
 
 // Initialize Firebase Admin if not already initialized
 if (!getApps().length) {
