@@ -127,6 +127,36 @@
       transform: translateY(calc(-100% - var(--gap)));
     }
   }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px) scale(1);
+      opacity: 0.6;
+    }
+    25% {
+      transform: translateY(-20px) translateX(10px) scale(1.1);
+      opacity: 1;
+    }
+    50% {
+      transform: translateY(-10px) translateX(-10px) scale(0.9);
+      opacity: 0.8;
+    }
+    75% {
+      transform: translateY(-30px) translateX(5px) scale(1.2);
+      opacity: 0.9;
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.1;
+    }
+  }
 }
 
 /* Global scroll bar hiding for all elements */
@@ -166,6 +196,39 @@ body::-webkit-scrollbar {
 
 .dark {
   --icon-color: #fff; /* White in dark mode */
+}
+
+/* Spline Loading Animation Styles */
+.spline-loading-animation {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  transition: filter 0.3s ease;
+}
+
+/* Light theme - original colors */
+.spline-loading-animation.light-theme {
+  filter: none;
+}
+
+/* Dark theme - invert colors properly */
+.spline-loading-animation.dark-theme {
+  filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(1.2);
+}
+
+/* Prevent any mouse interactions with Spline canvas */
+.spline-loading-animation canvas {
+  pointer-events: none !important;
+  touch-action: none !important;
+  user-select: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
 }
 
 /* Safari h-screen fix for iOS viewport issues */

@@ -2,7 +2,6 @@
 
 import { Modal, ModalContent } from "@heroui/react";
 import { useGlobalModal } from "@/contexts/GlobalModalContext";
-import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { IMAIIcon } from "./imai";
 
@@ -10,9 +9,9 @@ export default function GlobalModal() {
   const { isOpen, closeModal } = useGlobalModal();
   const router = useRouter();
 
-  const handleClose = () => {
+  const handleActionAndClose = (path: string) => {
     closeModal();
-    router.push("/explore");
+    router.push(path);
   };
 
   return (
@@ -20,12 +19,9 @@ export default function GlobalModal() {
       isOpen={isOpen}
       hideCloseButton
       shouldBlockScroll
-      backdrop="blur"
-      onOpenChange={(open) => {
-        if (!open) {
-          handleClose();
-        }
-      }}
+      backdrop="opaque"
+      isDismissable={false}
+      isKeyboardDismissDisabled={true}
       className="m-4 md:m-0 lg:p-0 max-w-md lg:max-w-4xl rounded-2xl overflow-hidden bg-white dark:bg-black"
     >
       <ModalContent>
@@ -34,12 +30,6 @@ export default function GlobalModal() {
           <div className="block lg:hidden">
             {/* Image Collage Header */}
             <div className="relative w-full h-auto pb-4 overflow-hidden">
-              <button
-                onClick={handleClose}
-                className="absolute top-4 right-4 p-2 z-10"
-              >
-                <X className="w-8 h-8 text-white dark:text-black" />
-              </button>
               <video
                 src="/videos/Demo.mp4"
                 className="object-cover w-full h-auto rounded-md"
@@ -65,25 +55,26 @@ export default function GlobalModal() {
 
             {/* Modal Footer */}
             <div className="flex flex-col gap-3 px-6 pb-6">
-              <a href="/login" onClick={closeModal} className="w-full">
-                <button className="bg-black text-white dark:bg-white dark:text-black w-full rounded-full py-3">
-                  Log in
-                </button>
-              </a>
+              <button 
+                onClick={() => handleActionAndClose("/login")} 
+                className="bg-black text-white dark:bg-white dark:text-black w-full rounded-full py-3"
+              >
+                Log in
+              </button>
 
-              <a href="/invite" onClick={closeModal} className="w-full">
-                <button className="border border-gray-300 w-full rounded-full py-3">
-                  Request Early Access
-                </button>
-              </a>
+              <button 
+                onClick={() => handleActionAndClose("/invite")} 
+                className="border border-gray-300 w-full rounded-full py-3"
+              >
+                Request Early Access
+              </button>
 
-              <a
-                href="/explore"
-                onClick={closeModal}
+              <button
+                onClick={() => handleActionAndClose("/explore")}
                 className="text-sm py-4 text-gray-500 dark:text-gray-400 underline text-center cursor-pointer"
               >
                 Explore
-              </a>
+              </button>
             </div>
           </div>
 
@@ -91,13 +82,6 @@ export default function GlobalModal() {
           <div className="hidden lg:flex bg-white dark:bg-black rounded-2xl overflow-hidden">
             {/* Left Content Section */}
             <div className="flex-1 p-8 pr-4">
-              <button
-                onClick={handleClose}
-                className="absolute top-4 right-4 p-2 z-10"
-              >
-                <X className="w-6 h-6 text-transparent" />
-              </button>
-
               <div className="mb-6">
                 <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-sm text-sm font-medium mb-4">
                   NEW
@@ -176,7 +160,7 @@ export default function GlobalModal() {
                         strokeLinejoin="round"
                         strokeWidth={2}
                         d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                      />
+      />
                     </svg>
                   </div>
                   <div>
@@ -190,19 +174,13 @@ export default function GlobalModal() {
 
               {/* CTA Button */}
               <button
-                onClick={() => {
-                  closeModal();
-                  router.push("/invite");
-                }}
+                onClick={() => handleActionAndClose("/invite")}
                 className="w-full bg-black text-white dark:bg-white dark:text-black rounded-md py-3 font-medium hover:opacity-90 transition-opacity text-xs"
               >
                 Try IMAI Studio
               </button>
               <button
-                onClick={() => {
-                  closeModal();
-                  router.push("/explore");
-                }}
+                onClick={() => handleActionAndClose("/explore")}
                 className="w-full text-black dark:text-white rounded-md py-3 font-medium hover:opacity-90 transition-opacity text-xs"
               >
                 explore
@@ -218,4 +196,4 @@ export default function GlobalModal() {
       </ModalContent>
     </Modal>
   );
-}
+} 

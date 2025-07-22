@@ -3209,9 +3209,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           console.log(
             `⚠️ Preset ${presetDesignStyle} not found in designs.json, using fallback logic`
           );
+          
+          // Map design styles to their correct folders (matching WelcomeScreen.tsx)
+          const designStyleFolders: Record<string, string> = {
+            minimalist: "fashions",
+            luxury: "fashions",
+            artistic: "general",
+            futuristic: "general",
+            minimalsleek: "general",
+            vintagefeel: "fashions",
+            bold: "general",
+            sportysleek: "general",
+            funcoolquriky: "general",
+            elegantandsophisticated: "bags",
+            mystical: "general",
+            vintage: "Jewelry",
+            bohemian: "Jewelry",
+            industrial: "Jewelry",
+            animeinspired: "general",
+          };
+          
           const baseStyle = presetDesignStyle.replace(/\d+$/, "");
-          const presetImagePath = `/inputs/designs/general/${baseStyle}/${presetDesignStyle}.webp`;
+          const folder = designStyleFolders[presetDesignStyle] || designStyleFolders[baseStyle] || "general";
+          
+          // For styles that don't have numbered variants, use the style name as is
+          // For styles that do have numbered variants, use the first one (style1.webp)
+          let fileName = presetDesignStyle;
+          if (presetDesignStyle === baseStyle) {
+            // No number suffix, try adding "1" for styles that use numbered variants
+            const numberedStyles = ["industrial", "vintage", "bohemian"];
+            if (numberedStyles.includes(baseStyle)) {
+              fileName = `${baseStyle}1`;
+            }
+          }
+          
+          const presetImagePath = `/inputs/designs/${folder}/${baseStyle}/${fileName}.webp`;
           presetImageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://imai.studio")}${presetImagePath}`;
+          console.log(`🔧 Using folder: ${folder}, fileName: ${fileName} for style: ${presetDesignStyle}`);
         }
 
         inputUrls.design = presetImageUrl;

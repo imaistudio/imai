@@ -1,0 +1,78 @@
+POSTERIZE ROUTE TEST DOCUMENTATION
+==================================
+
+Route: /api/posterize
+Purpose: Convert images into high-quality, marketable posters using GPT Image
+
+WORKFLOW:
+1. Input image is analyzed using GPT-4 Vision to understand content and style
+2. Intelligent prompt is generated based on analysis and user preferences
+3. GPT Image (gpt-image-1) generates the poster with specified style and theme
+4. Output is returned as base64 data URL for intentroute to handle
+
+PARAMETERS:
+- userid (required): User ID from intentroute
+- image_url (required): Image URL from intentroute
+- style (optional): modern, vintage, minimalist, bold, elegant, artistic (default: modern)
+- theme (optional): business, creative, luxury, casual, professional (default: professional)
+- prompt (optional): Additional prompt to guide the posterization
+- size (optional): 1024x1024, 1024x1536, 1536x1024 (default: 1024x1024)
+- aspect_ratio (optional): square, portrait, landscape (default: square)
+- quality (optional): low, medium, high, auto (default: high)
+- n (optional): Number of images to generate (default: 1)
+
+STYLE OPTIONS:
+- modern: Clean, contemporary design with bold typography and geometric elements
+- vintage: Retro, vintage aesthetic with classic typography and nostalgic color palette
+- minimalist: Clean lines, ample white space, and subtle details
+- bold: High contrast, dramatic colors, and strong visual impact
+- elegant: Sophisticated design with refined typography and luxurious elements
+- artistic: Creative design with unique visual elements and expressive style
+
+THEME OPTIONS:
+- business: Professional poster suitable for corporate environments
+- creative: Creative and innovative design for artistic industries
+- luxury: Premium poster with high-end aesthetics and sophisticated appeal
+- casual: Approachable design for everyday use and general audiences
+- professional: Clean, authoritative presentation
+
+EXAMPLE USAGE:
+POST /api/posterize
+Content-Type: multipart/form-data
+
+FormData:
+- userid: "user123"
+- image_url: "https://example.com/image.jpg"
+- style: "modern"
+- theme: "business"
+- prompt: "Create a professional poster for a tech conference"
+- size: "1024x1024"
+- quality: "high"
+
+EXPECTED RESPONSE:
+{
+  "status": "success",
+  "imageUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "enhanced_prompt": "Transform this image into a high-quality, marketable poster...",
+  "style_used": "modern",
+  "theme_used": "business"
+}
+
+FEATURES:
+- GPT-4 Vision analysis for intelligent image understanding
+- Smart prompt generation based on content and preferences
+- Multiple style and theme options for customization
+- High-quality GPT Image generation
+- Marketable, commercial-ready poster designs
+- No text or logos (clean, professional aesthetic)
+- Support for various aspect ratios and sizes
+
+USE CASES:
+- Marketing materials and promotional posters
+- Event posters and announcements
+- Product showcase posters
+- Brand identity posters
+- Art and design projects
+- Professional presentations
+- Social media content
+- Print-ready materials 

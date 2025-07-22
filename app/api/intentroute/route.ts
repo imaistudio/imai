@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { claudeLLM } from "@/lib/claudeLLM";
 import { handleToolcall } from "./toolcall-router";
+import { handlePosterizeRequest } from "./posterize-router";
 import { anthropicQueue, queuedAPICall } from "@/lib/request-queue";
 import { anthropicLimiter } from "@/lib/rate-limiter";
 
@@ -3102,6 +3103,26 @@ MODIFICATION WITH NEW UPLOADS (previous result + new images):
       - "product combination"
       - "product match"
 
+   R. POSTERIZE EFFECT → /api/posterize
+      - "posterize this image"
+      - "posterize this"
+      - "make a poster"
+      - "poster effect"
+      - "poster art"
+      - "poster style"
+      - "turn into poster"
+      - "posterization"
+      - "poster look"
+      - "posterize image"
+      - "posterize photo"
+      - "posterize picture"
+      - "posterize effect"
+      - "posterize filter"
+      - "create poster"
+      - "poster version"
+      - "make poster"
+      - "poster format"
+
 CRITICAL RULES:
 1. ALWAYS route to "none" for: greetings ONLY (without design requests), general questions about the platform, vague help requests
 2. ANALYSIS TAKES PRIORITY: If someone asks "tell me about", "describe", "what is", "analyze" + mentions an image → /api/analyzeimage (NOT design!)
@@ -4705,6 +4726,7 @@ Use this EXACT format: **[text](action:type:param)**
 - action:objectremoval (remove unwanted objects)
 - action:chainofzoom (dynamic zoom effects)
 - action:mirrormagic (artistic mirror effects)
+- action:posterize (posterize effect)
 
 **Context-Aware Guidelines:**
 - Never suggest landscape reframing for landscape images
@@ -6194,6 +6216,60 @@ async function routeToAPI(
 
       const response = await pairingPOST(mockRequest as any);
       return await response.json();
+    } else if (endpoint === "/api/posterize") {
+      // Handle posterize-specific parameters and image URLs
+      const imageUrl =
+        imageUrls.product_image ||
+        imageUrls.design_image ||
+        imageUrls.color_image ||
+        imageUrls.product_image_image ||
+        imageUrls.design_image_image ||
+        imageUrls.color_image_image ||
+        imageUrls.image_image ||
+        parameters.reference_image_url;
+
+      if (imageUrl) {
+        formData.append("image_url", imageUrl);
+        console.log("🔗 Added image_url for posterize:", imageUrl);
+      } else {
+        throw new Error("No image URL found for posterize");
+      }
+
+      // Add posterize specific parameters
+      if (parameters.style) {
+        formData.append("style", parameters.style);
+      }
+      if (parameters.theme) {
+        formData.append("theme", parameters.theme);
+      }
+      if (parameters.size) {
+        formData.append("size", parameters.size);
+      }
+      if (parameters.quality) {
+        formData.append("quality", parameters.quality);
+      }
+
+      // 🔧 CRITICAL FIX: Pass user message as prompt parameter
+      if (originalMessage && !parameters.prompt) {
+        formData.append("prompt", originalMessage);
+        console.log(
+          "🔗 Added user message as prompt for posterize:",
+          originalMessage,
+        );
+      }
+
+      console.log("🔗 Added posterize parameters");
+
+      // Import and call the posterize API logic directly
+      const { POST: posterizePOST } = await import("../posterize/route");
+
+      const mockRequest = new Request(`${getBaseUrl()}/api/posterize`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await posterizePOST(mockRequest as any);
+      return await response.json();
     } else {
       // For endpoints not yet implemented with direct imports
       throw new Error(
@@ -6219,6 +6295,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         `🎯 Direct toolcall detected: ${toolcall} - routing to toolcall handler`,
       );
       return await handleToolcall(formData);
+    }
+
+    // 🎨 Check for direct posterize routing (bypass all complex logic)
+    const posterizeRequest = formData.get("posterize") as string | null;
+    if (posterizeRequest === "true") {
+      console.log("🎨 Direct posterize request detected - routing to posterize handler");
+      return await handlePosterizeRequest(formData);
     }
 
     // 1) Extract and validate userid and chatId

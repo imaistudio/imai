@@ -15,6 +15,7 @@ const TOOL_ENDPOINTS: Record<string, string> = {
   scenecomposition: "/api/scenecomposition",
   timeofday: "/api/timeofday",
   upscale: "/api/upscale",
+  posterize: "/api/posterize",
   // Image to Video Tools
   "seedancevideo-floating": "/api/seedancevideo-floating",
   "seedancevideo-liquid": "/api/seedancevideo-liquid",

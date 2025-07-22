@@ -41,6 +41,9 @@ import Lottie from "lottie-react";
 import catLoadingAnimation from "@/public/lottie/catloading.json";
 import { VideoZoomModal } from "../VideoZoomModal";
 import { ClickableText } from "../ClickableText";
+import Spline from '@splinetool/react-spline';
+import React from "react";
+import { useTheme } from "next-themes";
 
 interface ProactiveRecommendation {
   id: string;
@@ -109,6 +112,9 @@ export default function ChatWindow({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const lastActionTimeRef = useRef<number>(0);
+  
+  // Get current theme
+  const { theme, resolvedTheme } = useTheme();
 
   // Memoized cache functions
   const cacheKey = useMemo(
@@ -1828,11 +1834,36 @@ export default function ChatWindow({
                       <div className="flex items-end gap-2">
                         <div className="max-w-[75%] bg-transparent text-primary-foreground rounded-2xl px-4 py-3">
                           <div className="flex items-center justify-center">
-                            <Lottie
-                              animationData={catLoadingAnimation}
-                              loop={true}
-                              className="w-60 h-60"
-                            />
+                            <div 
+                              style={{ 
+                                width: 400, 
+                                height: 400,
+                                overflow: 'hidden',
+                                position: 'relative'
+                              }}
+                            >
+                              <Spline 
+                                scene="https://prod.spline.design/GNfN15DolsgmBTjC/scene.splinecode"
+                                style={{ 
+                                  pointerEvents: 'none',
+                                  userSelect: 'none',
+                                  width: '100%',
+                                  height: '100%',
+                                  display: 'block'
+                                }}
+                                className={`spline-loading-animation ${resolvedTheme === 'dark' ? 'dark-theme' : 'light-theme'}`}
+                                onLoad={() => {
+                                  // Disable mouse interactions when scene loads
+                                  const canvas = document.querySelector('.spline-loading-animation canvas');
+                                  if (canvas) {
+                                    (canvas as HTMLElement).style.pointerEvents = 'none';
+                                    (canvas as HTMLElement).style.touchAction = 'none';
+                                    (canvas as HTMLElement).style.width = '100%';
+                                    (canvas as HTMLElement).style.height = '100%';
+                                  }
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
