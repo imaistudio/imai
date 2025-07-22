@@ -1014,7 +1014,7 @@ export default function UnifiedPromptContainer({
                       : type === "design"
                         ? "lucide:palette"
                         : type === "color"
-                          ? "lucide:droplets"
+                          ? "lucide:palette"
                           : "lucide:wrench"; // 🔧 NEW: Tools icon
 
                   // 🔧 NEW: Check if tools should be enabled (only when custom product is uploaded)
@@ -1057,7 +1057,16 @@ export default function UnifiedPromptContainer({
                               : "text-black dark:text-white"
                         }
                       >
-                        <Icon icon={iconName} width={20} />
+                        {type === "design" ? (
+                          <img
+                            src="/inputs/placeholders/design.svg"
+                            alt="Design Icon"
+                            width={20}
+                            height={20}
+                          />
+                        ) : (
+                          <Icon icon={iconName} width={20} />
+                        )}
                       </Button>
                     </Tooltip>
                   );
