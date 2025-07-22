@@ -1059,8 +1059,9 @@ export default function UnifiedPromptContainer({
                       >
                         {type === "design" ? (
                           <img
-                            src="/inputs/placeholders/design.svg"
+                            src="/logos/input/design.svg"
                             alt="Design Icon"
+                            className="fill-white text-white dark:text-black"
                             width={20}
                             height={20}
                           />
