@@ -36,9 +36,9 @@ export default function GlobalModal() {
             <div className="relative w-full h-auto pb-4 overflow-hidden">
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 p-2 z-10"
+                className="absolute top-4 right-4 p-2 z-10 bg-transparent"
               >
-                <X className="w-8 h-8 text-white dark:text-black" />
+                <X className="w-8 h-8 text-transparent" />
               </button>
               <video
                 src="/videos/Demo.mp4"
