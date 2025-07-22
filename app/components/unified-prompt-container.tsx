@@ -1059,11 +1059,11 @@ export default function UnifiedPromptContainer({
                       >
                         {type === "design" ? (
                           <img
-                            src="/logos/input/design.svg"
+                            src="/logos/input/asterisk.svg"
                             alt="Design Icon"
                             className="fill-white text-white dark:text-black"
-                            width={20}
-                            height={20}
+                            width={28}
+                            height={28}
                           />
                         ) : (
                           <Icon icon={iconName} width={20} />
