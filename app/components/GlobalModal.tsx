@@ -218,7 +218,7 @@ export default function GlobalModal() {
             <div className="flex-1 bg-[#da7757] flex items-center justify-center p-8">
               <video
                 key={isOpen ? 'video-playing' : 'video-stopped'}
-                src="/videos/IMAI CLEAN HQ.mp4"
+                src="/videos/IMAI CLEAN HQ (1).mp4"
                 className="object-cover w-full h-auto rounded-md"
                 autoPlay
                 loop
