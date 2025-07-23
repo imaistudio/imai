@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { IMAIIcon } from "./imai";
 
+
 export default function GlobalModal() {
   const { isOpen, closeModal } = useGlobalModal();
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function GlobalModal() {
     closeModal();
     router.push("/explore");
   };
+
+
 
   return (
     <Modal
@@ -38,12 +41,21 @@ export default function GlobalModal() {
                 <X className="w-8 h-8 text-transparent" />
               </button>
               <video
-                src="/videos/Demo.mp4"
+                src="/videos/Demo Video 23July.mp4"
                 className="object-cover w-full h-auto rounded-md"
                 autoPlay
                 loop
                 muted
                 playsInline
+                controls={false}
+                preload="auto"
+                webkit-playsinline="true"
+                disablePictureInPicture
+                disableRemotePlayback
+                style={{ 
+                  pointerEvents: 'none',
+                  userSelect: 'none'
+                }}
               />
             </div>
 
@@ -202,9 +214,27 @@ export default function GlobalModal() {
               </div>
             </div>
 
-            {/* Right Image Section */}
+            {/* Right Video Section */}
             <div className="flex-1 bg-[#da7757] flex items-center justify-center p-8">
-              <IMAIIcon size={228} />
+              <video
+                key={isOpen ? 'video-playing' : 'video-stopped'}
+                src="/videos/IMAI CLEAN HQ.mp4"
+                className="object-cover w-full h-auto rounded-md"
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls={false}
+                preload="auto"
+                webkit-playsinline="true"
+                disablePictureInPicture
+                disableRemotePlayback
+                style={{ 
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                  maxHeight: '400px'
+                }}
+              />
             </div>
           </div>
         </>
