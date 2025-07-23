@@ -1061,7 +1061,6 @@ export default function UnifiedPromptContainer({
                           <img
                             src="/logos/input/asterisk.svg"
                             alt="Design Icon"
-                            className="fill-white text-white dark:text-black"
                             width={28}
                             height={28}
                           />
