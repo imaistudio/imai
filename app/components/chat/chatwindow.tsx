@@ -1817,7 +1817,7 @@ export default function ChatWindow({
                       )}
                       {msg.text && (
                         <div className="relative">
-                          <div className="text-sm w-full text-white bg-primary rounded-2xl py-3 px-4 leading-relaxed text-left">
+                          <div className="text-sm w-full lowercase text-white bg-primary rounded-2xl py-3 px-4 leading-relaxed text-left">
                             <p>{msg.text}</p>
                           </div>
                         </div>
@@ -1878,7 +1878,7 @@ export default function ChatWindow({
                             <ClickableText
                               text={msg.text || ""}
                               onActionClick={handleActionClick}
-                              className="text-black dark:text-white no-underline capitalize"
+                              className="text-black dark:text-white no-underline lowercase"
                             />
                             {(msg as any).isStreaming && (
                               <span className="animate-pulse">▊</span>
