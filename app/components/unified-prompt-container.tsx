@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { Badge, Button, cn, Form, Image, Tooltip } from "@heroui/react";
+import { Badge, Button, cn, Form, Image, Tooltip  } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { storage, auth } from "@/lib/firebase";
 import { useSVGTheme } from "@/hooks/use-svg-theme";
-
+import { Asterisk } from 'lucide-react';
 import {
   ProductType,
   ToolType, // 🔧 NEW: Import ToolType
@@ -1058,12 +1058,7 @@ export default function UnifiedPromptContainer({
                         }
                       >
                         {type === "design" ? (
-                          <img
-                            src="/logos/input/asterisk.svg"
-                            alt="Design Icon"
-                            width={28}
-                            height={28}
-                          />
+                          <Asterisk />
                         ) : (
                           <Icon icon={iconName} width={20} />
                         )}
