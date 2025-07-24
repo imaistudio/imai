@@ -1,14 +1,12 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGlobalModal } from "@/contexts/GlobalModalContext";
 import { useChat } from "@/contexts/ChatContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
 import ChatWindow from "./components/chat/chatwindow";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { doc, setDoc, Timestamp, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
-const MODAL_SHOWN_KEY = "modalDismissedOnce";
 import MobileNav from "./components/MobileNav";
 
 // 🔧 NEW: Interface for reply/reference functionality
@@ -26,7 +24,6 @@ interface ReferencedMessage {
 
 export default function Home() {
   const { user: currentUser, loading } = useAuth();
-  const { openModal, closeModal } = useGlobalModal();
   const {
     currentChatId,
     createNewChatIfNeeded,
@@ -108,12 +105,7 @@ export default function Home() {
   // 🔧 NEW: State to track if we're checking for messages
   const [isCheckingMessages, setIsCheckingMessages] = useState(false);
 
-  const [modalShown, setModalShown] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(MODAL_SHOWN_KEY) === "true";
-    }
-    return false;
-  });
+
 
   // 🔧 OPTIMIZED: Load sessionChatAttempted from sessionStorage when user is available
   useEffect(() => {
@@ -187,17 +179,7 @@ export default function Home() {
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    if (!loading && !currentUser && !modalShown) {
-      openModal();
-      localStorage.setItem(MODAL_SHOWN_KEY, "true");
-      setModalShown(true);
-    }
 
-    if (!loading && currentUser && modalShown) {
-      closeModal();
-    }
-  }, [loading, currentUser, modalShown, openModal, closeModal]);
 
   // 🔧 NEW: Function to handle reply to message
   const handleReplyToMessage = (message: ReferencedMessage) => {
@@ -224,7 +206,7 @@ export default function Home() {
     },
   ) => {
     if (!currentUser) {
-      openModal();
+      window.location.href = '/login';
       return;
     }
 
@@ -311,7 +293,7 @@ export default function Home() {
 
   const handleFormSubmission = async (data: any) => {
     if (!currentUser) {
-      openModal();
+      window.location.href = '/login';
       return;
     }
 

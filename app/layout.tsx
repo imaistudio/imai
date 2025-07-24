@@ -16,6 +16,7 @@ import { GoogleTagManager } from "@/app/components/seo/GoogleTagManager";
 import { AhrefsAnalytics } from "@/app/components/seo/AhrefsAnalytics";
 import { SEOHead } from "@/app/components/seo/SEOHead";
 import { StructuredData } from "@/app/components/seo/StructuredData";
+import GlobalModalController from "@/app/components/GlobalModalController";
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
@@ -204,6 +205,7 @@ export default function RootLayout({
                     <GlobalModalProvider>
                       <ConditionalSidebar>{children}</ConditionalSidebar>
                       <GlobalModal />
+                      <GlobalModalController />
                     </GlobalModalProvider>
                   </ScrollTriggerProvider>
                 </ShareModalProvider>
