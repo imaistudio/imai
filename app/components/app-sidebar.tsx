@@ -13,7 +13,7 @@ import { SearchForm } from "./search-form";
 import SidebarData from "./SidebarData";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  onNewChatClick?: () => Promise<void>; // 🔧 NEW: Optional custom new chat handler
+  onNewChatClick?: () => Promise<void>;
 }
 
 export function AppSidebar({ onNewChatClick, ...props }: AppSidebarProps) {

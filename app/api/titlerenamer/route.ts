@@ -51,7 +51,12 @@ interface TitleRequest {
 async function generateChatTitle(
   input: ChatMessage[] | string,
 ): Promise<{ title: string; category: string }> {
-  const systemPrompt = `You are a smart title generator for IMAI image platform chat sessions. Generate concise, descriptive titles (3-6 words) based on the content.
+  const systemPrompt = `You are a creative title generator for IMAI image platform chat sessions. Generate unique, descriptive titles (3-6 words) based on the content.
+
+**Important Rules:**
+- Never include "photorealistic" in the title (the platform already knows this)
+- Avoid overused terms like "hyperrealistic", "ultra-detailed"
+- Focus on the unique aspects of the design
 
 **Categories:**
 - "design" - Product design, composition, creative work
@@ -60,47 +65,57 @@ async function generateChatTitle(
 - "reframe" - Cropping, resizing, format changes
 - "conversation" - General chat, help, questions
 - "workflow" - Multi-step processes, complex tasks
+- "art" - Artistic creations, illustrations
+- "photo" - Photography enhancements or edits
 
-**Title Style:**
-- Short and descriptive (3-6 words max)
-- Focus on the main product/action
-- Use natural language, avoid technical jargon
-- Examples: "Blue Phone Case Design", "Earth Tone T-Shirt", "Contemporary Pillow Creation", "Vintage Poster Analysis"
+**Title Styles (mix these approaches):**
+1. Descriptive: "Blue Phone Case", "Earth Tone T-Shirt"
+2. Creative: "Oceanic Dreams Case", "Urban Edge Concept"
+3. Style-focused: "Minimalist Design", "Abstract Artwork"
+4. Thematic: "Vintage Vibes", "Futuristic Tech"
+5. Action-oriented: "Designing Modern Pillow", "Enhancing Sunset"
+6. Feature-highlight: "Geometric Pattern", "Color Block Design"
 
-**When analyzing generated prompts:**
-- Extract the product type (t-shirt, phone case, pillow, etc.)
-- Extract key descriptors (colors, style, theme)
-- Focus on what was actually created
-- Example: "Phone case with black/white/blue/orange color blocks" → "Contemporary Phone Case Design"
+**For Realistic Images:**
+Instead of saying "photorealistic", describe:
+- The subject matter ("Portrait of a Woman")
+- The style ("Natural Lighting Portrait")
+- The mood ("Serene Landscape")
+- The technique ("Detailed Character Design")
+
+**Guidelines:**
+- Keep titles 3-6 words max
+- Vary your style between different approaches
+- For designs, include the product type if relevant
+- Focus on unique aspects rather than generic qualities
 
 Respond with JSON only:
 {
-  "title": "Short descriptive title",
-  "category": "design|upscale|analysis|reframe|conversation|workflow"
+  "title": "Unique descriptive title",
+  "category": "design|upscale|analysis|reframe|conversation|workflow|art|photo"
 }`;
 
   try {
     let analysisContent: string;
 
     if (typeof input === "string") {
-      // New format: Complete Final Prompt
       console.log("🎯 Analyzing Complete Final Prompt for title generation");
+      
+      // Add preprocessing to remove "photorealistic" mentions from the prompt
+      const processedPrompt = input
+        .replace(/photorealistic/gi, '')
+        .replace(/hyper-?realistic/gi, '')
+        .replace(/ultra-?detailed/gi, '');
 
-      // Extract key information from the generated prompt
-      const prompt = input;
-
-      // Try to extract product type
-      const productMatch = prompt.match(/TARGET PRODUCT:\s*([^-\n]+)/i);
+      const productMatch = processedPrompt.match(/TARGET PRODUCT:\s*([^-\n]+)/i);
       const product = productMatch ? productMatch[1].trim() : "";
 
-      // Try to extract color information
-      const colorMatches = prompt.match(
+      const colorMatches = processedPrompt.match(
         /(?:color|colours?)[^:]*:\s*([^\.]+)/gi,
       );
       const colors = colorMatches ? colorMatches.slice(0, 2).join(", ") : "";
 
-      // Try to extract user prompt
-      const userPromptMatch = prompt.match(/USER PROMPT:\s*([^\n]+)/i);
+      const userPromptMatch = processedPrompt.match(/USER PROMPT:\s*([^\n]+)/i);
       const userIntent = userPromptMatch ? userPromptMatch[1].trim() : "";
 
       analysisContent = `
@@ -110,10 +125,9 @@ Generated Design Analysis:
 - User Intent: ${userIntent}
 
 Full Generated Prompt Context:
-${prompt.substring(0, 800)}...
+${processedPrompt.substring(0, 800)}...
       `.trim();
     } else {
-      // Legacy format: Chat Messages
       console.log("📜 Analyzing chat messages for title generation");
       const recentMessages = input.slice(-6);
       analysisContent = recentMessages
@@ -124,16 +138,16 @@ ${prompt.substring(0, 800)}...
         .join("\n");
     }
 
-    const prompt = `Analyze this content and generate an appropriate title:
+    const prompt = `Analyze this content and generate a unique, descriptive title:
 
 ${analysisContent}
 
-Generate a short, descriptive title and category for this design/conversation.`;
+Generate a creative title and category. Never use "photorealistic". Focus on unique aspects.`;
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 200,
-      temperature: 0.3,
+      temperature: 0.6, // Slightly higher for more creativity
       system: systemPrompt,
       messages: [
         {
@@ -155,41 +169,85 @@ Generate a short, descriptive title and category for this design/conversation.`;
 
     const result = JSON.parse(jsonStr);
 
+    // Post-process the title to ensure no photorealistic mentions
+    const cleanTitle = result.title
+      .replace(/photorealistic/gi, '')
+      .replace(/hyper-?realistic/gi, '')
+      .replace(/ultra-?detailed/gi, '')
+      .trim();
+
     return {
-      title: result.title || "Chat Session",
+      title: cleanTitle || generateFallbackTitle(),
       category: result.category || "conversation",
     };
   } catch (error) {
     console.error("Error generating title:", error);
+    return generateFallbackTitle(input);
+  }
+}
 
-    // Fallback logic
-    const inputStr =
-      typeof input === "string"
-        ? input
-        : input.filter((m) => m.role === "user").pop()?.content || "";
+// Helper function for more varied fallback titles
+function generateFallbackTitle(input?: ChatMessage[] | string): { title: string; category: string } {
+  const designTitles = [
+    "Creative Design", "Product Concept", "Visual Creation", 
+    "Style Exploration", "Form Study", "Aesthetic Design"
+  ];
+  
+  const photoTitles = [
+    "Image Capture", "Composition Study", "Lighting Exploration",
+    "Scene Setting", "Moment Captured", "Visual Narrative"
+  ];
+
+  const artTitles = [
+    "Artistic Vision", "Creative Illustration", "Expressive Work",
+    "Style Experiment", "Visual Art", "Conceptual Piece"
+  ];
+
+  // If we have input, try to make a slightly more informed fallback
+  if (input) {
+    const inputStr = typeof input === "string"
+      ? input
+      : input.filter((m) => m.role === "user").pop()?.content || "";
     const content = inputStr.toLowerCase();
 
     if (content.includes("upscale") || content.includes("enhance")) {
-      return { title: "Image Enhancement", category: "upscale" };
+      const variants = [
+        "Image Quality Boost",
+        "Detail Refinement",
+        "Resolution Upgrade",
+        "Clarity Enhancement"
+      ];
+      return {
+        title: variants[Math.floor(Math.random() * variants.length)],
+        category: "upscale"
+      };
     }
-    if (
-      content.includes("design") ||
-      content.includes("create") ||
-      content.includes("phone case") ||
-      content.includes("t-shirt") ||
-      content.includes("pillow")
-    ) {
-      return { title: "Design Creation", category: "design" };
+    if (content.includes("design") || content.includes("create")) {
+      return {
+        title: designTitles[Math.floor(Math.random() * designTitles.length)],
+        category: "design"
+      };
     }
-    if (content.includes("analyze") || content.includes("describe")) {
-      return { title: "Image Analysis", category: "analysis" };
+    if (content.includes("photo") || content.includes("photograph")) {
+      return {
+        title: photoTitles[Math.floor(Math.random() * photoTitles.length)],
+        category: "photo"
+      };
     }
-    if (content.includes("reframe") || content.includes("crop")) {
-      return { title: "Image Reframing", category: "reframe" };
+    if (content.includes("art") || content.includes("illustration")) {
+      return {
+        title: artTitles[Math.floor(Math.random() * artTitles.length)],
+        category: "art"
+      };
     }
-
-    return { title: "Chat Session", category: "conversation" };
   }
+
+  // Random fallback if we can't determine context
+  const allTitles = [...designTitles, ...photoTitles, ...artTitles];
+  return {
+    title: allTitles[Math.floor(Math.random() * allTitles.length)],
+    category: "conversation"
+  };
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -202,7 +260,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
     console.log("  - Node environment:", process.env.NODE_ENV);
 
-    // Check if ANTHROPIC_API_KEY is available
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error("❌ ANTHROPIC_API_KEY environment variable is missing");
       return NextResponse.json(
@@ -224,7 +281,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Validate Firebase user ID if Firebase is initialized (but don't fail if validation fails)
     if (firebaseInitialized) {
       try {
         await getAuth().getUser(userid);
@@ -236,8 +292,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           "⚠️ Firebase user validation failed (continuing anyway):",
           error,
         );
-        // Don't return error - continue with title generation even if user validation fails
-        // This prevents title renaming from failing due to Firebase auth issues
       }
     } else {
       console.log(
@@ -245,7 +299,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Check for new format (Complete Final Prompt)
     const promptStr = formData.get("prompt") as string;
     if (promptStr) {
       console.log("🎯 Using Complete Final Prompt for title generation");
@@ -260,7 +313,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(response);
     }
 
-    // Legacy format (Chat Messages)
     const messagesStr = formData.get("messages") as string;
     if (!messagesStr) {
       return NextResponse.json(
