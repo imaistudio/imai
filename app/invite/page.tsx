@@ -173,32 +173,11 @@ export default function InvitePage() {
           playsInline
           className="absolute inset-0 h-full w-full object-cover z-0"
         >
-          <source src="/videos/Signup_Intro.mp4" type="video/mp4" />
+          <source src="/videos/intro.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
-        {/* Overlay content */}
-        <div className="relative z-10 flex flex-col items-end gap-4">
-          <User
-            avatarProps={{
-              src: "https://ca.slack-edge.com/T08P88BGAU9-U08NUGVDXQD-efea55cbd792-512",
-            }}
-            classNames={{
-              base: "flex flex-row-reverse",
-              name: "w-full text-right text-white",
-              description: "text-white/60",
-            }}
-            description="Founder & CEO at IMAI"
-            name="Viola Schritter"
-          />
-          <p className="w-full text-right text-2xl text-white/60">
-            <span className="font-medium">“</span>
-            <span className="font-normal italic">
-              Where thoughts become pixels, and visions come to life.
-            </span>
-            <span className="font-medium">”</span>
-          </p>
-        </div>
+
       </div>
     </div>
   );
