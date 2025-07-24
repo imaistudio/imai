@@ -3172,7 +3172,7 @@ CRITICAL PRESET SELECTION UNDERSTANDING:
 - Never classify reference-based requests as "casual_conversation" - references ARE visual content
 - RULE: If user has ANY visual content (presets, references, uploaded images), it's NEVER casual conversation
 
-INTELLIGENT ASPECT RATIO SELECTION (Like ChatGPT):
+INTELLIGENT ASPECT RATIO SELECTION:
 📱 PORTRAIT (1024x1536) - Choose when content is naturally tall:
 - Tall clothing: dresses, jackets, coats, hoodies, t-shirts (but NOT shoes)
 - People/characters: portraits, figures, models, fashion
