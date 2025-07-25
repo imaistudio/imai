@@ -2153,6 +2153,68 @@ function determineWorkflowType(
   );
 }
 
+// 🎯 PRODUCT-SPECIFIC ASPECT RATIO MAPPING
+function getOptimalAspectRatioForProduct(productType: string): {
+  ratio: "portrait" | "landscape" | "square";
+  size: string;
+} {
+  // Normalize product type to handle variations
+  const normalizedType = productType.toLowerCase().trim();
+  
+  // Portrait products (taller than wide) - 1024x1536
+  const portraitProducts = [
+    'tshirt', 't-shirt', 'shirt',
+    'hoodie', 'sweatshirt',
+    'dress', 'gown',
+    'jean', 'jeans', 'pants', 'trousers',
+    'scarf',
+    'phonecase', 'phone case', 'phone-case',
+    'earrings', 'jewelry',
+    'wallart', 'wall art', 'wall-art', 'poster', 'print'
+  ];
+  
+  // Landscape products (wider than tall) - 1536x1024  
+  const landscapeProducts = [
+    'shoes', 'sneakers', 'boots', 'sandals',
+    'vehicles', 'car', 'truck', 'motorcycle', 'bike',
+    'toys', 'toy', 'game', 'puzzle',
+    'glasses', 'sunglasses', 'eyewear'
+  ];
+  
+  // Square products (equal proportions) - 1024x1024
+  const squareProducts = [
+    'pillow', 'cushion',
+    'blanket', 'throw',
+    'plate', 'dish', 'bowl',
+    'coffecup', 'coffee cup', 'coffee-cup', 'mug', 'cup',
+    'sofa', 'couch', 'chair',
+    'lamp', 'light', 'lighting',
+    'vase', 'pot', 'planter',
+    'notebook', 'journal', 'book',
+    'totebag', 'tote bag', 'tote-bag',
+    'shoulderbag', 'shoulder bag', 'shoulder-bag', 'purse',
+    'backpack', 'back pack', 'back-pack', 'bag',
+    'watches', 'watch', 'timepiece'
+  ];
+  
+  // Check which category the product belongs to
+  if (portraitProducts.some(p => normalizedType.includes(p))) {
+    return { ratio: "portrait", size: "1024x1536" };
+  }
+  
+  if (landscapeProducts.some(p => normalizedType.includes(p))) {
+    return { ratio: "landscape", size: "1536x1024" };
+  }
+  
+  if (squareProducts.some(p => normalizedType.includes(p))) {
+    return { ratio: "square", size: "1024x1024" };
+  }
+  
+  // Default fallback to square for unknown products
+  console.log(`⚠️ Unknown product type: ${productType}, defaulting to square aspect ratio`);
+  return { ratio: "square", size: "1024x1024" };
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   console.log("🎯 DESIGN ROUTE START: Beginning design route processing");
   try {
@@ -2285,11 +2347,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           detectedAspectRatio = "square";
         }
       }
-    } else if (hasOnlyPresets && sizeParam) {
-      // User selected preset only - use Claude's aspect ratio decision
-      console.log(
-        `📏 Using Claude's aspect ratio decision for preset: ${presetProductType} → ${size} (Claude-decided)`
-      );
+    } else if (hasOnlyPresets) {
+      // User selected preset only - use product-specific aspect ratio
+      if (!sizeParam && presetProductType) {
+        const optimalAspectRatio = getOptimalAspectRatioForProduct(presetProductType);
+        size = optimalAspectRatio.size;
+        detectedAspectRatio = optimalAspectRatio.ratio;
+        console.log(
+          `📏 Using product-specific aspect ratio for preset: ${presetProductType} → ${size} (${detectedAspectRatio}) [PRODUCT-OPTIMIZED]`
+        );
+      } else if (sizeParam) {
+        // Claude provided a size decision, respect it
+        console.log(
+          `📏 Using Claude's aspect ratio decision for preset: ${presetProductType} → ${size} (Claude-decided)`
+        );
+      }
     } else if (!aspectRatio && !sizeParam) {
       // No product info at all - use square default
       size = "1024x1024";

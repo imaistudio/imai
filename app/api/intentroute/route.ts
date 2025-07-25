@@ -7581,7 +7581,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             intentAnalysis.parameters.workflow_type === "preset_design" &&
             referenceResult?.imageUrl &&
             hasColorPreset &&
-            !hasDesignPreset
+            !hasDesignPreset &&
+            !Object.keys(imageUrls).some(key => key.includes("design_image") || key === "design_image")  // 🔧 FIX: Don't override if there's ANY design image upload
           ) {
             const oldWorkflow = intentAnalysis.parameters.workflow_type;
             intentAnalysis.parameters.workflow_type = "product_color";
