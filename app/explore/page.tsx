@@ -4,9 +4,8 @@ import Header from "../components/header";
 import { ImageZoomModal } from "../components/ImageZoomModal";
 import { VideoZoomModal } from "../components/VideoZoomModal";
 import { useState, useEffect, useCallback } from "react";
-import { storage } from "@/lib/firebase";
-import { ref, listAll, getDownloadURL } from "firebase/storage";
 import MobileNavRest from "@/app/components/MobileNavRest";
+import { Spinner } from "@heroui/react";
 
 interface MediaItem {
   url: string;
@@ -14,48 +13,28 @@ interface MediaItem {
   name: string;
 }
 
+interface ApiResponse {
+  items: MediaItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    offset: number;
+    total: number;
+    hasMore: boolean;
+    totalPages: number;
+  };
+}
+
 export default function Masonry() {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [pageToken, setPageToken] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [numColumns, setNumColumns] = useState(2);
 
   const ITEMS_PER_PAGE = 20;
-
-  const isImageFile = (filename: string): boolean => {
-    const imageExtensions = [
-      ".jpg",
-      ".jpeg",
-      ".png",
-      ".gif",
-      ".webp",
-      ".avif",
-      ".svg",
-    ];
-    return imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
-  };
-
-  const isVideoFile = (filename: string): boolean => {
-    const videoExtensions = [
-      ".mp4",
-      ".webm",
-      ".mov",
-      ".avi",
-      ".mkv",
-      ".flv",
-      ".wmv",
-    ];
-    return videoExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
-  };
-
-  const extractNumericValue = (filename: string): number => {
-    // Extract the numeric part from the filename (e.g., "1.png" -> 1, "23.jpg" -> 23)
-    const match = filename.match(/^(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
-  };
 
   const distributeItemsAcrossColumns = (
     items: MediaItem[],
@@ -73,7 +52,7 @@ export default function Masonry() {
   };
 
   const fetchMediaItems = useCallback(
-    async (isLoadMore: boolean = false) => {
+    async (page: number = 1, isLoadMore: boolean = false) => {
       try {
         if (isLoadMore) {
           setLoadingMore(true);
@@ -81,83 +60,58 @@ export default function Masonry() {
           setLoading(true);
         }
 
-        const exploreRef = ref(storage, "expolore");
-        const result = await listAll(exploreRef);
-
-        // Get all files and their download URLs
-        const allFiles = await Promise.all(
-          result.items.map(async (itemRef) => {
-            const url = await getDownloadURL(itemRef);
-            const filename = itemRef.name;
-            let type: "image" | "video" = "image";
-
-            if (isImageFile(filename)) {
-              type = "image";
-            } else if (isVideoFile(filename)) {
-              type = "video";
-            }
-
-            return {
-              url,
-              type,
-              name: filename,
-            };
-          }),
+        console.log(`🔄 Fetching page ${page} from server-side API...`);
+        
+        const response = await fetch(
+          `/api/explore?page=${page}&limit=${ITEMS_PER_PAGE}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
         );
 
-        // Filter out unsupported file types
-        const supportedFiles = allFiles.filter(
-          (file) => isImageFile(file.name) || isVideoFile(file.name),
-        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        // Sort files numerically based on their filename numbers
-        supportedFiles.sort((a, b) => {
-          const numA = extractNumericValue(a.name);
-          const numB = extractNumericValue(b.name);
-          return numA - numB;
-        });
+        const data: ApiResponse = await response.json();
+        
+        console.log(`✅ Received ${data.items.length} items from server`);
 
         if (isLoadMore) {
-          // Calculate pagination
-          const currentLength = mediaItems.length;
-          const newItems = supportedFiles.slice(
-            currentLength,
-            currentLength + ITEMS_PER_PAGE,
-          );
-
-          if (newItems.length > 0) {
-            setMediaItems((prev) => [...prev, ...newItems]);
-            setHasMore(currentLength + newItems.length < supportedFiles.length);
-          } else {
-            setHasMore(false);
-          }
+          setMediaItems((prev) => [...prev, ...data.items]);
         } else {
-          // Initial load
-          const initialItems = supportedFiles.slice(0, ITEMS_PER_PAGE);
-          setMediaItems(initialItems);
-          setHasMore(initialItems.length < supportedFiles.length);
+          setMediaItems(data.items);
         }
+
+        setHasMore(data.pagination.hasMore);
+        setCurrentPage(data.pagination.page);
         setError(null);
+
       } catch (err) {
-        console.error("Error fetching media items:", err);
-        setError("Failed to load media items");
+        console.error("❌ Error fetching media items:", err);
+        setError("Failed to load media items. Please try again.");
       } finally {
         setLoading(false);
         setLoadingMore(false);
       }
     },
-    [mediaItems.length],
+    []
   );
 
   const loadMoreItems = useCallback(() => {
     if (!loadingMore && hasMore) {
-      fetchMediaItems(true);
+      console.log(`📄 Loading more items - next page: ${currentPage + 1}`);
+      fetchMediaItems(currentPage + 1, true);
     }
-  }, [loadingMore, hasMore, fetchMediaItems]);
+  }, [loadingMore, hasMore, currentPage, fetchMediaItems]);
 
   useEffect(() => {
-    fetchMediaItems();
-  }, []);
+    console.log("🚀 Initial load - fetching first page");
+    fetchMediaItems(1, false);
+  }, [fetchMediaItems]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -277,18 +231,32 @@ export default function Masonry() {
     }
   };
 
-  if (error) {
+  if (loading && mediaItems.length === 0) {
     return (
       <>
         <Header />
         <MobileNavRest />
+        <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
+          <div className="flex justify-center items-center min-h-[50vh]">
+            <Spinner size="md" />
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error && mediaItems.length === 0) {
+    return (
+      <>
+        <Header />
         <MobileNavRest />
         <main className="dark:bg-black bg-white min-h-screen px-2 py-2 sm:p-2">
           <div className="flex justify-center items-center min-h-[50vh]">
             <div className="text-center">
               <p className="text-red-500 mb-4">{error}</p>
               <button
-                onClick={() => fetchMediaItems()}
+                onClick={() => fetchMediaItems(1, false)}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
               >
                 Retry
@@ -326,6 +294,22 @@ export default function Masonry() {
             ),
           )}
         </div>
+        
+        {/* Loading indicator for infinite scroll */}
+        {loadingMore && (
+          <div className="flex justify-center items-center py-8">
+             <Spinner size="md" />
+          </div>
+        )}
+        
+        {/* End of content indicator */}
+        {/* {!hasMore && mediaItems.length > 0 && (
+          <div className="flex justify-center items-center py-8">
+            <p className="text-gray-500 dark:text-gray-400">
+              🎉 You've seen all {mediaItems.length} amazing creations!
+            </p>
+          </div>
+        )} */}
       </main>
       <Footer />
     </>
