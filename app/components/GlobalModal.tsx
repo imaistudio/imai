@@ -40,7 +40,7 @@ export default function GlobalModal() {
               >
                 <X className="w-8 h-8 text-transparent" />
               </button>
-              <video
+              {/* <video
                 src="/videos/intro.mp4"
                 className="object-cover w-full h-auto rounded-md"
                 autoPlay
@@ -56,7 +56,9 @@ export default function GlobalModal() {
                   pointerEvents: 'none',
                   userSelect: 'none'
                 }}
-              />
+              /> */}
+              <img className="w-full h-auto rounded-md" src="/popup.webp"></img>
+              
             </div>
 
             {/* Modal Text Content */}
@@ -216,7 +218,7 @@ export default function GlobalModal() {
 
             {/* Right Video Section */}
             <div className="flex-1 bg-[#da7757] flex items-center justify-center p-8">
-              <video
+              {/* <video
                 key={isOpen ? 'video-playing' : 'video-stopped'}
                 src="/videos/intro.mp4"
                 className="object-cover w-full h-auto rounded-md"
@@ -234,7 +236,8 @@ export default function GlobalModal() {
                   userSelect: 'none',
                   maxHeight: '400px'
                 }}
-              />
+              /> */}
+                <IMAIIcon className="text-black dark:text-white" size={162} />
             </div>
           </div>
         </>
