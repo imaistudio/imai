@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChat } from "@/contexts/ChatContext";
 import UnifiedPromptContainer from "./components/unified-prompt-container";
@@ -97,6 +97,9 @@ export default function Home() {
   // 🔧 NEW: State to prevent multiple submissions
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 🔧 NEW: AbortController ref to cancel API requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   // 🔧 OPTIMIZED: Track if we've already attempted to create a session chat
   const [sessionChatAttempted, setSessionChatAttempted] = useState(false);
 
@@ -179,6 +182,20 @@ export default function Home() {
     }
   }, [currentUser]);
 
+  // 🔧 NEW: Cleanup AbortController on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+        try {
+          abortControllerRef.current.abort();
+        } catch (error) {
+          console.warn("⚠️ Error aborting request during cleanup:", error);
+        }
+        abortControllerRef.current = null;
+      }
+    };
+  }, []);
+
 
 
   // 🔧 NEW: Function to handle reply to message
@@ -189,6 +206,57 @@ export default function Home() {
   // 🔧 NEW: Function to clear reference
   const clearReference = () => {
     setReferencedMessage(null);
+  };
+
+  // 🔧 NEW: Function to stop/cancel API request
+  const handleStop = async () => {
+    console.log("🛑 Stop button clicked - cancelling API request");
+    
+    // Abort the current API request if it exists and hasn't been aborted already
+    if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+      try {
+        abortControllerRef.current.abort();
+        console.log("✅ API request aborted successfully");
+      } catch (error) {
+        console.warn("⚠️ Error aborting request (request may have already completed):", error);
+      }
+      abortControllerRef.current = null;
+    }
+
+    // Reset submitting state
+    setIsSubmitting(false);
+
+    // Remove loading message from Firestore
+    if (currentUser && currentChatId) {
+      try {
+        const chatRef = doc(
+          firestore,
+          `chats/${currentUser.uid}/prompts/${currentChatId}`,
+        );
+        
+        const chatDoc = await getDoc(chatRef);
+        const existingMessages = chatDoc.exists()
+          ? chatDoc.data().messages || []
+          : [];
+
+        // Filter out any loading messages
+        const messagesWithoutLoading = existingMessages.filter(
+          (msg: any) => !msg.isLoading,
+        );
+
+        await setDoc(
+          chatRef,
+          {
+            messages: messagesWithoutLoading,
+          },
+          { merge: true },
+        );
+
+        console.log("✅ Removed loading message from Firestore");
+      } catch (error) {
+        console.error("❌ Error removing loading message:", error);
+      }
+    }
   };
 
   // 🔧 NEW: Function to handle example button clicks from WelcomeScreen
@@ -598,17 +666,30 @@ export default function Home() {
         }
       }
 
+      // 🔧 NEW: Create AbortController for this request
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
+
       let response, result;
 
       try {
         response = await fetch("/api/intentroute", {
           method: "POST",
           body: formData,
+          signal: signal, // 🔧 NEW: Add abort signal
         });
 
         result = await response.json();
-      } catch (apiError) {
+      } catch (apiError: any) {
         console.error("❌ API call failed:", apiError);
+
+        // 🔧 NEW: Handle abort case specifically
+        if (apiError.name === 'AbortError') {
+          console.log("🛑 API request was cancelled by user");
+          // Don't add error message for user cancellation
+          setIsSubmitting(false);
+          return;
+        }
 
         // 🔧 NEW: Remove loading message on API error
         const chatDocForError = await getDoc(chatRef);
@@ -841,6 +922,8 @@ export default function Home() {
     } finally {
       // 🔧 NEW: Always reset loading state when done
       setIsSubmitting(false);
+      // 🔧 NEW: Clean up AbortController
+      abortControllerRef.current = null;
     }
   };
 
@@ -1022,6 +1105,7 @@ export default function Home() {
                   referencedMessage={referencedMessage}
                   onClearReference={clearReference}
                   isSubmitting={isSubmitting}
+                  onStop={handleStop}
                 />
                 <small className="hidden md:block text-xs text-center mt-2 px-2">
                   AI-generated content may not be perfect. Review{" "}

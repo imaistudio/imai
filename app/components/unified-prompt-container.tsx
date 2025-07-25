@@ -98,6 +98,7 @@ interface UnifiedPromptContainerProps {
   referencedMessage?: ReferencedMessage | null; // 🔧 NEW: Referenced message prop
   onClearReference?: () => void; // 🔧 NEW: Clear reference callback
   isSubmitting?: boolean; // 🔧 NEW: Loading state to prevent multiple submissions
+  onStop?: () => void; // 🔧 NEW: Stop callback to cancel API requests
 }
 
 export default function UnifiedPromptContainer({
@@ -107,6 +108,7 @@ export default function UnifiedPromptContainer({
   referencedMessage, // 🔧 NEW: Referenced message prop
   onClearReference, // 🔧 NEW: Clear reference callback
   isSubmitting, // 🔧 NEW: Loading state to prevent multiple submissions
+  onStop, // 🔧 NEW: Stop callback to cancel API requests
 }: UnifiedPromptContainerProps) {
   const [prompt, setPrompt] = useState("");
   const [images, setImages] = useState<ImageAsset[]>([]);
@@ -1068,18 +1070,31 @@ export default function UnifiedPromptContainer({
                 })}
               </div>
               <div className="flex items-center space-x-2">
-                <Button
-                  isIconOnly
-                  radius="full"
-                  size="sm"
-                  variant="light"
-                  onPress={toggleVoiceInput}
-                  className={
-                    isRecording ? "bg-primary animate-pulse text-white" : ""
-                  }
-                >
-                  <Icon icon="lucide:mic" width={20} />
-                </Button>
+                {isSubmitting ? (
+                  <Button
+                    isIconOnly
+                    radius="full"
+                    size="sm"
+                    variant="light"
+                    onPress={onStop}
+                    className="text-default-300"
+                  >
+                    <Icon icon="lucide:x" width={20} />
+                  </Button>
+                ) : (
+                  <Button
+                    isIconOnly
+                    radius="full"
+                    size="sm"
+                    variant="light"
+                    onPress={toggleVoiceInput}
+                    className={
+                      isRecording ? "bg-primary animate-pulse text-white" : ""
+                    }
+                  >
+                    <Icon icon="lucide:mic" width={20} />
+                  </Button>
+                )}
                 <Button
                   isIconOnly
                   color={
